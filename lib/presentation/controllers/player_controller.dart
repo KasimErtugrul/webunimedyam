@@ -18,6 +18,7 @@ class PlayerController extends GetxController {
   });
 
   final _supabase = SupabaseDataSource();
+  // ignore: unused_field
   final _local = LocalDataSource();
 
   late YoutubePlayerController youtubeController;

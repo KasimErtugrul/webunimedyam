@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/youtube_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
@@ -13,33 +15,35 @@ class VideoRepository {
     required LocalDataSource local,
     required YouTubeDataSource youtube,
     required SupabaseDataSource supabase,
-  })  : _local = local,
-        _youtube = youtube,
-        _supabase = supabase;
+  }) : _local = local,
+       _youtube = youtube,
+       _supabase = supabase;
 
   // ─── Kanal Videoları ──────────────────────────────────────────────────────
 
   Future<List<VideoModel>> getVideos() async {
-    // 1. Önce local cache'e bak
     try {
       if (await _local.isCacheValid()) {
         final localVideos = await _local.getCachedVideos();
-        if (localVideos.isNotEmpty) return localVideos;
+        if (localVideos.isNotEmpty) {
+          log('✅ LOCAL CACHE\'den geldi: ${localVideos.length} video');
+          return localVideos;
+        }
       }
     } catch (_) {}
 
-    // 2. Local yoksa Supabase'e bak
     try {
       final supabaseVideos = await _supabase.getCachedVideos();
       if (supabaseVideos.isNotEmpty) {
-        try {
-          await _local.cacheVideos(supabaseVideos);
-        } catch (_) {}
+        log('✅ SUPABASE\'den geldi: ${supabaseVideos.length} video');
+        await _local.cacheVideos(supabaseVideos);
         return supabaseVideos;
       }
-    } catch (_) {}
+    } catch (e) {
+      log('❌ SUPABASE\'den video çekme hatası: $e');
+    }
 
-    // 3. Her ikisi de boşsa YouTube API'ye git
+    log('✅ YOUTUBE API\'den geldi');
     return await _refreshFromYouTube();
   }
 
@@ -48,11 +52,15 @@ class VideoRepository {
 
     try {
       await _supabase.upsertVideos(videos);
-    } catch (_) {}
+    } catch (e_) {
+      log('❌ SUPABASE\'ye video ekleme hatası: $e_');
+    }
 
     try {
       await _local.cacheVideos(videos);
-    } catch (_) {}
+    } catch (e) {
+      log('❌ LOCAL CACHE\'ye video ekleme hatası: $e');
+    }
 
     return videos;
   }
@@ -76,7 +84,6 @@ class VideoRepository {
     String playlistId, {
     int maxResults = 20,
   }) async {
-    return await _youtube.getPlaylistVideos(playlistId,
-        maxResults: maxResults);
+    return await _youtube.getPlaylistVideos(playlistId, maxResults: maxResults);
   }
 }
