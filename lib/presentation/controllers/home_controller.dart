@@ -3,6 +3,7 @@ import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
+import '../../data/models/university_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import 'favorites_controller.dart';
 
@@ -20,9 +21,11 @@ class HomeController extends GetxController {
   final videos = <VideoModel>[].obs;
   final playlists = <PlaylistModel>[].obs;
   final favoriteIds = <String>[].obs;
+  final universities = <UniversityModel>[].obs;
 
   final isLoading = false.obs;
   final isPlaylistsLoading = false.obs;
+  final isUniversitiesLoading = false.obs;
 
   final errorMessage = ''.obs;
   final playlistsError = ''.obs;
@@ -33,6 +36,9 @@ class HomeController extends GetxController {
   /// Alt navigasyon barı seçili sekme
   final selectedIndex = 0.obs;
 
+  /// Seçili üniversite — null ise "Tümü" gösterilir
+  final selectedUniversity = Rxn<UniversityModel>();
+
   final _supabase = SupabaseDataSource();
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
@@ -40,9 +46,29 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    loadUniversities();
     loadVideos();
     loadPlaylists();
     loadFavorites();
+  }
+
+  // ─── Üniversiteler ────────────────────────────────────────────────────────
+
+  Future<void> loadUniversities() async {
+    try {
+      isUniversitiesLoading.value = true;
+      universities.value = await videoRepository.getUniversities();
+    } catch (e) {
+      print('loadUniversities error: $e');
+    } finally {
+      isUniversitiesLoading.value = false;
+    }
+  }
+
+  /// Üniversite seçildiğinde çağrılır. null = "Tümü"
+  Future<void> selectUniversity(UniversityModel? university) async {
+    selectedUniversity.value = university;
+    await loadVideos();
   }
 
   // ─── Videolar ─────────────────────────────────────────────────────────────
@@ -51,7 +77,17 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      videos.value = await videoRepository.getVideos();
+
+      final uni = selectedUniversity.value;
+      if (uni != null) {
+        // Belirli üniversitenin tüm videoları
+        videos.value =
+            await videoRepository.getVideosByUniversity(uni.id);
+      } else {
+        // Her üniversiteden son video (ana sayfa özet görünümü)
+        videos.value =
+            await videoRepository.getLatestVideosPerUniversity();
+      }
     } catch (e) {
       errorMessage.value = 'Videolar yüklenemedi.';
     } finally {
@@ -63,7 +99,10 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      videos.value = await videoRepository.refreshVideos();
+      // Refresh her zaman tüm cache'i tazeler (YouTube API)
+      await videoRepository.refreshVideos();
+      // Sonra mevcut filtreyle yeniden yükle
+      await loadVideos();
     } catch (e) {
       errorMessage.value = 'Videolar yenilenemedi.';
     } finally {
@@ -127,5 +166,19 @@ class HomeController extends GetxController {
 
   void changeTab(int index) {
     selectedIndex.value = index;
+  }
+
+  // ─── Yardımcılar ─────────────────────────────────────────────────────────
+
+  /// AppBar'da gösterilecek başlık
+  String get appBarTitle {
+    final uni = selectedUniversity.value;
+    if (uni == null) return 'ÜniTV';
+    // Uzun adları kısalt
+    final name = uni.name;
+    if (name.length > 20) {
+      return '${name.substring(0, 18)}…';
+    }
+    return name;
   }
 }

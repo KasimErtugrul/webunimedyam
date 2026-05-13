@@ -104,7 +104,7 @@ class _HomeTab extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text('ÇOMÜ TV'),
+                      Obx(() => Text(controller.appBarTitle)),
                     ],
                   ),
                   actions: [
@@ -115,22 +115,34 @@ class _HomeTab extends StatelessWidget {
                   ],
                 ),
 
-                // ── Oynatma Listeleri Şeridi ──────────────────────────────
-                SliverToBoxAdapter(child: _PlaylistStrip()),
+                // ── Üniversite Filtre Şeridi ──────────────────────────────
+                const SliverToBoxAdapter(child: _UniversityFilterStrip()),
 
-                // ── "Son Videolar" Başlığı ────────────────────────────────
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
-                    child: Text(
-                      'Son Videolar',
-                      style: TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                // ── Oynatma Listeleri Şeridi (sadece "Tümü" seçiliyken) ───
+                SliverToBoxAdapter(
+                  child: Obx(() => controller.selectedUniversity.value == null
+                      ? _PlaylistStrip()
+                      : const SizedBox.shrink()),
+                ),
+
+                // ── Video Listesi Başlığı ─────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Obx(() {
+                    final uni = controller.selectedUniversity.value;
+                    final title =
+                        uni == null ? 'Son Videolar' : '${uni.name} Videoları';
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: AppTheme.textPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
 
                 // ── Video Listesi ─────────────────────────────────────────
@@ -156,6 +168,18 @@ class _HomeTab extends StatelessWidget {
                             child: const Text('Tekrar Dene'),
                           ),
                         ],
+                      ),
+                    ),
+                  )
+                else if (controller.videos.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: Text(
+                          'Henüz video yok.',
+                          style: TextStyle(color: AppTheme.textSecondary),
+                        ),
                       ),
                     ),
                   )
@@ -211,6 +235,133 @@ class _HomeTab extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Üniversite Filtre Chip Şeridi
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _UniversityFilterStrip extends StatelessWidget {
+  const _UniversityFilterStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
+
+    return Obx(() {
+      // Yükleniyorsa shimmer
+      if (controller.isUniversitiesLoading.value) {
+        return _buildShimmer();
+      }
+
+      // Hiç üniversite yoksa ya da sadece 1 tane varsa şeridi gizle
+      if (controller.universities.length <= 1) {
+        return const SizedBox.shrink();
+      }
+
+      final unis = controller.universities;
+      final selected = controller.selectedUniversity.value;
+
+      return SizedBox(
+        height: 44,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          children: [
+            // "Tümü" chip
+            _FilterChip(
+              label: 'Tümü',
+              isSelected: selected == null,
+              onTap: () => controller.selectUniversity(null),
+            ),
+            ...unis.map(
+              (uni) => _FilterChip(
+                label: _shortName(uni.name),
+                isSelected: selected?.id == uni.id,
+                onTap: () => controller.selectUniversity(uni),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// "Çanakkale Onsekiz Mart Üniversitesi" → "ÇOMÜ" gibi kısaltma
+  String _shortName(String name) {
+    // Parantez içinde kısaltma varsa onu kullan: "... (ÇOMÜ)"
+    final parenMatch = RegExp(r'\(([^)]+)\)').firstMatch(name);
+    if (parenMatch != null) return parenMatch.group(1)!;
+    // Yoksa ilk 2 kelime
+    final words = name.split(' ');
+    if (words.length <= 2) return name;
+    return '${words[0]} ${words[1]}';
+  }
+
+  Widget _buildShimmer() {
+    return SizedBox(
+      height: 44,
+      child: Shimmer.fromColors(
+        baseColor: AppTheme.surfaceColor,
+        highlightColor: AppTheme.cardColor,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          itemCount: 4,
+          itemBuilder: (_, __) => Container(
+            width: 80,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryColor : AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color:
+                isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textSecondary,
+            fontSize: 13,
+            fontWeight:
+                isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Yatay Kayan Oynatma Listeleri Şeridi
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -226,7 +377,6 @@ class _PlaylistStrip extends StatelessWidget {
         return _buildShimmer();
       }
 
-      // Hata veya boşsa şeridi gizle
       if (controller.playlistsError.isNotEmpty ||
           controller.playlists.isEmpty) {
         return const SizedBox.shrink();
@@ -235,7 +385,6 @@ class _PlaylistStrip extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Başlık satırı
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
             child: Row(
@@ -288,8 +437,6 @@ class _PlaylistStrip extends StatelessWidget {
               ],
             ),
           ),
-
-          // Yatay kayan kartlar
           SizedBox(
             height: 182,
             child: ListView.builder(
@@ -347,7 +494,7 @@ class _PlaylistStrip extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Oynatma Listesi Kartı (yatay şerit)
+// Oynatma Listesi Kartı
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _PlaylistCard extends StatelessWidget {
@@ -370,7 +517,6 @@ class _PlaylistCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Kapak resmi
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(14)),
@@ -397,7 +543,6 @@ class _PlaylistCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Alt degrade
                   Positioned.fill(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -412,7 +557,6 @@ class _PlaylistCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Video sayısı
                   Positioned(
                     bottom: 6,
                     right: 6,
@@ -444,8 +588,6 @@ class _PlaylistCard extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Başlık alanı
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
               child: Column(
@@ -542,6 +684,53 @@ class _VideoCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Üniversite etiketi (varsa)
+                if (video.universityName != null)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.65),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        video.universityName!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                // Süre etiketi
+                if (video.formattedDuration.isNotEmpty)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.72),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        video.formattedDuration,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                // Favori butonu
                 Positioned(
                   top: 8,
                   right: 8,
@@ -581,7 +770,7 @@ class _VideoCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${video.viewCount} görüntülenme · ${_timeAgo(video.publishedAt)}',
+              '${video.formattedViewCount} · ${_timeAgo(video.publishedAt)}',
               style: const TextStyle(
                 color: AppTheme.textSecondary,
                 fontSize: 12,

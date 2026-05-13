@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/video_model.dart';
+import '../../models/university_model.dart';
 import '../../models/profile_model.dart';
 import '../../models/user_settings_model.dart';
 import '../../models/comment_model.dart';
@@ -73,21 +74,73 @@ class SupabaseDataSource {
         .eq('user_id', settings.userId);
   }
 
-  // Video Cache
+  // ─── Üniversiteler ────────────────────────────────────────────────────────
+
+  /// Tüm üniversiteleri döner.
+  Future<List<UniversityModel>> getUniversities() async {
+    final data = await _client
+        .from('universities')
+        .select()
+        .order('name', ascending: true);
+    return (data as List).map((e) => UniversityModel.fromSupabase(e)).toList();
+  }
+
+  // ─── Video Cache ──────────────────────────────────────────────────────────
+
+  /// Tüm önbellek videolarını döner (tarihe göre sıralı).
   Future<List<VideoModel>> getCachedVideos() async {
     final data = await _client
         .from('videos_cache')
+        .select('*, universities(name)')
+        .order('published_at', ascending: false);
+
+    return (data as List).map((e) {
+      final row = Map<String, dynamic>.from(e);
+      // Join'den gelen university adını düzleştir
+      if (row['universities'] != null) {
+        row['university_name'] = row['universities']['name'];
+      }
+      row.remove('universities');
+      return VideoModel.fromSupabase(row);
+    }).toList();
+  }
+
+  /// Belirli bir üniversitenin videolarını döner.
+  Future<List<VideoModel>> getCachedVideosByUniversity(int universityId) async {
+    final data = await _client
+        .from('videos_cache')
+        .select('*, universities(name)')
+        .eq('university_id', universityId)
+        .order('published_at', ascending: false);
+
+    return (data as List).map((e) {
+      final row = Map<String, dynamic>.from(e);
+      if (row['universities'] != null) {
+        row['university_name'] = row['universities']['name'];
+      }
+      row.remove('universities');
+      return VideoModel.fromSupabase(row);
+    }).toList();
+  }
+
+  /// Ana sayfa için: her üniversiteden en son videoyu döner.
+  /// latest_videos_per_university view'ını kullanır → tek sorgu, çok hızlı.
+  Future<List<VideoModel>> getLatestVideoPerUniversity() async {
+    final data = await _client
+        .from('latest_videos_per_university')
         .select()
         .order('published_at', ascending: false);
+
     return (data as List).map((e) => VideoModel.fromSupabase(e)).toList();
   }
 
   Future<void> upsertVideos(List<VideoModel> videos) async {
     final data = videos.map((v) => v.toSupabase()).toList();
-    await _client.from('videos_cache').upsert(data);
+    await _client.from('videos_cache').upsert(data, onConflict: 'video_id');
   }
 
-  // Favoriler
+  // ─── Favoriler ────────────────────────────────────────────────────────────
+
   Future<List<String>> getFavoriteVideoIds(String userId) async {
     final data = await _client
         .from('favorites')
@@ -111,7 +164,8 @@ class SupabaseDataSource {
         .eq('video_id', videoId);
   }
 
-  // Yorumlar
+  // ─── Yorumlar ─────────────────────────────────────────────────────────────
+
   Future<List<CommentModel>> getComments(String videoId) async {
     final data = await _client
         .from('comments')
@@ -133,7 +187,8 @@ class SupabaseDataSource {
     await _client.from('comments').delete().eq('id', commentId);
   }
 
-  // Onboarding
+  // ─── Onboarding ──────────────────────────────────────────────────────────
+
   Future<bool> isOnboardingCompleted(String userId) async {
     final data = await _client
         .from('onboarding')

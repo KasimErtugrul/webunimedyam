@@ -1,18 +1,20 @@
-
 class VideoModel {
   final String videoId;
   final String title;
   final String description;
-  final String thumbnailUrl; // high kalite
-  final String maxresThumbnailUrl; // maxres (varsa)
-  final String duration; // ISO 8601 — PT1M57S gibi
+  final String thumbnailUrl;
+  final String maxresThumbnailUrl;
+  final String duration;
   final int viewCount;
   final int likeCount;
   final int commentCount;
   final List<String> tags;
-  final bool isHd; // definition == "hd"
+  final bool isHd;
   final String channelTitle;
   final DateTime publishedAt;
+  // Yeni eklendi: üniversite bilgisi
+  final int? universityId;
+  final String? universityName;
 
   VideoModel({
     required this.videoId,
@@ -28,11 +30,14 @@ class VideoModel {
     this.isHd = false,
     this.channelTitle = 'ÇOMÜ TV',
     required this.publishedAt,
+    this.universityId,
+    this.universityName,
   });
 
   // ─── YouTube API ──────────────────────────────────────────────────────────
 
-  factory VideoModel.fromYouTubeApi(Map<String, dynamic> json) {
+  factory VideoModel.fromYouTubeApi(Map<String, dynamic> json,
+      {int? universityId, String? universityName}) {
     final snippet = json['snippet'] as Map<String, dynamic>? ?? {};
     final contentDetails =
         json['contentDetails'] as Map<String, dynamic>? ?? {};
@@ -42,38 +47,32 @@ class VideoModel {
       videoId: json['id'] as String? ?? '',
       title: snippet['title'] as String? ?? '',
       description: snippet['description'] as String? ?? '',
-
       thumbnailUrl:
           (thumbs['high']?['url'] as String?) ??
           (thumbs['medium']?['url'] as String?) ??
           (thumbs['default']?['url'] as String?) ??
           '',
-
       maxresThumbnailUrl:
           (thumbs['maxres']?['url'] as String?) ??
           (thumbs['standard']?['url'] as String?) ??
           '',
-
       duration: contentDetails['duration'] as String? ?? '',
-
       viewCount: int.tryParse(statistics['viewCount'] as String? ?? '0') ?? 0,
       likeCount: int.tryParse(statistics['likeCount'] as String? ?? '0') ?? 0,
       commentCount:
           int.tryParse(statistics['commentCount'] as String? ?? '0') ?? 0,
-
       tags:
           (snippet['tags'] as List<dynamic>?)
               ?.map((t) => t.toString())
               .toList() ??
           [],
-
       isHd: (contentDetails['definition'] as String?) == 'hd',
-
       channelTitle: snippet['channelTitle'] as String? ?? 'ÇOMÜ TV',
-
       publishedAt:
           DateTime.tryParse(snippet['publishedAt'] as String? ?? '') ??
           DateTime.now(),
+      universityId: universityId,
+      universityName: universityName,
     );
   }
 
@@ -97,6 +96,8 @@ class VideoModel {
       channelTitle: json['channel_title'] ?? 'ÇOMÜ TV',
       publishedAt:
           DateTime.tryParse(json['published_at'] ?? '') ?? DateTime.now(),
+      universityId: json['university_id'] as int?,
+      universityName: json['university_name'] as String?,
     );
   }
 
@@ -116,12 +117,12 @@ class VideoModel {
       'channel_title': channelTitle,
       'published_at': publishedAt.toIso8601String(),
       'cached_at': DateTime.now().toIso8601String(),
+      if (universityId != null) 'university_id': universityId,
     };
   }
 
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
 
-  /// ISO 8601 süreyi "1:57" veya "19:45" formatına çevirir.
   String get formattedDuration {
     final match = RegExp(
       r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?',
@@ -136,7 +137,6 @@ class VideoModel {
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
-  /// Görüntülenme sayısını kısaltır: 1.2B, 45B, 1.3M gibi.
   String get formattedViewCount {
     if (viewCount >= 1000000) {
       return '${(viewCount / 1000000).toStringAsFixed(1)}M görüntülenme';
@@ -146,7 +146,6 @@ class VideoModel {
     return '$viewCount görüntülenme';
   }
 
-  /// En iyi mevcut thumbnail URL'ini döner (maxres > high).
   String get bestThumbnail =>
       maxresThumbnailUrl.isNotEmpty ? maxresThumbnailUrl : thumbnailUrl;
 }
