@@ -12,8 +12,8 @@ import '../../data/repositories/auth_repository.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => LocalDataSource());
     Get.lazyPut(() => SupabaseDataSource());
+    Get.lazyPut(() => LocalDataSource());
 
     Get.lazyPut(() => AuthRepository(
           supabase: Get.find(),
@@ -21,11 +21,14 @@ class HomeBinding extends Bindings {
         ));
 
     Get.lazyPut(() => VideoRepository(
-          local: Get.find(),
           supabase: Get.find(),
+          local: Get.find(),
         ));
 
-    Get.lazyPut(() => FavoritesRepository(supabase: Get.find()));
+    Get.lazyPut(() => FavoritesRepository(
+          supabase: Get.find(),
+          local: Get.find(),
+        ));
 
     Get.lazyPut(() => HomeController(
           videoRepository: Get.find(),
@@ -38,7 +41,6 @@ class HomeBinding extends Bindings {
 
     Get.lazyPut(() => FavoritesController(
           favoritesRepository: Get.find(),
-          videoRepository: Get.find(),
         ));
 
     Get.lazyPut(() => SettingsController(

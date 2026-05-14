@@ -122,10 +122,18 @@ class PlayerController extends GetxController {
     try {
       final wasAdding = !isFavorite.value;
       if (isFavorite.value) {
+        // ─── Favori Kaldır ─────────────────────────────────────────────────
+        // 1. Supabase'den kaldır
         await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
+        // 2. Local'den kaldır
+        await favoritesRepository.removeFavoriteVideoLocally(currentVideo!.videoId);
         isFavorite.value = false;
       } else {
+        // ─── Favori Ekle ───────────────────────────────────────────────────
+        // 1. Supabase'e ekle
         await favoritesRepository.addFavorite(userId, currentVideo!.videoId);
+        // 2. Video bilgisiyle local'e kaydet
+        await favoritesRepository.saveFavoriteVideoLocally(currentVideo!);
         isFavorite.value = true;
       }
       // HomeController varsa favoriteIds'i senkronize et
@@ -137,13 +145,15 @@ class PlayerController extends GetxController {
           homeController.favoriteIds.remove(currentVideo!.videoId);
         }
       }
-      // FavoritesController varsa listeyi anında güncelle
+      // FavoritesController varsa UI'ı anında güncelle (local zaten yazıldı)
       if (Get.isRegistered<FavoritesController>()) {
         final favController = Get.find<FavoritesController>();
         if (wasAdding) {
-          favController.addFavoriteVideo(currentVideo!);
+          favController.favoriteVideos.insert(0, currentVideo!);
         } else {
-          favController.removeFavoriteVideo(currentVideo!.videoId);
+          favController.favoriteVideos.removeWhere(
+            (v) => v.videoId == currentVideo!.videoId,
+          );
         }
       }
     } catch (e) {

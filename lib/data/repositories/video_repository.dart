@@ -7,64 +7,34 @@ import '../models/university_model.dart';
 import '../models/playlist_model.dart';
 
 class VideoRepository {
-  final LocalDataSource _local;
   final SupabaseDataSource _supabase;
+  // ignore: unused_field
+  final LocalDataSource _local;
 
   VideoRepository({
-    required LocalDataSource local,
     required SupabaseDataSource supabase,
-  })  : _local = local,
-        _supabase = supabase;
+    required LocalDataSource local,
+  })  : _supabase = supabase,
+        _local = local;
 
-  // ─── Üniversiteler ────────────────────────────────────────────────────────
+  // ─── Üniversiteler ─────────────────────────────────────────────────────────
 
   Future<List<UniversityModel>> getUniversities() async {
     return await _supabase.getUniversities();
   }
 
-  // ─── Video: Tüm Üniversiteler (Ana Sayfa) ─────────────────────────────────
+  // ─── Video: Ana Sayfa ─────────────────────────────────────────────────────
 
-  /// Ana sayfa: her üniversiteden en son video — view üzerinden tek sorgu.
+  /// Her üniversiteden en son video — latest_videos_per_university view.
   Future<List<VideoModel>> getLatestVideosPerUniversity() async {
     try {
       final videos = await _supabase.getLatestVideoPerUniversity();
-      if (videos.isNotEmpty) {
-        log('✅ SUPABASE latest_videos_per_university: ${videos.length} video');
-        return videos;
-      }
+      log('SUPABASE latest_videos_per_university: ${videos.length} video');
+      return videos;
     } catch (e) {
-      log('❌ latest_videos_per_university hatası: $e');
+      log('latest_videos_per_university hatasi: $e');
+      return [];
     }
-    return await getVideos();
-  }
-
-  // ─── Video: Tüm Cache ─────────────────────────────────────────────────────
-
-  Future<List<VideoModel>> getVideos() async {
-    // 1) Local cache geçerliyse oradan dön
-    try {
-      if (await _local.isCacheValid()) {
-        final localVideos = await _local.getCachedVideos();
-        if (localVideos.isNotEmpty) {
-          log('✅ LOCAL CACHE\'den geldi: ${localVideos.length} video');
-          return localVideos;
-        }
-      }
-    } catch (_) {}
-
-    // 2) Supabase cache
-    try {
-      final supabaseVideos = await _supabase.getCachedVideos();
-      if (supabaseVideos.isNotEmpty) {
-        log('✅ SUPABASE\'den geldi: ${supabaseVideos.length} video');
-        await _local.cacheVideos(supabaseVideos);
-        return supabaseVideos;
-      }
-    } catch (e) {
-      log('❌ SUPABASE\'den video çekme hatası: $e');
-    }
-
-    return [];
   }
 
   // ─── Video: Üniversiteye Göre ─────────────────────────────────────────────
@@ -72,30 +42,22 @@ class VideoRepository {
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
       final videos = await _supabase.getCachedVideosByUniversity(universityId);
-      if (videos.isNotEmpty) {
-        log('✅ SUPABASE üniversite $universityId: ${videos.length} video');
-        return videos;
-      }
+      log('SUPABASE universite $universityId: ${videos.length} video');
+      return videos;
     } catch (e) {
-      log('❌ Üniversite videoları hatası: $e');
+      log('Universite videolari hatasi: $e');
+      return [];
     }
-    return [];
   }
 
   // ─── Refresh ──────────────────────────────────────────────────────────────
 
-  /// Cache'i temizler ve Supabase'den tekrar yükler.
-  /// Sync'i tetiklemek istiyorsan edge function'ı çağır.
   Future<List<VideoModel>> refreshVideos() async {
-    try {
-      await _local.clearCache();
-    } catch (_) {}
-    return await getVideos();
+    return await getLatestVideosPerUniversity();
   }
 
-  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
+  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
 
-  /// Üniversiteleri birer playlist olarak döner.
   Future<List<PlaylistModel>> getPlaylists() async {
     try {
       final unis = await _supabase.getUniversitiesWithVideoCount();
@@ -107,12 +69,11 @@ class VideoRepository {
               ))
           .toList();
     } catch (e) {
-      log('❌ getPlaylists hatası: $e');
+      log('getPlaylists hatasi: $e');
       return [];
     }
   }
 
-  /// Bir "playlist" aslında bir üniversitenin videoları.
   Future<List<VideoModel>> getPlaylistVideos(
     String universityId, {
     int maxResults = 20,
@@ -122,7 +83,7 @@ class VideoRepository {
         int.parse(universityId),
       );
     } catch (e) {
-      log('❌ getPlaylistVideos hatası: $e');
+      log('getPlaylistVideos hatasi: $e');
       return [];
     }
   }

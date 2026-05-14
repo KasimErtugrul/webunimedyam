@@ -17,8 +17,8 @@ class SplashBinding extends Bindings {
         ));
 
     Get.lazyPut(() => VideoRepository(
-          local: Get.find(),
           supabase: Get.find(),
+          local: Get.find(),
         ));
 
     Get.lazyPut(() => SplashController(

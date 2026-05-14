@@ -76,4 +76,67 @@ class LocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_languageKey, language);
   }
+
+  // ─── User Settings Cache ──────────────────────────────────────────────────
+
+  static const _userSettingsKey = 'user_settings';
+
+  Future<Map<String, dynamic>?> getCachedUserSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = prefs.getString(_userSettingsKey);
+    if (s == null) return null;
+    return Map<String, dynamic>.from(json.decode(s) as Map);
+  }
+
+  Future<void> cacheUserSettings(Map<String, dynamic> settings) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userSettingsKey, json.encode(settings));
+  }
+
+  Future<void> clearUserSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userSettingsKey);
+  }
+
+  // ─── Favori Videolar ──────────────────────────────────────────────────────
+
+  static const _favoriteVideosKey = 'favorite_videos';
+
+  /// Kaydedilmiş tüm favori videoları döner.
+  Future<List<VideoModel>> getFavoriteVideos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_favoriteVideosKey);
+    if (jsonString == null) return [];
+    final List<dynamic> jsonList = json.decode(jsonString);
+    return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
+  }
+
+  /// Bir videoyu favorilere ekler (zaten varsa tekrar eklenmez).
+  Future<void> saveFavoriteVideo(VideoModel video) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = await getFavoriteVideos();
+    if (existing.any((v) => v.videoId == video.videoId)) return;
+    existing.insert(0, video); // en yeni başa
+    await prefs.setString(
+      _favoriteVideosKey,
+      json.encode(existing.map((v) => v.toSupabase()).toList()),
+    );
+  }
+
+  /// Bir videoyu favorilerden kaldırır.
+  Future<void> removeFavoriteVideo(String videoId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = await getFavoriteVideos();
+    existing.removeWhere((v) => v.videoId == videoId);
+    await prefs.setString(
+      _favoriteVideosKey,
+      json.encode(existing.map((v) => v.toSupabase()).toList()),
+    );
+  }
+
+  /// Tüm favorileri temizler (çıkış yapılınca kullanılabilir).
+  Future<void> clearFavoriteVideos() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_favoriteVideosKey);
+  }
 }

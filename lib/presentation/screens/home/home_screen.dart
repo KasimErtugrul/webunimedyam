@@ -25,6 +25,7 @@ class HomeScreen extends StatelessWidget {
           index: controller.selectedIndex.value,
           children: const [
             _HomeTab(),
+            _UniversitiesTab(),
             FavoritesScreen(),
             ProfileScreen(),
             SettingsScreen(),
@@ -38,6 +39,11 @@ class HomeScreen extends StatelessWidget {
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home_rounded),
               label: 'Ana Sayfa',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school_outlined),
+              activeIcon: Icon(Icons.school_rounded),
+              label: 'Üniversiteler',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite_outline_rounded),
@@ -118,36 +124,19 @@ class _HomeTab extends StatelessWidget {
                 ),
 
                 // ── Üniversite Filtre Şeridi ──────────────────────────────
-                const SliverToBoxAdapter(child: _UniversityFilterStrip()),
-
-                // ── Oynatma Listeleri Şeridi (sadece "Tümü" seçiliyken) ───
-                SliverToBoxAdapter(
-                  child: Obx(
-                    () => controller.selectedUniversity.value == null
-                        ? _PlaylistStrip()
-                        : const SizedBox.shrink(),
-                  ),
-                ),
-
-                // ── Video Listesi Başlığı ─────────────────────────────────
-                SliverToBoxAdapter(
-                  child: Obx(() {
-                    final uni = controller.selectedUniversity.value;
-                    final title = uni == null
-                        ? 'Son Videolar'
-                        : '${uni.name} Videoları';
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
+                // ── Video Listesi Başlığı ───────────────────────
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      'Son Videolar',
+                      style: TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ),
 
                 // ── Video Listesi ─────────────────────────────────────────
@@ -249,411 +238,6 @@ class _HomeTab extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 // Üniversite Filtre Chip Şeridi
 // ═══════════════════════════════════════════════════════════════════════════
-
-class _UniversityFilterStrip extends StatelessWidget {
-  const _UniversityFilterStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
-
-    return Obx(() {
-      // Yükleniyorsa shimmer
-      if (controller.isUniversitiesLoading.value) {
-        return _buildShimmer();
-      }
-
-      // Hiç üniversite yoksa ya da sadece 1 tane varsa şeridi gizle
-      if (controller.universities.length <= 1) {
-        return const SizedBox.shrink();
-      }
-
-      final unis = controller.universities;
-      final selected = controller.selectedUniversity.value;
-
-      return SizedBox(
-        height: 44,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          children: [
-            // "Tümü" chip
-            _FilterChip(
-              label: 'Tümü',
-              isSelected: selected == null,
-              onTap: () => controller.selectUniversity(null),
-            ),
-            ...unis.map(
-              (uni) => _FilterChip(
-                label: _shortName(uni.name),
-                isSelected: selected?.id == uni.id,
-                onTap: () => controller.selectUniversity(uni),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  /// "Çanakkale Onsekiz Mart Üniversitesi" → "ÇOMÜ" gibi kısaltma
-  String _shortName(String name) {
-    // Parantez içinde kısaltma varsa onu kullan: "... (ÇOMÜ)"
-    final parenMatch = RegExp(r'\(([^)]+)\)').firstMatch(name);
-    if (parenMatch != null) return parenMatch.group(1)!;
-    // Yoksa ilk 2 kelime
-    final words = name.split(' ');
-    if (words.length <= 2) return name;
-    return '${words[0]} ${words[1]}';
-  }
-
-  Widget _buildShimmer() {
-    return SizedBox(
-      height: 44,
-      child: Shimmer.fromColors(
-        baseColor: AppTheme.surfaceColor,
-        highlightColor: AppTheme.cardColor,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          itemCount: 4,
-          itemBuilder: (_, _) => Container(
-            width: 80,
-            margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textSecondary,
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Yatay Kayan Oynatma Listeleri Şeridi
-// ═══════════════════════════════════════════════════════════════════════════
-
-class _PlaylistStrip extends StatelessWidget {
-  const _PlaylistStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
-
-    return Obx(() {
-      if (controller.isPlaylistsLoading.value) {
-        return _buildShimmer();
-      }
-
-      if (controller.playlistsError.isNotEmpty ||
-          controller.playlists.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 3,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Oynatma Listeleri',
-                      style: TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: const Row(
-                    children: [
-                      Text(
-                        'Tümünü Gör',
-                        style: TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontSize: 13,
-                        ),
-                      ),
-                      SizedBox(width: 2),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 182,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: controller.playlists.length,
-              itemBuilder: (context, index) {
-                return _PlaylistCard(playlist: controller.playlists[index]);
-              },
-            ),
-          ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildShimmer() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-          child: Container(
-            height: 18,
-            width: 160,
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceColor,
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 182,
-          child: Shimmer.fromColors(
-            baseColor: AppTheme.surfaceColor,
-            highlightColor: AppTheme.cardColor,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: 4,
-              itemBuilder: (_, _) => Container(
-                width: 160,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Oynatma Listesi Kartı
-// ═══════════════════════════════════════════════════════════════════════════
-
-class _PlaylistCard extends StatelessWidget {
-  final PlaylistModel playlist;
-
-  const _PlaylistCard({required this.playlist});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          color: AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
-              ),
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: playlist.thumbnailUrl,
-                    width: 160,
-                    height: 100,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      width: 160,
-                      height: 100,
-                      color: AppTheme.surfaceColor,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      width: 160,
-                      height: 100,
-                      color: AppTheme.surfaceColor,
-                      child: const Icon(
-                        Icons.playlist_play_rounded,
-                        color: AppTheme.textSecondary,
-                        size: 36,
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.5),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 6,
-                    right: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.72),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.playlist_play_rounded,
-                            color: Colors.white,
-                            size: 13,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '${playlist.itemCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    playlist.title,
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Container(
-                        width: 3,
-                        height: 3,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.primaryColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        '${playlist.itemCount} video',
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Video Kartı
@@ -781,16 +365,44 @@ class _VideoCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              video.universityName!,
-              style: const TextStyle(
-                color: Color.fromARGB(255, 0, 252, 0),
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            Obx(() {
+              final uni = controller.universities
+                  .firstWhereOrNull((u) => u.name == video.universityName);
+              final logoUrl = uni?.logoUrl;
+              final hasLogo = logoUrl != null && logoUrl.isNotEmpty;
+
+              return Row(
+                children: [
+                  if (hasLogo) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: CachedNetworkImage(
+                        imageUrl: logoUrl,
+                        width: 28,
+                        height: 28,
+                        fit: BoxFit.contain,
+                        placeholder: (_, _) =>
+                            const SizedBox(width: 28, height: 28),
+                        errorWidget: (_, _, _) => const SizedBox.shrink(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      video.universityName ?? '',
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 0, 252, 0),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 2),
             Text(
               video.title,
@@ -804,7 +416,7 @@ class _VideoCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${video.formattedViewCount} · ${_timeAgo(video.publishedAt)}',
+              _timeAgo(video.publishedAt),
               style: const TextStyle(
                 color: AppTheme.textSecondary,
                 fontSize: 12,
@@ -823,5 +435,215 @@ class _VideoCard extends StatelessWidget {
     if (diff.inDays > 0) return '${diff.inDays} gün önce';
     if (diff.inHours > 0) return '${diff.inHours} saat önce';
     return '${diff.inMinutes} dakika önce';
+  }
+}
+// ════════════════════════════════════════════════════════════════════════════════
+// Üniversiteler Sekmesi
+// ════════════════════════════════════════════════════════════════════════════════
+
+class _UniversitiesTab extends StatelessWidget {
+  const _UniversitiesTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
+
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Başlık
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 3,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Üniversiteler',
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Obx(() {
+                if (controller.isPlaylistsLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryColor,
+                    ),
+                  );
+                }
+                if (controller.playlists.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Üniversite bulunamadı.',
+                      style: TextStyle(color: AppTheme.textSecondary),
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  color: AppTheme.primaryColor,
+                  onRefresh: controller.loadPlaylists,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.85,
+                        ),
+                    itemCount: controller.playlists.length,
+                    itemBuilder: (_, i) =>
+                        _UniversityGridCard(playlist: controller.playlists[i]),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UniversityGridCard extends StatelessWidget {
+  final PlaylistModel playlist;
+
+  const _UniversityGridCard({required this.playlist});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Thumbnail
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
+              child: Stack(
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: playlist.thumbnailUrl,
+                    width: double.infinity,
+                    height: 110,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) =>
+                        Container(height: 110, color: AppTheme.surfaceColor),
+                    errorWidget: (_, _, _) => Container(
+                      height: 110,
+                      color: AppTheme.surfaceColor,
+                      child: const Icon(
+                        Icons.school_rounded,
+                        color: AppTheme.textSecondary,
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.5),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.72),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.play_circle_outline_rounded,
+                            color: Colors.white,
+                            size: 12,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            '${playlist.itemCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    playlist.title,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${playlist.itemCount} video',
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

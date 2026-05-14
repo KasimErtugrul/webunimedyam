@@ -37,6 +37,7 @@ class HomeController extends GetxController {
   final selectedTab = 0.obs;
 
   /// Alt navigasyon barı seçili sekme
+  /// 0=Ana Sayfa, 1=Üniversiteler, 2=Favoriler, 3=Profil, 4=Ayarlar
   final selectedIndex = 0.obs;
 
   /// Seçili üniversite — null ise "Tümü" gösterilir
@@ -183,13 +184,23 @@ class HomeController extends GetxController {
     try {
       if (isFavorite(videoId)) {
         await favoritesRepository.removeFavorite(userId, videoId);
+        await favoritesRepository.removeFavoriteVideoLocally(videoId);
         favoriteIds.remove(videoId);
+        if (Get.isRegistered<FavoritesController>()) {
+          Get.find<FavoritesController>().favoriteVideos
+              .removeWhere((v) => v.videoId == videoId);
+        }
       } else {
         await favoritesRepository.addFavorite(userId, videoId);
+        // Video objesini mevcut listeden bul ve local'e kaydet
+        final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
+        if (video != null) {
+          await favoritesRepository.saveFavoriteVideoLocally(video);
+          if (Get.isRegistered<FavoritesController>()) {
+            Get.find<FavoritesController>().favoriteVideos.insert(0, video);
+          }
+        }
         favoriteIds.add(videoId);
-      }
-      if (Get.isRegistered<FavoritesController>()) {
-        Get.find<FavoritesController>().loadFavorites();
       }
     } catch (e) {
       log('toggleFavorite error: $e');
