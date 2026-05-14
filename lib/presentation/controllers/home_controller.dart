@@ -37,7 +37,7 @@ class HomeController extends GetxController {
   final selectedTab = 0.obs;
 
   /// Alt navigasyon barı seçili sekme
-  /// 0=Ana Sayfa, 1=Üniversiteler, 2=Favoriler, 3=Profil, 4=Ayarlar
+  /// 0=Ana Sayfa, 1=Üniversiteler, 2=Favoriler
   final selectedIndex = 0.obs;
 
   /// Seçili üniversite — null ise "Tümü" gösterilir

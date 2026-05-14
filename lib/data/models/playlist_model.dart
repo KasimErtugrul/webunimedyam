@@ -4,6 +4,7 @@ class PlaylistModel {
   final String description;
   final String thumbnailUrl;
   final int itemCount;
+  final String? logoUrl;   // üniversite logosu
 
   PlaylistModel({
     required this.playlistId,
@@ -11,6 +12,7 @@ class PlaylistModel {
     required this.description,
     required this.thumbnailUrl,
     required this.itemCount,
+    this.logoUrl,
   });
 
   /// Supabase `universities` tablosundan oluşturur.
@@ -26,6 +28,7 @@ class PlaylistModel {
       description: '',
       thumbnailUrl: thumbnailUrl,
       itemCount: videoCount,
+      logoUrl: json['logo_url'] as String?,
     );
   }
 }

@@ -186,7 +186,7 @@ class SupabaseDataSource {
   Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount() async {
     final data = await _client
         .from('universities_with_stats')
-        .select('id, name, channel_id, video_count, thumbnail_url')
+        .select('id, name, channel_id, video_count, thumbnail_url, logo_url')
         .order('name', ascending: true);
 
     return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
