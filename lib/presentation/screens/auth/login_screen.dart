@@ -120,6 +120,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
+            TextButton(
+              onPressed: () => Get.offAllNamed(AppRoutes.home),
+              child: const Text(
+                'Şimdi değil, misafir olarak devam et',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            ),
           ],
         ),
       ),

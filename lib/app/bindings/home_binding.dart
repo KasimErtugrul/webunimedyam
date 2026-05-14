@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
-import '../../data/datasources/remote/youtube_datasource.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../presentation/controllers/home_controller.dart';
@@ -15,7 +14,6 @@ class HomeBinding extends Bindings {
   void dependencies() {
     Get.lazyPut(() => LocalDataSource());
     Get.lazyPut(() => SupabaseDataSource());
-    Get.lazyPut(() => YouTubeDataSource());
 
     Get.lazyPut(() => AuthRepository(
           supabase: Get.find(),
@@ -24,7 +22,6 @@ class HomeBinding extends Bindings {
 
     Get.lazyPut(() => VideoRepository(
           local: Get.find(),
-          youtube: Get.find(),
           supabase: Get.find(),
         ));
 

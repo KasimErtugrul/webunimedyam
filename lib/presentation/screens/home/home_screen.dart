@@ -18,44 +18,46 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
 
-    return Obx(() => Scaffold(
-          backgroundColor: AppTheme.backgroundColor,
-          body: IndexedStack(
-            index: controller.selectedIndex.value,
-            children: const [
-              _HomeTab(),
-              FavoritesScreen(),
-              ProfileScreen(),
-              SettingsScreen(),
-            ],
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: controller.selectedIndex.value,
-            onTap: controller.changeTab,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home_rounded),
-                label: 'Ana Sayfa',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.favorite_outline_rounded),
-                activeIcon: Icon(Icons.favorite_rounded),
-                label: 'Favoriler',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded),
-                activeIcon: Icon(Icons.person_rounded),
-                label: 'Profil',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined),
-                activeIcon: Icon(Icons.settings_rounded),
-                label: 'Ayarlar',
-              ),
-            ],
-          ),
-        ));
+    return Obx(
+      () => Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        body: IndexedStack(
+          index: controller.selectedIndex.value,
+          children: const [
+            _HomeTab(),
+            FavoritesScreen(),
+            ProfileScreen(),
+            SettingsScreen(),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: controller.selectedIndex.value,
+          onTap: controller.changeTab,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home_rounded),
+              label: 'Ana Sayfa',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_outline_rounded),
+              activeIcon: Icon(Icons.favorite_rounded),
+              label: 'Favoriler',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline_rounded),
+              activeIcon: Icon(Icons.person_rounded),
+              label: 'Profil',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings_rounded),
+              label: 'Ayarlar',
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -110,7 +112,7 @@ class _HomeTab extends StatelessWidget {
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.search_rounded),
-                      onPressed: () {},
+                      onPressed: () => Get.toNamed(AppRoutes.search),
                     ),
                   ],
                 ),
@@ -120,17 +122,20 @@ class _HomeTab extends StatelessWidget {
 
                 // ── Oynatma Listeleri Şeridi (sadece "Tümü" seçiliyken) ───
                 SliverToBoxAdapter(
-                  child: Obx(() => controller.selectedUniversity.value == null
-                      ? _PlaylistStrip()
-                      : const SizedBox.shrink()),
+                  child: Obx(
+                    () => controller.selectedUniversity.value == null
+                        ? _PlaylistStrip()
+                        : const SizedBox.shrink(),
+                  ),
                 ),
 
                 // ── Video Listesi Başlığı ─────────────────────────────────
                 SliverToBoxAdapter(
                   child: Obx(() {
                     final uni = controller.selectedUniversity.value;
-                    final title =
-                        uni == null ? 'Son Videolar' : '${uni.name} Videoları';
+                    final title = uni == null
+                        ? 'Son Videolar'
+                        : '${uni.name} Videoları';
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
                       child: Text(
@@ -154,13 +159,17 @@ class _HomeTab extends StatelessWidget {
                       padding: const EdgeInsets.all(32),
                       child: Column(
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              color: AppTheme.textSecondary, size: 48),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppTheme.textSecondary,
+                            size: 48,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             controller.errorMessage.value,
                             style: const TextStyle(
-                                color: AppTheme.textSecondary),
+                              color: AppTheme.textSecondary,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -222,7 +231,10 @@ class _HomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Container(
-                    height: 16, width: double.infinity, color: Colors.white),
+                  height: 16,
+                  width: double.infinity,
+                  color: Colors.white,
+                ),
                 const SizedBox(height: 8),
                 Container(height: 14, width: 200, color: Colors.white),
               ],
@@ -305,7 +317,7 @@ class _UniversityFilterStrip extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           itemCount: 4,
-          itemBuilder: (_, __) => Container(
+          itemBuilder: (_, _) => Container(
             width: 80,
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
@@ -342,8 +354,7 @@ class _FilterChip extends StatelessWidget {
           color: isSelected ? AppTheme.primaryColor : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color:
-                isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
+            color: isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
             width: 1,
           ),
         ),
@@ -352,8 +363,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             color: isSelected ? Colors.white : AppTheme.textSecondary,
             fontSize: 13,
-            fontWeight:
-                isSelected ? FontWeight.w600 : FontWeight.normal,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
       ),
@@ -415,7 +425,9 @@ class _PlaylistStrip extends StatelessWidget {
                   onPressed: () {},
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -429,8 +441,11 @@ class _PlaylistStrip extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 2),
-                      Icon(Icons.chevron_right_rounded,
-                          color: AppTheme.primaryColor, size: 18),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppTheme.primaryColor,
+                        size: 18,
+                      ),
                     ],
                   ),
                 ),
@@ -477,7 +492,7 @@ class _PlaylistStrip extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: 4,
-              itemBuilder: (_, __) => Container(
+              itemBuilder: (_, _) => Container(
                 width: 160,
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
@@ -505,8 +520,7 @@ class _PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
+      onTap: () => Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
@@ -518,8 +532,9 @@ class _PlaylistCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               child: Stack(
                 children: [
                   CachedNetworkImage(
@@ -527,12 +542,12 @@ class _PlaylistCard extends StatelessWidget {
                     width: 160,
                     height: 100,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: 160,
                       height: 100,
                       color: AppTheme.surfaceColor,
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: 160,
                       height: 100,
                       color: AppTheme.surfaceColor,
@@ -551,7 +566,7 @@ class _PlaylistCard extends StatelessWidget {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.5),
+                            Colors.black.withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -562,16 +577,21 @@ class _PlaylistCard extends StatelessWidget {
                     right: 6,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 3),
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.72),
+                        color: Colors.black.withValues(alpha: 0.72),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.playlist_play_rounded,
-                              color: Colors.white, size: 13),
+                          const Icon(
+                            Icons.playlist_play_rounded,
+                            color: Colors.white,
+                            size: 13,
+                          ),
                           const SizedBox(width: 3),
                           Text(
                             '${playlist.itemCount}',
@@ -664,7 +684,7 @@ class _VideoCard extends StatelessWidget {
                     width: double.infinity,
                     height: 200,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       height: 200,
                       color: AppTheme.cardColor,
                       child: const Center(
@@ -673,7 +693,7 @@ class _VideoCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       height: 200,
                       color: AppTheme.cardColor,
                       child: const Icon(
@@ -684,30 +704,7 @@ class _VideoCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Üniversite etiketi (varsa)
-                if (video.universityName != null)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.65),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        video.universityName!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
+
                 // Süre etiketi
                 if (video.formattedDuration.isNotEmpty)
                   Positioned(
@@ -715,9 +712,11 @@ class _VideoCard extends StatelessWidget {
                     right: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 3),
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.72),
+                        color: Colors.black.withValues(alpha: 0.72),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -730,34 +729,69 @@ class _VideoCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (video.formattedDuration.isEmpty)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.72),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'CANLI YAYIN',
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 245, 124, 116),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 // Favori butonu
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Obx(() => GestureDetector(
-                        onTap: () =>
-                            controller.toggleFavorite(video.videoId),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Icon(
-                            controller.isFavorite(video.videoId)
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_outline_rounded,
-                            color: controller.isFavorite(video.videoId)
-                                ? AppTheme.primaryColor
-                                : Colors.white,
-                            size: 20,
-                          ),
+                  child: Obx(
+                    () => GestureDetector(
+                      onTap: () => controller.toggleFavorite(video.videoId),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      )),
+                        child: Icon(
+                          controller.isFavorite(video.videoId)
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_outline_rounded,
+                          color: controller.isFavorite(video.videoId)
+                              ? AppTheme.primaryColor
+                              : Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            Text(
+              video.universityName!,
+              style: const TextStyle(
+                color: Color.fromARGB(255, 0, 252, 0),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
             Text(
               video.title,
               style: const TextStyle(

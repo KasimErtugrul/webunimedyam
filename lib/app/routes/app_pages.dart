@@ -16,6 +16,8 @@ import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/favorites_binding.dart';
 import '../bindings/settings_binding.dart';
+import '../../presentation/screens/search/search_screen.dart';
+import '../bindings/search_binding.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -73,6 +75,11 @@ abstract class AppPages {
       name: AppRoutes.register,
       page: () => const RegisterScreen(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.search,
+      page: () => const SearchScreen(),
+      binding: SearchBinding(),
     ),
   ];
 }

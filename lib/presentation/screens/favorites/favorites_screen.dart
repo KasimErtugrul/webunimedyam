@@ -110,7 +110,7 @@ class _FavoriteCard extends StatelessWidget {
                   width: 120,
                   height: 80,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     width: 120,
                     height: 80,
                     color: AppTheme.surfaceColor,

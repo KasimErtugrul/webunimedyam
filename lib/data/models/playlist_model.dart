@@ -1,6 +1,6 @@
 class PlaylistModel {
-  final String playlistId;
-  final String title;
+  final String playlistId; // university_id (string'e çevrilmiş)
+  final String title;      // university name
   final String description;
   final String thumbnailUrl;
   final int itemCount;
@@ -13,24 +13,19 @@ class PlaylistModel {
     required this.itemCount,
   });
 
-  factory PlaylistModel.fromYouTubeApi(Map<String, dynamic> json) {
-    final snippet = json['snippet'] as Map<String, dynamic>? ?? {};
-    final contentDetails =
-        json['contentDetails'] as Map<String, dynamic>? ?? {};
-
+  /// Supabase `universities` tablosundan oluşturur.
+  /// [videoCount]: o üniversiteye ait video sayısı (opsiyonel)
+  factory PlaylistModel.fromUniversity(
+    Map<String, dynamic> json, {
+    int videoCount = 0,
+    String thumbnailUrl = '',
+  }) {
     return PlaylistModel(
-      playlistId: json['id'] as String? ?? '',
-      title: snippet['title'] as String? ?? '',
-      description: snippet['description'] as String? ?? '',
-      thumbnailUrl:
-          (snippet['thumbnails'] as Map<String, dynamic>?)?['high']?['url']
-              as String? ??
-          (snippet['thumbnails'] as Map<String, dynamic>?)?['medium']?['url']
-              as String? ??
-          (snippet['thumbnails'] as Map<String, dynamic>?)?['default']?['url']
-              as String? ??
-          '',
-      itemCount: contentDetails['itemCount'] as int? ?? 0,
+      playlistId: json['id'].toString(),
+      title: json['name'] as String? ?? '',
+      description: '',
+      thumbnailUrl: thumbnailUrl,
+      itemCount: videoCount,
     );
   }
 }

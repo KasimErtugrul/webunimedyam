@@ -61,7 +61,7 @@ class PlayerScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.45),
+                                  color: Colors.black.withValues(alpha:0.45),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -313,9 +313,9 @@ class _StatsRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.15),
+              color: AppTheme.primaryColor.withValues(alpha:0.15),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppTheme.primaryColor.withOpacity(0.4)),
+              border: Border.all(color: AppTheme.primaryColor.withValues(alpha:0.4)),
             ),
             child: const Text(
               'HD',

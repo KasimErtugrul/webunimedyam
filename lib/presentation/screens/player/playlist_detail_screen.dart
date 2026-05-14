@@ -75,7 +75,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     CachedNetworkImage(
                       imageUrl: playlist.thumbnailUrl,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         color: AppTheme.surfaceColor,
                         child: const Icon(
                           Icons.playlist_play_rounded,
@@ -272,12 +272,12 @@ class _PlaylistVideoTile extends StatelessWidget {
                     width: 120,
                     height: 70,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: 120,
                       height: 70,
                       color: AppTheme.cardColor,
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: 120,
                       height: 70,
                       color: AppTheme.cardColor,
@@ -296,7 +296,7 @@ class _PlaylistVideoTile extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 5, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha:0.7),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

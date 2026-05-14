@@ -34,48 +34,6 @@ class VideoModel {
     this.universityName,
   });
 
-  // ─── YouTube API ──────────────────────────────────────────────────────────
-
-  factory VideoModel.fromYouTubeApi(Map<String, dynamic> json,
-      {int? universityId, String? universityName}) {
-    final snippet = json['snippet'] as Map<String, dynamic>? ?? {};
-    final contentDetails =
-        json['contentDetails'] as Map<String, dynamic>? ?? {};
-    final statistics = json['statistics'] as Map<String, dynamic>? ?? {};
-    final thumbs = snippet['thumbnails'] as Map<String, dynamic>? ?? {};
-    return VideoModel(
-      videoId: json['id'] as String? ?? '',
-      title: snippet['title'] as String? ?? '',
-      description: snippet['description'] as String? ?? '',
-      thumbnailUrl:
-          (thumbs['high']?['url'] as String?) ??
-          (thumbs['medium']?['url'] as String?) ??
-          (thumbs['default']?['url'] as String?) ??
-          '',
-      maxresThumbnailUrl:
-          (thumbs['maxres']?['url'] as String?) ??
-          (thumbs['standard']?['url'] as String?) ??
-          '',
-      duration: contentDetails['duration'] as String? ?? '',
-      viewCount: int.tryParse(statistics['viewCount'] as String? ?? '0') ?? 0,
-      likeCount: int.tryParse(statistics['likeCount'] as String? ?? '0') ?? 0,
-      commentCount:
-          int.tryParse(statistics['commentCount'] as String? ?? '0') ?? 0,
-      tags:
-          (snippet['tags'] as List<dynamic>?)
-              ?.map((t) => t.toString())
-              .toList() ??
-          [],
-      isHd: (contentDetails['definition'] as String?) == 'hd',
-      channelTitle: snippet['channelTitle'] as String? ?? 'ÇOMÜ TV',
-      publishedAt:
-          DateTime.tryParse(snippet['publishedAt'] as String? ?? '') ??
-          DateTime.now(),
-      universityId: universityId,
-      universityName: universityName,
-    );
-  }
-
   // ─── Supabase ─────────────────────────────────────────────────────────────
 
   factory VideoModel.fromSupabase(Map<String, dynamic> json) {

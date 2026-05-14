@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../data/repositories/favorites_repository.dart';
@@ -7,6 +10,7 @@ import '../../data/models/comment_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import 'home_controller.dart';
+import 'favorites_controller.dart';
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -74,13 +78,49 @@ class PlayerController extends GetxController {
     } catch (_) {}
   }
 
+  void _showAuthDialog() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Giriş Gerekiyor',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
+          style: TextStyle(color: Color(0xFF9E9EB8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Vazgeç', style: TextStyle(color: Color(0xFF9E9EB8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Get.back();
+              Get.toNamed('/login');
+            },
+            child: const Text('Giriş Yap'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> toggleFavorite() async {
     final userId = _supabase.currentUser?.id;
     if (userId == null) {
-      Get.toNamed('/login');
+      _showAuthDialog();
       return;
     }
     try {
+      final wasAdding = !isFavorite.value;
       if (isFavorite.value) {
         await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
         isFavorite.value = false;
@@ -91,14 +131,23 @@ class PlayerController extends GetxController {
       // HomeController varsa favoriteIds'i senkronize et
       if (Get.isRegistered<HomeController>()) {
         final homeController = Get.find<HomeController>();
-        if (isFavorite.value) {
+        if (wasAdding) {
           homeController.favoriteIds.add(currentVideo!.videoId);
         } else {
           homeController.favoriteIds.remove(currentVideo!.videoId);
         }
       }
+      // FavoritesController varsa listeyi anında güncelle
+      if (Get.isRegistered<FavoritesController>()) {
+        final favController = Get.find<FavoritesController>();
+        if (wasAdding) {
+          favController.addFavoriteVideo(currentVideo!);
+        } else {
+          favController.removeFavoriteVideo(currentVideo!.videoId);
+        }
+      }
     } catch (e) {
-      print('toggleFavorite error: $e');
+      log('toggleFavorite error: $e');
     }
   }
 
@@ -114,7 +163,7 @@ class PlayerController extends GetxController {
   Future<void> addComment(String content) async {
     final userId = _supabase.currentUser?.id;
     if (userId == null) {
-      Get.toNamed('/login');
+      _showAuthDialog();
       return;
     }
     if (content.trim().isEmpty) return;

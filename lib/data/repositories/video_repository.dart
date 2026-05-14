@@ -5,19 +5,15 @@ import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_model.dart';
 import '../models/university_model.dart';
 import '../models/playlist_model.dart';
-import '../datasources/remote/youtube_datasource.dart';
 
 class VideoRepository {
   final LocalDataSource _local;
-  final YouTubeDataSource _youtube;
   final SupabaseDataSource _supabase;
 
   VideoRepository({
     required LocalDataSource local,
-    required YouTubeDataSource youtube,
     required SupabaseDataSource supabase,
   })  : _local = local,
-        _youtube = youtube,
         _supabase = supabase;
 
   // ─── Üniversiteler ────────────────────────────────────────────────────────
@@ -39,7 +35,6 @@ class VideoRepository {
     } catch (e) {
       log('❌ latest_videos_per_university hatası: $e');
     }
-    // View boşsa tüm önbelleği dene
     return await getVideos();
   }
 
@@ -69,17 +64,14 @@ class VideoRepository {
       log('❌ SUPABASE\'den video çekme hatası: $e');
     }
 
-    // 3) YouTube API (son çare)
-    log('⚠️ YOUTUBE API\'den geldi (fallback)');
-    return await _refreshFromYouTube();
+    return [];
   }
 
   // ─── Video: Üniversiteye Göre ─────────────────────────────────────────────
 
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
-      final videos =
-          await _supabase.getCachedVideosByUniversity(universityId);
+      final videos = await _supabase.getCachedVideosByUniversity(universityId);
       if (videos.isNotEmpty) {
         log('✅ SUPABASE üniversite $universityId: ${videos.length} video');
         return videos;
@@ -92,42 +84,46 @@ class VideoRepository {
 
   // ─── Refresh ──────────────────────────────────────────────────────────────
 
+  /// Cache'i temizler ve Supabase'den tekrar yükler.
+  /// Sync'i tetiklemek istiyorsan edge function'ı çağır.
   Future<List<VideoModel>> refreshVideos() async {
     try {
       await _local.clearCache();
     } catch (_) {}
-    return await _refreshFromYouTube();
+    return await getVideos();
   }
 
-  Future<List<VideoModel>> _refreshFromYouTube() async {
-    final videos = await _youtube.getChannelVideos();
+  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
 
+  /// Üniversiteleri birer playlist olarak döner.
+  Future<List<PlaylistModel>> getPlaylists() async {
     try {
-      await _supabase.upsertVideos(videos);
+      final unis = await _supabase.getUniversitiesWithVideoCount();
+      return unis
+          .map((u) => PlaylistModel.fromUniversity(
+                u,
+                videoCount: (u['video_count'] as int?) ?? 0,
+                thumbnailUrl: u['thumbnail_url'] as String? ?? '',
+              ))
+          .toList();
     } catch (e) {
-      log('❌ SUPABASE\'ye video ekleme hatası: $e');
+      log('❌ getPlaylists hatası: $e');
+      return [];
     }
-
-    try {
-      await _local.cacheVideos(videos);
-    } catch (e) {
-      log('❌ LOCAL CACHE\'ye video ekleme hatası: $e');
-    }
-
-    return videos;
   }
 
-  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
-
-  Future<List<PlaylistModel>> getPlaylists({int maxResults = 20}) async {
-    return await _youtube.getChannelPlaylists(maxResults: maxResults);
-  }
-
+  /// Bir "playlist" aslında bir üniversitenin videoları.
   Future<List<VideoModel>> getPlaylistVideos(
-    String playlistId, {
+    String universityId, {
     int maxResults = 20,
   }) async {
-    return await _youtube.getPlaylistVideos(playlistId,
-        maxResults: maxResults);
+    try {
+      return await _supabase.getCachedVideosByUniversity(
+        int.parse(universityId),
+      );
+    } catch (e) {
+      log('❌ getPlaylistVideos hatası: $e');
+      return [];
+    }
   }
 }

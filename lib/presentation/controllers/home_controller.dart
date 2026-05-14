@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
@@ -59,7 +62,7 @@ class HomeController extends GetxController {
       isUniversitiesLoading.value = true;
       universities.value = await videoRepository.getUniversities();
     } catch (e) {
-      print('loadUniversities error: $e');
+      log('loadUniversities error: $e');
     } finally {
       isUniversitiesLoading.value = false;
     }
@@ -99,9 +102,9 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      // Refresh her zaman tüm cache'i tazeler (YouTube API)
+      // Cache'i temizle ve Supabase'den yeniden yükle.
+      // Video sync'i için edge function otomatik çalışır.
       await videoRepository.refreshVideos();
-      // Sonra mevcut filtreyle yeniden yükle
       await loadVideos();
     } catch (e) {
       errorMessage.value = 'Videolar yenilenemedi.';
@@ -133,7 +136,7 @@ class HomeController extends GetxController {
       favoriteIds.value =
           await favoritesRepository.getFavoriteVideoIds(userId);
     } catch (e) {
-      print('loadFavorites error: $e');
+      log('loadFavorites error: $e');
     }
   }
 
@@ -142,7 +145,38 @@ class HomeController extends GetxController {
   Future<void> toggleFavorite(String videoId) async {
     final userId = _supabase.currentUser?.id;
     if (userId == null) {
-      Get.toNamed('/login');
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: const Color(0xFF1E1E2E),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Giriş Gerekiyor',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
+            style: TextStyle(color: Color(0xFF9E9EB8)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Vazgeç', style: TextStyle(color: Color(0xFF9E9EB8))),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C63FF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                Get.back();
+                Get.toNamed('/login');
+              },
+              child: const Text('Giriş Yap'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 
@@ -158,7 +192,7 @@ class HomeController extends GetxController {
         Get.find<FavoritesController>().loadFavorites();
       }
     } catch (e) {
-      print('toggleFavorite error: $e');
+      log('toggleFavorite error: $e');
     }
   }
 

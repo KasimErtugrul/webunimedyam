@@ -47,4 +47,16 @@ class FavoritesController extends GetxController {
       favoriteVideos.removeWhere((v) => v.videoId == videoId);
     } catch (_) {}
   }
+
+  /// Player ekranından favori eklenince listeyi anında günceller.
+  void addFavoriteVideo(VideoModel video) {
+    if (!favoriteVideos.any((v) => v.videoId == video.videoId)) {
+      favoriteVideos.add(video);
+    }
+  }
+
+  /// Player ekranından favori kaldırılınca listeyi anında günceller.
+  void removeFavoriteVideo(String videoId) {
+    favoriteVideos.removeWhere((v) => v.videoId == videoId);
+  }
 }

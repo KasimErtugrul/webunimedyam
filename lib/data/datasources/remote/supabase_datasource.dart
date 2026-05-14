@@ -24,14 +24,8 @@ class SupabaseDataSource {
     );
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
-    await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+  Future<void> signIn({required String email, required String password}) async {
+    await _client.auth.signInWithPassword(email: email, password: password);
   }
 
   Future<void> signOut() async {
@@ -183,6 +177,21 @@ class SupabaseDataSource {
     });
   }
 
+  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
+
+  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
+
+  /// Tek sorguda tüm üniversiteleri video sayısı ve thumbnail ile döner.
+  /// universities_with_stats view'ı kullanır — N+1 sorgu yok.
+  Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount() async {
+    final data = await _client
+        .from('universities_with_stats')
+        .select('id, name, channel_id, video_count, thumbnail_url')
+        .order('name', ascending: true);
+
+    return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<void> deleteComment(String commentId) async {
     await _client.from('comments').delete().eq('id', commentId);
   }
@@ -199,9 +208,28 @@ class SupabaseDataSource {
   }
 
   Future<void> completeOnboarding(String userId) async {
-    await _client.from('onboarding').update({
-      'completed': true,
-      'completed_at': DateTime.now().toIso8601String(),
-    }).eq('user_id', userId);
+    await _client
+        .from('onboarding')
+        .update({
+          'completed': true,
+          'completed_at': DateTime.now().toIso8601String(),
+        })
+        .eq('user_id', userId);
   }
-}
+    // ─── Arama ────────────────────────────────────────────────────────────────────────────────────
+
+    /// Supabase search_videos RPC fonksiyonunu çağırır.
+    Future<List<VideoModel>> searchVideos(
+      String query, {
+      int limit = 30,
+    }) async {
+      final data = await _client.rpc(
+        'search_videos',
+        params: {'search_term': query, 'result_limit': limit},
+      );
+      return (data as List)
+          .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+  }
+

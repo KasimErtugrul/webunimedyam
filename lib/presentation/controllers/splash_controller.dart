@@ -23,10 +23,8 @@ class SplashController extends GetxController {
       return;
     }
 
-    if (authRepository.isLoggedIn) {
-      Get.offAllNamed(AppRoutes.home);
-    } else {
-      Get.offAllNamed(AppRoutes.login);
-    }
+    // Auth olsun ya da olmasın direkt home'a git.
+    // Favori / yorum gibi işlemlerde zaten auth istenir.
+    Get.offAllNamed(AppRoutes.home);
   }
 }
