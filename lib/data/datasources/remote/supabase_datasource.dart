@@ -70,7 +70,6 @@ class SupabaseDataSource {
 
   // ─── Üniversiteler ────────────────────────────────────────────────────────
 
-  /// Tüm üniversiteleri döner.
   Future<List<UniversityModel>> getUniversities() async {
     final data = await _client
         .from('universities')
@@ -81,7 +80,6 @@ class SupabaseDataSource {
 
   // ─── Video Cache ──────────────────────────────────────────────────────────
 
-  /// Tüm önbellek videolarını döner (tarihe göre sıralı).
   Future<List<VideoModel>> getCachedVideos() async {
     final data = await _client
         .from('videos_cache')
@@ -90,7 +88,6 @@ class SupabaseDataSource {
 
     return (data as List).map((e) {
       final row = Map<String, dynamic>.from(e);
-      // Join'den gelen university adını düzleştir
       if (row['universities'] != null) {
         row['university_name'] = row['universities']['name'];
       }
@@ -99,7 +96,6 @@ class SupabaseDataSource {
     }).toList();
   }
 
-  /// Belirli bir üniversitenin videolarını döner.
   Future<List<VideoModel>> getCachedVideosByUniversity(int universityId) async {
     final data = await _client
         .from('videos_cache')
@@ -117,8 +113,6 @@ class SupabaseDataSource {
     }).toList();
   }
 
-  /// Ana sayfa için: her üniversiteden en son videoyu döner.
-  /// latest_videos_per_university view'ını kullanır → tek sorgu, çok hızlı.
   Future<List<VideoModel>> getLatestVideoPerUniversity() async {
     final data = await _client
         .from('latest_videos_per_university')
@@ -177,12 +171,12 @@ class SupabaseDataSource {
     });
   }
 
-  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
+  Future<void> deleteComment(String commentId) async {
+    await _client.from('comments').delete().eq('id', commentId);
+  }
 
-  // ─── Oynatma Listeleri (Üniversite bazlı) ────────────────────────────────
+  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
 
-  /// Tek sorguda tüm üniversiteleri video sayısı ve thumbnail ile döner.
-  /// universities_with_stats view'ı kullanır — N+1 sorgu yok.
   Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount() async {
     final data = await _client
         .from('universities_with_stats')
@@ -190,10 +184,6 @@ class SupabaseDataSource {
         .order('name', ascending: true);
 
     return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
-  }
-
-  Future<void> deleteComment(String commentId) async {
-    await _client.from('comments').delete().eq('id', commentId);
   }
 
   // ─── Onboarding ──────────────────────────────────────────────────────────
@@ -216,20 +206,95 @@ class SupabaseDataSource {
         })
         .eq('user_id', userId);
   }
-    // ─── Arama ────────────────────────────────────────────────────────────────────────────────────
 
-    /// Supabase search_videos RPC fonksiyonunu çağırır.
-    Future<List<VideoModel>> searchVideos(
-      String query, {
-      int limit = 30,
-    }) async {
-      final data = await _client.rpc(
-        'search_videos',
-        params: {'search_term': query, 'result_limit': limit},
-      );
-      return (data as List)
-          .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
-          .toList();
-    }
+  // ─── Arama ───────────────────────────────────────────────────────────────
+
+  Future<List<VideoModel>> searchVideos(String query, {int limit = 30}) async {
+    final data = await _client.rpc(
+      'search_videos',
+      params: {'search_term': query, 'result_limit': limit},
+    );
+    return (data as List)
+        .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
+  // ─── Beğeni (likes) ──────────────────────────────────────────────────────
+
+  /// Kullanıcı bu videoyu beğenmiş mi?
+  Future<bool> isLiked(String userId, String videoId) async {
+    final data = await _client
+        .from('likes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('video_id', videoId)
+        .maybeSingle();
+    return data != null;
+  }
+
+  /// Beğeni ekle (conflict'i yoksay — zaten ekliyse hata vermez).
+  Future<void> addLike(String userId, String videoId) async {
+    await _client.from('likes').upsert(
+      {'user_id': userId, 'video_id': videoId},
+      onConflict: 'user_id,video_id',
+    );
+  }
+
+  /// Beğeniyi kaldır.
+  Future<void> removeLike(String userId, String videoId) async {
+    await _client
+        .from('likes')
+        .delete()
+        .eq('user_id', userId)
+        .eq('video_id', videoId);
+  }
+
+  // ─── Görüntüleme (content_views) ─────────────────────────────────────────
+
+  /// Video izlendiğinde bir kez çağır (aynı kullanıcı için tekrar eklenmez).
+  Future<void> recordView(String userId, String videoId) async {
+    await _client.from('content_views').upsert(
+      {'user_id': userId, 'video_id': videoId},
+      onConflict: 'user_id,video_id',
+    );
+  }
+
+  // ─── Paylaşım (shared) ───────────────────────────────────────────────────
+
+  /// Kullanıcı paylaştığında çağır (tekrar eklenmez).
+  Future<void> recordShare(String userId, String videoId) async {
+    await _client.from('shared').upsert(
+      {'user_id': userId, 'video_id': videoId},
+      onConflict: 'user_id,video_id',
+    );
+  }
+
+  // ─── Etkileşim İstatistikleri ─────────────────────────────────────────────
+
+  /// video_engagement_stats view'ından tek videonun istatistiklerini çeker.
+  Future<Map<String, int>> getEngagementStats(String videoId) async {
+    final data = await _client
+        .from('video_engagement_stats')
+        .select()
+        .eq('video_id', videoId)
+        .maybeSingle();
+
+    if (data == null) {
+      return {
+        'app_view_count': 0,
+        'app_like_count': 0,
+        'app_favorite_count': 0,
+        'app_share_count': 0,
+        'app_comment_count': 0,
+      };
+    }
+
+    return {
+      'app_view_count': (data['app_view_count'] as num?)?.toInt() ?? 0,
+      'app_like_count': (data['app_like_count'] as num?)?.toInt() ?? 0,
+      'app_favorite_count': (data['app_favorite_count'] as num?)?.toInt() ?? 0,
+      'app_share_count': (data['app_share_count'] as num?)?.toInt() ?? 0,
+      'app_comment_count': (data['app_comment_count'] as num?)?.toInt() ?? 0,
+    };
+  }
+}

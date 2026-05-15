@@ -30,6 +30,7 @@ dependencies:
   cached_network_image: 3.4.1
   shimmer: ^3.0.0
   flutter_svg: 2.3.0
+  share_plus: ^13.1.0
 
 dev_dependencies:
   flutter_test:
