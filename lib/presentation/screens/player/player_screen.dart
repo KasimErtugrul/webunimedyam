@@ -16,10 +16,12 @@ class PlayerScreen extends StatelessWidget {
 
     return Obx(() {
       if (!controller.isPlayerReady.value) {
-        return const Scaffold(
-          backgroundColor: AppTheme.backgroundColor,
+        return Scaffold(
+          backgroundColor: AppTheme.bg(context),
           body: Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         );
       }
@@ -38,11 +40,11 @@ class PlayerScreen extends StatelessWidget {
           player: YoutubePlayer(
             controller: controller.youtubeController,
             showVideoProgressIndicator: true,
-            progressIndicatorColor: AppTheme.primaryColor,
+            progressIndicatorColor: Theme.of(context).colorScheme.primary,
           ),
           builder: (context, player) {
             return Scaffold(
-              backgroundColor: AppTheme.backgroundColor,
+              backgroundColor: AppTheme.bg(context),
               body: SafeArea(
                 child: Column(
                   children: [
@@ -83,12 +85,11 @@ class PlayerScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             // ── Başlık
                             Text(
                               controller.currentVideo?.title ?? '',
-                              style: const TextStyle(
-                                color: AppTheme.textPrimary,
+                              style: TextStyle(
+                                color: AppTheme.textPri(context),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 height: 1.4,
@@ -109,25 +110,35 @@ class PlayerScreen extends StatelessWidget {
                             const SizedBox(height: 16),
 
                             // ── Açıklama
-                            if (controller.currentVideo?.description.isNotEmpty == true)
+                            if (controller
+                                    .currentVideo
+                                    ?.description
+                                    .isNotEmpty ==
+                                true)
                               _ExpandableDescription(
                                 text: controller.currentVideo!.description,
                               ),
 
                             // ── Etiketler
-                            if (controller.currentVideo?.tags.isNotEmpty == true) ...[
+                            if (controller.currentVideo?.tags.isNotEmpty ==
+                                true) ...[
                               const SizedBox(height: 14),
                               _TagsRow(tags: controller.currentVideo!.tags),
                             ],
 
                             const SizedBox(height: 20),
-                            const Divider(color: AppTheme.surfaceColor, height: 1),
+                            Divider(
+                              color: AppTheme.surface(context),
+                              height: 1,
+                            ),
                             const SizedBox(height: 16),
 
                             // ── Yorumlar başlık
-                            Obx(() => _CommentsHeader(
-                              count: controller.appCommentCount.value,
-                            )),
+                            Obx(
+                              () => _CommentsHeader(
+                                count: controller.appCommentCount.value,
+                              ),
+                            ),
 
                             const SizedBox(height: 12),
 
@@ -145,22 +156,32 @@ class PlayerScreen extends StatelessWidget {
                             // ── Yorum listesi
                             Obx(() {
                               if (controller.isCommentsLoading.value) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 24),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 24,
+                                  ),
                                   child: Center(
                                     child: CircularProgressIndicator(
-                                        color: AppTheme.primaryColor, strokeWidth: 2),
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 );
                               }
                               if (controller.comments.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 20,
+                                  ),
                                   child: Center(
                                     child: Text(
                                       'Henüz yorum yok. İlk yorumu sen yap!',
                                       style: TextStyle(
-                                          color: AppTheme.textSecondary, fontSize: 13),
+                                        color: AppTheme.textSec(context),
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ),
                                 );
@@ -169,12 +190,15 @@ class PlayerScreen extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: controller.comments.length,
-                                separatorBuilder: (_, __) => const Divider(
-                                    color: AppTheme.surfaceColor, height: 1),
+                                separatorBuilder: (_, __) => Divider(
+                                  color: AppTheme.surface(context),
+                                  height: 1,
+                                ),
                                 itemBuilder: (context, index) => _CommentTile(
                                   comment: controller.comments[index],
-                                  onDelete: () => controller
-                                      .deleteComment(controller.comments[index].id),
+                                  onDelete: () => controller.deleteComment(
+                                    controller.comments[index].id,
+                                  ),
                                 ),
                               );
                             }),
@@ -203,7 +227,7 @@ class _YoutubeMeta extends StatelessWidget {
 
   String _fmtCount(int n) {
     if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-    if (n >= 1000)    return '${(n / 1000).toStringAsFixed(1)}B';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
     return '$n';
   }
 
@@ -213,7 +237,8 @@ class _YoutubeMeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = <String>[];
-    if (video.viewCount > 0)         parts.add('${_fmtCount(video.viewCount)} görüntülenme');
+    if (video.viewCount > 0)
+      parts.add('${_fmtCount(video.viewCount)} görüntülenme');
     if (video.formattedDuration.isNotEmpty) parts.add(video.formattedDuration);
     parts.add(_fmtDate(video.publishedAt));
 
@@ -222,23 +247,22 @@ class _YoutubeMeta extends StatelessWidget {
         Expanded(
           child: Text(
             parts.join('  ·  '),
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 12),
           ),
         ),
         if (video.isHd)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.textSecondary.withValues(alpha: 0.4)),
+              border: Border.all(
+                color: AppTheme.textSec(context).withValues(alpha: 0.4),
+              ),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
+            child: Text(
               'HD',
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: AppTheme.textSec(context),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
@@ -266,57 +290,67 @@ class _EngagementBar extends StatelessWidget {
       child: Row(
         children: [
           // Beğen
-          Obx(() => _EngagementAction(
-            icon: controller.isLiked.value
-                ? Icons.thumb_up_rounded
-                : Icons.thumb_up_alt_outlined,
-            count: controller.appLikeCount.value,
-            active: controller.isLiked.value,
-            loading: controller.isLikeLoading.value,
-            onTap: controller.toggleLike,
-          )),
+          Obx(
+            () => _EngagementAction(
+              icon: controller.isLiked.value
+                  ? Icons.thumb_up_rounded
+                  : Icons.thumb_up_alt_outlined,
+              count: controller.appLikeCount.value,
+              active: controller.isLiked.value,
+              loading: controller.isLikeLoading.value,
+              onTap: controller.toggleLike,
+            ),
+          ),
 
           const SizedBox(width: 4),
 
           // Paylaş
-          Obx(() => _EngagementAction(
-            icon: Icons.share_outlined,
-            count: controller.appShareCount.value,
-            active: false,
-            loading: controller.isShareLoading.value,
-            onTap: controller.shareVideo,
-          )),
+          Obx(
+            () => _EngagementAction(
+              icon: Icons.share_outlined,
+              count: controller.appShareCount.value,
+              active: false,
+              loading: controller.isShareLoading.value,
+              onTap: controller.shareVideo,
+            ),
+          ),
 
           const SizedBox(width: 4),
 
           // Favori
-          Obx(() => _EngagementAction(
-            icon: controller.isFavorite.value
-                ? Icons.bookmark_rounded
-                : Icons.bookmark_outline_rounded,
-            count: controller.appFavoriteCount.value,
-            active: controller.isFavorite.value,
-            loading: controller.isFavoriteLoading.value,
-            onTap: controller.toggleFavorite,
-          )),
+          Obx(
+            () => _EngagementAction(
+              icon: controller.isFavorite.value
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_outline_rounded,
+              count: controller.appFavoriteCount.value,
+              active: controller.isFavorite.value,
+              loading: controller.isFavoriteLoading.value,
+              onTap: controller.toggleFavorite,
+            ),
+          ),
 
           const Spacer(),
 
           // İzlenme (sadece gösterim, tıklanamaz)
-          Obx(() => _StatBadge(
-            icon: Icons.visibility_outlined,
-            count: controller.appViewCount.value,
-            loading: controller.isInitialStatsLoading.value,
-          )),
+          Obx(
+            () => _StatBadge(
+              icon: Icons.visibility_outlined,
+              count: controller.appViewCount.value,
+              loading: controller.isInitialStatsLoading.value,
+            ),
+          ),
 
           const SizedBox(width: 10),
 
           // Yorum sayısı
-          Obx(() => _StatBadge(
-            icon: Icons.chat_bubble_outline_rounded,
-            count: controller.appCommentCount.value,
-            loading: controller.isInitialStatsLoading.value,
-          )),
+          Obx(
+            () => _StatBadge(
+              icon: Icons.chat_bubble_outline_rounded,
+              count: controller.appCommentCount.value,
+              loading: controller.isInitialStatsLoading.value,
+            ),
+          ),
         ],
       ),
     );
@@ -341,14 +375,16 @@ class _EngagementAction extends StatelessWidget {
 
   String _fmt(int n) {
     if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-    if (n >= 1000)    return '${(n / 1000).toStringAsFixed(1)}B';
-    if (n == 0)       return '';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
+    if (n == 0) return '';
     return '$n';
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? AppTheme.primaryColor : AppTheme.textSecondary;
+    final color = active
+        ? Theme.of(context).colorScheme.primary
+        : AppTheme.textSec(context);
     return InkWell(
       onTap: loading ? null : onTap,
       borderRadius: BorderRadius.circular(8),
@@ -407,8 +443,8 @@ class _StatBadge extends StatelessWidget {
 
   String _fmt(int n) {
     if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-    if (n >= 1000)    return '${(n / 1000).toStringAsFixed(1)}B';
-    if (n == 0)       return '0';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
+    if (n == 0) return '0';
     return '$n';
   }
 
@@ -417,15 +453,15 @@ class _StatBadge extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: AppTheme.textSecondary, size: 15),
+        Icon(icon, color: AppTheme.textSec(context), size: 15),
         const SizedBox(width: 4),
         loading
             ? SizedBox(
                 width: 28,
                 height: 10,
                 child: LinearProgressIndicator(
-                  backgroundColor: AppTheme.surfaceColor,
-                  color: AppTheme.textSecondary.withValues(alpha: 0.4),
+                  backgroundColor: AppTheme.surface(context),
+                  color: AppTheme.textSec(context).withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(4),
                 ),
               )
@@ -436,8 +472,8 @@ class _StatBadge extends StatelessWidget {
                 child: Text(
                   _fmt(count),
                   key: ValueKey(count),
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
                     fontSize: 12,
                   ),
                 ),
@@ -459,10 +495,10 @@ class _CommentsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Text(
+        Text(
           'Yorumlar',
           style: TextStyle(
-            color: AppTheme.textPrimary,
+            color: AppTheme.textPri(context),
             fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
@@ -471,10 +507,7 @@ class _CommentsHeader extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '$count',
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 13),
           ),
         ],
       ],
@@ -498,14 +531,19 @@ class _CommentInput extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: textController,
-            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+            style: TextStyle(color: AppTheme.textPri(context), fontSize: 14),
             decoration: InputDecoration(
               hintText: 'Yorum yaz...',
-              hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              hintStyle: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 14,
+              ),
               filled: true,
-              fillColor: AppTheme.surfaceColor,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              fillColor: AppTheme.surface(context),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 10,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,
@@ -519,10 +557,14 @@ class _CommentInput extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
+            child: Icon(
+              Icons.send_rounded,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 18,
+            ),
           ),
         ),
       ],
@@ -554,8 +596,8 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
         children: [
           Text(
             widget.text,
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
+            style: TextStyle(
+              color: AppTheme.textSec(context),
               fontSize: 13,
               height: 1.55,
             ),
@@ -565,8 +607,8 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
           const SizedBox(height: 4),
           Text(
             _expanded ? 'Daha az göster' : 'Devamını gör',
-            style: const TextStyle(
-              color: AppTheme.primaryColor,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -590,17 +632,25 @@ class _TagsRow extends StatelessWidget {
     return Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: tags.take(8).map((tag) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          '#$tag',
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
-        ),
-      )).toList(),
+      children: tags
+          .take(8)
+          .map(
+            (tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.surface(context),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '#$tag',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }
@@ -624,13 +674,14 @@ class _CommentTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: AppTheme.surfaceColor,
+            backgroundColor: AppTheme.surface(context),
             child: Text(
               (comment.profile?.username ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(
-                  color: AppTheme.primaryColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -640,8 +691,8 @@ class _CommentTile extends StatelessWidget {
               children: [
                 Text(
                   comment.profile?.username ?? 'Kullanıcı',
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -649,18 +700,24 @@ class _CommentTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   comment.content,
-                  style: const TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 13, height: 1.4),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
           ),
           GestureDetector(
             onTap: onDelete,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8, top: 2),
-              child: Icon(Icons.delete_outline_rounded,
-                  color: AppTheme.textSecondary, size: 16),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 2),
+              child: Icon(
+                Icons.delete_outline_rounded,
+                color: AppTheme.textSec(context),
+                size: 16,
+              ),
             ),
           ),
         ],

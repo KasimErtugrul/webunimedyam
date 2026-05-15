@@ -12,6 +12,7 @@ import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import 'home_controller.dart';
 import 'favorites_controller.dart';
+import 'profile_controller.dart';
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -280,6 +281,18 @@ class PlayerController extends GetxController {
       comments.removeWhere((c) => c.id == commentId);
       final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
       appCommentCount.value = stats['app_comment_count'] ?? appCommentCount.value;
+
+      // Bu kullanicinin bu videoya baska yorumu kalmadiysa
+      // ProfileController.commentedVideos'tan da cikar.
+      if (Get.isRegistered<ProfileController>()) {
+        final userId = _supabase.currentUser?.id;
+        final hasMoreComments = comments.any((c) => c.userId == userId);
+        if (!hasMoreComments) {
+          Get.find<ProfileController>()
+              .commentedVideos
+              .removeWhere((v) => v.videoId == currentVideo!.videoId);
+        }
+      }
     } catch (_) {}
   }
 

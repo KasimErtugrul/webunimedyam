@@ -21,10 +21,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final controller = Get.find<AuthController>();
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Kayıt Ol'),
-        backgroundColor: AppTheme.backgroundColor,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -32,55 +30,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'Hesap Oluştur',
               style: TextStyle(
-                color: AppTheme.textPrimary,
+                color: AppTheme.textPri(context),
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'ÇOMÜ TV\'ye ücretsiz katılın',
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: AppTheme.textSec(context)),
             ),
             const SizedBox(height: 40),
             TextField(
               controller: _usernameController,
-              style: const TextStyle(color: AppTheme.textPrimary),
-              decoration: const InputDecoration(
+              style: TextStyle(color: AppTheme.textPri(context)),
+              decoration: InputDecoration(
                 labelText: 'Kullanıcı Adı',
                 prefixIcon: Icon(Icons.person_outlined,
-                    color: AppTheme.textSecondary),
+                    color: AppTheme.textSec(context)),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(color: AppTheme.textPrimary),
-              decoration: const InputDecoration(
+              style: TextStyle(color: AppTheme.textPri(context)),
+              decoration: InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email_outlined,
-                    color: AppTheme.textSecondary),
+                    color: AppTheme.textSec(context)),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
               obscureText: _obscurePassword,
-              style: const TextStyle(color: AppTheme.textPrimary),
+              style: TextStyle(color: AppTheme.textPri(context)),
               decoration: InputDecoration(
                 labelText: 'Şifre',
-                prefixIcon: const Icon(Icons.lock_outlined,
-                    color: AppTheme.textSecondary),
+                prefixIcon: Icon(Icons.lock_outlined,
+                    color: AppTheme.textSec(context)),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSec(context),
                   ),
                   onPressed: () {
                     setState(() => _obscurePassword = !_obscurePassword);

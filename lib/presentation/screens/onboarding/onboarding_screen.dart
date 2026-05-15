@@ -68,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -76,9 +76,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _completeOnboarding,
-                child: const Text(
+                child: Text(
                   'Geç',
-                  style: TextStyle(color: AppTheme.textSecondary),
+                  style: TextStyle(color: AppTheme.textSec(context)),
                 ),
               ),
             ),
@@ -100,12 +100,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 120,
                           height: 120,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha:0.15),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             page['icon'] as IconData,
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 60,
                           ),
                         ),
@@ -113,8 +115,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           page['title'] as String,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppTheme.textPrimary,
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -123,8 +125,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           page['description'] as String,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppTheme.textSecondary,
+                          style: TextStyle(
+                            color: AppTheme.textSec(context),
                             fontSize: 16,
                             height: 1.6,
                           ),
@@ -150,8 +152,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: _currentPage == index
-                              ? AppTheme.primaryColor
-                              : AppTheme.textSecondary.withValues(alpha:0.3),
+                              ? Theme.of(context).colorScheme.primary
+                              : AppTheme.textSec(
+                                  context,
+                                ).withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),

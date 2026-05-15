@@ -37,8 +37,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         _isLoading = true;
         _error = '';
       });
-      final videos =
-          await _videoRepository.getPlaylistVideos(playlist.playlistId);
+      final videos = await _videoRepository.getPlaylistVideos(
+        playlist.playlistId,
+      );
       setState(() {
         _videos = videos;
         _isLoading = false;
@@ -54,17 +55,19 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.bg(context),
       body: CustomScrollView(
         slivers: [
           // ── Üst başlık ──────────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 220,
             pinned: true,
-            backgroundColor: AppTheme.backgroundColor,
+            backgroundColor: AppTheme.bg(context),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: AppTheme.textPrimary),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppTheme.textPri(context),
+              ),
               onPressed: () => Get.back(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -75,35 +78,32 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     CachedNetworkImage(
                       imageUrl: playlist.thumbnailUrl,
                       fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => Container(
-                        color: AppTheme.surfaceColor,
-                        child: const Icon(
+                      errorWidget: (_, __, ___) => Container(
+                        color: AppTheme.surface(context),
+                        child: Icon(
                           Icons.playlist_play_rounded,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSec(context),
                           size: 64,
                         ),
                       ),
                     )
                   else
                     Container(
-                      color: AppTheme.surfaceColor,
-                      child: const Icon(
+                      color: AppTheme.surface(context),
+                      child: Icon(
                         Icons.playlist_play_rounded,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textSec(context),
                         size: 64,
                       ),
                     ),
                   // gradient karartma
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          AppTheme.backgroundColor,
-                        ],
-                        stops: [0.4, 1.0],
+                        colors: [Colors.transparent, AppTheme.bg(context)],
+                        stops: const [0.4, 1.0],
                       ),
                     ),
                   ),
@@ -117,8 +117,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       children: [
                         Text(
                           playlist.title,
-                          style: const TextStyle(
-                            color: AppTheme.textPrimary,
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -128,16 +128,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.play_circle_outline_rounded,
-                              color: AppTheme.primaryColor,
+                              color: Theme.of(context).colorScheme.primary,
                               size: 16,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${playlist.itemCount} video',
-                              style: const TextStyle(
-                                color: AppTheme.primaryColor,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 13,
                               ),
                             ),
@@ -161,13 +161,15 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   padding: const EdgeInsets.all(32),
                   child: Column(
                     children: [
-                      const Icon(Icons.error_outline_rounded,
-                          color: AppTheme.textSecondary, size: 48),
+                      Icon(
+                        Icons.error_outline_rounded,
+                        color: AppTheme.textSec(context),
+                        size: 48,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         _error,
-                        style:
-                            const TextStyle(color: AppTheme.textSecondary),
+                        style: TextStyle(color: AppTheme.textSec(context)),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -180,13 +182,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               ),
             )
           else if (_videos.isEmpty)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   child: Text(
                     'Bu oynatma listesinde video bulunmuyor.',
-                    style: TextStyle(color: AppTheme.textSecondary),
+                    style: TextStyle(color: AppTheme.textSec(context)),
                   ),
                 ),
               ),
@@ -206,21 +208,20 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppTheme.surfaceColor,
-      highlightColor: AppTheme.cardColor,
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
       child: Column(
         children: List.generate(
           6,
           (_) => Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Container(
                   width: 120,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.surface(context),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -230,11 +231,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                          height: 14,
-                          width: double.infinity,
-                          color: Colors.white),
+                        height: 14,
+                        width: double.infinity,
+                        color: AppTheme.surface(context),
+                      ),
                       const SizedBox(height: 8),
-                      Container(height: 12, width: 120, color: Colors.white),
+                      Container(
+                        height: 12,
+                        width: 120,
+                        color: AppTheme.surface(context),
+                      ),
                     ],
                   ),
                 ),
@@ -272,18 +278,18 @@ class _PlaylistVideoTile extends StatelessWidget {
                     width: 120,
                     height: 70,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
+                    placeholder: (_, __) => Container(
                       width: 120,
                       height: 70,
-                      color: AppTheme.cardColor,
+                      color: AppTheme.card(context),
                     ),
-                    errorWidget: (_, _, _) => Container(
+                    errorWidget: (_, __, ___) => Container(
                       width: 120,
                       height: 70,
-                      color: AppTheme.cardColor,
-                      child: const Icon(
+                      color: AppTheme.card(context),
+                      child: Icon(
                         Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textSec(context),
                         size: 28,
                       ),
                     ),
@@ -294,9 +300,11 @@ class _PlaylistVideoTile extends StatelessWidget {
                     left: 4,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha:0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -320,8 +328,8 @@ class _PlaylistVideoTile extends StatelessWidget {
                 children: [
                   Text(
                     video.title,
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -331,8 +339,8 @@ class _PlaylistVideoTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${video.viewCount} görüntülenme · ${_timeAgo(video.publishedAt)}',
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
                       fontSize: 11,
                     ),
                   ),

@@ -14,40 +14,40 @@ class FavoritesScreen extends StatelessWidget {
     final controller = Get.find<FavoritesController>();
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Favorilerim'),
-      ),
+      backgroundColor: AppTheme.bg(context),
+      appBar: AppBar(title: const Text('Favorilerim')),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           );
         }
 
         if (controller.favoriteVideos.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.favorite_outline_rounded,
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.textSec(context),
                   size: 64,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   'Henüz favori eklemediniz',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSec(context),
                     fontSize: 16,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Beğendiğiniz videoları favorilere ekleyin',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSec(context),
                     fontSize: 13,
                   ),
                 ),
@@ -95,7 +95,7 @@ class _FavoriteCard extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: AppTheme.cardColor,
+            color: AppTheme.card(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -110,13 +110,13 @@ class _FavoriteCard extends StatelessWidget {
                   width: 120,
                   height: 80,
                   fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => Container(
+                  errorWidget: (_, __, ___) => Container(
                     width: 120,
                     height: 80,
-                    color: AppTheme.surfaceColor,
-                    child: const Icon(
+                    color: AppTheme.surface(context),
+                    child: Icon(
                       Icons.play_circle_outline_rounded,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textSec(context),
                     ),
                   ),
                 ),
@@ -130,8 +130,8 @@ class _FavoriteCard extends StatelessWidget {
                     children: [
                       Text(
                         video.title,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -141,8 +141,8 @@ class _FavoriteCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${video.viewCount} görüntülenme',
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
+                        style: TextStyle(
+                          color: AppTheme.textSec(context),
                           fontSize: 11,
                         ),
                       ),

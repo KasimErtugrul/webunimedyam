@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../app/themes/app_theme.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 
@@ -48,6 +50,9 @@ class SettingsController extends GetxController {
     if (current == null) return;
     final updated = current.copyWith(theme: theme);
     await _updateSettings(updated);
+    Get.changeTheme(theme == 'dark' ? AppTheme.darkTheme : AppTheme.lightTheme);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme', theme);
   }
 
   Future<void> changeLanguage(String language) async {

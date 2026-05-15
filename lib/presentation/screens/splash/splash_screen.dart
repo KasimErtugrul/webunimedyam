@@ -10,7 +10,6 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.find<SplashController>();
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -29,20 +28,20 @@ class SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'ÇOMÜ TV',
               style: TextStyle(
-                color: AppTheme.textPrimary,
+                color: AppTheme.textPri(context),
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 2,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Üniversite Video Platformu',
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: AppTheme.textSec(context),
                 fontSize: 14,
               ),
             ),

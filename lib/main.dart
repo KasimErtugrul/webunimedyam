@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
@@ -14,18 +15,25 @@ void main() async {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
   );
 
-  runApp(const MyApp());
+  // Kaydedilmis temaya gore baslat
+  final prefs = await SharedPreferences.getInstance();
+  final savedTheme = prefs.getString('theme') ?? 'dark';
+
+  runApp(MyApp(initialTheme: savedTheme));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialTheme;
+  const MyApp({super.key, required this.initialTheme});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'ÇOMÜ TV',
+      title: 'COMU TV',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
     );

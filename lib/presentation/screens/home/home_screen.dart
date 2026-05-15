@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
 
     return Obx(
       () => Scaffold(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: AppTheme.bg(context),
         body: IndexedStack(
           index: controller.selectedIndex.value,
           children: const [_HomeTab(), _UniversitiesTab(), FavoritesScreen()],
@@ -62,11 +62,11 @@ class _HomeTab extends StatelessWidget {
     final controller = Get.find<HomeController>();
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         child: Obx(() {
           return RefreshIndicator(
-            color: AppTheme.primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: () async {
               await controller.refreshVideos();
               await controller.loadPlaylists();
@@ -77,7 +77,7 @@ class _HomeTab extends StatelessWidget {
                 SliverAppBar(
                   floating: true,
                   snap: true,
-                  backgroundColor: AppTheme.backgroundColor,
+                  backgroundColor: AppTheme.bg(context),
                   automaticallyImplyLeading: false,
                   title: Row(
                     children: [
@@ -85,12 +85,12 @@ class _HomeTab extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 20,
                         ),
                       ),
@@ -117,16 +117,13 @@ class _HomeTab extends StatelessWidget {
                   ],
                 ),
 
-                // ── Üniversite Filtre Şeridi ──────────────────────────────
                 // ── Video Listesi Başlığı ───────────────────────
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Text(
                       'Son Videolar',
-                      style: TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 17,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -135,24 +132,22 @@ class _HomeTab extends StatelessWidget {
 
                 // ── Video Listesi ─────────────────────────────────────────
                 if (controller.isLoading.value)
-                  SliverToBoxAdapter(child: _buildVideoShimmer())
+                  SliverToBoxAdapter(child: _buildVideoShimmer(context))
                 else if (controller.errorMessage.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(32),
                       child: Column(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.error_outline_rounded,
-                            color: AppTheme.textSecondary,
+                            color: AppTheme.textSec(context),
                             size: 48,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             controller.errorMessage.value,
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
-                            ),
+                            style: TextStyle(color: AppTheme.textSec(context)),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -164,13 +159,13 @@ class _HomeTab extends StatelessWidget {
                     ),
                   )
                 else if (controller.videos.isEmpty)
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(32),
+                      padding: const EdgeInsets.all(32),
                       child: Center(
                         child: Text(
                           'Henüz video yok.',
-                          style: TextStyle(color: AppTheme.textSecondary),
+                          style: TextStyle(color: AppTheme.textSec(context)),
                         ),
                       ),
                     ),
@@ -193,10 +188,10 @@ class _HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoShimmer() {
+  Widget _buildVideoShimmer(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppTheme.surfaceColor,
-      highlightColor: AppTheme.cardColor,
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
       child: Column(
         children: List.generate(
           4,
@@ -204,7 +199,7 @@ class _HomeTab extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.surface(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -213,9 +208,9 @@ class _HomeTab extends StatelessWidget {
                   // Thumbnail placeholder
                   Container(
                     height: 196,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16),
                       ),
                     ),
@@ -231,7 +226,7 @@ class _HomeTab extends StatelessWidget {
                           height: 42,
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppTheme.surface(context),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -239,18 +234,21 @@ class _HomeTab extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(height: 14, color: Colors.white),
+                              Container(
+                                height: 14,
+                                color: AppTheme.surface(context),
+                              ),
                               const SizedBox(height: 6),
                               Container(
                                 height: 14,
                                 width: 160,
-                                color: Colors.white,
+                                color: AppTheme.surface(context),
                               ),
                               const SizedBox(height: 8),
                               Container(
                                 height: 11,
                                 width: 100,
-                                color: Colors.white,
+                                color: AppTheme.surface(context),
                               ),
                             ],
                           ),
@@ -285,14 +283,18 @@ class _VideoCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       child: Card(
-        color: AppTheme.cardColor,
+        color: AppTheme.card(context),
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
-          splashColor: AppTheme.primaryColor.withValues(alpha: 0.08),
-          highlightColor: AppTheme.primaryColor.withValues(alpha: 0.04),
+          splashColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.08),
+          highlightColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.04),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -306,20 +308,20 @@ class _VideoCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: video.thumbnailUrl,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        color: AppTheme.surfaceColor,
-                        child: const Center(
+                      placeholder: (_, __) => Container(
+                        color: AppTheme.surface(context),
+                        child: Center(
                           child: CircularProgressIndicator(
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             strokeWidth: 2,
                           ),
                         ),
                       ),
-                      errorWidget: (_, _, _) => Container(
-                        color: AppTheme.surfaceColor,
-                        child: const Icon(
+                      errorWidget: (_, __, ___) => Container(
+                        color: AppTheme.surface(context),
+                        child: Icon(
                           Icons.play_circle_outline_rounded,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSec(context),
                           size: 48,
                         ),
                       ),
@@ -359,15 +361,21 @@ class _VideoCard extends StatelessWidget {
                             color: const Color(0xFFE53935),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.circle, color: Colors.white, size: 7),
-                              SizedBox(width: 4),
+                              Icon(
+                                Icons.circle,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                size: 7,
+                              ),
+                              const SizedBox(width: 4),
                               Text(
                                 'CANLI',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
@@ -422,7 +430,7 @@ class _VideoCard extends StatelessWidget {
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_outline_rounded,
                                 color: controller.isFavorite(video.videoId)
-                                    ? AppTheme.primaryColor
+                                    ? Theme.of(context).colorScheme.primary
                                     : Colors.white,
                                 size: 19,
                               ),
@@ -454,10 +462,12 @@ class _VideoCard extends StatelessWidget {
                         height: 42,
                         margin: const EdgeInsets.only(right: 12, top: 1),
                         decoration: BoxDecoration(
-                          color: AppTheme.surfaceColor,
+                          color: AppTheme.surface(context),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.07),
+                            color: AppTheme.textSec(
+                              context,
+                            ).withValues(alpha: 0.1),
                           ),
                         ),
                         child: hasLogo
@@ -466,18 +476,18 @@ class _VideoCard extends StatelessWidget {
                                 child: CachedNetworkImage(
                                   imageUrl: logoUrl,
                                   fit: BoxFit.contain,
-                                  placeholder: (_, _) =>
+                                  placeholder: (_, __) =>
                                       const SizedBox.shrink(),
-                                  errorWidget: (_, _, _) => const Icon(
+                                  errorWidget: (_, __, ___) => Icon(
                                     Icons.school_rounded,
-                                    color: AppTheme.textSecondary,
+                                    color: AppTheme.textSec(context),
                                     size: 22,
                                   ),
                                 ),
                               )
-                            : const Icon(
+                            : Icon(
                                 Icons.school_rounded,
-                                color: AppTheme.textSecondary,
+                                color: AppTheme.textSec(context),
                                 size: 22,
                               ),
                       );
@@ -490,8 +500,8 @@ class _VideoCard extends StatelessWidget {
                         children: [
                           Text(
                             video.title,
-                            style: const TextStyle(
-                              color: AppTheme.textPrimary,
+                            style: TextStyle(
+                              color: AppTheme.textPri(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               height: 1.35,
@@ -505,8 +515,10 @@ class _VideoCard extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   video.universityName ?? '',
-                                  style: const TextStyle(
-                                    color: AppTheme.primaryColor,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -517,8 +529,8 @@ class _VideoCard extends StatelessWidget {
                               const SizedBox(width: 8),
                               Text(
                                 _timeAgo(video.publishedAt),
-                                style: const TextStyle(
-                                  color: AppTheme.textSecondary,
+                                style: TextStyle(
+                                  color: AppTheme.textSec(context),
                                   fontSize: 11,
                                 ),
                               ),
@@ -546,6 +558,7 @@ class _VideoCard extends StatelessWidget {
     return '${diff.inMinutes} dakika önce';
   }
 }
+
 // ════════════════════════════════════════════════════════════════════════════════
 // Üniversiteler Sekmesi
 // ════════════════════════════════════════════════════════════════════════════════
@@ -558,11 +571,11 @@ class _UniversitiesTab extends StatelessWidget {
     final controller = Get.find<HomeController>();
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         child: Obx(() {
           return RefreshIndicator(
-            color: AppTheme.primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: controller.loadPlaylists,
             child: CustomScrollView(
               slivers: [
@@ -570,7 +583,7 @@ class _UniversitiesTab extends StatelessWidget {
                 SliverAppBar(
                   floating: true,
                   snap: true,
-                  backgroundColor: AppTheme.backgroundColor,
+                  backgroundColor: AppTheme.bg(context),
                   automaticallyImplyLeading: false,
                   title: Row(
                     children: [
@@ -578,21 +591,19 @@ class _UniversitiesTab extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.school_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 18,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
+                      Text(
                         'Üniversiteler',
-                        style: TextStyle(
-                          color: AppTheme.textPrimary,
-                          fontSize: 20,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -612,11 +623,11 @@ class _UniversitiesTab extends StatelessWidget {
                     ),
                   )
                 else if (controller.playlists.isEmpty)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     child: Center(
                       child: Text(
                         'Üniversite bulunamadı.',
-                        style: TextStyle(color: AppTheme.textSecondary),
+                        style: TextStyle(color: AppTheme.textSec(context)),
                       ),
                     ),
                   )
@@ -647,14 +658,14 @@ class _UniversityCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppTheme.surfaceColor,
-      highlightColor: AppTheme.cardColor,
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Container(
           height: 88,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.surface(context),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(14),
@@ -664,7 +675,7 @@ class _UniversityCardShimmer extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.surface(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -674,9 +685,13 @@ class _UniversityCardShimmer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 14, color: Colors.white),
+                    Container(height: 14, color: AppTheme.surface(context)),
                     const SizedBox(height: 8),
-                    Container(height: 11, width: 90, color: Colors.white),
+                    Container(
+                      height: 11,
+                      width: 90,
+                      color: AppTheme.surface(context),
+                    ),
                   ],
                 ),
               ),
@@ -685,7 +700,7 @@ class _UniversityCardShimmer extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.surface(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -711,15 +726,19 @@ class _UniversityListCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Card(
-        color: AppTheme.cardColor,
+        color: AppTheme.card(context),
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () =>
               Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
-          splashColor: AppTheme.primaryColor.withValues(alpha: 0.08),
-          highlightColor: AppTheme.primaryColor.withValues(alpha: 0.04),
+          splashColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.08),
+          highlightColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.04),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -729,10 +748,10 @@ class _UniversityListCard extends StatelessWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceColor,
+                    color: AppTheme.surface(context),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.07),
+                      color: AppTheme.textSec(context).withValues(alpha: 0.1),
                     ),
                   ),
                   child: hasLogo
@@ -741,17 +760,17 @@ class _UniversityListCard extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl: playlist.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, _) => const SizedBox.shrink(),
-                            errorWidget: (_, _, _) => const Icon(
+                            placeholder: (_, __) => const SizedBox.shrink(),
+                            errorWidget: (_, __, ___) => Icon(
                               Icons.school_rounded,
-                              color: AppTheme.textSecondary,
+                              color: AppTheme.textSec(context),
                               size: 28,
                             ),
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.school_rounded,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSec(context),
                           size: 28,
                         ),
                 ),
@@ -765,8 +784,8 @@ class _UniversityListCard extends StatelessWidget {
                     children: [
                       Text(
                         playlist.title,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
@@ -777,16 +796,16 @@ class _UniversityListCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.play_circle_outline_rounded,
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 13,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${playlist.itemCount} video',
-                            style: const TextStyle(
-                              color: AppTheme.primaryColor,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -808,18 +827,18 @@ class _UniversityListCard extends StatelessWidget {
                       width: 72,
                       height: 48,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
+                      placeholder: (_, __) => Container(
                         width: 72,
                         height: 48,
-                        color: AppTheme.surfaceColor,
+                        color: AppTheme.surface(context),
                       ),
-                      errorWidget: (_, _, _) => const SizedBox.shrink(),
+                      errorWidget: (_, __, ___) => const SizedBox.shrink(),
                     ),
                   )
                 else
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSec(context),
                     size: 22,
                   ),
               ],

@@ -51,13 +51,13 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.bg(context),
       appBar: AppBar(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: AppTheme.bg(context),
         elevation: 0,
         titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
+          icon: Icon(Icons.arrow_back_rounded, color: AppTheme.textPri(context)),
           onPressed: () => Get.back(),
         ),
         title: Padding(
@@ -68,12 +68,12 @@ class _SearchScreenState extends State<SearchScreen> {
             onChanged: controller.onQueryChanged,
             onSubmitted: _onSubmit,
             textInputAction: TextInputAction.search,
-            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+            style: TextStyle(color: AppTheme.textPri(context), fontSize: 16),
             decoration: InputDecoration(
               hintText: 'Video ara...',
-              hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+              hintStyle: TextStyle(color: AppTheme.textSec(context), fontSize: 16),
               filled: true,
-              fillColor: AppTheme.cardColor,
+              fillColor: AppTheme.card(context),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -81,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               suffixIcon: Obx(() => controller.query.value.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.close_rounded, color: AppTheme.textSecondary, size: 20),
+                      icon: Icon(Icons.close_rounded, color: AppTheme.textSec(context), size: 20),
                       onPressed: () {
                         _textController.clear();
                         controller.onQueryChanged('');
@@ -103,8 +103,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
         // ── Yükleniyor ──────────────────────────────────────────────────────
         if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           );
         }
 
@@ -114,11 +116,11 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.search_off_rounded, color: AppTheme.textSecondary, size: 64),
+                Icon(Icons.search_off_rounded, color: AppTheme.textSec(context), size: 64),
                 const SizedBox(height: 16),
                 Text(
                   '"$q" için sonuç bulunamadı',
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 15),
+                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -156,15 +158,15 @@ class _HistoryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.history.isEmpty) {
-        return const Center(
+        return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history_rounded, color: AppTheme.textSecondary, size: 56),
-              SizedBox(height: 12),
+              Icon(Icons.history_rounded, color: AppTheme.textSec(context), size: 56),
+              const SizedBox(height: 12),
               Text(
                 'Arama geçmişi yok',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 15),
+                style: TextStyle(color: AppTheme.textSec(context), fontSize: 15),
               ),
             ],
           ),
@@ -179,19 +181,19 @@ class _HistoryView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Son Aramalar',
                   style: TextStyle(
-                    color: AppTheme.textPrimary,
+                    color: AppTheme.textPri(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 TextButton(
                   onPressed: controller.clearHistory,
-                  child: const Text(
+                  child: Text(
                     'Temizle',
-                    style: TextStyle(color: AppTheme.primaryColor, fontSize: 13),
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13),
                   ),
                 ),
               ],
@@ -203,10 +205,10 @@ class _HistoryView extends StatelessWidget {
               itemBuilder: (_, i) {
                 final q = controller.history[i];
                 return ListTile(
-                  leading: const Icon(Icons.history_rounded, color: AppTheme.textSecondary, size: 20),
-                  title: Text(q, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14)),
+                  leading: Icon(Icons.history_rounded, color: AppTheme.textSec(context), size: 20),
+                  title: Text(q, style: TextStyle(color: AppTheme.textPri(context), fontSize: 14)),
                   trailing: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppTheme.textSecondary, size: 18),
+                    icon: Icon(Icons.close_rounded, color: AppTheme.textSec(context), size: 18),
                     onPressed: () => controller.removeHistory(q),
                   ),
                   onTap: () => onTap(q),
@@ -241,7 +243,7 @@ class _VideoResultCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: AppTheme.cardColor,
+          color: AppTheme.card(context),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -257,12 +259,12 @@ class _VideoResultCard extends StatelessWidget {
                 width: 120,
                 height: 80,
                 fit: BoxFit.cover,
-                errorWidget: (_, _, _) => Container(
+                errorWidget: (_, __, ___) => Container(
                   width: 120,
                   height: 80,
-                  color: AppTheme.surfaceColor,
-                  child: const Icon(Icons.play_circle_outline_rounded,
-                      color: AppTheme.textSecondary),
+                  color: AppTheme.surface(context),
+                  child: Icon(Icons.play_circle_outline_rounded,
+                      color: AppTheme.textSec(context)),
                 ),
               ),
             ),
@@ -276,8 +278,8 @@ class _VideoResultCard extends StatelessWidget {
                     _HighlightText(
                       text: video.title,
                       highlight: query,
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
+                      style: TextStyle(
+                        color: AppTheme.textPri(context),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -287,8 +289,8 @@ class _VideoResultCard extends StatelessWidget {
                     if (video.universityName != null)
                       Text(
                         video.universityName!,
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
@@ -298,7 +300,7 @@ class _VideoResultCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       video.formattedViewCount,
-                      style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                      style: TextStyle(color: AppTheme.textSec(context), fontSize: 11),
                     ),
                   ],
                 ),
@@ -348,7 +350,7 @@ class _HighlightText extends StatelessWidget {
       spans.add(TextSpan(
         text: text.substring(idx, idx + highlight.length),
         style: style.copyWith(
-          color: AppTheme.primaryColor,
+          color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.bold,
         ),
       ));

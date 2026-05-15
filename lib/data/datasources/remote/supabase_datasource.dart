@@ -137,6 +137,28 @@ class SupabaseDataSource {
     return (data as List).map((e) => e['video_id'] as String).toList();
   }
 
+  /// Kullanıcının favori videolarını video detayıyla döner.
+  Future<List<VideoModel>> getUserFavoriteVideos(String userId) async {
+    final data = await _client
+        .from('favorites')
+        .select('video_id, created_at, videos_cache(*, universities(name))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    final List<VideoModel> videos = [];
+    for (final row in (data as List)) {
+      final videoData = row['videos_cache'];
+      if (videoData == null) continue;
+      final map = Map<String, dynamic>.from(videoData as Map);
+      if (map['universities'] != null) {
+        map['university_name'] = map['universities']['name'];
+      }
+      map.remove('universities');
+      videos.add(VideoModel.fromSupabase(map));
+    }
+    return videos;
+  }
+
   Future<void> addFavorite(String userId, String videoId) async {
     await _client.from('favorites').insert({
       'user_id': userId,
@@ -173,6 +195,32 @@ class SupabaseDataSource {
 
   Future<void> deleteComment(String commentId) async {
     await _client.from('comments').delete().eq('id', commentId);
+  }
+
+  /// Kullanıcının yorum yaptığı videoları döner (tekrarsız, en yeni önce).
+  Future<List<VideoModel>> getUserCommentedVideos(String userId) async {
+    final data = await _client
+        .from('comments')
+        .select('video_id, created_at, videos_cache(*, universities(name))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    final seen = <String>{};
+    final List<VideoModel> videos = [];
+    for (final row in (data as List)) {
+      final videoData = row['videos_cache'];
+      if (videoData == null) continue;
+      final map = Map<String, dynamic>.from(videoData as Map);
+      final videoId = map['video_id'] as String? ?? '';
+      if (seen.contains(videoId)) continue;
+      seen.add(videoId);
+      if (map['universities'] != null) {
+        map['university_name'] = map['universities']['name'];
+      }
+      map.remove('universities');
+      videos.add(VideoModel.fromSupabase(map));
+    }
+    return videos;
   }
 
   // ─── Oynatma Listeleri ────────────────────────────────────────────────────
@@ -259,6 +307,28 @@ class SupabaseDataSource {
     );
   }
 
+  /// Kullanıcının izlediği videoları döner (en yeni önce).
+  Future<List<VideoModel>> getUserViewedVideos(String userId) async {
+    final data = await _client
+        .from('content_views')
+        .select('video_id, created_at, videos_cache(*, universities(name))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    final List<VideoModel> videos = [];
+    for (final row in (data as List)) {
+      final videoData = row['videos_cache'];
+      if (videoData == null) continue;
+      final map = Map<String, dynamic>.from(videoData as Map);
+      if (map['universities'] != null) {
+        map['university_name'] = map['universities']['name'];
+      }
+      map.remove('universities');
+      videos.add(VideoModel.fromSupabase(map));
+    }
+    return videos;
+  }
+
   // ─── Paylaşım (shared) ───────────────────────────────────────────────────
 
   /// Kullanıcı paylaştığında çağır (tekrar eklenmez).
@@ -267,6 +337,28 @@ class SupabaseDataSource {
       {'user_id': userId, 'video_id': videoId},
       onConflict: 'user_id,video_id',
     );
+  }
+
+  /// Kullanıcının paylaştığı videoları döner (en yeni önce).
+  Future<List<VideoModel>> getUserSharedVideos(String userId) async {
+    final data = await _client
+        .from('shared')
+        .select('video_id, created_at, videos_cache(*, universities(name))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    final List<VideoModel> videos = [];
+    for (final row in (data as List)) {
+      final videoData = row['videos_cache'];
+      if (videoData == null) continue;
+      final map = Map<String, dynamic>.from(videoData as Map);
+      if (map['universities'] != null) {
+        map['university_name'] = map['universities']['name'];
+      }
+      map.remove('universities');
+      videos.add(VideoModel.fromSupabase(map));
+    }
+    return videos;
   }
 
   // ─── Etkileşim İstatistikleri ─────────────────────────────────────────────
