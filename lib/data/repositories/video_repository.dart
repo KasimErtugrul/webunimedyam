@@ -8,7 +8,6 @@ import '../models/playlist_model.dart';
 
 class VideoRepository {
   final SupabaseDataSource _supabase;
-  // ignore: unused_field
   final LocalDataSource _local;
 
   VideoRepository({
@@ -23,40 +22,69 @@ class VideoRepository {
     return await _supabase.getUniversities();
   }
 
-  // ─── Video: Ana Sayfa ─────────────────────────────────────────────────────
+  // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
+  //
+  // Strateji:
+  //   1. Local cache geçerliyse (< 14 dk) → Supabase isteği YOK, local'den sun.
+  //   2. Cache süresi dolmuşsa veya hiç yoksa → Supabase'den çek, local'e kaydet.
+  //   3. Supabase başarısız olursa → eski local veriyi döndür (offline fallback).
+  //
+  // Cron 14 dk'da bir çalıştığından TTL ile mükemmel senkron oluruz.
 
-  /// Her üniversiteden en son video — latest_videos_per_university view.
   Future<List<VideoModel>> getLatestVideosPerUniversity() async {
+    // 1. Cache geçerli mi?
+    if (await _local.isCacheValid()) {
+      final cached = await _local.getCachedVideos();
+      if (cached.isNotEmpty) {
+        log('VIDEO CACHE HIT: ${cached.length} video (cron henüz çalışmadı veya aktif saat dışı)');
+        return cached;
+      }
+    }
+
+    // 2. Cache süresi dolmuş veya boş → Supabase'den çek
     try {
       final videos = await _supabase.getLatestVideoPerUniversity();
-      log('SUPABASE latest_videos_per_university: ${videos.length} video');
+      log('VIDEO CACHE MISS: Supabase\'den ${videos.length} video çekildi');
+      // Local'e kaydet, bir sonraki açılış cache'ten gelsin
+      await _local.cacheVideos(videos);
       return videos;
     } catch (e) {
-      log('latest_videos_per_university hatasi: $e');
-      return [];
+      log('Supabase hatası, eski cache kullanılıyor: $e');
+      // 3. Offline fallback — eski cache bile olsa göster
+      final stale = await _local.getCachedVideos();
+      return stale;
     }
   }
 
-  // ─── Video: Üniversiteye Göre ─────────────────────────────────────────────
+  // ─── Video: Üniversiteye Göre ──────────────────────────────────────────────
+  //
+  // Üniversite filtrelemesi Supabase'e özgü (her üniversite ayrı sorgu),
+  // bu yüzden local cache'i bypass edip direkt çekiyoruz.
+  // Ana sayfa cache'ini bozmamak için ayrı tutuyoruz.
 
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
       final videos = await _supabase.getCachedVideosByUniversity(universityId);
-      log('SUPABASE universite $universityId: ${videos.length} video');
+      log('Üniversite $universityId: ${videos.length} video');
       return videos;
     } catch (e) {
-      log('Universite videolari hatasi: $e');
-      return [];
+      log('Üniversite videoları hatası: $e');
+      // Fallback: local cache'teki tüm videolar içinden filtrele
+      final all = await _local.getCachedVideos();
+      return all.where((v) => v.universityId == universityId).toList();
     }
   }
 
-  // ─── Refresh ──────────────────────────────────────────────────────────────
+  // ─── Pull-to-Refresh ───────────────────────────────────────────────────────
+  //
+  // Kullanıcı manuel yenilediğinde cache'i geçersiz kıl ve Supabase'den çek.
 
   Future<List<VideoModel>> refreshVideos() async {
+    await _local.clearCache(); // TTL'yi sıfırla
     return await getLatestVideosPerUniversity();
   }
 
-  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
+  // ─── Oynatma Listeleri ─────────────────────────────────────────────────────
 
   Future<List<PlaylistModel>> getPlaylists() async {
     try {
@@ -69,7 +97,7 @@ class VideoRepository {
               ))
           .toList();
     } catch (e) {
-      log('getPlaylists hatasi: $e');
+      log('getPlaylists hatası: $e');
       return [];
     }
   }
@@ -83,7 +111,7 @@ class VideoRepository {
         int.parse(universityId),
       );
     } catch (e) {
-      log('getPlaylistVideos hatasi: $e');
+      log('getPlaylistVideos hatası: $e');
       return [];
     }
   }
