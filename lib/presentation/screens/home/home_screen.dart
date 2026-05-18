@@ -452,7 +452,10 @@ class _VideoCard extends StatelessWidget {
                     // Üniversite logosu — avatar
                     Obx(() {
                       final uni = controller.universities.firstWhereOrNull(
-                        (u) => u.name == video.universityName,
+                        (u) =>
+                            u.id ==
+                            video
+                                .universityId, // string karşılaştırması yerine id
                       );
                       final logoUrl = uni?.logoUrl;
                       final hasLogo = logoUrl != null && logoUrl.isNotEmpty;
