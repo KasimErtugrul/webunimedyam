@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // screenutil eklendi
 import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
 import 'app/themes/app_theme.dart';
@@ -19,6 +20,9 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final savedTheme = prefs.getString('theme') ?? 'dark';
 
+  // screenutil başlatma - uygulama başlamadan önce ekran ölçekleme ayarları
+  await ScreenUtil.ensureScreenSize(); // Gerçek ekran boyutlarını almak için
+
   runApp(MyApp(initialTheme: savedTheme));
 }
 
@@ -28,14 +32,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'COMU TV',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
-      initialRoute: AppRoutes.splash,
-      getPages: AppPages.pages,
+    // ScreenUtilInit ile tüm widget ağacını sarmalıyoruz
+    return ScreenUtilInit(
+      // Tasarım yapılırken kullanılan referans ekran boyutu (genellikle iPhone 11/12/13)
+      designSize: const Size(375, 812),
+      // Min text scale factor (opsiyonel)
+      minTextAdapt: true,
+      // Ekran döndüğünde yeniden ölçeklendirme
+      splitScreenMode: true,
+      builder: (context, child) {
+        return GetMaterialApp(
+          title: 'COMU TV',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
+          initialRoute: AppRoutes.splash,
+          getPages: AppPages.pages,
+        );
+      },
     );
   }
 }

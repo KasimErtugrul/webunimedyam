@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+
 import '../../../app/themes/app_theme.dart';
-import '../../../app/routes/app_routes.dart';
 import '../../../data/models/playlist_model.dart';
 import '../../../data/models/video_model.dart';
 import '../../../data/repositories/video_repository.dart';
+import '../home/widgets/tabs/home_tab/widgets/video_card_widget.dart'; // VideoCardWidget import edildi
 
 class PlaylistDetailScreen extends StatefulWidget {
   const PlaylistDetailScreen({super.key});
@@ -58,9 +59,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       backgroundColor: AppTheme.bg(context),
       body: CustomScrollView(
         slivers: [
-          // ── Üst başlık ──────────────────────────────────────────────────
+          // ── Zenginleştirilmiş Üst Alan (SliverAppBar) ─────────────────────
           SliverAppBar(
-            expandedHeight: 220,
+            expandedHeight: 260,
             pinned: true,
             backgroundColor: AppTheme.bg(context),
             leading: IconButton(
@@ -74,6 +75,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // Arka plan thumbnail (karartmalı)
                   if (playlist.thumbnailUrl.isNotEmpty)
                     CachedNetworkImage(
                       imageUrl: playlist.thumbnailUrl,
@@ -96,22 +98,96 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         size: 64,
                       ),
                     ),
-                  // gradient karartma
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, AppTheme.bg(context)],
-                        stops: const [0.4, 1.0],
+
+                  // Alt gradient (videolardaki gibi)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 120,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            AppTheme.bg(context).withValues(alpha: 0.95),
+                            Colors.transparent,
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  // başlık + video sayısı
+
+                  // Üst gradient (isteğe bağlı, daha soft)
                   Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    height: 80,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.4),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // "OYNA LİSTESİ" rozeti (sol üst)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.playlist_play_rounded,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'OYNA LİSTESİ',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Başlık + video sayısı (altta, modern)
+                  Positioned(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -119,29 +195,47 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                           playlist.title,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: 18,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 6,
+                              ),
+                            ],
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.play_circle_outline_rounded,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${playlist.itemCount} video',
-                              style: TextStyle(
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.video_library_rounded,
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 13,
+                                size: 16,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Text(
+                                '${playlist.itemCount} video',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -151,7 +245,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             ),
           ),
 
-          // ── İçerik ──────────────────────────────────────────────────────
+          // ── Video Listesi (Artık VideoCardWidget ile) ─────────────────────
           if (_isLoading)
             SliverToBoxAdapter(child: _buildShimmer())
           else if (_error.isNotEmpty)
@@ -196,8 +290,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           else
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) =>
-                    _PlaylistVideoTile(video: _videos[index], index: index),
+                (context, index) => VideoCardWidget(video: _videos[index]),
                 childCount: _videos.length,
               ),
             ),
@@ -206,159 +299,95 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     );
   }
 
+  // ── VideoCardWidget uyumlu Shimmer ───────────────────────────────────────
   Widget _buildShimmer() {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: Column(
         children: List.generate(
-          6,
+          4,
           (_) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 120,
-                  height: 70,
-                  decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.card(context),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Thumbnail alanı (200px)
+                  Container(
+                    height: 200,
+                    width: double.infinity,
                     color: AppTheme.surface(context),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 14,
-                        width: double.infinity,
-                        color: AppTheme.surface(context),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 12,
-                        width: 120,
-                        color: AppTheme.surface(context),
-                      ),
-                    ],
+                  // İçerik alanı
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Logo + üniversite adı
+                        Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppTheme.surface(context),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Container(
+                                height: 14,
+                                color: AppTheme.surface(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // Başlık placeholder
+                        Container(
+                          height: 16,
+                          width: double.infinity,
+                          color: AppTheme.surface(context),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          height: 14,
+                          width: 200,
+                          color: AppTheme.surface(context),
+                        ),
+                        const SizedBox(height: 14),
+                        // İstatistik satırı
+                        Row(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 12,
+                              color: AppTheme.surface(context),
+                            ),
+                            const Spacer(),
+                            Container(
+                              width: 50,
+                              height: 12,
+                              color: AppTheme.surface(context),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
-  }
-}
-
-class _PlaylistVideoTile extends StatelessWidget {
-  final VideoModel video;
-  final int index;
-
-  const _PlaylistVideoTile({required this.video, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Küçük resim
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: video.thumbnailUrl,
-                    width: 120,
-                    height: 70,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
-                      width: 120,
-                      height: 70,
-                      color: AppTheme.card(context),
-                    ),
-                    errorWidget: (_, __, ___) => Container(
-                      width: 120,
-                      height: 70,
-                      color: AppTheme.card(context),
-                      child: Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                  // Sıra numarası
-                  Positioned(
-                    bottom: 4,
-                    left: 4,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Başlık ve meta
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${video.viewCount} görüntülenme · ${_timeAgo(video.publishedAt)}',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _timeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inDays > 365) return '${(diff.inDays / 365).floor()} yıl önce';
-    if (diff.inDays > 30) return '${(diff.inDays / 30).floor()} ay önce';
-    if (diff.inDays > 0) return '${diff.inDays} gün önce';
-    if (diff.inHours > 0) return '${diff.inHours} saat önce';
-    return '${diff.inMinutes} dakika önce';
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/player_controller.dart';
 import '../../../data/models/comment_model.dart';
@@ -26,191 +26,184 @@ class PlayerScreen extends StatelessWidget {
         );
       }
 
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) return;
-          if (controller.youtubeController.value.isFullScreen) {
-            controller.youtubeController.toggleFullScreenMode();
-          } else {
-            Get.back();
-          }
-        },
-        child: YoutubePlayerBuilder(
-          player: YoutubePlayer(
-            controller: controller.youtubeController,
-            showVideoProgressIndicator: true,
-            progressIndicatorColor: Theme.of(context).colorScheme.primary,
+      // youtube_player_iframe fullscreen'ı kendi yönetir:
+      // • Tam ekran butonuna basılırsa → otomatik geçiş
+      // • Cihaz yatay dönerse → autoFullScreen ile geçiş
+      // • Geri tuşu / sistem jesti → fullscreenden çıkış
+      // Bu yüzden PopScope'a gerek yok; varsayılan geri navigasyonu yeterli.
+
+      return YoutubePlayerControllerProvider(
+        controller: controller.youtubeController,
+        child: Scaffold(
+          backgroundColor: AppTheme.bg(context),
+          appBar: AppBar(
+            title: Text(
+              controller.currentVideo?.channelTitle ?? '',
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
           ),
-          builder: (context, player) {
-            return Scaffold(
-              backgroundColor: AppTheme.bg(context),
-              body: SafeArea(
-                child: Column(
+          body: SafeArea(
+            child: Column(
+              children: [
+                // ── Video oynatıcı
+                Stack(
                   children: [
-                    // ── Video oynatıcı
-                    Stack(
-                      children: [
-                        player,
-                        Positioned(
-                          top: 8,
-                          left: 4,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () => Get.back(),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.45),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_back_ios_new_rounded,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
+                    YoutubePlayer(
+                      controller: controller.youtubeController,
+                      aspectRatio: 16 / 9,
+                      autoFullScreen: true,
+                    ),
+                    Positioned(
+                      top: 8,
+                      left: 4,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () => Get.back(),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Colors.white,
+                              size: 18,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-
-                    // ── İçerik
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // ── Başlık
-                            Text(
-                              controller.currentVideo?.title ?? '',
-                              style: TextStyle(
-                                color: AppTheme.textPri(context),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                height: 1.4,
-                              ),
-                            ),
-
-                            const SizedBox(height: 6),
-
-                            // ── YouTube meta (görüntülenme · tarih · süre)
-                            if (controller.currentVideo != null)
-                              _YoutubeMeta(video: controller.currentVideo!),
-
-                            const SizedBox(height: 14),
-
-                            // ── Aksiyon + Uygulama istatistikleri tek satır
-                            _EngagementBar(controller: controller),
-
-                            const SizedBox(height: 16),
-
-                            // ── Açıklama
-                            if (controller
-                                    .currentVideo
-                                    ?.description
-                                    .isNotEmpty ==
-                                true)
-                              _ExpandableDescription(
-                                text: controller.currentVideo!.description,
-                              ),
-
-                            // ── Etiketler
-                            if (controller.currentVideo?.tags.isNotEmpty ==
-                                true) ...[
-                              const SizedBox(height: 14),
-                              _TagsRow(tags: controller.currentVideo!.tags),
-                            ],
-
-                            const SizedBox(height: 20),
-                            Divider(
-                              color: AppTheme.surface(context),
-                              height: 1,
-                            ),
-                            const SizedBox(height: 16),
-
-                            // ── Yorumlar başlık
-                            Obx(
-                              () => _CommentsHeader(
-                                count: controller.appCommentCount.value,
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // ── Yorum giriş
-                            _CommentInput(
-                              textController: commentController,
-                              onSend: () {
-                                controller.addComment(commentController.text);
-                                commentController.clear();
-                              },
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // ── Yorum listesi
-                            Obx(() {
-                              if (controller.isCommentsLoading.value) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 24,
-                                  ),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                );
-                              }
-                              if (controller.comments.isEmpty) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 20,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Henüz yorum yok. İlk yorumu sen yap!',
-                                      style: TextStyle(
-                                        color: AppTheme.textSec(context),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: controller.comments.length,
-                                separatorBuilder: (_, __) => Divider(
-                                  color: AppTheme.surface(context),
-                                  height: 1,
-                                ),
-                                itemBuilder: (context, index) => _CommentTile(
-                                  comment: controller.comments[index],
-                                  onDelete: () => controller.deleteComment(
-                                    controller.comments[index].id,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
+
+                // ── İçerik
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Başlık
+                        Text(
+                          controller.currentVideo?.title ?? '',
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            height: 1.4,
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // ── YouTube meta (görüntülenme · tarih · süre)
+                        if (controller.currentVideo != null)
+                          _YoutubeMeta(video: controller.currentVideo!),
+
+                        const SizedBox(height: 14),
+
+                        // ── Aksiyon + Uygulama istatistikleri tek satır
+                        _EngagementBar(controller: controller),
+
+                        const SizedBox(height: 16),
+
+                        // ── Açıklama
+                        if (controller.currentVideo?.description.isNotEmpty ==
+                            true)
+                          _ExpandableDescription(
+                            text: controller.currentVideo!.description,
+                          ),
+
+                        // ── Etiketler
+                        if (controller.currentVideo?.tags.isNotEmpty ==
+                            true) ...[
+                          const SizedBox(height: 14),
+                          _TagsRow(tags: controller.currentVideo!.tags),
+                        ],
+
+                        const SizedBox(height: 20),
+                        Divider(color: AppTheme.surface(context), height: 1),
+                        const SizedBox(height: 16),
+
+                        // ── Yorumlar başlık
+                        Obx(
+                          () => _CommentsHeader(
+                            count: controller.appCommentCount.value,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // ── Yorum giriş
+                        _CommentInput(
+                          textController: commentController,
+                          onSend: () {
+                            controller.addComment(commentController.text);
+                            commentController.clear();
+                          },
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // ── Yorum listesi
+                        Obx(() {
+                          if (controller.isCommentsLoading.value) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          }
+                          if (controller.comments.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Center(
+                                child: Text(
+                                  'Henüz yorum yok. İlk yorumu sen yap!',
+                                  style: TextStyle(
+                                    color: AppTheme.textSec(context),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: controller.comments.length,
+                            separatorBuilder: (_, __) => Divider(
+                              color: AppTheme.surface(context),
+                              height: 1,
+                            ),
+                            itemBuilder: (context, index) => _CommentTile(
+                              comment: controller.comments[index],
+                              onDelete: () => controller.deleteComment(
+                                controller.comments[index].id,
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     });
@@ -276,7 +269,6 @@ class _YoutubeMeta extends StatelessWidget {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Engagement bar — aksiyonlar + uygulama istatistikleri TEK SATIRDA
-// Her eleman bağımsız Obx ile sarılı, sadece kendisi güncellenir
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _EngagementBar extends StatelessWidget {
@@ -393,7 +385,6 @@ class _EngagementAction extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Küçük spinner sadece bu aksiyon yükleniyorsa
             if (loading)
               SizedBox(
                 width: 18,
