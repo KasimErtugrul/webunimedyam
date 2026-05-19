@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+
+import '../../../../../app/themes/app_theme.dart';
+
+/// Tıklanabilir aksiyon butonu — ikon + sayı
+class EngagementActionWidget extends StatelessWidget {
+  final IconData icon;
+  final int count;
+  final bool active;
+  final bool loading;
+  final VoidCallback onTap;
+
+  const EngagementActionWidget({
+    super.key,
+    required this.icon,
+    required this.count,
+    required this.active,
+    required this.loading,
+    required this.onTap,
+  });
+
+  String _fmt(int n) {
+    if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
+    if (n == 0) return '';
+    return '$n';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active
+        ? Theme.of(context).colorScheme.primary
+        : AppTheme.textSec(context);
+    return InkWell(
+      onTap: loading ? null : onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (loading)
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.8,
+                  color: color,
+                ),
+              )
+            else
+              Icon(icon, color: color, size: 20),
+            if (_fmt(count).isNotEmpty) ...[
+              const SizedBox(width: 5),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, anim) =>
+                    FadeTransition(opacity: anim, child: child),
+                child: Text(
+                  _fmt(count),
+                  key: ValueKey(count),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
