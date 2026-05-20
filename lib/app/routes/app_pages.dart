@@ -4,20 +4,20 @@ import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
 import '../../presentation/screens/player/playlist_detail_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
-//import '../../presentation/screens/favorites/favorites_screen.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
+import '../../presentation/screens/search/search_screen.dart';
+import '../../presentation/screens/stats/stats_screen.dart'; // ← YENİ
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
-//import '../bindings/favorites_binding.dart';
 import '../bindings/settings_binding.dart';
-import '../../presentation/screens/search/search_screen.dart';
 import '../bindings/search_binding.dart';
+import '../bindings/stats_binding.dart'; // ← YENİ
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -42,10 +42,6 @@ abstract class AppPages {
       page: () => const PlayerScreen(),
       binding: PlayerBinding(),
     ),
-    // ── Oynatma Listesi Detayı ──────────────────────────────────────────────
-    // VideoRepository HomeBinding tarafından zaten kayıtlı olduğundan
-    // ayrı bir binding gerekmez; PlayerBinding'i yeniden kullanıyoruz
-    // (SupabaseDataSource + FavoritesRepository zaten kayıtlıysa atlar).
     GetPage(
       name: AppRoutes.playlistDetail,
       page: () => const PlaylistDetailScreen(),
@@ -56,7 +52,7 @@ abstract class AppPages {
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
     ),
-    /*  GetPage(
+   /*  GetPage(
       name: AppRoutes.favorites,
       page: () => const FavoritesScreen(),
       binding: FavoritesBinding(),
@@ -80,6 +76,11 @@ abstract class AppPages {
       name: AppRoutes.search,
       page: () => const SearchScreen(),
       binding: SearchBinding(),
+    ),
+    GetPage(                          // ← YENİ
+      name: AppRoutes.stats,
+      page: () => const StatsScreen(),
+      binding: StatsBinding(),
     ),
   ];
 }

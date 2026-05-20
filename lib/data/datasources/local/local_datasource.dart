@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/video_model.dart';
+import '../../models/user_stats_model.dart';
 import 'dart:convert';
 
 class LocalDataSource {
@@ -37,15 +38,6 @@ class LocalDataSource {
     await prefs.setString(_cacheTimeKey, DateTime.now().toIso8601String());
   }
 
-  /// Cron takvimi: Pzt-Cmt, 08:00-22:45 Türkiye saati, her 15 dakikada bir.
-  ///
-  /// Algoritma:
-  ///   1. Şu an cron aktif saatler dışındaysa (gece/Pazar) → cache geçerli,
-  ///      Supabase'e istek gitmesin.
-  ///   2. Aktif saatler içindeyse → son cache'ten bu yana 15 dk geçti mi?
-  ///        GEÇMEDİ → cache geçerli (cron henüz çalışmadı)
-  ///        GEÇTİ   → cache süresi dolmuş, remote'dan çek
-  ///   3. Cache hiç yoksa → remote'dan çek (ilk açılış).
   Future<bool> isCacheValid() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheTimeString = prefs.getString(_cacheTimeKey);
@@ -54,19 +46,14 @@ class LocalDataSource {
     final cacheTime = DateTime.tryParse(cacheTimeString);
     if (cacheTime == null) return false;
 
-    // Türkiye saati (UTC+3)
     final now = DateTime.now().toUtc().add(const Duration(hours: 3));
-
-    // Pazar (7) → cron çalışmıyor, cache her zaman geçerli
     if (now.weekday == DateTime.sunday) return true;
 
-    // Saat 08:00-22:45 dışı → cron çalışmıyor, cache geçerli
     final minuteOfDay = now.hour * 60 + now.minute;
-    const cronStart = 8 * 60;       // 08:00
-    const cronEnd   = 22 * 60 + 45; // 22:45
+    const cronStart = 8 * 60;
+    const cronEnd = 22 * 60 + 45;
     if (minuteOfDay < cronStart || minuteOfDay > cronEnd) return true;
 
-    // Aktif saatler içinde → 15 dk geçti mi?
     final nowUtc = DateTime.now().toUtc();
     final cacheUtc = cacheTime.toUtc();
     return nowUtc.difference(cacheUtc).inMinutes < 15;
@@ -125,7 +112,6 @@ class LocalDataSource {
 
   static const _favoriteVideosKey = 'favorite_videos';
 
-  /// Kaydedilmiş tüm favori videoları döner.
   Future<List<VideoModel>> getFavoriteVideos() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_favoriteVideosKey);
@@ -134,19 +120,17 @@ class LocalDataSource {
     return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
   }
 
-  /// Bir videoyu favorilere ekler (zaten varsa tekrar eklenmez).
   Future<void> saveFavoriteVideo(VideoModel video) async {
     final prefs = await SharedPreferences.getInstance();
     final existing = await getFavoriteVideos();
     if (existing.any((v) => v.videoId == video.videoId)) return;
-    existing.insert(0, video); // en yeni başa
+    existing.insert(0, video);
     await prefs.setString(
       _favoriteVideosKey,
       json.encode(existing.map((v) => v.toSupabase()).toList()),
     );
   }
 
-  /// Bir videoyu favorilerden kaldırır.
   Future<void> removeFavoriteVideo(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     final existing = await getFavoriteVideos();
@@ -157,9 +141,52 @@ class LocalDataSource {
     );
   }
 
-  /// Tüm favorileri temizler (çıkış yapılınca kullanılabilir).
   Future<void> clearFavoriteVideos() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_favoriteVideosKey);
+  }
+
+  // ─── User Stats Cache ─────────────────────────────────────────────────────
+  // 1 saatlik TTL — istatistikler sık değişmez
+
+  static const _userStatsKey = 'user_stats';
+  static const _userStatsCacheTimeKey = 'user_stats_cache_time';
+  static const _statsTtlMinutes = 60;
+
+  Future<UserStatsModel?> getCachedUserStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeStr = prefs.getString(_userStatsCacheTimeKey);
+    if (timeStr == null) return null;
+
+    final cacheTime = DateTime.tryParse(timeStr);
+    if (cacheTime == null) return null;
+
+    final expired =
+        DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
+            _statsTtlMinutes;
+    if (expired) return null;
+
+    final jsonStr = prefs.getString(_userStatsKey);
+    if (jsonStr == null) return null;
+
+    try {
+      final map = Map<String, dynamic>.from(json.decode(jsonStr) as Map);
+      return UserStatsModel.fromMap(map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> cacheUserStats(UserStatsModel stats) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userStatsKey, json.encode(stats.toMap()));
+    await prefs.setString(
+        _userStatsCacheTimeKey, DateTime.now().toUtc().toIso8601String());
+  }
+
+  Future<void> clearUserStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userStatsKey);
+    await prefs.remove(_userStatsCacheTimeKey);
   }
 }

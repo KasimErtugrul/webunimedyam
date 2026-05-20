@@ -467,4 +467,13 @@ class SupabaseDataSource {
       'app_comment_count': (data['app_comment_count'] as num?)?.toInt() ?? 0,
     };
   }
+
+   // ─── Kullanıcı İstatistikleri ─────────────────────────────────────────────
+ 
+  Future<Map<String, dynamic>?> getMyStats() async {
+    final data = await _client.rpc('get_my_stats');
+    if (data == null || (data as List).isEmpty) return null;
+    // ignore: unnecessary_cast
+    return Map<String, dynamic>.from((data as List).first as Map);
+  }
 }

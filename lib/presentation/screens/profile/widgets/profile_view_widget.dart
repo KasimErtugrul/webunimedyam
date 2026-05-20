@@ -29,6 +29,17 @@ class ProfileViewWidget extends StatelessWidget {
               floating: false,
               surfaceTintColor: Colors.transparent,
               actions: [
+                // ── İstatistik butonu ──────────────────────────────────────
+                IconButton(
+                  icon: Icon(
+                    Icons.bar_chart_rounded,
+                    color: AppTheme.textPri(context),
+                    size: 24.sp,
+                  ),
+                  tooltip: 'İstatistiklerim',
+                  onPressed: () => Get.toNamed(AppRoutes.stats),
+                ),
+                // ── Ayarlar butonu ─────────────────────────────────────────
                 IconButton(
                   icon: Icon(
                     Icons.settings_outlined,
@@ -38,6 +49,7 @@ class ProfileViewWidget extends StatelessWidget {
                   tooltip: 'Ayarlar',
                   onPressed: () => Get.toNamed(AppRoutes.settings),
                 ),
+                // ── Profil düzenle butonu ──────────────────────────────────
                 IconButton(
                   icon: Icon(
                     Icons.edit_outlined,

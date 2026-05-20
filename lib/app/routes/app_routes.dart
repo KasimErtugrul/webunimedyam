@@ -10,4 +10,5 @@ abstract class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const search = '/search';
+  static const stats = '/stats'; // ← YENİ
 }
