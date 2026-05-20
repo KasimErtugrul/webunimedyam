@@ -1,20 +1,19 @@
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Ana Sekme
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
-import '../../../../../../data/datasources/remote/supabase_datasource.dart';
 import '../../../../../controllers/home_controller.dart';
 import 'widgets/video_card_widget.dart';
 
-class HomeTabWiget extends StatelessWidget {
-  const HomeTabWiget({super.key});
+class HomeTabWidget extends StatelessWidget {
+  const HomeTabWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,32 +40,31 @@ class HomeTabWiget extends StatelessWidget {
                   title: Row(
                     children: [
                       Container(
-                        width: 32,
-                        height: 32,
+                        width: 32.w,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,
                           color: Theme.of(context).colorScheme.onPrimary,
-                          size: 20,
+                          size: 20.sp,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Obx(() => Text(controller.appBarTitle)),
                     ],
                   ),
                   actions: [
                     IconButton(
-                      icon: const Icon(Icons.search_rounded),
+                      icon: Icon(Icons.search_rounded, size: 24.sp),
                       onPressed: () => Get.toNamed(AppRoutes.search),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.person_outline_rounded),
+                      icon: Icon(Icons.person_outline_rounded, size: 24.sp),
                       onPressed: () {
-                        final supabase = SupabaseDataSource();
-                        if (supabase.currentUser != null) {
+                        if (controller.supabaseDataSource.currentUser != null) {
                           Get.toNamed(AppRoutes.profile);
                         } else {
                           Get.toNamed(AppRoutes.login);
@@ -79,11 +77,12 @@ class HomeTabWiget extends StatelessWidget {
                 // ── Video Listesi Başlığı ───────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
                     child: Text(
                       'Son Videolar',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
+                        fontSize: 22.sp,
                       ),
                     ),
                   ),
@@ -95,23 +94,32 @@ class HomeTabWiget extends StatelessWidget {
                 else if (controller.errorMessage.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: EdgeInsets.all(32.w),
                       child: Column(
                         children: [
                           Icon(
                             Icons.error_outline_rounded,
                             color: AppTheme.textSec(context),
-                            size: 48,
+                            size: 48.sp,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             controller.errorMessage.value,
-                            style: TextStyle(color: AppTheme.textSec(context)),
+                            style: TextStyle(
+                              color: AppTheme.textSec(context),
+                              fontSize: 14.sp,
+                            ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(100.w, 40.h),
+                            ),
                             onPressed: controller.loadVideos,
-                            child: const Text('Tekrar Dene'),
+                            child: Text(
+                              'Tekrar Dene',
+                              style: TextStyle(fontSize: 14.sp),
+                            ),
                           ),
                         ],
                       ),
@@ -120,11 +128,14 @@ class HomeTabWiget extends StatelessWidget {
                 else if (controller.videos.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: EdgeInsets.all(32.w),
                       child: Center(
                         child: Text(
                           'Henüz video yok.',
-                          style: TextStyle(color: AppTheme.textSec(context)),
+                          style: TextStyle(
+                            color: AppTheme.textSec(context),
+                            fontSize: 14.sp,
+                          ),
                         ),
                       ),
                     ),
@@ -138,7 +149,7 @@ class HomeTabWiget extends StatelessWidget {
                     ),
                   ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                SliverToBoxAdapter(child: SizedBox(height: 24.h)),
               ],
             ),
           );
@@ -155,38 +166,38 @@ class HomeTabWiget extends StatelessWidget {
         children: List.generate(
           4,
           (_) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
             child: Container(
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Thumbnail placeholder
                   Container(
-                    height: 196,
+                    height: 196.h,
                     decoration: BoxDecoration(
                       color: AppTheme.surface(context),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16.r),
                       ),
                     ),
                   ),
                   // Bilgi alanı placeholder
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                    padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 14.h),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 42,
-                          height: 42,
-                          margin: const EdgeInsets.only(right: 12),
+                          width: 42.w,
+                          height: 42.h,
+                          margin: EdgeInsets.only(right: 12.w),
                           decoration: BoxDecoration(
                             color: AppTheme.surface(context),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
                         ),
                         Expanded(
@@ -194,19 +205,19 @@ class HomeTabWiget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                height: 14,
+                                height: 14.h,
                                 color: AppTheme.surface(context),
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6.h),
                               Container(
-                                height: 14,
-                                width: 160,
+                                height: 14.h,
+                                width: 160.w,
                                 color: AppTheme.surface(context),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8.h),
                               Container(
-                                height: 11,
-                                width: 100,
+                                height: 11.h,
+                                width: 100.w,
                                 color: AppTheme.surface(context),
                               ),
                             ],

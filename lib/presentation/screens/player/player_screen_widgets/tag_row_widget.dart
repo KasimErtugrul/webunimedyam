@@ -1,9 +1,9 @@
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Etiketler
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 
@@ -14,22 +14,22 @@ class TagsRowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: 6.w,
+      runSpacing: 6.h,
       children: tags
           .take(8)
           .map(
             (tag) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               child: Text(
                 '#$tag',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: 11,
+                  fontSize: 11.sp,
                 ),
               ),
             ),

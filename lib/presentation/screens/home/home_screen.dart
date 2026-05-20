@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
         body: IndexedStack(
           index: controller.selectedIndex.value,
           children: const [
-            HomeTabWiget(),
+            HomeTabWidget(),
             UniversitiesTabWidget(),
             FavoritesScreen(),
           ],

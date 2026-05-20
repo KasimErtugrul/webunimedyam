@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
@@ -55,7 +56,8 @@ class SearchController extends GetxController {
     try {
       final data = await searchRepository.searchVideos(q);
       results.value = data;
-    } catch (_) {
+    } catch (e) {
+      log('_doSearch error: $e');
       results.clear();
     } finally {
       isLoading.value = false;

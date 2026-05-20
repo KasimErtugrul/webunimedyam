@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
@@ -56,31 +57,45 @@ class _SearchScreenState extends State<SearchScreen> {
         elevation: 0,
         titleSpacing: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: AppTheme.textPri(context)),
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: AppTheme.textPri(context),
+            size: 24.sp,
+          ),
           onPressed: () => Get.back(),
         ),
         title: Padding(
-          padding: const EdgeInsets.only(right: 16),
+          padding: EdgeInsets.only(right: 16.w),
           child: TextField(
             controller: _textController,
             focusNode: _focusNode,
             onChanged: controller.onQueryChanged,
             onSubmitted: _onSubmit,
             textInputAction: TextInputAction.search,
-            style: TextStyle(color: AppTheme.textPri(context), fontSize: 16),
+            style: TextStyle(
+              color: AppTheme.textPri(context),
+              fontSize: 16.sp,
+            ),
             decoration: InputDecoration(
               hintText: 'Video ara...',
-              hintStyle: TextStyle(color: AppTheme.textSec(context), fontSize: 16),
+              hintStyle: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 16.sp,
+              ),
               filled: true,
               fillColor: AppTheme.card(context),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide.none,
               ),
               suffixIcon: Obx(() => controller.query.value.isNotEmpty
                   ? IconButton(
-                      icon: Icon(Icons.close_rounded, color: AppTheme.textSec(context), size: 20),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: AppTheme.textSec(context),
+                        size: 20.sp,
+                      ),
                       onPressed: () {
                         _textController.clear();
                         controller.onQueryChanged('');
@@ -105,6 +120,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return Center(
             child: CircularProgressIndicator(
               color: Theme.of(context).colorScheme.primary,
+              strokeWidth: 3.w,
             ),
           );
         }
@@ -115,11 +131,18 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.search_off_rounded, color: AppTheme.textSec(context), size: 64),
-                const SizedBox(height: 16),
+                Icon(
+                  Icons.search_off_rounded,
+                  color: AppTheme.textSec(context),
+                  size: 64.sp,
+                ),
+                SizedBox(height: 16.h),
                 Text(
                   '"$q" için sonuç bulunamadı',
-                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 15),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 15.sp,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -129,7 +152,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
         // ── Sonuçlar ────────────────────────────────────────────────────────
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           itemCount: controller.results.length,
           itemBuilder: (_, i) => VideoResultCardWidget(
             video: controller.results[i],
@@ -161,11 +184,18 @@ class _HistoryView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history_rounded, color: AppTheme.textSec(context), size: 56),
-              const SizedBox(height: 12),
+              Icon(
+                Icons.history_rounded,
+                color: AppTheme.textSec(context),
+                size: 56.sp,
+              ),
+              SizedBox(height: 12.h),
               Text(
                 'Arama geçmişi yok',
-                style: TextStyle(color: AppTheme.textSec(context), fontSize: 15),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 15.sp,
+                ),
               ),
             ],
           ),
@@ -176,7 +206,7 @@ class _HistoryView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 8.w, 4.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -184,15 +214,22 @@ class _HistoryView extends StatelessWidget {
                   'Son Aramalar',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 TextButton(
                   onPressed: controller.clearHistory,
+                  style: TextButton.styleFrom(
+                    minimumSize: Size(60.w, 36.h),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  ),
                   child: Text(
                     'Temizle',
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 13.sp,
+                    ),
                   ),
                 ),
               ],
@@ -204,14 +241,31 @@ class _HistoryView extends StatelessWidget {
               itemBuilder: (_, i) {
                 final q = controller.history[i];
                 return ListTile(
-                  leading: Icon(Icons.history_rounded, color: AppTheme.textSec(context), size: 20),
-                  title: Text(q, style: TextStyle(color: AppTheme.textPri(context), fontSize: 14)),
+                  leading: Icon(
+                    Icons.history_rounded,
+                    color: AppTheme.textSec(context),
+                    size: 20.sp,
+                  ),
+                  title: Text(
+                    q,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: 14.sp,
+                    ),
+                  ),
                   trailing: IconButton(
-                    icon: Icon(Icons.close_rounded, color: AppTheme.textSec(context), size: 18),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: AppTheme.textSec(context),
+                      size: 18.sp,
+                    ),
                     onPressed: () => controller.removeHistory(q),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.h),
                   ),
                   onTap: () => onTap(q),
                   dense: true,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                 );
               },
             ),
@@ -221,6 +275,3 @@ class _HistoryView extends StatelessWidget {
     });
   }
 }
-
-
-

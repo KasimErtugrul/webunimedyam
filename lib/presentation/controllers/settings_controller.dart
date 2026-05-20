@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/themes/app_theme.dart';
@@ -22,7 +23,9 @@ class SettingsController extends GetxController {
     try {
       isLoading.value = true;
       settings.value = await authRepository.getUserSettings();
-    } catch (_) {} finally {
+    } catch (e) {
+      log('loadSettings error: $e');
+    } finally {
       isLoading.value = false;
     }
   }
@@ -66,7 +69,8 @@ class SettingsController extends GetxController {
     try {
       await authRepository.updateUserSettings(updated);
       settings.value = updated;
-    } catch (_) {
+    } catch (e) {
+      log('_updateSettings error: $e');
       Get.snackbar('Hata', 'Ayarlar güncellenemedi.');
     }
   }
@@ -75,7 +79,8 @@ class SettingsController extends GetxController {
     try {
       await authRepository.signOut();
       Get.offAllNamed('/home');
-    } catch (_) {
+    } catch (e) {
+      log('signOut error: $e');
       Get.snackbar('Hata', 'Çıkış yapılırken hata oluştu.');
     }
   }

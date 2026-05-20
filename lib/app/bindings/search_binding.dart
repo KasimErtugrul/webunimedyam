@@ -7,9 +7,11 @@ import '../../presentation/controllers/search_controller.dart';
 class SearchBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => SupabaseDataSource());
-    Get.lazyPut(() => SearchHistoryDataSource());
-    Get.lazyPut(() => SearchRepository(supabase: Get.find()));
+    if (!Get.isRegistered<SupabaseDataSource>()) {
+      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+    }
+    Get.lazyPut(() => SearchHistoryDataSource(), fenix: true);
+    Get.lazyPut(() => SearchRepository(supabase: Get.find()), fenix: true);
     Get.lazyPut(() => SearchController(
           searchRepository: Get.find(),
           historyDataSource: Get.find(),

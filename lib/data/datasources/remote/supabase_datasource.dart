@@ -268,6 +268,13 @@ class SupabaseDataSource {
     await _client.from('comments').delete().eq('id', commentId);
   }
 
+  Future<void> updateComment(String commentId, String content) async {
+    await _client
+        .from('comments')
+        .update({'content': content, 'updated_at': DateTime.now().toIso8601String()})
+        .eq('id', commentId);
+  }
+
   /// Kullanıcının yorum yaptığı videoları döner (tekrarsız, en yeni önce).
   Future<List<VideoModel>> getUserCommentedVideos(String userId) async {
     final data = await _client

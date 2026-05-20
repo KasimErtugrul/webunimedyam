@@ -5,13 +5,16 @@ import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../data/models/video_model.dart';
-import 'home_controller.dart';
 
 class ProfileController extends GetxController {
   final AuthRepository authRepository;
-  final _supabase = SupabaseDataSource();
+  // DÜZELTME #1: DI singleton — new SupabaseDataSource() değil
+  final SupabaseDataSource supabaseDataSource;
 
-  ProfileController({required this.authRepository});
+  ProfileController({
+    required this.authRepository,
+    required this.supabaseDataSource,
+  });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
   final profile = Rxn<ProfileModel>();
@@ -24,13 +27,16 @@ class ProfileController extends GetxController {
   final commentedVideos  = <VideoModel>[].obs;
   final sharedVideos     = <VideoModel>[].obs;
 
-  // Her sekme için ayrı loading state — sadece ilgili sekme spinner gösterir
   final isFavoritesLoading   = false.obs;
   final isViewedLoading      = false.obs;
   final isCommentedLoading   = false.obs;
   final isSharedLoading      = false.obs;
 
-  // Seçili sekme (TabBar index)
+  // ─── UI Mesajları (snackbar yerine observable) ────────────────────────────
+  // Widget bu alanı dinleyip kendi snackbar/toast'ını gösterir.
+  final successMessage = RxnString();
+  final errorMessage   = RxnString();
+
   final selectedTabIndex = 0.obs;
 
   @override
@@ -52,12 +58,11 @@ class ProfileController extends GetxController {
       isLoading.value = false;
     }
 
-    // Profil yüklendikten sonra aktiviteleri paralel çek
     if (isLoggedIn) _loadAllActivities();
   }
 
   Future<void> _loadAllActivities() async {
-    final userId = _supabase.currentUser?.id;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) return;
 
     await Future.wait([
@@ -69,11 +74,11 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadFavorites([String? uid]) async {
-    final userId = uid ?? _supabase.currentUser?.id;
+    final userId = uid ?? supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
       isFavoritesLoading.value = true;
-      favoriteVideos.value = await _supabase.getUserFavoriteVideos(userId);
+      favoriteVideos.value = await supabaseDataSource.getUserFavoriteVideos(userId);
     } catch (e) {
       log('loadFavorites error: $e');
     } finally {
@@ -82,11 +87,11 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadViewedVideos([String? uid]) async {
-    final userId = uid ?? _supabase.currentUser?.id;
+    final userId = uid ?? supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
       isViewedLoading.value = true;
-      viewedVideos.value = await _supabase.getUserViewedVideos(userId);
+      viewedVideos.value = await supabaseDataSource.getUserViewedVideos(userId);
     } catch (e) {
       log('loadViewedVideos error: $e');
     } finally {
@@ -95,11 +100,11 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadCommentedVideos([String? uid]) async {
-    final userId = uid ?? _supabase.currentUser?.id;
+    final userId = uid ?? supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
       isCommentedLoading.value = true;
-      commentedVideos.value = await _supabase.getUserCommentedVideos(userId);
+      commentedVideos.value = await supabaseDataSource.getUserCommentedVideos(userId);
     } catch (e) {
       log('loadCommentedVideos error: $e');
     } finally {
@@ -108,11 +113,11 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadSharedVideos([String? uid]) async {
-    final userId = uid ?? _supabase.currentUser?.id;
+    final userId = uid ?? supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
       isSharedLoading.value = true;
-      sharedVideos.value = await _supabase.getUserSharedVideos(userId);
+      sharedVideos.value = await supabaseDataSource.getUserSharedVideos(userId);
     } catch (e) {
       log('loadSharedVideos error: $e');
     } finally {
@@ -140,16 +145,20 @@ class ProfileController extends GetxController {
       );
       await authRepository.updateProfile(updated);
       profile.value = updated;
-      Get.snackbar('Başarılı', 'Profil güncellendi.');
-    } catch (_) {
-      Get.snackbar('Hata', 'Profil güncellenemedi.');
+      successMessage.value = 'Profil güncellendi.';
+    } catch (e) {
+      log('updateProfile error: $e');
+      errorMessage.value = 'Profil güncellenemedi.';
     }
   }
 
   // ─── Yardımcılar ──────────────────────────────────────────────────────────
 
+  // DÜZELTME #5: HomeController'a bağımlılık kaldırıldı.
+  // changeTab artık ProfileController'ın kendi selectedTabIndex'ini değiştirir.
+  // HomeController ile senkronizasyon gerekiyorsa çağıran widget bunu halleder.
   void changeTab(int index) {
-    Get.find<HomeController>().changeTab(index);
+    selectedTabIndex.value = index;
   }
 
   bool get isLoggedIn => authRepository.isLoggedIn;

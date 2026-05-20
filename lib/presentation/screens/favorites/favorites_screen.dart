@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/favorites_controller.dart';
@@ -13,12 +14,18 @@ class FavoritesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      appBar: AppBar(title: const Text('Favorilerim')),
+      appBar: AppBar(
+        title: Text(
+          'Favorilerim',
+          style: TextStyle(fontSize: 20.sp),
+        ),
+      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(
             child: CircularProgressIndicator(
               color: Theme.of(context).colorScheme.primary,
+              strokeWidth: 3.w,
             ),
           );
         }
@@ -31,22 +38,22 @@ class FavoritesScreen extends StatelessWidget {
                 Icon(
                   Icons.favorite_outline_rounded,
                   color: AppTheme.textSec(context),
-                  size: 64,
+                  size: 64.sp,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Text(
                   'Henüz favori eklemediniz',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: 16,
+                    fontSize: 16.sp,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   'Beğendiğiniz videoları favorilere ekleyin',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: 13,
+                    fontSize: 13.sp,
                   ),
                 ),
               ],
@@ -55,7 +62,7 @@ class FavoritesScreen extends StatelessWidget {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           itemCount: controller.favoriteVideos.length,
           itemBuilder: (context, index) {
             return FavoriteCardWidget(video: controller.favoriteVideos[index]);
@@ -65,4 +72,3 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 }
-

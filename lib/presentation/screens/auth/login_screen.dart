@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
@@ -22,73 +23,108 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Giriş Yap'),
+        title: Text(
+          'Giriş Yap',
+          style: TextStyle(fontSize: 20.sp),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             Text(
               'Hoş Geldiniz',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: 28,
+                fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'ÇOMÜ TV hesabınıza giriş yapın',
-              style: TextStyle(color: AppTheme.textSec(context)),
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 14.sp,
+              ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 40.h),
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              style: TextStyle(color: AppTheme.textPri(context)),
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 14.sp,
+              ),
               decoration: InputDecoration(
                 labelText: 'Email',
-                prefixIcon: Icon(Icons.email_outlined,
-                    color: AppTheme.textSec(context)),
+                labelStyle: TextStyle(fontSize: 14.sp),
+                prefixIcon: Icon(
+                  Icons.email_outlined,
+                  color: AppTheme.textSec(context),
+                  size: 20.sp,
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             TextField(
               controller: _passwordController,
               obscureText: _obscurePassword,
-              style: TextStyle(color: AppTheme.textPri(context)),
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 14.sp,
+              ),
               decoration: InputDecoration(
                 labelText: 'Şifre',
-                prefixIcon: Icon(Icons.lock_outlined,
-                    color: AppTheme.textSec(context)),
+                labelStyle: TextStyle(fontSize: 14.sp),
+                prefixIcon: Icon(
+                  Icons.lock_outlined,
+                  color: AppTheme.textSec(context),
+                  size: 20.sp,
+                ),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
                     color: AppTheme.textSec(context),
+                    size: 20.sp,
                   ),
                   onPressed: () {
                     setState(() => _obscurePassword = !_obscurePassword);
                   },
                 ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Obx(() => controller.errorMessage.isNotEmpty
                 ? Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.only(bottom: 16.h),
                     child: Text(
                       controller.errorMessage.value,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 13.sp,
+                      ),
                     ),
                   )
                 : const SizedBox.shrink()),
             Obx(() => SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 48.h),
+                    ),
                     onPressed: controller.isLoading.value
                         ? null
                         : () => controller.signIn(
@@ -96,35 +132,56 @@ class _LoginScreenState extends State<LoginScreen> {
                               password: _passwordController.text,
                             ),
                     child: controller.isLoading.value
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Giriş Yap',
-                            style: TextStyle(fontSize: 16)),
+                        ? SizedBox(
+                            width: 20.w,
+                            height: 20.h,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.w,
+                            ),
+                          )
+                        : Text(
+                            'Giriş Yap',
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
                   ),
                 )),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Hesabınız yok mu?',
-                  style: TextStyle(color: AppTheme.textSec(context)),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 14.sp,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Get.toNamed(AppRoutes.register),
-                  child: const Text(
+                  style: TextButton.styleFrom(
+                    minimumSize: Size(60.w, 40.h),
+                  ),
+                  child: Text(
                     'Kayıt Ol',
-                    style: TextStyle(color: AppTheme.primaryColor),
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ),
               ],
             ),
             TextButton(
               onPressed: () => Get.offAllNamed(AppRoutes.home),
+              style: TextButton.styleFrom(
+                minimumSize: Size(double.infinity, 40.h),
+              ),
               child: Text(
                 'Şimdi değil, misafir olarak devam et',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: 13,
+                  fontSize: 13.sp,
                 ),
               ),
             ),

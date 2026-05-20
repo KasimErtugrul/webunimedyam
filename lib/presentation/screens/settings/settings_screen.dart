@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/settings_controller.dart';
@@ -11,7 +12,9 @@ class SettingsScreen extends StatelessWidget {
     final controller = Get.find<SettingsController>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      appBar: AppBar(
+        title: Text('Ayarlar', style: TextStyle(fontSize: 20.sp)),
+      ),
       body: Obx(() {
         final settings = controller.settings.value;
 
@@ -21,54 +24,140 @@ class SettingsScreen extends StatelessWidget {
             SwitchListTile(
               value: settings?.notificationsEnabled ?? true,
               onChanged: (_) => controller.toggleNotifications(),
-              title: Text('Bildirimler', style: TextStyle(color: AppTheme.textPri(context))),
-              subtitle: Text('Yeni video bildirimlerini al', style: TextStyle(color: AppTheme.textSec(context))),
+              title: Text(
+                'Bildirimler',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              subtitle: Text(
+                'Yeni video bildirimlerini al',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
               activeColor: AppTheme.primaryColor,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+              dense: false,
             ),
             SwitchListTile(
               value: settings?.autoplay ?? true,
               onChanged: (_) => controller.toggleAutoplay(),
-              title: Text('Otomatik Oynat', style: TextStyle(color: AppTheme.textPri(context))),
-              subtitle: Text('Videoları otomatik başlat', style: TextStyle(color: AppTheme.textSec(context))),
+              title: Text(
+                'Otomatik Oynat',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              subtitle: Text(
+                'Videoları otomatik başlat',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
               activeColor: AppTheme.primaryColor,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+              dense: false,
             ),
-            Divider(color: AppTheme.surface(context)),
+            Divider(
+              color: AppTheme.surface(context),
+              height: 1.h,
+              thickness: 1.h,
+            ),
             _SectionHeader(title: 'Görünüm'),
             ListTile(
-              leading: Icon(Icons.dark_mode_outlined, color: AppTheme.textSec(context)),
-              title: Text('Tema', style: TextStyle(color: AppTheme.textPri(context))),
+              leading: Icon(
+                Icons.dark_mode_outlined,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Tema',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
               subtitle: Text(
                 settings?.theme == 'dark' ? 'Koyu' : 'Açık',
-                style: TextStyle(color: AppTheme.textSec(context)),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
               ),
-              trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.textSec(context)),
+              trailing: Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textSec(context),
+                size: 20.sp,
+              ),
               onTap: () => _showThemeDialog(context, controller),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+              dense: false,
             ),
             ListTile(
-              leading: Icon(Icons.language_outlined, color: AppTheme.textSec(context)),
-              title: Text('Dil', style: TextStyle(color: AppTheme.textPri(context))),
+              leading: Icon(
+                Icons.language_outlined,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Dil',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
               subtitle: Text(
                 settings?.language == 'tr' ? 'Türkçe' : 'English',
-                style: TextStyle(color: AppTheme.textSec(context)),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
               ),
-              trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.textSec(context)),
+              trailing: Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textSec(context),
+                size: 20.sp,
+              ),
               onTap: () => _showLanguageDialog(context, controller),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+              dense: false,
             ),
-            Divider(color: AppTheme.surface(context)),
+            Divider(
+              color: AppTheme.surface(context),
+              height: 1.h,
+              thickness: 1.h,
+            ),
             _SectionHeader(title: 'Hesap'),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: const Text('Çıkış Yap', style: TextStyle(color: Colors.red)),
+              leading: Icon(
+                Icons.logout_rounded,
+                color: Colors.red,
+                size: 24.sp,
+              ),
+              title: Text(
+                'Çıkış Yap',
+                style: TextStyle(color: Colors.red, fontSize: 16.sp),
+              ),
               onTap: () => _showSignOutDialog(context, controller),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+              dense: false,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             Center(
               child: Text(
                 'ÇOMÜ TV v1.0.0',
-                style: TextStyle(color: AppTheme.textSec(context), fontSize: 12),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 12.sp,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         );
       }),
@@ -79,43 +168,110 @@ class SettingsScreen extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.card(context),
-        title: Text('Tema Seç', style: TextStyle(color: AppTheme.textPri(context))),
+        title: Text(
+          'Tema Seç',
+          style: TextStyle(color: AppTheme.textPri(context), fontSize: 20.sp),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text('Koyu', style: TextStyle(color: AppTheme.textPri(context))),
-              leading: Icon(Icons.dark_mode_rounded, color: AppTheme.textSec(context)),
-              onTap: () { controller.changeTheme('dark'); Get.back(); },
+              title: Text(
+                'Koyu',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              leading: Icon(
+                Icons.dark_mode_rounded,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              onTap: () {
+                controller.changeTheme('dark');
+                Get.back();
+              },
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
+              dense: true,
             ),
             ListTile(
-              title: Text('Açık', style: TextStyle(color: AppTheme.textPri(context))),
-              leading: Icon(Icons.light_mode_rounded, color: AppTheme.textSec(context)),
-              onTap: () { controller.changeTheme('light'); Get.back(); },
+              title: Text(
+                'Açık',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              leading: Icon(
+                Icons.light_mode_rounded,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              onTap: () {
+                controller.changeTheme('light');
+                Get.back();
+              },
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
+              dense: true,
             ),
           ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
         ),
       ),
     );
   }
 
-  void _showLanguageDialog(BuildContext context, SettingsController controller) {
+  void _showLanguageDialog(
+    BuildContext context,
+    SettingsController controller,
+  ) {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.card(context),
-        title: Text('Dil Seç', style: TextStyle(color: AppTheme.textPri(context))),
+        title: Text(
+          'Dil Seç',
+          style: TextStyle(color: AppTheme.textPri(context), fontSize: 20.sp),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text('Türkçe', style: TextStyle(color: AppTheme.textPri(context))),
-              onTap: () { controller.changeLanguage('tr'); Get.back(); },
+              title: Text(
+                'Türkçe',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              onTap: () {
+                controller.changeLanguage('tr');
+                Get.back();
+              },
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
+              dense: true,
             ),
             ListTile(
-              title: Text('English', style: TextStyle(color: AppTheme.textPri(context))),
-              onTap: () { controller.changeLanguage('en'); Get.back(); },
+              title: Text(
+                'English',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              onTap: () {
+                controller.changeLanguage('en');
+                Get.back();
+              },
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
+              dense: true,
             ),
           ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
         ),
       ),
     );
@@ -125,22 +281,40 @@ class SettingsScreen extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.card(context),
-        title: Text('Çıkış Yap', style: TextStyle(color: AppTheme.textPri(context))),
+        title: Text(
+          'Çıkış Yap',
+          style: TextStyle(color: AppTheme.textPri(context), fontSize: 20.sp),
+        ),
         content: Text(
           'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
-          style: TextStyle(color: AppTheme.textSec(context)),
+          style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('İptal', style: TextStyle(color: AppTheme.textSec(context))),
+            child: Text(
+              'İptal',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 14.sp,
+              ),
+            ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () { Get.back(); controller.signOut(); },
-            child: const Text('Çıkış Yap'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              minimumSize: Size(80.w, 36.h),
+            ),
+            onPressed: () {
+              Get.back();
+              controller.signOut();
+            },
+            child: Text('Çıkış Yap', style: TextStyle(fontSize: 14.sp)),
           ),
         ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
       ),
     );
   }
@@ -153,14 +327,14 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 8.h),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppTheme.primaryColor,
-          fontSize: 13,
+          fontSize: 13.sp,
           fontWeight: FontWeight.bold,
-          letterSpacing: 1,
+          letterSpacing: 1.w,
         ),
       ),
     );

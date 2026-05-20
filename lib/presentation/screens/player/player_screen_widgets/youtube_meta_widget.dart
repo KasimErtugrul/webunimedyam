@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/video_model.dart';
@@ -34,25 +35,29 @@ class YoutubeMetaWidget extends StatelessWidget {
         Expanded(
           child: Text(
             parts.join('  ·  '),
-            style: TextStyle(color: AppTheme.textSec(context), fontSize: 12),
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: 12.sp,
+            ),
           ),
         ),
         if (video.isHd)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
             decoration: BoxDecoration(
               border: Border.all(
                 color: AppTheme.textSec(context).withValues(alpha: 0.4),
+                width: 1.w,
               ),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(4.r),
             ),
             child: Text(
               'HD',
               style: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
+                letterSpacing: 0.5.w,
               ),
             ),
           ),

@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 
@@ -30,18 +31,18 @@ class _ExpandableDescriptionWidgetState
             widget.text,
             style: TextStyle(
               color: AppTheme.textSec(context),
-              fontSize: 13,
+              fontSize: 13.sp,
               height: 1.55,
             ),
             maxLines: _expanded ? null : 3,
             overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             _expanded ? 'Daha az göster' : 'Devamını gör',
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),
           ),

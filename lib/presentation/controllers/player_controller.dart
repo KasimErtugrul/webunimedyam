@@ -17,15 +17,17 @@ import 'profile_controller.dart';
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
   final CommentRepository commentRepository;
+  // DÜZELTME #1: DI üzerinden singleton — new SupabaseDataSource() değil
+  final SupabaseDataSource supabaseDataSource;
+  // ignore: unused_field
+  final LocalDataSource localDataSource;
 
   PlayerController({
     required this.favoritesRepository,
     required this.commentRepository,
+    required this.supabaseDataSource,
+    required this.localDataSource,
   });
-
-  final _supabase = SupabaseDataSource();
-  // ignore: unused_field
-  final _local = LocalDataSource();
 
   late YoutubePlayerController youtubeController;
   final comments = <CommentModel>[].obs;
@@ -35,12 +37,10 @@ class PlayerController extends GetxController {
   final isPlayerReady = false.obs;
   final isCommentsLoading = false.obs;
 
-  // Her aksiyon için ayrı loading — UI'da sadece o değişir
   final isLikeLoading = false.obs;
   final isFavoriteLoading = false.obs;
   final isShareLoading = false.obs;
 
-  // Uygulama içi istatistikler — her biri bağımsız observable
   final appViewCount = 0.obs;
   final appLikeCount = 0.obs;
   final appFavoriteCount = 0.obs;
@@ -64,7 +64,7 @@ class PlayerController extends GetxController {
   }
 
   Future<void> _loadInitialState() async {
-    final userId = _supabase.currentUser?.id;
+    final userId = supabaseDataSource.currentUser?.id;
     await Future.wait([
       _loadEngagementStats(showInitialLoader: true),
       if (userId != null) checkFavorite(),
@@ -76,12 +76,14 @@ class PlayerController extends GetxController {
   Future<void> _initPlayer() async {
     bool autoplay = true;
     try {
-      final userId = _supabase.currentUser?.id;
+      final userId = supabaseDataSource.currentUser?.id;
       if (userId != null) {
-        final userSettings = await _supabase.getUserSettings(userId);
+        final userSettings = await supabaseDataSource.getUserSettings(userId);
         autoplay = userSettings?.autoplay ?? true;
       }
-    } catch (_) {}
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
 
     youtubeController = YoutubePlayerController.fromVideoId(
       videoId: currentVideo!.videoId,
@@ -91,8 +93,8 @@ class PlayerController extends GetxController {
         showFullscreenButton: true,
         privacyEnhancedMode: true,
         enableCaption: false,
-        captionLanguage : 'tr',
-        interfaceLanguage : 'tr',
+        captionLanguage: 'tr',
+        interfaceLanguage: 'tr',
       ),
     );
   }
@@ -100,15 +102,17 @@ class PlayerController extends GetxController {
   // ─── Stats ───────────────────────────────────────────────────────────────
 
   Future<void> _loadEngagementStats({bool showInitialLoader = false}) async {
+    if (currentVideo == null) return;
     if (showInitialLoader) isInitialStatsLoading.value = true;
     try {
-      final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appViewCount.value = stats['app_view_count'] ?? 0;
       appLikeCount.value = stats['app_like_count'] ?? 0;
       appFavoriteCount.value = stats['app_favorite_count'] ?? 0;
       appShareCount.value = stats['app_share_count'] ?? 0;
       appCommentCount.value = stats['app_comment_count'] ?? 0;
-    } catch (_) {
+    } catch (e) {
+      log('[PlayerController] _loadEngagementStats error: $e');
     } finally {
       if (showInitialLoader) isInitialStatsLoading.value = false;
     }
@@ -117,25 +121,32 @@ class PlayerController extends GetxController {
   // ─── Görüntüleme ─────────────────────────────────────────────────────────
 
   Future<void> _recordView() async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
-      await _supabase.recordView(userId, currentVideo!.videoId);
-    } catch (_) {}
+      await supabaseDataSource.recordView(userId, currentVideo!.videoId);
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
   }
 
   // ─── Beğeni ──────────────────────────────────────────────────────────────
 
   Future<void> checkLike() async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
-      isLiked.value = await _supabase.isLiked(userId, currentVideo!.videoId);
-    } catch (_) {}
+      isLiked.value = await supabaseDataSource.isLiked(userId, currentVideo!.videoId);
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
   }
 
   Future<void> toggleLike() async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
       _showAuthDialog();
       return;
@@ -149,11 +160,11 @@ class PlayerController extends GetxController {
 
     try {
       if (wasLiked) {
-        await _supabase.removeLike(userId, currentVideo!.videoId);
+        await supabaseDataSource.removeLike(userId, currentVideo!.videoId);
       } else {
-        await _supabase.addLike(userId, currentVideo!.videoId);
+        await supabaseDataSource.addLike(userId, currentVideo!.videoId);
       }
-      final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appLikeCount.value = stats['app_like_count'] ?? appLikeCount.value;
     } catch (e) {
       isLiked.value = wasLiked;
@@ -167,16 +178,20 @@ class PlayerController extends GetxController {
   // ─── Favori ──────────────────────────────────────────────────────────────
 
   Future<void> checkFavorite() async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
       final ids = await favoritesRepository.getFavoriteVideoIds(userId);
       isFavorite.value = ids.contains(currentVideo!.videoId);
-    } catch (_) {}
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
   }
 
   Future<void> toggleFavorite() async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
       _showAuthDialog();
       return;
@@ -216,7 +231,7 @@ class PlayerController extends GetxController {
           );
         }
       }
-      final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appFavoriteCount.value =
           stats['app_favorite_count'] ?? appFavoriteCount.value;
     } catch (e) {
@@ -231,20 +246,22 @@ class PlayerController extends GetxController {
   // ─── Paylaşım ────────────────────────────────────────────────────────────
 
   Future<void> shareVideo() async {
+    if (currentVideo == null) return;
     if (isShareLoading.value) return;
     final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo!.videoId}';
     final text = '${currentVideo!.title}\n$videoUrl';
 
     try {
       await Share.share(text, subject: currentVideo!.title);
-      final userId = _supabase.currentUser?.id;
+      final userId = supabaseDataSource.currentUser?.id;
       if (userId != null) {
         isShareLoading.value = true;
-        await _supabase.recordShare(userId, currentVideo!.videoId);
-        final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+        await supabaseDataSource.recordShare(userId, currentVideo!.videoId);
+        final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
         appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
       }
-    } catch (_) {
+    } catch (e) {
+      log('[PlayerController] shareVideo fallback to clipboard: $e');
       await Clipboard.setData(ClipboardData(text: videoUrl));
       Get.snackbar(
         'Bağlantı kopyalandı',
@@ -262,19 +279,22 @@ class PlayerController extends GetxController {
   // ─── Yorumlar ─────────────────────────────────────────────────────────────
 
   Future<void> loadComments() async {
+    if (currentVideo == null) return;
     try {
       isCommentsLoading.value = true;
       comments.value = await commentRepository.getComments(
         currentVideo!.videoId,
       );
-    } catch (_) {
+    } catch (e) {
+      log('[PlayerController] loadComments error: $e');
     } finally {
       isCommentsLoading.value = false;
     }
   }
 
   Future<void> addComment(String content) async {
-    final userId = _supabase.currentUser?.id;
+    if (currentVideo == null) return;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
       _showAuthDialog();
       return;
@@ -287,22 +307,25 @@ class PlayerController extends GetxController {
         content: content.trim(),
       );
       await loadComments();
-      final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appCommentCount.value =
           stats['app_comment_count'] ?? appCommentCount.value;
-    } catch (_) {}
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
   }
 
   Future<void> deleteComment(String commentId) async {
+    if (currentVideo == null) return;
     try {
       await commentRepository.deleteComment(commentId);
       comments.removeWhere((c) => c.id == commentId);
-      final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
+      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appCommentCount.value =
           stats['app_comment_count'] ?? appCommentCount.value;
 
       if (Get.isRegistered<ProfileController>()) {
-        final userId = _supabase.currentUser?.id;
+        final userId = supabaseDataSource.currentUser?.id;
         final hasMoreComments = comments.any((c) => c.userId == userId);
         if (!hasMoreComments) {
           Get.find<ProfileController>().commentedVideos.removeWhere(
@@ -310,11 +333,14 @@ class PlayerController extends GetxController {
           );
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      log('[PlayerController] error: $e');
+    }
   }
 
-  // ─── Auth Dialog ─────────────────────────────────────────────────────────
-
+  // ─── Auth Dialog — DÜZELTME #3: PlayerController'a taşındı ──────────────
+  // (HomeController'daki _showAuthDialog ile aynı mantık; ileride ortak bir
+  //  AuthDialogService / mixin'e çıkarılabilir.)
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(

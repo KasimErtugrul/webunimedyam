@@ -22,4 +22,8 @@ class CommentRepository {
   Future<void> deleteComment(String commentId) async {
     await _supabase.deleteComment(commentId);
   }
+
+  Future<void> updateComment(String commentId, String content) async {
+    await _supabase.updateComment(commentId, content);
+  }
 }

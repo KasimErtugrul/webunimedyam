@@ -13,10 +13,13 @@ import 'favorites_controller.dart';
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
   final FavoritesRepository favoritesRepository;
+  // DÜZELTME #1: new SupabaseDataSource() yerine DI üzerinden alınan singleton
+  final SupabaseDataSource supabaseDataSource;
 
   HomeController({
     required this.videoRepository,
     required this.favoritesRepository,
+    required this.supabaseDataSource,
   });
 
   // ─── State ────────────────────────────────────────────────────────────────
@@ -42,8 +45,6 @@ class HomeController extends GetxController {
 
   /// Seçili üniversite — null ise "Tümü" gösterilir
   final selectedUniversity = Rxn<UniversityModel>();
-
-  final _supabase = SupabaseDataSource();
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -84,11 +85,9 @@ class HomeController extends GetxController {
 
       final uni = selectedUniversity.value;
       if (uni != null) {
-        // Belirli üniversitenin tüm videoları
         videos.value =
             await videoRepository.getVideosByUniversity(uni.id);
       } else {
-        // Her üniversiteden son video (ana sayfa özet görünümü)
         videos.value =
             await videoRepository.getLatestVideosPerUniversity();
       }
@@ -103,8 +102,6 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      // Cache'i temizle ve Supabase'den yeniden yükle.
-      // Video sync'i için edge function otomatik çalışır.
       await videoRepository.refreshVideos();
       await loadVideos();
     } catch (e) {
@@ -132,7 +129,7 @@ class HomeController extends GetxController {
 
   Future<void> loadFavorites() async {
     try {
-      final userId = _supabase.currentUser?.id;
+      final userId = supabaseDataSource.currentUser?.id;
       if (userId == null) return;
       favoriteIds.value =
           await favoritesRepository.getFavoriteVideoIds(userId);
@@ -144,40 +141,10 @@ class HomeController extends GetxController {
   bool isFavorite(String videoId) => favoriteIds.contains(videoId);
 
   Future<void> toggleFavorite(String videoId) async {
-    final userId = _supabase.currentUser?.id;
+    final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
-      Get.dialog(
-        AlertDialog(
-          backgroundColor: const Color(0xFF1E1E2E),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            'Giriş Gerekiyor',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
-            style: TextStyle(color: Color(0xFF9E9EB8)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text('Vazgeç', style: TextStyle(color: Color(0xFF9E9EB8))),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              onPressed: () {
-                Get.back();
-                Get.toNamed('/login');
-              },
-              child: const Text('Giriş Yap'),
-            ),
-          ],
-        ),
-      );
+      // DÜZELTME #3: Auth dialog tek merkezden (_showAuthDialog yöntemi)
+      _showAuthDialog();
       return;
     }
 
@@ -192,7 +159,6 @@ class HomeController extends GetxController {
         }
       } else {
         await favoritesRepository.addFavorite(userId, videoId);
-        // Video objesini mevcut listeden bul ve local'e kaydet
         final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
         if (video != null) {
           await favoritesRepository.saveFavoriteVideoLocally(video);
@@ -207,6 +173,43 @@ class HomeController extends GetxController {
     }
   }
 
+  // ─── Auth Dialog — tek merkezi tanım ─────────────────────────────────────
+
+  void _showAuthDialog() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Giriş Gerekiyor',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
+          style: TextStyle(color: Color(0xFF9E9EB8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Vazgeç', style: TextStyle(color: Color(0xFF9E9EB8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Get.back();
+              Get.toNamed('/login');
+            },
+            child: const Text('Giriş Yap'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── Navigasyon ──────────────────────────────────────────────────────────
 
   void changeTab(int index) {
@@ -215,11 +218,9 @@ class HomeController extends GetxController {
 
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
 
-  /// AppBar'da gösterilecek başlık
   String get appBarTitle {
     final uni = selectedUniversity.value;
     if (uni == null) return 'ÜniTV';
-    // Uzun adları kısalt
     final name = uni.name;
     if (name.length > 20) {
       return '${name.substring(0, 18)}…';

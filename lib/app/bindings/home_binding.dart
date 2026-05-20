@@ -12,39 +12,42 @@ import '../../data/repositories/auth_repository.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => SupabaseDataSource());
-    Get.lazyPut(() => LocalDataSource());
+    // DÜZELTME #1: fenix:true ile singleton'lar korunur; her binding yeniden oluşturmaz.
+    Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+    Get.lazyPut(() => LocalDataSource(), fenix: true);
 
     Get.lazyPut(() => AuthRepository(
           supabase: Get.find(),
           local: Get.find(),
-        ));
+        ), fenix: true);
 
     Get.lazyPut(() => VideoRepository(
           supabase: Get.find(),
           local: Get.find(),
-        ));
+        ), fenix: true);
 
     Get.lazyPut(() => FavoritesRepository(
           supabase: Get.find(),
           local: Get.find(),
-        ));
+        ), fenix: true);
 
     Get.lazyPut(() => HomeController(
           videoRepository: Get.find(),
           favoritesRepository: Get.find(),
-        ));
+          supabaseDataSource: Get.find(), // DÜZELTME #1
+        ), fenix: true);
 
     Get.lazyPut(() => ProfileController(
           authRepository: Get.find(),
-        ));
+          supabaseDataSource: Get.find(), // DÜZELTME #1
+        ), fenix: true);
 
     Get.lazyPut(() => FavoritesController(
           favoritesRepository: Get.find(),
-        ));
+        ), fenix: true);
 
     Get.lazyPut(() => SettingsController(
           authRepository: Get.find(),
-        ));
+        ), fenix: true);
   }
 }

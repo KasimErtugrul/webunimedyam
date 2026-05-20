@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 
@@ -22,39 +23,42 @@ class CommentInputWidget extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: textController,
-            style: TextStyle(color: AppTheme.textPri(context), fontSize: 14),
+            style: TextStyle(
+              color: AppTheme.textPri(context),
+              fontSize: 14.sp,
+            ),
             decoration: InputDecoration(
               hintText: 'Yorum yaz...',
               hintStyle: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: 14,
+                fontSize: 14.sp,
               ),
               filled: true,
               fillColor: AppTheme.surface(context),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 14.w,
+                vertical: 10.h,
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         GestureDetector(
           onTap: onSend,
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Icon(
               Icons.send_rounded,
               color: Theme.of(context).colorScheme.onPrimary,
-              size: 18,
+              size: 18.sp,
             ),
           ),
         ),

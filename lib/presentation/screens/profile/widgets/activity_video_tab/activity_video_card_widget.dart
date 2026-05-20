@@ -4,6 +4,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
@@ -19,50 +20,57 @@ class ActivityVideoCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(14),
-                bottomLeft: Radius.circular(14),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(14.r),
+                bottomLeft: Radius.circular(14.r),
               ),
               child: Stack(
                 children: [
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
-                    width: 118,
-                    height: 72,
+                    width: 118.w,
+                    height: 72.h,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      width: 118, height: 72, color: AppTheme.surface(context),
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      width: 118,
-                      height: 72,
+                    placeholder: (_, __) => Container(
+                      width: 118.w,
+                      height: 72.h,
                       color: AppTheme.surface(context),
-                      child: Icon(Icons.play_circle_outline_rounded,
-                          color: AppTheme.textSec(context), size: 28),
+                    ),
+                    errorWidget: (_, __, ___) => Container(
+                      width: 118.w,
+                      height: 72.h,
+                      color: AppTheme.surface(context),
+                      child: Icon(
+                        Icons.play_circle_outline_rounded,
+                        color: AppTheme.textSec(context),
+                        size: 28.sp,
+                      ),
                     ),
                   ),
                   if (video.formattedDuration.isNotEmpty)
                     Positioned(
-                      bottom: 5,
-                      right: 5,
+                      bottom: 5.h,
+                      right: 5.w,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.80),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
                           video.formattedDuration,
-                          style: const TextStyle(
-                            color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -72,7 +80,7 @@ class ActivityVideoCardWidget extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 10.w, 10.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -80,35 +88,44 @@ class ActivityVideoCardWidget extends StatelessWidget {
                       video.title,
                       style: TextStyle(
                         color: AppTheme.textPri(context),
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         height: 1.35,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6.h),
                     if ((video.universityName ?? '').isNotEmpty)
                       Text(
                         video.universityName!,
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor, fontSize: 11, fontWeight: FontWeight.w500,
+                        style: TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       _timeAgo(video.publishedAt),
-                      style: TextStyle(color: AppTheme.textSec(context), fontSize: 11),
+                      style: TextStyle(
+                        color: AppTheme.textSec(context),
+                        fontSize: 11.sp,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Icon(Icons.chevron_right_rounded, color: AppTheme.textSec(context), size: 18),
+              padding: EdgeInsets.only(right: 8.w),
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textSec(context),
+                size: 18.sp,
+              ),
             ),
           ],
         ),

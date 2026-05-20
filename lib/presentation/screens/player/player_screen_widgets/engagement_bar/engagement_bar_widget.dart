@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../controllers/player_controller.dart';
@@ -16,7 +17,7 @@ class EngagementBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       child: Row(
         children: [
           // Beğen
@@ -32,7 +33,7 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
 
           // Paylaş
           Obx(
@@ -45,7 +46,7 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
 
           // Favori
           Obx(
@@ -71,7 +72,7 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
 
           // Yorum sayısı
           Obx(

@@ -1,82 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class AppTheme {
-  // ─── Dark renkler (const - sadece AppTheme içi veya darkTheme için) ────────
+  // ─── Renkler (sabit) ────────────────────────────────────────────────────────
   static const primaryColor = Color(0xFF1DB954);
-  static const backgroundColor = Color(0xFF0A0A0A);
-  static const surfaceColor = Color(0xFF1A1A1A);
-  static const cardColor = Color(0xFF242424);
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xFFB3B3B3);
+  static const secondaryColor = Color(0xFF1ED760);
 
-  // ─── Light renkler ─────────────────────────────────────────────────────────
+  // Dark tema renkleri
+  static const darkBackground = Color(0xFF0A0A0A);
+  static const darkSurface = Color(0xFF1A1A1A);
+  static const darkCard = Color(0xFF242424);
+  static const darkTextPrimary = Color(0xFFFFFFFF);
+  static const darkTextSecondary = Color(0xFFB3B3B3);
+
+  // Light tema renkleri
   static const lightBackground = Color(0xFFF5F5F5);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightCard = Color(0xFFFFFFFF);
   static const lightTextPrimary = Color(0xFF0D0D0D);
   static const lightTextSecondary = Color(0xFF6B6B6B);
 
-  // ─── Context-aware yardımcı metodlar ───────────────────────────────────────
-  // Ekranlarda AppTheme.backgroundColor yerine AppTheme.bg(context) kullanın.
-
+  // ─── Context-aware renk yardımcıları ──────────────────────────────────────
   static Color bg(BuildContext context) =>
       Theme.of(context).scaffoldBackgroundColor;
 
   static Color surface(BuildContext context) =>
       Theme.of(context).colorScheme.surface;
 
-  static Color card(BuildContext context) =>
-      Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surface;
+  static Color card(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.cardTheme.color ??
+        (theme.brightness == Brightness.dark ? darkCard : lightCard);
+  }
 
   static Color textPri(BuildContext context) =>
       Theme.of(context).colorScheme.onSurface;
 
   static Color textSec(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? textSecondary
-          : lightTextSecondary;
+      ? darkTextSecondary
+      : lightTextSecondary;
 
   static bool isDark(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark;
 
-  // ─── Dark ThemeData ─────────────────────────────────────────────────────────
+  // ─── Dark ThemeData ────────────────────────────────────────────────────────
   static final darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: backgroundColor,
+    scaffoldBackgroundColor: darkBackground,
     primaryColor: primaryColor,
     colorScheme: const ColorScheme.dark(
       primary: primaryColor,
-      surface: surfaceColor,
+      secondary: secondaryColor,
+      surface: darkSurface,
       onPrimary: Colors.white,
-      onSurface: textPrimary,
+      onSurface: darkTextPrimary,
     ),
-    cardTheme: const CardThemeData(color: cardColor, elevation: 0),
+    cardTheme: CardThemeData(
+      color: darkCard,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: backgroundColor,
+      backgroundColor: darkBackground,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: TextStyle(
-        color: textPrimary,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-      iconTheme: IconThemeData(color: textPrimary),
+      iconTheme: IconThemeData(color: darkTextPrimary),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: surfaceColor,
+      backgroundColor: darkSurface,
       selectedItemColor: primaryColor,
-      unselectedItemColor: textSecondary,
+      unselectedItemColor: darkTextSecondary,
       type: BottomNavigationBarType.fixed,
-    ),
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-      headlineMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-      titleLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w600),
-      titleMedium: TextStyle(color: textPrimary),
-      bodyLarge: TextStyle(color: textPrimary),
-      bodyMedium: TextStyle(color: textSecondary),
-      labelLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w600),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -86,15 +82,28 @@ abstract class AppTheme {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       ),
     ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: primaryColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryColor,
+        side: const BorderSide(color: primaryColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: cardColor,
+      fillColor: darkCard,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
-      hintStyle: const TextStyle(color: textSecondary),
-      labelStyle: const TextStyle(color: textSecondary),
+      hintStyle: const TextStyle(color: darkTextSecondary),
+      labelStyle: const TextStyle(color: darkTextSecondary),
     ),
   );
 
@@ -106,6 +115,7 @@ abstract class AppTheme {
     primaryColor: primaryColor,
     colorScheme: const ColorScheme.light(
       primary: primaryColor,
+      secondary: secondaryColor,
       surface: lightSurface,
       onPrimary: Colors.white,
       onSurface: lightTextPrimary,
@@ -122,11 +132,6 @@ abstract class AppTheme {
       backgroundColor: lightSurface,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: TextStyle(
-        color: lightTextPrimary,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
       iconTheme: IconThemeData(color: lightTextPrimary),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -136,21 +141,25 @@ abstract class AppTheme {
       type: BottomNavigationBarType.fixed,
       elevation: 8,
     ),
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
-      headlineMedium: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
-      titleLarge: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.w600),
-      titleMedium: TextStyle(color: lightTextPrimary),
-      bodyLarge: TextStyle(color: lightTextPrimary),
-      bodyMedium: TextStyle(color: lightTextSecondary),
-      labelLarge: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.w600),
-    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: primaryColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryColor,
+        side: const BorderSide(color: primaryColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -164,4 +173,45 @@ abstract class AppTheme {
       labelStyle: const TextStyle(color: lightTextSecondary),
     ),
   );
+}
+
+// ─── Responsive Text Styles Extension (ScreenUtil için) ─────────────────────
+extension ResponsiveTextStyle on TextTheme {
+  TextStyle get displayLarge =>
+      TextStyle(fontSize: 57.sp, fontWeight: FontWeight.bold);
+  TextStyle get displayMedium =>
+      TextStyle(fontSize: 45.sp, fontWeight: FontWeight.bold);
+  TextStyle get displaySmall =>
+      TextStyle(fontSize: 36.sp, fontWeight: FontWeight.bold);
+
+  TextStyle get headlineLarge =>
+      TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold);
+  TextStyle get headlineMedium =>
+      TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w600);
+  TextStyle get headlineSmall =>
+      TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600);
+
+  TextStyle get titleLarge =>
+      TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w600);
+  TextStyle get titleMedium =>
+      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500);
+  TextStyle get titleSmall =>
+      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500);
+
+  TextStyle get bodyLarge => TextStyle(fontSize: 16.sp);
+  TextStyle get bodyMedium => TextStyle(fontSize: 14.sp);
+  TextStyle get bodySmall => TextStyle(fontSize: 12.sp);
+
+  TextStyle get labelLarge =>
+      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600);
+  TextStyle get labelMedium =>
+      TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500);
+  TextStyle get labelSmall =>
+      TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500);
+}
+
+// ─── AppBar Title için Responsive Helper ────────────────────────────────────
+extension ResponsiveAppBar on AppBarTheme {
+  static TextStyle get titleStyle =>
+      TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold);
 }

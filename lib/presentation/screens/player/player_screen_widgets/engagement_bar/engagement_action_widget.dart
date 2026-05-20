@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -33,25 +34,25 @@ class EngagementActionWidget extends StatelessWidget {
         : AppTheme.textSec(context);
     return InkWell(
       onTap: loading ? null : onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8.r),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (loading)
               SizedBox(
-                width: 18,
-                height: 18,
+                width: 18.w,
+                height: 18.h,
                 child: CircularProgressIndicator(
-                  strokeWidth: 1.8,
+                  strokeWidth: 1.8.w,
                   color: color,
                 ),
               )
             else
-              Icon(icon, color: color, size: 20),
+              Icon(icon, color: color, size: 20.sp),
             if (_fmt(count).isNotEmpty) ...[
-              const SizedBox(width: 5),
+              SizedBox(width: 5.w),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, anim) =>
@@ -61,7 +62,7 @@ class EngagementActionWidget extends StatelessWidget {
                   key: ValueKey(count),
                   style: TextStyle(
                     color: color,
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: active ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),

@@ -8,17 +8,18 @@ import '../../presentation/controllers/player_controller.dart';
 class PlayerBinding extends Bindings {
   @override
   void dependencies() {
+    // DÜZELTME #1: Zaten kayıtlıysa yeni instance oluşturma — singleton'u koru.
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource());
+      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
     }
     if (!Get.isRegistered<LocalDataSource>()) {
-      Get.lazyPut(() => LocalDataSource());
+      Get.lazyPut(() => LocalDataSource(), fenix: true);
     }
     if (!Get.isRegistered<FavoritesRepository>()) {
       Get.lazyPut(() => FavoritesRepository(
             supabase: Get.find(),
             local: Get.find(),
-          ));
+          ), fenix: true);
     }
 
     Get.lazyPut(() => CommentRepository(supabase: Get.find()));
@@ -26,6 +27,8 @@ class PlayerBinding extends Bindings {
     Get.lazyPut(() => PlayerController(
           favoritesRepository: Get.find(),
           commentRepository: Get.find(),
+          supabaseDataSource: Get.find(), // DÜZELTME #1
+          localDataSource: Get.find(),    // DÜZELTME #1
         ));
   }
 }

@@ -1,6 +1,6 @@
-// ── Arama terimini vurgulayan text widget ──────────────────────────────────────
-
 import 'package:flutter/material.dart';
+
+// ── Arama terimini vurgulayan text widget ──────────────────────────────────────
 
 class HighlightTextWidget extends StatelessWidget {
   final String text;
@@ -8,7 +8,8 @@ class HighlightTextWidget extends StatelessWidget {
   final TextStyle style;
   final int maxLines;
 
-  const HighlightTextWidget({super.key, 
+  const HighlightTextWidget({
+    super.key,
     required this.text,
     required this.highlight,
     required this.style,
@@ -18,7 +19,12 @@ class HighlightTextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (highlight.isEmpty) {
-      return Text(text, style: style, maxLines: maxLines, overflow: TextOverflow.ellipsis);
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     final lowerText = text.toLowerCase();
@@ -32,14 +38,18 @@ class HighlightTextWidget extends StatelessWidget {
         spans.add(TextSpan(text: text.substring(start)));
         break;
       }
-      if (idx > start) spans.add(TextSpan(text: text.substring(start, idx)));
-      spans.add(TextSpan(
-        text: text.substring(idx, idx + highlight.length),
-        style: style.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
+      if (idx > start) {
+        spans.add(TextSpan(text: text.substring(start, idx)));
+      }
+      spans.add(
+        TextSpan(
+          text: text.substring(idx, idx + highlight.length),
+          style: style.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
+      );
       start = idx + highlight.length;
     }
 

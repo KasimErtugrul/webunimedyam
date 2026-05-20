@@ -4,6 +4,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -22,15 +23,15 @@ class ProfileHeaderWidget extends StatelessWidget {
 
       return Container(
         color: AppTheme.bg(context),
-        padding: const EdgeInsets.fromLTRB(20, 60, 20, 12),
+        padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 12.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Stack(
               children: [
                 Container(
-                  width: 78,
-                  height: 78,
+                  width: 78.w,
+                  height: 78.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
@@ -41,8 +42,8 @@ class ProfileHeaderWidget extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: AppTheme.primaryColor.withValues(alpha: 0.35),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
+                        blurRadius: 18.r,
+                        offset: Offset(0, 6.h),
                       ),
                     ],
                   ),
@@ -51,14 +52,16 @@ class ProfileHeaderWidget extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl: profile.avatarUrl!,
                             fit: BoxFit.cover,
+                            width: 78.w,
+                            height: 78.h,
                           ),
                         )
                       : Center(
                           child: Text(
                             (profile?.username ?? 'U')[0].toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 30,
+                              fontSize: 30.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -66,34 +69,53 @@ class ProfileHeaderWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               profile?.username ?? 'Kullanıcı',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: 19,
+                fontSize: 19.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
             if ((profile?.fullName ?? '').isNotEmpty) ...[
-              const SizedBox(height: 2),
+              SizedBox(height: 2.h),
               Text(
                 profile!.fullName!,
-                style: TextStyle(color: AppTheme.textSec(context), fontSize: 13),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
               ),
             ],
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Obx(
               () => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  StatChipWidget(icon: Icons.favorite_rounded, count: controller.favoriteVideos.length, label: 'Favori'),
+                  StatChipWidget(
+                    icon: Icons.favorite_rounded,
+                    count: controller.favoriteVideos.length,
+                    label: 'Favori',
+                  ),
                   StatDividerWidget(),
-                  StatChipWidget(icon: Icons.play_circle_rounded, count: controller.viewedVideos.length, label: 'İzlenen'),
+                  StatChipWidget(
+                    icon: Icons.play_circle_rounded,
+                    count: controller.viewedVideos.length,
+                    label: 'İzlenen',
+                  ),
                   StatDividerWidget(),
-                  StatChipWidget(icon: Icons.chat_bubble_rounded, count: controller.commentedVideos.length, label: 'Yorum'),
+                  StatChipWidget(
+                    icon: Icons.chat_bubble_rounded,
+                    count: controller.commentedVideos.length,
+                    label: 'Yorum',
+                  ),
                   StatDividerWidget(),
-                  StatChipWidget(icon: Icons.share_rounded, count: controller.sharedVideos.length, label: 'Paylaşım'),
+                  StatChipWidget(
+                    icon: Icons.share_rounded,
+                    count: controller.sharedVideos.length,
+                    label: 'Paylaşım',
+                  ),
                 ],
               ),
             ),

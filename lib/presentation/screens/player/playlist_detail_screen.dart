@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -61,13 +62,14 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         slivers: [
           // ── Zenginleştirilmiş Üst Alan (SliverAppBar) ─────────────────────
           SliverAppBar(
-            expandedHeight: 260,
+            expandedHeight: 260.h,
             pinned: true,
             backgroundColor: AppTheme.bg(context),
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 color: AppTheme.textPri(context),
+                size: 24.sp,
               ),
               onPressed: () => Get.back(),
             ),
@@ -85,7 +87,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         child: Icon(
                           Icons.playlist_play_rounded,
                           color: AppTheme.textSec(context),
-                          size: 64,
+                          size: 64.sp,
                         ),
                       ),
                     )
@@ -95,7 +97,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       child: Icon(
                         Icons.playlist_play_rounded,
                         color: AppTheme.textSec(context),
-                        size: 64,
+                        size: 64.sp,
                       ),
                     ),
 
@@ -104,7 +106,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    height: 120,
+                    height: 120.h,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -124,7 +126,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     left: 0,
                     right: 0,
                     top: 0,
-                    height: 80,
+                    height: 80.h,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -141,22 +143,19 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
 
                   // "OYNA LİSTESİ" rozeti (sol üst)
                   Positioned(
-                    top: 12,
-                    left: 12,
+                    top: 12.h,
+                    left: 12.w,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                         boxShadow: [
                           BoxShadow(
                             color: Theme.of(
                               context,
                             ).colorScheme.primary.withValues(alpha: 0.4),
-                            blurRadius: 8,
+                            blurRadius: 8.r,
                           ),
                         ],
                       ),
@@ -166,16 +165,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                           Icon(
                             Icons.playlist_play_rounded,
                             color: Theme.of(context).colorScheme.onPrimary,
-                            size: 14,
+                            size: 14.sp,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6.w),
                           Text(
                             'OYNA LİSTESİ',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 0.8,
+                              letterSpacing: 0.8.w,
                             ),
                           ),
                         ],
@@ -185,9 +184,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
 
                   // Başlık + video sayısı (altta, modern)
                   Positioned(
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
+                    bottom: 20.h,
+                    left: 20.w,
+                    right: 20.w,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -195,27 +194,24 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                           playlist.title,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: 22,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 6,
+                                blurRadius: 6.r,
                               ),
                             ],
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.6),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -223,14 +219,14 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               Icon(
                                 Icons.video_library_rounded,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 16,
+                                size: 16.sp,
                               ),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6.w),
                               Text(
                                 '${playlist.itemCount} video',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 13,
+                                  fontSize: 13.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -252,23 +248,32 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(32.w),
                   child: Column(
                     children: [
                       Icon(
                         Icons.error_outline_rounded,
                         color: AppTheme.textSec(context),
-                        size: 48,
+                        size: 48.sp,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16.h),
                       Text(
                         _error,
-                        style: TextStyle(color: AppTheme.textSec(context)),
+                        style: TextStyle(
+                          color: AppTheme.textSec(context),
+                          fontSize: 14.sp,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16.h),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(100.w, 40.h),
+                        ),
                         onPressed: _loadVideos,
-                        child: const Text('Tekrar Dene'),
+                        child: Text(
+                          'Tekrar Dene',
+                          style: TextStyle(fontSize: 14.sp),
+                        ),
                       ),
                     ],
                   ),
@@ -279,10 +284,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             SliverToBoxAdapter(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(32.w),
                   child: Text(
                     'Bu oynatma listesinde video bulunmuyor.',
-                    style: TextStyle(color: AppTheme.textSec(context)),
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ),
               ),
@@ -308,24 +316,24 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         children: List.generate(
           4,
           (_) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
             child: Container(
               decoration: BoxDecoration(
                 color: AppTheme.card(context),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Thumbnail alanı (200px)
                   Container(
-                    height: 200,
+                    height: 200.h,
                     width: double.infinity,
                     color: AppTheme.surface(context),
                   ),
                   // İçerik alanı
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+                    padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 16.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -333,48 +341,48 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         Row(
                           children: [
                             Container(
-                              width: 38,
-                              height: 38,
+                              width: 38.w,
+                              height: 38.h,
                               decoration: BoxDecoration(
                                 color: AppTheme.surface(context),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10.w),
                             Expanded(
                               child: Container(
-                                height: 14,
+                                height: 14.h,
                                 color: AppTheme.surface(context),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         // Başlık placeholder
                         Container(
-                          height: 16,
+                          height: 16.h,
                           width: double.infinity,
                           color: AppTheme.surface(context),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6.h),
                         Container(
-                          height: 14,
-                          width: 200,
+                          height: 14.h,
+                          width: 200.w,
                           color: AppTheme.surface(context),
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14.h),
                         // İstatistik satırı
                         Row(
                           children: [
                             Container(
-                              width: 60,
-                              height: 12,
+                              width: 60.w,
+                              height: 12.h,
                               color: AppTheme.surface(context),
                             ),
                             const Spacer(),
                             Container(
-                              width: 50,
-                              height: 12,
+                              width: 50.w,
+                              height: 12.h,
                               color: AppTheme.surface(context),
                             ),
                           ],

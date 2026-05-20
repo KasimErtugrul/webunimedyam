@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -23,7 +24,7 @@ class ProfileViewWidget extends StatelessWidget {
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              expandedHeight: 250,
+              expandedHeight: 250.h,
               pinned: true,
               floating: false,
               surfaceTintColor: Colors.transparent,
@@ -32,6 +33,7 @@ class ProfileViewWidget extends StatelessWidget {
                   icon: Icon(
                     Icons.settings_outlined,
                     color: AppTheme.textPri(context),
+                    size: 24.sp,
                   ),
                   tooltip: 'Ayarlar',
                   onPressed: () => Get.toNamed(AppRoutes.settings),
@@ -40,6 +42,7 @@ class ProfileViewWidget extends StatelessWidget {
                   icon: Icon(
                     Icons.edit_outlined,
                     color: AppTheme.textPri(context),
+                    size: 24.sp,
                   ),
                   tooltip: 'Profili Düzenle',
                   onPressed: () => _showEditProfileDialog(context, controller),
@@ -50,28 +53,40 @@ class ProfileViewWidget extends StatelessWidget {
                 background: ProfileHeaderWidget(controller: controller),
               ),
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(48),
+                preferredSize: Size.fromHeight(48.h),
                 child: Container(
                   color: AppTheme.bg(context),
                   child: TabBar(
                     isScrollable: false,
                     indicatorColor: AppTheme.primaryColor,
-                    indicatorWeight: 2.5,
+                    indicatorWeight: 2.5.w,
                     labelColor: AppTheme.primaryColor,
                     unselectedLabelColor: AppTheme.textSec(context),
-                    labelStyle: const TextStyle(
-                      fontSize: 11,
+                    labelStyle: TextStyle(
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w600,
                     ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontSize: 11,
+                    unselectedLabelStyle: TextStyle(
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w500,
                     ),
-                    tabs: const [
-                      Tab(icon: Icon(Icons.favorite_rounded, size: 18), text: 'Favoriler'),
-                      Tab(icon: Icon(Icons.play_circle_rounded, size: 18), text: 'İzlenenler'),
-                      Tab(icon: Icon(Icons.chat_bubble_rounded, size: 18), text: 'Yorumlar'),
-                      Tab(icon: Icon(Icons.share_rounded, size: 18), text: 'Paylaşılan'),
+                    tabs: [
+                      Tab(
+                        icon: Icon(Icons.favorite_rounded, size: 18.sp),
+                        text: 'Favoriler',
+                      ),
+                      Tab(
+                        icon: Icon(Icons.play_circle_rounded, size: 18.sp),
+                        text: 'İzlenenler',
+                      ),
+                      Tab(
+                        icon: Icon(Icons.chat_bubble_rounded, size: 18.sp),
+                        text: 'Yorumlar',
+                      ),
+                      Tab(
+                        icon: Icon(Icons.share_rounded, size: 18.sp),
+                        text: 'Paylaşılan',
+                      ),
                     ],
                   ),
                 ),
@@ -119,7 +134,10 @@ class ProfileViewWidget extends StatelessWidget {
     );
   }
 
-  void _showEditProfileDialog(BuildContext context, ProfileController controller) {
+  void _showEditProfileDialog(
+    BuildContext context,
+    ProfileController controller,
+  ) {
     final usernameCtrl = TextEditingController(
       text: controller.profile.value?.username ?? '',
     );
@@ -130,29 +148,58 @@ class ProfileViewWidget extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppTheme.card(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         title: Text(
           'Profili Düzenle',
-          style: TextStyle(color: AppTheme.textPri(context)),
+          style: TextStyle(
+            color: AppTheme.textPri(context),
+            fontSize: 20.sp,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: usernameCtrl,
-              style: TextStyle(color: AppTheme.textPri(context)),
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 14.sp,
+              ),
               decoration: InputDecoration(
                 labelText: 'Kullanıcı Adı',
-                prefixIcon: Icon(Icons.person_outline, color: AppTheme.textSec(context)),
+                labelStyle: TextStyle(fontSize: 14.sp),
+                prefixIcon: Icon(
+                  Icons.person_outline,
+                  color: AppTheme.textSec(context),
+                  size: 20.sp,
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             TextField(
               controller: fullNameCtrl,
-              style: TextStyle(color: AppTheme.textPri(context)),
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 14.sp,
+              ),
               decoration: InputDecoration(
                 labelText: 'Ad Soyad',
-                prefixIcon: Icon(Icons.badge_outlined, color: AppTheme.textSec(context)),
+                labelStyle: TextStyle(fontSize: 14.sp),
+                prefixIcon: Icon(
+                  Icons.badge_outlined,
+                  color: AppTheme.textSec(context),
+                  size: 20.sp,
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
             ),
           ],
@@ -160,17 +207,36 @@ class ProfileViewWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('İptal', style: TextStyle(color: AppTheme.textSec(context))),
+            child: Text(
+              'İptal',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 14.sp,
+              ),
+            ),
           ),
           ElevatedButton(
-            onPressed: () {
-              controller.updateProfile(
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(80.w, 40.h),
+            ),
+            onPressed: () async {
+              Get.back();
+              await controller.updateProfile(
                 username: usernameCtrl.text.trim(),
                 fullName: fullNameCtrl.text.trim(),
               );
-              Get.back();
+              if (controller.successMessage.value != null) {
+                Get.snackbar('Başarılı', controller.successMessage.value!);
+                controller.successMessage.value = null;
+              } else if (controller.errorMessage.value != null) {
+                Get.snackbar('Hata', controller.errorMessage.value!);
+                controller.errorMessage.value = null;
+              }
             },
-            child: const Text('Kaydet'),
+            child: Text(
+              'Kaydet',
+              style: TextStyle(fontSize: 14.sp),
+            ),
           ),
         ],
       ),

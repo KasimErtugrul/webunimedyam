@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 
@@ -22,20 +23,20 @@ class UniversityRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10.r),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(vertical: 4.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildLogo(context),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Expanded(
               child: Text(
                 universityName,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -47,7 +48,7 @@ class UniversityRowWidget extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textSec(context),
-                size: 18,
+                size: 18.sp,
               ),
           ],
         ),
@@ -58,14 +59,14 @@ class UniversityRowWidget extends StatelessWidget {
   Widget _buildLogo(BuildContext context) {
     final hasLogo = logoUrl != null && logoUrl!.isNotEmpty;
     return Container(
-      width: 36,
-      height: 36,
+      width: 36.w,
+      height: 36.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(9.r),
         color: AppTheme.surface(context),
         border: Border.all(
           color: AppTheme.surface(context),
-          width: 1.5,
+          width: 1.5.w,
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -82,7 +83,7 @@ class UniversityRowWidget extends StatelessWidget {
   Widget _fallbackIcon(BuildContext context) {
     return Icon(
       Icons.account_balance_rounded,
-      size: 18,
+      size: 18.sp,
       color: AppTheme.textSec(context),
     );
   }

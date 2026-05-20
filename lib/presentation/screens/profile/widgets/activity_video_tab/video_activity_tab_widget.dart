@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -17,7 +18,8 @@ class VideoActivityTabWidget extends StatelessWidget {
   final String emptySubtext;
   final Future<void> Function() onRefresh;
 
-  const VideoActivityTabWidget({super.key, 
+  const VideoActivityTabWidget({
+    super.key,
     required this.videos,
     required this.isLoading,
     required this.emptyIcon,
@@ -30,7 +32,12 @@ class VideoActivityTabWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (isLoading.value) {
-        return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+        return Center(
+          child: CircularProgressIndicator(
+            color: AppTheme.primaryColor,
+            strokeWidth: 3.w,
+          ),
+        );
       }
 
       if (videos.isEmpty) {
@@ -38,16 +45,27 @@ class VideoActivityTabWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(emptyIcon, color: AppTheme.textSec(context), size: 56),
-              const SizedBox(height: 16),
+              Icon(
+                emptyIcon,
+                color: AppTheme.textSec(context),
+                size: 56.sp,
+              ),
+              SizedBox(height: 16.h),
               Text(
                 emptyText,
-                style: TextStyle(color: AppTheme.textPri(context), fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6.h),
               Text(
                 emptySubtext,
-                style: TextStyle(color: AppTheme.textSec(context), fontSize: 13),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -59,7 +77,7 @@ class VideoActivityTabWidget extends StatelessWidget {
         color: AppTheme.primaryColor,
         onRefresh: onRefresh,
         child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
           itemCount: videos.length,
           itemBuilder: (context, index) => ActivityVideoCardWidget(video: videos[index]),
         ),

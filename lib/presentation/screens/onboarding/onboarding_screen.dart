@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
@@ -78,7 +79,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: _completeOnboarding,
                 child: Text(
                   'Geç',
-                  style: TextStyle(color: AppTheme.textSec(context)),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 14.sp,
+                  ),
                 ),
               ),
             ),
@@ -92,13 +96,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemBuilder: (context, index) {
                   final page = _pages[index];
                   return Padding(
-                    padding: const EdgeInsets.all(32),
+                    padding: EdgeInsets.all(32.w),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: 120.w,
+                          height: 120.h,
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
@@ -108,26 +112,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Icon(
                             page['icon'] as IconData,
                             color: Theme.of(context).colorScheme.primary,
-                            size: 60,
+                            size: 60.sp,
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        SizedBox(height: 40.h),
                         Text(
                           page['title'] as String,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: 24,
+                            fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Text(
                           page['description'] as String,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppTheme.textSec(context),
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             height: 1.6,
                           ),
                         ),
@@ -138,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(32.w),
               child: Column(
                 children: [
                   Row(
@@ -147,30 +151,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _pages.length,
                       (index) => AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentPage == index ? 24 : 8,
-                        height: 8,
+                        margin: EdgeInsets.symmetric(horizontal: 4.w),
+                        width: _currentPage == index ? 24.w : 8.w,
+                        height: 8.h,
                         decoration: BoxDecoration(
                           color: _currentPage == index
                               ? Theme.of(context).colorScheme.primary
                               : AppTheme.textSec(
                                   context,
                                 ).withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32.h),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 48.h),
+                      ),
                       onPressed: _nextPage,
                       child: Text(
                         _currentPage == _pages.length - 1
                             ? 'Başla'
                             : 'Devam Et',
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16.sp),
                       ),
                     ),
                   ),

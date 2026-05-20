@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/comment_model.dart';
@@ -20,23 +21,23 @@ class CommentTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            radius: 16,
+            radius: 16.r,
             backgroundColor: AppTheme.surface(context),
             child: Text(
               (comment.profile?.username ?? 'U')[0].toUpperCase(),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,15 +47,15 @@ class CommentTileWidget extends StatelessWidget {
                   style: TextStyle(
                     color: AppTheme.textPri(context),
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: 13.sp,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3.h),
                 Text(
                   comment.content,
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     height: 1.4,
                   ),
                 ),
@@ -64,11 +65,11 @@ class CommentTileWidget extends StatelessWidget {
           GestureDetector(
             onTap: onDelete,
             child: Padding(
-              padding: const EdgeInsets.only(left: 8, top: 2),
+              padding: EdgeInsets.only(left: 8.w, top: 2.h),
               child: Icon(
                 Icons.delete_outline_rounded,
                 color: AppTheme.textSec(context),
-                size: 16,
+                size: 16.sp,
               ),
             ),
           ),
