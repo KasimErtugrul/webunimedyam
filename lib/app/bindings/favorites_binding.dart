@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+/* import 'package:get/get.dart';
 
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
@@ -25,3 +25,4 @@ class FavoritesBinding extends Bindings {
         ));
   }
 }
+ */

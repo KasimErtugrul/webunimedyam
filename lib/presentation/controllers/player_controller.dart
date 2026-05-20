@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/models/video_model.dart';
@@ -17,7 +17,6 @@ import 'profile_controller.dart';
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
   final CommentRepository commentRepository;
-  // DÜZELTME #1: DI üzerinden singleton — new SupabaseDataSource() değil
   final SupabaseDataSource supabaseDataSource;
   // ignore: unused_field
   final LocalDataSource localDataSource;
@@ -47,6 +46,9 @@ class PlayerController extends GetxController {
   final appShareCount = 0.obs;
   final appCommentCount = 0.obs;
   final isInitialStatsLoading = true.obs;
+
+  /// Fullscreen durumunu takip eder — PlayerScreen bu değeri dinler.
+  final isFullscreen = false.obs;
 
   VideoModel? currentVideo;
 
@@ -82,21 +84,59 @@ class PlayerController extends GetxController {
         autoplay = userSettings?.autoplay ?? true;
       }
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] _initPlayer settings error: $e');
     }
 
-    youtubeController = YoutubePlayerController.fromVideoId(
-      videoId: currentVideo!.videoId,
-      autoPlay: autoplay,
-      params: const YoutubePlayerParams(
-        showControls: true,
-        showFullscreenButton: true,
-        privacyEnhancedMode: true,
+    youtubeController = YoutubePlayerController(
+      initialVideoId: currentVideo!.videoId,
+      flags: YoutubePlayerFlags(
+        autoPlay: autoplay,
+        mute: false,
         enableCaption: false,
         captionLanguage: 'tr',
-        interfaceLanguage: 'tr',
+        // Fullscreen butonunu etkinleştir
+        forceHD: false,
+        useHybridComposition: true,
+        // youtube_player_flutter kendi içinde fullscreen'i yönetir;
+        // handleFullScreen: true ile bunu controller'a bırakıyoruz.
+        controlsVisibleAtStart: true,
+        hideThumbnail: false,
+        disableDragSeek: false,
+        loop: false,
+        isLive: false,
+        //forceHD: false,
       ),
     );
+
+    // Fullscreen değişikliklerini dinle → Android sistem UI'ını güncelle
+    youtubeController.addListener(_onYoutubeStateChange);
+  }
+
+  void _onYoutubeStateChange() {
+    final entering = youtubeController.value.isFullScreen;
+
+    if (entering == isFullscreen.value) return; // değişim yoksa çık
+    isFullscreen.value = entering;
+
+    if (entering) {
+      // Tam ekrana girerken: navigation bar + status bar'ı gizle,
+      // sticky immersive mod ile geri getirilebilir yapıyoruz.
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.immersiveSticky,
+      );
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      // Tam ekrandan çıkarken: sistem UI'ını geri getir
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge,
+      );
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    }
   }
 
   // ─── Stats ───────────────────────────────────────────────────────────────
@@ -105,7 +145,8 @@ class PlayerController extends GetxController {
     if (currentVideo == null) return;
     if (showInitialLoader) isInitialStatsLoading.value = true;
     try {
-      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
+      final stats =
+          await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appViewCount.value = stats['app_view_count'] ?? 0;
       appLikeCount.value = stats['app_like_count'] ?? 0;
       appFavoriteCount.value = stats['app_favorite_count'] ?? 0;
@@ -127,7 +168,7 @@ class PlayerController extends GetxController {
     try {
       await supabaseDataSource.recordView(userId, currentVideo!.videoId);
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] _recordView error: $e');
     }
   }
 
@@ -138,9 +179,10 @@ class PlayerController extends GetxController {
     final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) return;
     try {
-      isLiked.value = await supabaseDataSource.isLiked(userId, currentVideo!.videoId);
+      isLiked.value =
+          await supabaseDataSource.isLiked(userId, currentVideo!.videoId);
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] checkLike error: $e');
     }
   }
 
@@ -164,7 +206,8 @@ class PlayerController extends GetxController {
       } else {
         await supabaseDataSource.addLike(userId, currentVideo!.videoId);
       }
-      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
+      final stats =
+          await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appLikeCount.value = stats['app_like_count'] ?? appLikeCount.value;
     } catch (e) {
       isLiked.value = wasLiked;
@@ -185,7 +228,7 @@ class PlayerController extends GetxController {
       final ids = await favoritesRepository.getFavoriteVideoIds(userId);
       isFavorite.value = ids.contains(currentVideo!.videoId);
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] checkFavorite error: $e');
     }
   }
 
@@ -205,10 +248,10 @@ class PlayerController extends GetxController {
 
     try {
       if (!wasAdding) {
-        await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
-        await favoritesRepository.removeFavoriteVideoLocally(
-          currentVideo!.videoId,
-        );
+        await favoritesRepository.removeFavorite(
+            userId, currentVideo!.videoId);
+        await favoritesRepository
+            .removeFavoriteVideoLocally(currentVideo!.videoId);
       } else {
         await favoritesRepository.addFavorite(userId, currentVideo!.videoId);
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo!);
@@ -226,12 +269,12 @@ class PlayerController extends GetxController {
         if (wasAdding) {
           fc.favoriteVideos.insert(0, currentVideo!);
         } else {
-          fc.favoriteVideos.removeWhere(
-            (v) => v.videoId == currentVideo!.videoId,
-          );
+          fc.favoriteVideos
+              .removeWhere((v) => v.videoId == currentVideo!.videoId);
         }
       }
-      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
+      final stats =
+          await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appFavoriteCount.value =
           stats['app_favorite_count'] ?? appFavoriteCount.value;
     } catch (e) {
@@ -248,7 +291,8 @@ class PlayerController extends GetxController {
   Future<void> shareVideo() async {
     if (currentVideo == null) return;
     if (isShareLoading.value) return;
-    final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo!.videoId}';
+    final videoUrl =
+        'https://www.youtube.com/watch?v=${currentVideo!.videoId}';
     final text = '${currentVideo!.title}\n$videoUrl';
 
     try {
@@ -257,8 +301,10 @@ class PlayerController extends GetxController {
       if (userId != null) {
         isShareLoading.value = true;
         await supabaseDataSource.recordShare(userId, currentVideo!.videoId);
-        final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
-        appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
+        final stats = await supabaseDataSource
+            .getEngagementStats(currentVideo!.videoId);
+        appShareCount.value =
+            stats['app_share_count'] ?? appShareCount.value;
       }
     } catch (e) {
       log('[PlayerController] shareVideo fallback to clipboard: $e');
@@ -282,9 +328,8 @@ class PlayerController extends GetxController {
     if (currentVideo == null) return;
     try {
       isCommentsLoading.value = true;
-      comments.value = await commentRepository.getComments(
-        currentVideo!.videoId,
-      );
+      comments.value =
+          await commentRepository.getComments(currentVideo!.videoId);
     } catch (e) {
       log('[PlayerController] loadComments error: $e');
     } finally {
@@ -307,11 +352,12 @@ class PlayerController extends GetxController {
         content: content.trim(),
       );
       await loadComments();
-      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
+      final stats =
+          await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appCommentCount.value =
           stats['app_comment_count'] ?? appCommentCount.value;
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] addComment error: $e');
     }
   }
 
@@ -320,7 +366,8 @@ class PlayerController extends GetxController {
     try {
       await commentRepository.deleteComment(commentId);
       comments.removeWhere((c) => c.id == commentId);
-      final stats = await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
+      final stats =
+          await supabaseDataSource.getEngagementStats(currentVideo!.videoId);
       appCommentCount.value =
           stats['app_comment_count'] ?? appCommentCount.value;
 
@@ -329,18 +376,17 @@ class PlayerController extends GetxController {
         final hasMoreComments = comments.any((c) => c.userId == userId);
         if (!hasMoreComments) {
           Get.find<ProfileController>().commentedVideos.removeWhere(
-            (v) => v.videoId == currentVideo!.videoId,
-          );
+                (v) => v.videoId == currentVideo!.videoId,
+              );
         }
       }
     } catch (e) {
-      log('[PlayerController] error: $e');
+      log('[PlayerController] deleteComment error: $e');
     }
   }
 
-  // ─── Auth Dialog — DÜZELTME #3: PlayerController'a taşındı ──────────────
-  // (HomeController'daki _showAuthDialog ile aynı mantık; ileride ortak bir
-  //  AuthDialogService / mixin'e çıkarılabilir.)
+  // ─── Auth Dialog ──────────────────────────────────────────────────────────
+
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(
@@ -383,7 +429,14 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
-    youtubeController.close();
+    // Listener'ı temizle ve sistem UI'ını normale döndür
+    youtubeController.removeListener(_onYoutubeStateChange);
+    youtubeController.dispose();
+
+    // Ekrandan çıkarken portrait'e döndür ve sistem UI'ını geri getir
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
     super.onClose();
   }
 }

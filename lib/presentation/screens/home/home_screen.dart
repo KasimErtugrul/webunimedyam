@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/home_controller.dart';
 
-import '../favorites/favorites_screen.dart';
+//import '../favorites/favorites_screen.dart';
 import 'widgets/tabs/home_tab/home_tab_widget.dart';
 import 'widgets/tabs/universities_tab/universities_tab_widget.dart';
 
@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
           children: const [
             HomeTabWidget(),
             UniversitiesTabWidget(),
-            FavoritesScreen(),
+            //FavoritesScreen(),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -40,11 +40,11 @@ class HomeScreen extends StatelessWidget {
               activeIcon: Icon(Icons.school_rounded),
               label: 'Üniversiteler',
             ),
-            BottomNavigationBarItem(
+            /* BottomNavigationBarItem(
               icon: Icon(Icons.favorite_outline_rounded),
               activeIcon: Icon(Icons.favorite_rounded),
               label: 'Favoriler',
-            ),
+            ), */
           ],
         ),
       ),
