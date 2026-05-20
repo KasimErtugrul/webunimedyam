@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../models/university_stats_model.dart';
 import '../../models/video_model.dart';
 import '../../models/university_model.dart';
 import '../../models/profile_model.dart';
@@ -271,7 +272,10 @@ class SupabaseDataSource {
   Future<void> updateComment(String commentId, String content) async {
     await _client
         .from('comments')
-        .update({'content': content, 'updated_at': DateTime.now().toIso8601String()})
+        .update({
+          'content': content,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
         .eq('id', commentId);
   }
 
@@ -468,12 +472,52 @@ class SupabaseDataSource {
     };
   }
 
-   // ─── Kullanıcı İstatistikleri ─────────────────────────────────────────────
- 
+  // ─── Kullanıcı İstatistikleri ─────────────────────────────────────────────
+
   Future<Map<String, dynamic>?> getMyStats() async {
     final data = await _client.rpc('get_my_stats');
     if (data == null || (data as List).isEmpty) return null;
     // ignore: unnecessary_cast
     return Map<String, dynamic>.from((data as List).first as Map);
+  }
+
+  //
+// Mevcut SupabaseDataSource sınıfının içine, sınıfın kapanma '}' parantezinden
+// ÖNCE yapıştırın.
+//
+// Gerekli import (dosyanın üstünde henüz yoksa ekleyin):
+//   import '../../models/university_stats_model.dart';
+//
+// ─────────────────────────────────────────────────────────────────────────────
+ 
+  // ─── Üniversite İstatistikleri (university_stats view) ───────────────────
+
+  Future<List<UniversityStatsModel>> getUniversityStatsList({
+    required String orderBy,
+    int limit = 10,
+    String? filter,
+  }) async {
+    // .filter() yalnızca PostgrestFilterBuilder'da (.select() hemen sonrası) çalışır.
+    // .order() ve .limit() her zaman en sona gelmelidir.
+    final base = _client.from('university_stats').select();
+
+    final filtered = (filter != null)
+        ? () {
+            final parts = filter.split('.');
+            if (parts.length == 3) {
+              final val = num.tryParse(parts[2]) ?? parts[2];
+              return base.filter(parts[0], parts[1], val);
+            }
+            return base;
+          }()
+        : base;
+
+    final data = await filtered
+        .order(orderBy, ascending: false)
+        .limit(limit);
+
+    return (data as List)
+        .map((e) => UniversityStatsModel.fromMap(Map<String, dynamic>.from(e)))
+        .toList();
   }
 }

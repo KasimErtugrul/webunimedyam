@@ -1,6 +1,7 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Ana Sekme
-// ═══════════════════════════════════════════════════════════════════════════
+// lib/presentation/screens/home/widgets/tabs/home_tab/home_tab_widget.dart
+//
+// Mevcut dosyayı bu içerikle TAMAMEN değiştirin.
+// Değişiklik: AppBar ve "Son Videolar" başlığı arasına 8 üniversite seksiyonu eklendi.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,8 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../controllers/home_controller.dart';
+
+import 'universities/university_sections_config.dart';
 import 'widgets/video_card_widget.dart';
 
 class HomeTabWidget extends StatelessWidget {
@@ -28,10 +31,11 @@ class HomeTabWidget extends StatelessWidget {
             onRefresh: () async {
               await controller.refreshVideos();
               await controller.loadPlaylists();
+              await controller.loadUniversityStats();
             },
             child: CustomScrollView(
               slivers: [
-                // ── AppBar ───────────────────────────────────────────────
+                // ── AppBar ─────────────────────────────────────────────
                 SliverAppBar(
                   floating: true,
                   snap: true,
@@ -62,9 +66,11 @@ class HomeTabWidget extends StatelessWidget {
                       onPressed: () => Get.toNamed(AppRoutes.search),
                     ),
                     IconButton(
-                      icon: Icon(Icons.person_outline_rounded, size: 24.sp),
+                      icon:
+                          Icon(Icons.person_outline_rounded, size: 24.sp),
                       onPressed: () {
-                        if (controller.supabaseDataSource.currentUser != null) {
+                        if (controller.supabaseDataSource.currentUser !=
+                            null) {
                           Get.toNamed(AppRoutes.profile);
                         } else {
                           Get.toNamed(AppRoutes.login);
@@ -74,23 +80,53 @@ class HomeTabWidget extends StatelessWidget {
                   ],
                 ),
 
-                // ── Video Listesi Başlığı ───────────────────────
+                // ── Üniversite Seksiyonları (8 adet) ──────────────────
+                SliverToBoxAdapter(
+                  child: Obx(() {
+                    final allItems = [
+                      controller.statsMostWatched,
+                      controller.statsMostLiked,
+                      controller.statsPopularInApp,
+                      controller.statsMostFavorited,
+                      controller.statsActiveLast30,
+                      controller.statsBiggestChannels,
+                      controller.statsRichestArchive,
+                      controller.statsNewlyDiscovered,
+                    ];
+
+                    return Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: buildUniversitySections(
+                          configs: uniSectionConfigs,
+                          allItems: allItems,
+                          isLoading: controller.isStatsLoading.value,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+
+                // ── Video Listesi Başlığı ───────────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                    padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
                     child: Text(
                       'Son Videolar',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22.sp,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22.sp,
+                              ),
                     ),
                   ),
                 ),
 
-                // ── Video Listesi ─────────────────────────────────────────
+                // ── Video Listesi ──────────────────────────────────────
                 if (controller.isLoading.value)
-                  SliverToBoxAdapter(child: buildVideoShimmer(context))
+                  SliverToBoxAdapter(
+                      child: buildVideoShimmer(context))
                 else if (controller.errorMessage.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -143,8 +179,8 @@ class HomeTabWidget extends StatelessWidget {
                 else
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          VideoCardWidget(video: controller.videos[index]),
+                      (context, index) => VideoCardWidget(
+                          video: controller.videos[index]),
                       childCount: controller.videos.length,
                     ),
                   ),
@@ -175,7 +211,6 @@ class HomeTabWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Thumbnail placeholder
                   Container(
                     height: 196.h,
                     decoration: BoxDecoration(
@@ -185,7 +220,6 @@ class HomeTabWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Bilgi alanı placeholder
                   Padding(
                     padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 14.h),
                     child: Row(

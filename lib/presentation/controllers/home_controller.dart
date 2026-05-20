@@ -1,28 +1,36 @@
+// lib/presentation/controllers/home_controller.dart
+//
+// Mevcut dosyayı bu içerikle TAMAMEN değiştirin.
+// (Eski kodun tamamı korunmuş, yalnızca üniversite stats bölümü eklenmiştir.)
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/university_stats_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
+import '../../data/models/university_stats_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import 'favorites_controller.dart';
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
   final FavoritesRepository favoritesRepository;
-  // DÜZELTME #1: new SupabaseDataSource() yerine DI üzerinden alınan singleton
+  final UniversityStatsRepository universityStatsRepository;
   final SupabaseDataSource supabaseDataSource;
 
   HomeController({
     required this.videoRepository,
     required this.favoritesRepository,
+    required this.universityStatsRepository,
     required this.supabaseDataSource,
   });
 
-  // ─── State ────────────────────────────────────────────────────────────────
+  // ─── Mevcut State ─────────────────────────────────────────────────────────
 
   final videos = <VideoModel>[].obs;
   final playlists = <PlaylistModel>[].obs;
@@ -36,15 +44,22 @@ class HomeController extends GetxController {
   final errorMessage = ''.obs;
   final playlistsError = ''.obs;
 
-  /// 0 = Videolar, 1 = Oynatma Listeleri
   final selectedTab = 0.obs;
-
-  /// Alt navigasyon barı seçili sekme
-  /// 0=Ana Sayfa, 1=Üniversiteler, 2=Favoriler
   final selectedIndex = 0.obs;
-
-  /// Seçili üniversite — null ise "Tümü" gösterilir
   final selectedUniversity = Rxn<UniversityModel>();
+
+  // ─── Üniversite Stats State — 8 Liste ────────────────────────────────────
+
+  final statsMostWatched = <UniversityStatsModel>[].obs;
+  final statsMostLiked = <UniversityStatsModel>[].obs;
+  final statsPopularInApp = <UniversityStatsModel>[].obs;
+  final statsMostFavorited = <UniversityStatsModel>[].obs;
+  final statsActiveLast30 = <UniversityStatsModel>[].obs;
+  final statsBiggestChannels = <UniversityStatsModel>[].obs;
+  final statsRichestArchive = <UniversityStatsModel>[].obs;
+  final statsNewlyDiscovered = <UniversityStatsModel>[].obs;
+
+  final isStatsLoading = false.obs;
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -55,6 +70,39 @@ class HomeController extends GetxController {
     loadVideos();
     loadPlaylists();
     loadFavorites();
+    loadUniversityStats();
+  }
+
+  // ─── Üniversite Stats Yükleme ─────────────────────────────────────────────
+
+  Future<void> loadUniversityStats() async {
+    try {
+      isStatsLoading.value = true;
+
+      final results = await Future.wait([
+        universityStatsRepository.getMostWatched(),
+        universityStatsRepository.getMostLiked(),
+        universityStatsRepository.getPopularInApp(),
+        universityStatsRepository.getMostFavorited(),
+        universityStatsRepository.getMostActiveLast30Days(),
+        universityStatsRepository.getBiggestChannels(),
+        universityStatsRepository.getRichestArchive(),
+        universityStatsRepository.getNewlyDiscovered(),
+      ]);
+
+      statsMostWatched.value = results[0];
+      statsMostLiked.value = results[1];
+      statsPopularInApp.value = results[2];
+      statsMostFavorited.value = results[3];
+      statsActiveLast30.value = results[4];
+      statsBiggestChannels.value = results[5];
+      statsRichestArchive.value = results[6];
+      statsNewlyDiscovered.value = results[7];
+    } catch (e) {
+      log('loadUniversityStats error: $e');
+    } finally {
+      isStatsLoading.value = false;
+    }
   }
 
   // ─── Üniversiteler ────────────────────────────────────────────────────────
@@ -70,7 +118,6 @@ class HomeController extends GetxController {
     }
   }
 
-  /// Üniversite seçildiğinde çağrılır. null = "Tümü"
   Future<void> selectUniversity(UniversityModel? university) async {
     selectedUniversity.value = university;
     await loadVideos();
@@ -85,11 +132,9 @@ class HomeController extends GetxController {
 
       final uni = selectedUniversity.value;
       if (uni != null) {
-        videos.value =
-            await videoRepository.getVideosByUniversity(uni.id);
+        videos.value = await videoRepository.getVideosByUniversity(uni.id);
       } else {
-        videos.value =
-            await videoRepository.getLatestVideosPerUniversity();
+        videos.value = await videoRepository.getLatestVideosPerUniversity();
       }
     } catch (e) {
       errorMessage.value = 'Videolar yüklenemedi.';
@@ -143,7 +188,6 @@ class HomeController extends GetxController {
   Future<void> toggleFavorite(String videoId) async {
     final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
-      // DÜZELTME #3: Auth dialog tek merkezden (_showAuthDialog yöntemi)
       _showAuthDialog();
       return;
     }
@@ -154,7 +198,8 @@ class HomeController extends GetxController {
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
         favoriteIds.remove(videoId);
         if (Get.isRegistered<FavoritesController>()) {
-          Get.find<FavoritesController>().favoriteVideos
+          Get.find<FavoritesController>()
+              .favoriteVideos
               .removeWhere((v) => v.videoId == videoId);
         }
       } else {
@@ -173,7 +218,7 @@ class HomeController extends GetxController {
     }
   }
 
-  // ─── Auth Dialog — tek merkezi tanım ─────────────────────────────────────
+  // ─── Auth Dialog ──────────────────────────────────────────────────────────
 
   void _showAuthDialog() {
     Get.dialog(
@@ -191,13 +236,15 @@ class HomeController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Vazgeç', style: TextStyle(color: Color(0xFF9E9EB8))),
+            child: const Text('Vazgeç',
+                style: TextStyle(color: Color(0xFF9E9EB8))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () {
               Get.back();
@@ -222,9 +269,7 @@ class HomeController extends GetxController {
     final uni = selectedUniversity.value;
     if (uni == null) return 'ÜniTV';
     final name = uni.name;
-    if (name.length > 20) {
-      return '${name.substring(0, 18)}…';
-    }
+    if (name.length > 20) return '${name.substring(0, 18)}…';
     return name;
   }
 }
