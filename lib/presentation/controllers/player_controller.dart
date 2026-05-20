@@ -200,19 +200,21 @@ class PlayerController extends GetxController {
       }
       if (Get.isRegistered<HomeController>()) {
         final hc = Get.find<HomeController>();
-        if (wasAdding)
+        if (wasAdding) {
           hc.favoriteIds.add(currentVideo!.videoId);
-        else
+        } else {
           hc.favoriteIds.remove(currentVideo!.videoId);
+        }
       }
       if (Get.isRegistered<FavoritesController>()) {
         final fc = Get.find<FavoritesController>();
-        if (wasAdding)
+        if (wasAdding) {
           fc.favoriteVideos.insert(0, currentVideo!);
-        else
+        } else {
           fc.favoriteVideos.removeWhere(
             (v) => v.videoId == currentVideo!.videoId,
           );
+        }
       }
       final stats = await _supabase.getEngagementStats(currentVideo!.videoId);
       appFavoriteCount.value =

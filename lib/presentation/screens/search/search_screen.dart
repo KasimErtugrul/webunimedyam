@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
-import '../../../data/models/video_model.dart';
 import '../../controllers/search_controller.dart' as sc;
+import 'widgets/video_result_card_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -132,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen> {
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: controller.results.length,
-          itemBuilder: (_, i) => _VideoResultCard(
+          itemBuilder: (_, i) => VideoResultCardWidget(
             video: controller.results[i],
             query: q,
             onTap: () {
@@ -223,144 +222,5 @@ class _HistoryView extends StatelessWidget {
   }
 }
 
-// ── Video sonuç kartı ─────────────────────────────────────────────────────────
 
-class _VideoResultCard extends StatelessWidget {
-  final VideoModel video;
-  final String query;
-  final VoidCallback onTap;
 
-  const _VideoResultCard({
-    required this.video,
-    required this.query,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: video.thumbnailUrl,
-                width: 120,
-                height: 80,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(
-                  width: 120,
-                  height: 80,
-                  color: AppTheme.surface(context),
-                  child: Icon(Icons.play_circle_outline_rounded,
-                      color: AppTheme.textSec(context)),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _HighlightText(
-                      text: video.title,
-                      highlight: query,
-                      style: TextStyle(
-                        color: AppTheme.textPri(context),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                    ),
-                    const SizedBox(height: 4),
-                    if (video.universityName != null)
-                      Text(
-                        video.universityName!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    const SizedBox(height: 2),
-                    Text(
-                      video.formattedViewCount,
-                      style: TextStyle(color: AppTheme.textSec(context), fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Arama terimini vurgulayan text widget ──────────────────────────────────────
-
-class _HighlightText extends StatelessWidget {
-  final String text;
-  final String highlight;
-  final TextStyle style;
-  final int maxLines;
-
-  const _HighlightText({
-    required this.text,
-    required this.highlight,
-    required this.style,
-    this.maxLines = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (highlight.isEmpty) {
-      return Text(text, style: style, maxLines: maxLines, overflow: TextOverflow.ellipsis);
-    }
-
-    final lowerText = text.toLowerCase();
-    final lowerHighlight = highlight.toLowerCase();
-    final spans = <TextSpan>[];
-    int start = 0;
-
-    while (true) {
-      final idx = lowerText.indexOf(lowerHighlight, start);
-      if (idx == -1) {
-        spans.add(TextSpan(text: text.substring(start)));
-        break;
-      }
-      if (idx > start) spans.add(TextSpan(text: text.substring(start, idx)));
-      spans.add(TextSpan(
-        text: text.substring(idx, idx + highlight.length),
-        style: style.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-        ),
-      ));
-      start = idx + highlight.length;
-    }
-
-    return RichText(
-      text: TextSpan(style: style, children: spans),
-      maxLines: maxLines,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-}
