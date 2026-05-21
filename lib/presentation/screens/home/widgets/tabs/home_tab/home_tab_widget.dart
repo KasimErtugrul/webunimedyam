@@ -1,7 +1,4 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/home_tab_widget.dart
-//
-// Mevcut dosyayı bu içerikle TAMAMEN değiştirin.
-// Değişiklik: AppBar ve "Son Videolar" başlığı arasına 8 üniversite seksiyonu eklendi.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +10,7 @@ import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../controllers/home_controller.dart';
 
 import 'universities/university_sections_config.dart';
+import 'videos/video_sections_config.dart';
 import 'widgets/video_card_widget.dart';
 
 class HomeTabWidget extends StatelessWidget {
@@ -66,11 +64,9 @@ class HomeTabWidget extends StatelessWidget {
                       onPressed: () => Get.toNamed(AppRoutes.search),
                     ),
                     IconButton(
-                      icon:
-                          Icon(Icons.person_outline_rounded, size: 24.sp),
+                      icon: Icon(Icons.person_outline_rounded, size: 24.sp),
                       onPressed: () {
-                        if (controller.supabaseDataSource.currentUser !=
-                            null) {
+                        if (controller.supabaseDataSource.currentUser != null) {
                           Get.toNamed(AppRoutes.profile);
                         } else {
                           Get.toNamed(AppRoutes.login);
@@ -80,18 +76,47 @@ class HomeTabWidget extends StatelessWidget {
                   ],
                 ),
 
+                // ── Video Seksiyonları (6 adet) — üniversite seksiyonlarından ÖNCE ──
+                SliverToBoxAdapter(
+                  child: Obx(() {
+                    final allVideoItems = [
+                      controller.videosTrending.toList(),
+                      controller.videosMostWatched.toList(),
+                      controller.videosMostLiked.toList(),
+                      controller.videosMostFavorited.toList(),
+                      controller.videosMostCommented.toList(),
+                      controller.videosNewUndiscovered.toList(),
+                    ];
+
+                    return Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: buildVideoSections(
+                          configs: videoSectionConfigs,
+                          allVideoItems: allVideoItems,
+                          isLoading: controller.isVideoSectionsLoading.value,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+
+                // ── İki Blok Arası Ayraç ───────────────────────────────
+                SliverToBoxAdapter(child: SizedBox(height: 8.h)),
+
                 // ── Üniversite Seksiyonları (8 adet) ──────────────────
                 SliverToBoxAdapter(
                   child: Obx(() {
                     final allItems = [
-                      controller.statsMostWatched,
-                      controller.statsMostLiked,
-                      controller.statsPopularInApp,
-                      controller.statsMostFavorited,
-                      controller.statsActiveLast30,
-                      controller.statsBiggestChannels,
-                      controller.statsRichestArchive,
-                      controller.statsNewlyDiscovered,
+                      controller.statsMostWatched.toList(),
+                      controller.statsMostLiked.toList(),
+                      controller.statsPopularInApp.toList(),
+                      controller.statsMostFavorited.toList(),
+                      controller.statsActiveLast30.toList(),
+                      controller.statsBiggestChannels.toList(),
+                      controller.statsRichestArchive.toList(),
+                      controller.statsNewlyDiscovered.toList(),
                     ];
 
                     return Padding(
@@ -125,8 +150,7 @@ class HomeTabWidget extends StatelessWidget {
 
                 // ── Video Listesi ──────────────────────────────────────
                 if (controller.isLoading.value)
-                  SliverToBoxAdapter(
-                      child: buildVideoShimmer(context))
+                  SliverToBoxAdapter(child: buildVideoShimmer(context))
                 else if (controller.errorMessage.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -179,8 +203,8 @@ class HomeTabWidget extends StatelessWidget {
                 else
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => VideoCardWidget(
-                          video: controller.videos[index]),
+                      (context, index) =>
+                          VideoCardWidget(video: controller.videos[index]),
                       childCount: controller.videos.length,
                     ),
                   ),

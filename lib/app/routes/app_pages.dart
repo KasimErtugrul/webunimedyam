@@ -9,7 +9,8 @@ import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
-import '../../presentation/screens/stats/stats_screen.dart'; // ← YENİ
+import '../../presentation/screens/stats/stats_screen.dart';
+import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart'; // ← YENİ
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
@@ -17,7 +18,8 @@ import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/settings_binding.dart';
 import '../bindings/search_binding.dart';
-import '../bindings/stats_binding.dart'; // ← YENİ
+import '../bindings/stats_binding.dart';
+import '../bindings/video_section_detail_binding.dart'; // ← YENİ
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -77,10 +79,15 @@ abstract class AppPages {
       page: () => const SearchScreen(),
       binding: SearchBinding(),
     ),
-    GetPage(                          // ← YENİ
+    GetPage(
       name: AppRoutes.stats,
       page: () => const StatsScreen(),
       binding: StatsBinding(),
+    ),
+    GetPage(                                           // ← YENİ
+      name: AppRoutes.videoSectionDetail,
+      page: () => const VideoSectionDetailScreen(),
+      binding: VideoSectionDetailBinding(),
     ),
   ];
 }

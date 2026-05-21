@@ -1,7 +1,4 @@
 // lib/presentation/controllers/home_controller.dart
-//
-// Mevcut dosyayı bu içerikle TAMAMEN değiştirin.
-// (Eski kodun tamamı korunmuş, yalnızca üniversite stats bölümü eklenmiştir.)
 
 import 'dart:developer';
 
@@ -14,6 +11,7 @@ import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
+import '../../data/models/video_engagement_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import 'favorites_controller.dart';
 
@@ -61,6 +59,17 @@ class HomeController extends GetxController {
 
   final isStatsLoading = false.obs;
 
+  // ─── Video Seksiyonları State — 6 Liste ──────────────────────────────────
+
+  final videosTrending = <VideoEngagementModel>[].obs;
+  final videosMostWatched = <VideoEngagementModel>[].obs;
+  final videosMostLiked = <VideoEngagementModel>[].obs;
+  final videosMostFavorited = <VideoEngagementModel>[].obs;
+  final videosMostCommented = <VideoEngagementModel>[].obs;
+  final videosNewUndiscovered = <VideoEngagementModel>[].obs;
+
+  final isVideoSectionsLoading = false.obs;
+
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   @override
@@ -71,6 +80,7 @@ class HomeController extends GetxController {
     loadPlaylists();
     loadFavorites();
     loadUniversityStats();
+    loadVideoSections();
   }
 
   // ─── Üniversite Stats Yükleme ─────────────────────────────────────────────
@@ -102,6 +112,53 @@ class HomeController extends GetxController {
       log('loadUniversityStats error: $e');
     } finally {
       isStatsLoading.value = false;
+    }
+  }
+
+  // ─── Video Seksiyonları Yükleme ───────────────────────────────────────────
+
+  Future<void> loadVideoSections() async {
+    try {
+      isVideoSectionsLoading.value = true;
+
+      // Her seksiyon bağımsız — biri başarısız olursa diğerleri etkilenmez
+      final results = await Future.wait([
+        videoRepository.getTrendingVideos().catchError((e) {
+          log('getTrendingVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+        videoRepository.getMostWatchedVideos().catchError((e) {
+          log('getMostWatchedVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+        videoRepository.getMostLikedVideos().catchError((e) {
+          log('getMostLikedVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+        videoRepository.getMostFavoritedVideos().catchError((e) {
+          log('getMostFavoritedVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+        videoRepository.getMostCommentedVideos().catchError((e) {
+          log('getMostCommentedVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+        videoRepository.getNewUndiscoveredVideos().catchError((e) {
+          log('getNewUndiscoveredVideos error: $e');
+          return <VideoEngagementModel>[];
+        }),
+      ]);
+
+      videosTrending.value = results[0];
+      videosMostWatched.value = results[1];
+      videosMostLiked.value = results[2];
+      videosMostFavorited.value = results[3];
+      videosMostCommented.value = results[4];
+      videosNewUndiscovered.value = results[5];
+    } catch (e) {
+      log('loadVideoSections error: $e');
+    } finally {
+      isVideoSectionsLoading.value = false;
     }
   }
 
@@ -149,6 +206,7 @@ class HomeController extends GetxController {
       errorMessage.value = '';
       await videoRepository.refreshVideos();
       await loadVideos();
+      await loadVideoSections();
     } catch (e) {
       errorMessage.value = 'Videolar yenilenemedi.';
     } finally {

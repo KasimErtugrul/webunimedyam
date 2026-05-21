@@ -1,3 +1,5 @@
+// lib/data/repositories/video_repository.dart
+
 import 'dart:developer';
 
 import '../datasources/local/local_datasource.dart';
@@ -5,6 +7,18 @@ import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_model.dart';
 import '../models/university_model.dart';
 import '../models/playlist_model.dart';
+import '../models/video_engagement_model.dart';
+
+// VideoSectionType enum — video_sections_config.dart'ta da export edilir,
+// merkezi tanım buradadır.
+enum VideoSectionType {
+  trending,
+  mostWatched,
+  mostLiked,
+  mostFavorited,
+  mostCommented,
+  newUndiscovered,
+}
 
 class VideoRepository {
   final SupabaseDataSource _supabase;
@@ -17,22 +31,12 @@ class VideoRepository {
         _local = local;
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
-
   Future<List<UniversityModel>> getUniversities() async {
     return await _supabase.getUniversities();
   }
 
   // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
-  //
-  // Strateji:
-  //   1. Local cache geçerliyse (< 14 dk) → Supabase isteği YOK, local'den sun.
-  //   2. Cache süresi dolmuşsa veya hiç yoksa → Supabase'den çek, local'e kaydet.
-  //   3. Supabase başarısız olursa → eski local veriyi döndür (offline fallback).
-  //
-  // Cron 14 dk'da bir çalıştığından TTL ile mükemmel senkron oluruz.
-
   Future<List<VideoModel>> getLatestVideosPerUniversity() async {
-    // 1. Cache geçerli mi?
     if (await _local.isCacheValid()) {
       final cached = await _local.getCachedVideos();
       if (cached.isNotEmpty) {
@@ -41,27 +45,19 @@ class VideoRepository {
       }
     }
 
-    // 2. Cache süresi dolmuş veya boş → Supabase'den çek
     try {
       final videos = await _supabase.getLatestVideoPerUniversity();
       log('VIDEO CACHE MISS: Supabase\'den ${videos.length} video çekildi');
-      // Local'e kaydet, bir sonraki açılış cache'ten gelsin
       await _local.cacheVideos(videos);
       return videos;
     } catch (e) {
       log('Supabase hatası, eski cache kullanılıyor: $e');
-      // 3. Offline fallback — eski cache bile olsa göster
       final stale = await _local.getCachedVideos();
       return stale;
     }
   }
 
   // ─── Video: Üniversiteye Göre ──────────────────────────────────────────────
-  //
-  // Üniversite filtrelemesi Supabase'e özgü (her üniversite ayrı sorgu),
-  // bu yüzden local cache'i bypass edip direkt çekiyoruz.
-  // Ana sayfa cache'ini bozmamak için ayrı tutuyoruz.
-
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
       final videos = await _supabase.getCachedVideosByUniversity(universityId);
@@ -69,23 +65,18 @@ class VideoRepository {
       return videos;
     } catch (e) {
       log('Üniversite videoları hatası: $e');
-      // Fallback: local cache'teki tüm videolar içinden filtrele
       final all = await _local.getCachedVideos();
       return all.where((v) => v.universityId == universityId).toList();
     }
   }
 
   // ─── Pull-to-Refresh ───────────────────────────────────────────────────────
-  //
-  // Kullanıcı manuel yenilediğinde cache'i geçersiz kıl ve Supabase'den çek.
-
   Future<List<VideoModel>> refreshVideos() async {
-    await _local.clearCache(); // TTL'yi sıfırla
+    await _local.clearCache();
     return await getLatestVideosPerUniversity();
   }
 
   // ─── Oynatma Listeleri ─────────────────────────────────────────────────────
-
   Future<List<PlaylistModel>> getPlaylists() async {
     try {
       final unis = await _supabase.getUniversitiesWithVideoCount();
@@ -112,6 +103,107 @@ class VideoRepository {
       );
     } catch (e) {
       log('getPlaylistVideos hatası: $e');
+      return [];
+    }
+  }
+
+  // ─── Video Engagement — Ana Sayfa (ilk 10, cache'siz) ────────────────────
+
+  Future<List<VideoEngagementModel>> getTrendingVideos() async {
+    try {
+      final data = await _supabase.getTrendingVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getTrendingVideos hatası: $e');
+      return [];
+    }
+  }
+
+  Future<List<VideoEngagementModel>> getMostWatchedVideos() async {
+    try {
+      final data = await _supabase.getMostWatchedVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getMostWatchedVideos hatası: $e');
+      return [];
+    }
+  }
+
+  Future<List<VideoEngagementModel>> getMostLikedVideos() async {
+    try {
+      final data = await _supabase.getMostLikedVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getMostLikedVideos hatası: $e');
+      return [];
+    }
+  }
+
+  Future<List<VideoEngagementModel>> getMostFavoritedVideos() async {
+    try {
+      final data = await _supabase.getMostFavoritedVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getMostFavoritedVideos hatası: $e');
+      return [];
+    }
+  }
+
+  Future<List<VideoEngagementModel>> getMostCommentedVideos() async {
+    try {
+      final data = await _supabase.getMostCommentedVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getMostCommentedVideos hatası: $e');
+      return [];
+    }
+  }
+
+  Future<List<VideoEngagementModel>> getNewUndiscoveredVideos() async {
+    try {
+      final data = await _supabase.getNewAndUndiscoveredVideos(limit: 10);
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getNewUndiscoveredVideos hatası: $e');
+      return [];
+    }
+  }
+
+  // ─── Video Engagement — Sayfalı (detay sayfası) ───────────────────────────
+
+  /// Verilen seksiyon tipine göre sayfalı veri çeker.
+  Future<List<VideoEngagementModel>> getVideoSectionPage({
+    required VideoSectionType sectionType,
+    required int offset,
+    int limit = 10,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> data;
+
+      switch (sectionType) {
+        case VideoSectionType.trending:
+          data = await _supabase.getTrendingVideos(
+              limit: limit, offset: offset);
+        case VideoSectionType.mostWatched:
+          data = await _supabase.getMostWatchedVideos(
+              limit: limit, offset: offset);
+        case VideoSectionType.mostLiked:
+          data = await _supabase.getMostLikedVideos(
+              limit: limit, offset: offset);
+        case VideoSectionType.mostFavorited:
+          data = await _supabase.getMostFavoritedVideos(
+              limit: limit, offset: offset);
+        case VideoSectionType.mostCommented:
+          data = await _supabase.getMostCommentedVideos(
+              limit: limit, offset: offset);
+        case VideoSectionType.newUndiscovered:
+          data = await _supabase.getNewAndUndiscoveredVideos(
+              limit: limit, offset: offset);
+      }
+
+      return data.map(VideoEngagementModel.fromMap).toList();
+    } catch (e) {
+      log('getVideoSectionPage hatası ($sectionType): $e');
       return [];
     }
   }
