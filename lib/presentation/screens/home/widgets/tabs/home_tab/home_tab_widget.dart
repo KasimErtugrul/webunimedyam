@@ -9,8 +9,6 @@ import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../controllers/home_controller.dart';
 
-import 'universities/university_sections_config.dart';
-import 'videos/video_sections_config.dart';
 import 'widgets/video_card_widget.dart';
 
 class HomeTabWidget extends StatelessWidget {
@@ -76,63 +74,6 @@ class HomeTabWidget extends StatelessWidget {
                   ],
                 ),
 
-                // ── Video Seksiyonları (6 adet) — üniversite seksiyonlarından ÖNCE ──
-                SliverToBoxAdapter(
-                  child: Obx(() {
-                    final allVideoItems = [
-                      controller.videosTrending.toList(),
-                      controller.videosMostWatched.toList(),
-                      controller.videosMostLiked.toList(),
-                      controller.videosMostFavorited.toList(),
-                      controller.videosMostCommented.toList(),
-                      controller.videosNewUndiscovered.toList(),
-                    ];
-
-                    return Padding(
-                      padding: EdgeInsets.only(top: 16.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: buildVideoSections(
-                          configs: videoSectionConfigs,
-                          allVideoItems: allVideoItems,
-                          isLoading: controller.isVideoSectionsLoading.value,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-
-                // ── İki Blok Arası Ayraç ───────────────────────────────
-                SliverToBoxAdapter(child: SizedBox(height: 8.h)),
-
-                // ── Üniversite Seksiyonları (8 adet) ──────────────────
-                SliverToBoxAdapter(
-                  child: Obx(() {
-                    final allItems = [
-                      controller.statsMostWatched.toList(),
-                      controller.statsMostLiked.toList(),
-                      controller.statsPopularInApp.toList(),
-                      controller.statsMostFavorited.toList(),
-                      controller.statsActiveLast30.toList(),
-                      controller.statsBiggestChannels.toList(),
-                      controller.statsRichestArchive.toList(),
-                      controller.statsNewlyDiscovered.toList(),
-                    ];
-
-                    return Padding(
-                      padding: EdgeInsets.only(top: 16.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: buildUniversitySections(
-                          configs: uniSectionConfigs,
-                          allItems: allItems,
-                          isLoading: controller.isStatsLoading.value,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-
                 // ── Video Listesi Başlığı ───────────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
@@ -150,7 +91,7 @@ class HomeTabWidget extends StatelessWidget {
 
                 // ── Video Listesi ──────────────────────────────────────
                 if (controller.isLoading.value)
-                  SliverToBoxAdapter(child: buildVideoShimmer(context))
+                  SliverToBoxAdapter(child: _buildVideoShimmer(context))
                 else if (controller.errorMessage.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -218,7 +159,7 @@ class HomeTabWidget extends StatelessWidget {
     );
   }
 
-  Widget buildVideoShimmer(BuildContext context) {
+  Widget _buildVideoShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
