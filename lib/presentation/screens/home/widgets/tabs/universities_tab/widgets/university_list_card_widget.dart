@@ -54,8 +54,8 @@ class UniversityListCardWidget extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl: playlist.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => const SizedBox.shrink(),
-                            errorWidget: (_, __, ___) => Icon(
+                            placeholder: (_, _) => const SizedBox.shrink(),
+                            errorWidget: (_, _, _) => Icon(
                               Icons.school_rounded,
                               color: AppTheme.textSec(context),
                               size: 28,
@@ -121,12 +121,12 @@ class UniversityListCardWidget extends StatelessWidget {
                       width: 72,
                       height: 48,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
+                      placeholder: (_, _) => Container(
                         width: 72,
                         height: 48,
                         color: AppTheme.surface(context),
                       ),
-                      errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                      errorWidget: (_, _, _) => const SizedBox.shrink(),
                     ),
                   )
                 else

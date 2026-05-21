@@ -65,7 +65,7 @@ class UniversityHorizontalCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppTheme.card(context).withOpacity(0.85),
+                          AppTheme.card(context).withValues(alpha:  0.85),
                         ],
                       ),
                     ),
@@ -100,7 +100,7 @@ class UniversityHorizontalCard extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.15),
+                      color: AppTheme.primaryColor.withValues(alpha:0.15),
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Row(
@@ -155,8 +155,8 @@ class UniversityHorizontalCard extends StatelessWidget {
             width: 80.w,
             height: 80.w,
             fit: BoxFit.contain,
-            errorWidget: (_, __, ___) => _placeholder(context),
-            placeholder: (_, __) => _shimmerBox(context),
+            errorWidget: (_, _, _) => _placeholder(context),
+            placeholder: (_, _) => _shimmerBox(context),
           ),
         ),
       );
@@ -165,8 +165,8 @@ class UniversityHorizontalCard extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: url,
       fit: BoxFit.cover,
-      errorWidget: (_, __, ___) => _placeholder(context),
-      placeholder: (_, __) => _shimmerBox(context),
+      errorWidget: (_, _, _) => _placeholder(context),
+      placeholder: (_, _) => _shimmerBox(context),
     );
   }
 

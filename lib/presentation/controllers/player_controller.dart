@@ -296,7 +296,7 @@ class PlayerController extends GetxController {
     final text = '${currentVideo!.title}\n$videoUrl';
 
     try {
-      await Share.share(text, subject: currentVideo!.title);
+      await SharePlus.instance.share(ShareParams(text: text, subject: currentVideo!.title));
       final userId = supabaseDataSource.currentUser?.id;
       if (userId != null) {
         isShareLoading.value = true;

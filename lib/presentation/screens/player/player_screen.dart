@@ -252,7 +252,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: _controller.comments.length,
-                              separatorBuilder: (_, __) => Divider(
+                              separatorBuilder: (_, _) => Divider(
                                 color: AppTheme.surface(context),
                                 height: 1.h,
                                 thickness: 1.h,

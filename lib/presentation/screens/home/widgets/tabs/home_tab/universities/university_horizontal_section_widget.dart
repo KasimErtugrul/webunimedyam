@@ -116,7 +116,7 @@ class UniversityHorizontalSection extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 5,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           width: 160.w,
           margin: EdgeInsets.only(right: 12.w),
           decoration: BoxDecoration(

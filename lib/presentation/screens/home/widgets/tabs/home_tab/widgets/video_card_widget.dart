@@ -80,7 +80,7 @@ class VideoCardWidget extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: video.bestThumbnail,
             fit: BoxFit.cover,
-            placeholder: (_, __) => Container(
+            placeholder: (_, _) => Container(
               color: AppTheme.surface(context),
               child: Center(
                 child: CircularProgressIndicator(
@@ -89,7 +89,7 @@ class VideoCardWidget extends StatelessWidget {
                 ),
               ),
             ),
-            errorWidget: (_, __, ___) => Container(
+            errorWidget: (_, _, _) => Container(
               color: AppTheme.surface(context),
               child: Icon(
                 Icons.play_circle_outline_rounded,
@@ -357,8 +357,8 @@ class VideoCardWidget extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: logoUrl,
                   fit: BoxFit.contain,
-                  placeholder: (_, __) => const SizedBox.shrink(),
-                  errorWidget: (_, __, ___) => Icon(
+                  placeholder: (_, _) => const SizedBox.shrink(),
+                  errorWidget: (_, _, _) => Icon(
                     Icons.school_rounded,
                     color: AppTheme.textSec(context),
                     size: 20.sp,

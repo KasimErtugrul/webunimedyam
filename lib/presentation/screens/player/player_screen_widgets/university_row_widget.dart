@@ -74,7 +74,7 @@ class UniversityRowWidget extends StatelessWidget {
           ? Image.network(
               logoUrl!,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _fallbackIcon(context),
+              errorBuilder: (_, _, _) => _fallbackIcon(context),
             )
           : _fallbackIcon(context),
     );

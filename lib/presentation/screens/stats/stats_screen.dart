@@ -604,7 +604,7 @@ class _TopUniversityCard extends StatelessWidget {
                 width: 48.w,
                 height: 48.w,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => _LogoFallback(),
+                errorWidget: (_, _, _) => _LogoFallback(),
               ),
             )
           else
@@ -701,7 +701,7 @@ class _VideoCard extends StatelessWidget {
                     width: 72.w,
                     height: 52.h,
                     fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => _ThumbFallback(),
+                    errorWidget: (_, _, _) => _ThumbFallback(),
                   )
                 : _ThumbFallback(),
           ),

@@ -39,12 +39,12 @@ class ActivityVideoCardWidget extends StatelessWidget {
                     width: 118.w,
                     height: 72.h,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: 118.w,
                       height: 72.h,
                       color: AppTheme.surface(context),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: 118.w,
                       height: 72.h,
                       color: AppTheme.surface(context),

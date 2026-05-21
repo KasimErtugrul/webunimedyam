@@ -137,14 +137,14 @@ class VideoDetailCard extends StatelessWidget {
                     width: 120.w,
                     height: 80.h,
                     fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => CachedNetworkImage(
+                    errorWidget: (_, _, _) => CachedNetworkImage(
                       imageUrl: item.fallbackThumbnailUrl,
                       width: 120.w,
                       height: 80.h,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => _placeholder(context),
+                      errorWidget: (_, _, _) => _placeholder(context),
                     ),
-                    placeholder: (_, __) => _shimmerBox(context),
+                    placeholder: (_, _) => _shimmerBox(context),
                   ),
                   // Süre chip
                   if (item.duration.isNotEmpty)
@@ -155,7 +155,7 @@ class VideoDetailCard extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                             horizontal: 4.w, vertical: 2.h),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.75),
+                          color: Colors.black.withValues(alpha:0.75),
                           borderRadius: BorderRadius.circular(3.r),
                         ),
                         child: Text(

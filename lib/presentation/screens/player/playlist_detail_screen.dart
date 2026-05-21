@@ -82,7 +82,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     CachedNetworkImage(
                       imageUrl: playlist.thumbnailUrl,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         color: AppTheme.surface(context),
                         child: Icon(
                           Icons.playlist_play_rounded,
