@@ -38,9 +38,7 @@ class VideoSectionDetailScreen extends StatelessWidget {
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(
-            child: CircularProgressIndicator(
-              color: AppTheme.primaryColor,
-            ),
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
           );
         }
 
@@ -57,7 +55,8 @@ class VideoSectionDetailScreen extends StatelessWidget {
             },
             child: ListView.builder(
               padding: EdgeInsets.symmetric(vertical: 8.h),
-              itemCount: controller.items.length +
+              itemCount:
+                  controller.items.length +
                   (controller.hasMore.value ? 1 : 1), // +1 footer
               itemBuilder: (context, index) {
                 // Footer: yükleniyor göstergesi veya "tümü gösterildi"
@@ -153,9 +152,11 @@ class VideoDetailCard extends StatelessWidget {
                       right: 4.w,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 4.w, vertical: 2.h),
+                          horizontal: 4.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha:0.75),
+                          color: Colors.black.withValues(alpha: 0.75),
                           borderRadius: BorderRadius.circular(3.r),
                         ),
                         child: Text(
@@ -239,12 +240,13 @@ class VideoDetailCard extends StatelessWidget {
     );
   }
 
-  Widget _statChip(BuildContext context,
-      {required IconData icon,
-      required String label,
-      bool highlight = false}) {
-    final color =
-        highlight ? AppTheme.primaryColor : AppTheme.textSec(context);
+  Widget _statChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    bool highlight = false,
+  }) {
+    final color = highlight ? AppTheme.primaryColor : AppTheme.textSec(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -263,21 +265,18 @@ class VideoDetailCard extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context) => Container(
-        width: 120.w,
-        height: 80.h,
-        color: AppTheme.surface(context),
-        child: Icon(
-          Icons.play_circle_outline_rounded,
-          color: AppTheme.textSec(context),
-          size: 28.sp,
-        ),
-      );
+    width: 120.w,
+    height: 80.h,
+    color: AppTheme.surface(context),
+    child: Icon(
+      Icons.play_circle_outline_rounded,
+      color: AppTheme.textSec(context),
+      size: 28.sp,
+    ),
+  );
 
-  Widget _shimmerBox(BuildContext context) => Container(
-        width: 120.w,
-        height: 80.h,
-        color: AppTheme.surface(context),
-      );
+  Widget _shimmerBox(BuildContext context) =>
+      Container(width: 120.w, height: 80.h, color: AppTheme.surface(context));
 }
 
 // ─── Yardımcı fonksiyonlar ────────────────────────────────────────────────────
