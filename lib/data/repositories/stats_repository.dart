@@ -18,22 +18,32 @@ class StatsRepository {
     if (!forceRefresh) {
       try {
         final cached = await localDataSource.getCachedUserStats();
-        if (cached != null) return cached;
+        if (cached != null) {
+          log('📊💾 [Stats] Kullanıcı istatistikleri LOCAL cache\'den geldi');
+          return cached;
+        }
+        log('📊⏳ [Stats] Local cache boş veya süresi dolmuş');
       } catch (e) {
-        log('[StatsRepository] cache read error: $e');
+        log('📊❌ [Stats] Cache okuma hatası: $e');
       }
     }
 
     try {
+      log('📊☁️ [Stats] Kullanıcı istatistikleri Supabase\'den çekiliyor...');
       final data = await supabaseDataSource.getMyStats();
-      if (data == null) return null;
+      if (data == null) {
+        log('📊⚠️ [Stats] Supabase\'den veri gelmedi');
+        return null;
+      }
       final stats = UserStatsModel.fromMap(data);
       await localDataSource.cacheUserStats(stats);
+      log('📊✅ [Stats] İstatistikler geldi ve cache\'e yazıldı (remote)');
       return stats;
     } catch (e) {
-      log('[StatsRepository] remote fetch error: $e');
-      // Network hatası → stale cache'i dön (varsa)
-      return localDataSource.getCachedUserStats();
+      log('📊❌ [Stats] Remote hata: $e → stale cache deneniyor');
+      final stale = await localDataSource.getCachedUserStats();
+      log(stale != null ? '📊💾 [Stats] Stale cache döndürüldü' : '📊❌ [Stats] Stale cache de yok');
+      return stale;
     }
   }
 

@@ -24,6 +24,10 @@ class VideoSectionDetailController extends GetxController {
   static const int _pageSize = 10;
   int _currentOffset = 0;
 
+  // FIX: Ekrandan çıkıp geri dönünce sayfalar bellekte kalır — gereksiz
+  // ağ isteği yapılmaz. Sadece pull-to-refresh tam sıfırlama yapar.
+  final _pageCache = <int, List<VideoEngagementModel>>{};
+
   @override
   void onInit() {
     super.onInit();
@@ -37,6 +41,7 @@ class VideoSectionDetailController extends GetxController {
     _currentOffset = 0;
     hasMore.value = true;
     items.clear();
+    _pageCache.clear();
     await _fetchPage();
   }
 
@@ -54,11 +59,19 @@ class VideoSectionDetailController extends GetxController {
         isLoadingMore.value = true;
       }
 
-      final result = await videoRepository.getVideoSectionPage(
-        sectionType: sectionType,
-        offset: _currentOffset,
-        limit: _pageSize,
-      );
+      // FIX: Daha önce yüklenen sayfa bellekte varsa tekrar istek atma.
+      List<VideoEngagementModel> result;
+      if (_pageCache.containsKey(_currentOffset)) {
+        result = _pageCache[_currentOffset]!;
+       // log('SECTION_DETAIL CACHE HIT: offset=$_currentOffset');
+      } else {
+        result = await videoRepository.getVideoSectionPage(
+          sectionType: sectionType,
+          offset: _currentOffset,
+          limit: _pageSize,
+        );
+        _pageCache[_currentOffset] = result;
+      }
 
       if (result.length < _pageSize) {
         hasMore.value = false;

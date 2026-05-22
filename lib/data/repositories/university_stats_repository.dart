@@ -80,25 +80,31 @@ class UniversityStatsRepository {
     if (await _isCacheValid(orderBy, filter: filter)) {
       final cached = await _getFromCache(orderBy, filter: filter);
       if (cached != null && cached.isNotEmpty) {
-        log('UNI_STATS CACHE HIT: $orderBy');
+        log('🏛️💾 [UniStats] LOCAL cache\'den geldi → $orderBy (${cached.length} kayıt)');
         return cached;
       }
     }
 
     // 2. Supabase'den çek
     try {
+      log('🏛️☁️ [UniStats] Cache geçersiz, Supabase\'den çekiliyor → $orderBy${filter != null ? ' (filtre: $filter)' : ''}');
       final data = await _supabase.getUniversityStatsList(
         orderBy: orderBy,
         limit: limit,
         filter: filter,
       );
-      log('UNI_STATS CACHE MISS: $orderBy — ${data.length} kayıt');
+      log('🏛️✅ [UniStats] Supabase\'den geldi → $orderBy, ${data.length} kayıt, cache\'e yazıldı (remote)');
       await _saveToCache(orderBy, data, filter: filter);
       return data;
     } catch (e) {
-      log('UNI_STATS fetch error ($orderBy): $e');
+      log('🏛️❌ [UniStats] Hata ($orderBy): $e → stale cache deneniyor');
       // 3. Offline fallback: eski cache
       final stale = await _getFromCache(orderBy, filter: filter);
+      if (stale != null && stale.isNotEmpty) {
+        log('🏛️💾 [UniStats] Stale cache döndürüldü → $orderBy (${stale.length} kayıt)');
+      } else {
+        log('🏛️❌ [UniStats] Stale cache de yok → boş liste döndürülüyor');
+      }
       return stale ?? [];
     }
   }

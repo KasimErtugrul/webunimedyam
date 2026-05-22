@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/video_model.dart';
 import '../../models/user_stats_model.dart';
+import '../../models/video_engagement_model.dart';
 import 'dart:convert';
 
 class LocalDataSource {
@@ -188,5 +189,58 @@ class LocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userStatsKey);
     await prefs.remove(_userStatsCacheTimeKey);
+  }
+
+  // ─── Video Seksiyon Cache (30 dk TTL) ────────────────────────────────────
+
+  static const _videoSectionPrefix = 'video_section_';
+  static const _videoSectionTimePrefix = 'video_section_time_';
+  static const _sectionTtlMinutes = 30;
+
+  String _sectionKey(String key) => '$_videoSectionPrefix$key';
+  String _sectionTimeKey(String key) => '$_videoSectionTimePrefix$key';
+
+  Future<List<VideoEngagementModel>?> getCachedVideoSection(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeStr = prefs.getString(_sectionTimeKey(key));
+    if (timeStr == null) return null;
+    final cacheTime = DateTime.tryParse(timeStr);
+    if (cacheTime == null) return null;
+    final expired =
+        DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
+            _sectionTtlMinutes;
+    if (expired) return null;
+    final jsonStr = prefs.getString(_sectionKey(key));
+    if (jsonStr == null) return null;
+    try {
+      final list = json.decode(jsonStr) as List;
+      return list
+          .map((e) => VideoEngagementModel.fromMap(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> cacheVideoSection(String key, List<VideoEngagementModel> items) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _sectionKey(key),
+      json.encode(items.map((e) => e.toMap()).toList()),
+    );
+    await prefs.setString(
+      _sectionTimeKey(key),
+      DateTime.now().toUtc().toIso8601String(),
+    );
+  }
+
+  Future<void> clearVideoSectionCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where(
+      (k) => k.startsWith(_videoSectionPrefix) || k.startsWith(_videoSectionTimePrefix),
+    );
+    for (final k in keys) {
+      await prefs.remove(k);
+    }
   }
 }

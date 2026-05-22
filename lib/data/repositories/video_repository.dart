@@ -31,8 +31,21 @@ class VideoRepository {
         _local = local;
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
+  // FIX: getUniversities() → getUniversitiesAndPlaylists() ile birleştirildi.
+  // Geriye dönük uyumluluk için stub tutuldu.
   Future<List<UniversityModel>> getUniversities() async {
-    return await _supabase.getUniversities();
+    log('🏛️ [Video] getUniversities → getUniversitiesAndPlaylists\'e yönlendiriliyor');
+    final rows = await getUniversitiesAndPlaylists();
+    return rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+  }
+
+  /// Tek sorguda hem UniversityModel hem PlaylistModel verisi döner.
+  /// universities_with_stats view'ından çeker (uploads_playlist_id dahil).
+  Future<List<Map<String, dynamic>>> getUniversitiesAndPlaylists() async {
+    log('🏛️☁️ [Video] Üniversiteler + playlist verisi TEK sorguda Supabase\'den çekiliyor...');
+    final rows = await _supabase.getUniversitiesWithStats();
+    log('🏛️✅ [Video] ${rows.length} üniversite geldi (remote, tek istek)');
+    return rows;
   }
 
   // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
@@ -40,19 +53,21 @@ class VideoRepository {
     if (await _local.isCacheValid()) {
       final cached = await _local.getCachedVideos();
       if (cached.isNotEmpty) {
-        log('VIDEO CACHE HIT: ${cached.length} video (cron henüz çalışmadı veya aktif saat dışı)');
+        log('🎬💾 [Video] Ana sayfa videoları LOCAL cache\'den geldi → ${cached.length} video');
         return cached;
       }
     }
 
     try {
+      log('🎬☁️ [Video] Cache geçersiz, Supabase\'den çekiliyor...');
       final videos = await _supabase.getLatestVideoPerUniversity();
-      log('VIDEO CACHE MISS: Supabase\'den ${videos.length} video çekildi');
+      log('🎬✅ [Video] ${videos.length} video geldi → local cache\'e yazıldı (remote)');
       await _local.cacheVideos(videos);
       return videos;
     } catch (e) {
-      log('Supabase hatası, eski cache kullanılıyor: $e');
+      log('🎬❌ [Video] Supabase hatası: $e → eski cache deneniyor');
       final stale = await _local.getCachedVideos();
+      log(stale.isNotEmpty ? '🎬💾 [Video] Stale cache döndürüldü: ${stale.length} video' : '🎬❌ [Video] Stale cache de boş');
       return stale;
     }
   }
@@ -60,35 +75,44 @@ class VideoRepository {
   // ─── Video: Üniversiteye Göre ──────────────────────────────────────────────
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
+      log('🎬☁️ [Video] Üniversite $universityId videoları Supabase\'den çekiliyor...');
       final videos = await _supabase.getCachedVideosByUniversity(universityId);
-      log('Üniversite $universityId: ${videos.length} video');
+      log('🎬✅ [Video] Üniversite $universityId → ${videos.length} video (remote)');
       return videos;
     } catch (e) {
-      log('Üniversite videoları hatası: $e');
+      log('🎬❌ [Video] Üniversite $universityId hata: $e → local cache\'e dönülüyor');
       final all = await _local.getCachedVideos();
-      return all.where((v) => v.universityId == universityId).toList();
+      final filtered = all.where((v) => v.universityId == universityId).toList();
+      log('🎬💾 [Video] Local fallback: ${filtered.length} video bulundu');
+      return filtered;
     }
   }
 
   // ─── Pull-to-Refresh ───────────────────────────────────────────────────────
   Future<List<VideoModel>> refreshVideos() async {
+    log('🔄🧹 [Video] Pull-to-refresh: local cache temizleniyor...');
     await _local.clearCache();
+    await _local.clearVideoSectionCache();
+    log('🔄☁️ [Video] Veriler Supabase\'den yenileniyor...');
     return await getLatestVideosPerUniversity();
   }
 
   // ─── Oynatma Listeleri ─────────────────────────────────────────────────────
   Future<List<PlaylistModel>> getPlaylists() async {
     try {
+      log('🎵☁️ [Video] Playlist listesi Supabase\'den çekiliyor...');
       final unis = await _supabase.getUniversitiesWithVideoCount();
-      return unis
+      final playlists = unis
           .map((u) => PlaylistModel.fromUniversity(
                 u,
                 videoCount: (u['video_count'] as int?) ?? 0,
                 thumbnailUrl: u['thumbnail_url'] as String? ?? '',
               ))
           .toList();
+      log('🎵✅ [Video] ${playlists.length} playlist geldi (remote)');
+      return playlists;
     } catch (e) {
-      log('getPlaylists hatası: $e');
+      log('🎵❌ [Video] getPlaylists hatası: $e');
       return [];
     }
   }
@@ -107,65 +131,47 @@ class VideoRepository {
     }
   }
 
-  // ─── Video Engagement — Ana Sayfa (ilk 10, cache'siz) ────────────────────
+  // ─── Video Engagement — Ana Sayfa (ilk 10, 30 dk TTL cache) ─────────────
 
-  Future<List<VideoEngagementModel>> getTrendingVideos() async {
-    try {
-      final data = await _supabase.getTrendingVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
-    } catch (e) {
-      log('getTrendingVideos hatası: $e');
-      return [];
-    }
-  }
+  Future<List<VideoEngagementModel>> getTrendingVideos() =>
+      _cachedSection('trending', () => _supabase.getTrendingVideos(limit: 10));
 
-  Future<List<VideoEngagementModel>> getMostWatchedVideos() async {
-    try {
-      final data = await _supabase.getMostWatchedVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
-    } catch (e) {
-      log('getMostWatchedVideos hatası: $e');
-      return [];
-    }
-  }
+  Future<List<VideoEngagementModel>> getMostWatchedVideos() =>
+      _cachedSection('most_watched', () => _supabase.getMostWatchedVideos(limit: 10));
 
-  Future<List<VideoEngagementModel>> getMostLikedVideos() async {
-    try {
-      final data = await _supabase.getMostLikedVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
-    } catch (e) {
-      log('getMostLikedVideos hatası: $e');
-      return [];
-    }
-  }
+  Future<List<VideoEngagementModel>> getMostLikedVideos() =>
+      _cachedSection('most_liked', () => _supabase.getMostLikedVideos(limit: 10));
 
-  Future<List<VideoEngagementModel>> getMostFavoritedVideos() async {
-    try {
-      final data = await _supabase.getMostFavoritedVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
-    } catch (e) {
-      log('getMostFavoritedVideos hatası: $e');
-      return [];
-    }
-  }
+  Future<List<VideoEngagementModel>> getMostFavoritedVideos() =>
+      _cachedSection('most_favorited', () => _supabase.getMostFavoritedVideos(limit: 10));
 
-  Future<List<VideoEngagementModel>> getMostCommentedVideos() async {
-    try {
-      final data = await _supabase.getMostCommentedVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
-    } catch (e) {
-      log('getMostCommentedVideos hatası: $e');
-      return [];
-    }
-  }
+  Future<List<VideoEngagementModel>> getMostCommentedVideos() =>
+      _cachedSection('most_commented', () => _supabase.getMostCommentedVideos(limit: 10));
 
-  Future<List<VideoEngagementModel>> getNewUndiscoveredVideos() async {
+  Future<List<VideoEngagementModel>> getNewUndiscoveredVideos() =>
+      _cachedSection('new_undiscovered', () => _supabase.getNewAndUndiscoveredVideos(limit: 10));
+
+  /// UniversityStatsRepository ile aynı TTL pattern'i: 30 dk.
+  /// Pull-to-refresh → refreshVideoSections() cache'i temizler.
+  Future<List<VideoEngagementModel>> _cachedSection(
+    String key,
+    Future<List<Map<String, dynamic>>> Function() fetch,
+  ) async {
     try {
-      final data = await _supabase.getNewAndUndiscoveredVideos(limit: 10);
-      return data.map(VideoEngagementModel.fromMap).toList();
+      final cached = await _local.getCachedVideoSection(key);
+      if (cached != null) {
+        log('📺💾 [Video] Seksiyon LOCAL cache\'den geldi → $key');
+        return cached;
+      }
+      final data = await fetch();
+      final models = data.map(VideoEngagementModel.fromMap).toList();
+      await _local.cacheVideoSection(key, models);
+      log('📺✅ [Video] Seksiyon Supabase\'den çekildi → $key, cache\'e yazıldı (remote)');
+      return models;
     } catch (e) {
-      log('getNewUndiscoveredVideos hatası: $e');
-      return [];
+      log('📺❌ [Video] Seksiyon hata ($key): $e → stale cache deneniyor');
+      final stale = await _local.getCachedVideoSection(key);
+      return stale ?? [];
     }
   }
 
@@ -178,6 +184,7 @@ class VideoRepository {
     int limit = 10,
   }) async {
     try {
+      log('📺☁️ [Video] Sayfa yükleniyor → $sectionType offset=$offset limit=$limit');
       final List<Map<String, dynamic>> data;
 
       switch (sectionType) {
@@ -201,9 +208,11 @@ class VideoRepository {
               limit: limit, offset: offset);
       }
 
-      return data.map(VideoEngagementModel.fromMap).toList();
+      final models = data.map(VideoEngagementModel.fromMap).toList();
+      log('📺✅ [Video] Sayfa geldi → $sectionType ${models.length} video (remote)');
+      return models;
     } catch (e) {
-      log('getVideoSectionPage hatası ($sectionType): $e');
+      log('📺❌ [Video] Sayfa hata ($sectionType): $e');
       return [];
     }
   }

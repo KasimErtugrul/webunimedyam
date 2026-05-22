@@ -102,6 +102,30 @@ class VideoEngagementModel {
     );
   }
 
+  Map<String, dynamic> toMap() => {
+    'video_id': videoId,
+    'title': title,
+    'channel_title': channelTitle,
+    'university_id': universityId,
+    'published_at': publishedAt.toIso8601String(),
+    'duration': duration,
+    'is_hd': isHd,
+    'is_live': isLive,
+    'yt_view_count': ytViewCount,
+    'yt_like_count': ytLikeCount,
+    'app_view_count': appViewCount,
+    'app_like_count': appLikeCount,
+    'app_favorite_count': appFavoriteCount,
+    'app_share_count': appShareCount,
+    'app_comment_count': appCommentCount,
+    'engagement_score': engagementScore,
+    'like_rate_pct': likeRatePct,
+    'comment_rate_pct': commentRatePct,
+    'first_viewed_at': firstViewedAt?.toIso8601String(),
+    'last_viewed_at': lastViewedAt?.toIso8601String(),
+  };
+
+
 @override
 String toString() {
     return 'VideoEngagementModel{videoId=$videoId, title=$title, channelTitle=$channelTitle, universityId=$universityId, publishedAt=$publishedAt, duration=$duration, isHd=$isHd, isLive=$isLive, ytViewCount=$ytViewCount, ytLikeCount=$ytLikeCount, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount, engagementScore=$engagementScore, likeRatePct=$likeRatePct, commentRatePct=$commentRatePct, firstViewedAt=$firstViewedAt, lastViewedAt=$lastViewedAt}';

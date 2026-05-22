@@ -75,9 +75,8 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    loadUniversities();
+    loadUniversitiesAndPlaylists(); // FIX: 2 istek → 1 istek
     loadVideos();
-    loadPlaylists();
     loadFavorites();
     loadUniversityStats();
     loadVideoSections();
@@ -164,14 +163,27 @@ class HomeController extends GetxController {
 
   // ─── Üniversiteler ────────────────────────────────────────────────────────
 
-  Future<void> loadUniversities() async {
+  // FIX: loadUniversities + loadPlaylists birleştirildi — tek Supabase isteği.
+  Future<void> loadUniversitiesAndPlaylists() async {
     try {
       isUniversitiesLoading.value = true;
-      universities.value = await videoRepository.getUniversities();
+      isPlaylistsLoading.value = true;
+      playlistsError.value = '';
+      final rows = await videoRepository.getUniversitiesAndPlaylists();
+      universities.value = rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+      playlists.value = rows
+          .map((r) => PlaylistModel.fromUniversity(
+                r,
+                videoCount: (r['video_count'] as int?) ?? 0,
+                thumbnailUrl: r['thumbnail_url'] as String? ?? '',
+              ))
+          .toList();
     } catch (e) {
-      log('loadUniversities error: $e');
+      log('loadUniversitiesAndPlaylists error: $e');
+      playlistsError.value = 'Üniversiteler yüklenemedi.';
     } finally {
       isUniversitiesLoading.value = false;
+      isPlaylistsLoading.value = false;
     }
   }
 
@@ -216,17 +228,8 @@ class HomeController extends GetxController {
 
   // ─── Oynatma Listeleri ────────────────────────────────────────────────────
 
-  Future<void> loadPlaylists() async {
-    try {
-      isPlaylistsLoading.value = true;
-      playlistsError.value = '';
-      playlists.value = await videoRepository.getPlaylists();
-    } catch (e) {
-      playlistsError.value = 'Oynatma listeleri yüklenemedi.';
-    } finally {
-      isPlaylistsLoading.value = false;
-    }
-  }
+  /// Geriye dönük uyumluluk — loadUniversitiesAndPlaylists'e yönlendirir.
+  Future<void> loadPlaylists() => loadUniversitiesAndPlaylists();
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
 

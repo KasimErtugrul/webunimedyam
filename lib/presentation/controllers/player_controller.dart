@@ -18,7 +18,6 @@ class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
   final CommentRepository commentRepository;
   final SupabaseDataSource supabaseDataSource;
-  // ignore: unused_field
   final LocalDataSource localDataSource;
 
   PlayerController({
@@ -64,12 +63,37 @@ class PlayerController extends GetxController {
 
   Future<void> _loadInitialState() async {
     final userId = supabaseDataSource.currentUser?.id;
+
+    // FIX: favoriteIds HomeController'da zaten tutuluyorsa oradan al,
+    // aksi hâlde repository'ye sor — ama tüm listeyi çekme, sadece bu video için bak.
+    if (userId != null) {
+      _resolveIsFavoriteFromCache();
+    }
+
     await Future.wait([
       _loadEngagementStats(showInitialLoader: true),
-      if (userId != null) checkFavorite(),
       if (userId != null) checkLike(),
       _recordView(),
     ]);
+  }
+
+  // FIX: Favori durumunu önce HomeController cache'inden, sonra local cache'den çöz.
+  // Sadece bilinmiyorsa Supabase'e tek satır sorgusu at.
+  void _resolveIsFavoriteFromCache() {
+    if (currentVideo == null) return;
+    final videoId = currentVideo!.videoId;
+
+    // HomeController zaten favoriteIds'i bellekte tutuyorsa hemen kullan
+    if (Get.isRegistered<HomeController>()) {
+      final hc = Get.find<HomeController>();
+      isFavorite.value = hc.favoriteIds.contains(videoId);
+      return;
+    }
+
+    // HomeController yok → local DB'den çek (network yok)
+    localDataSource.getFavoriteVideos().then((locals) {
+      isFavorite.value = locals.any((v) => v.videoId == videoId);
+    });
   }
 
   Future<void> _initPlayer() async {
@@ -78,8 +102,19 @@ class PlayerController extends GetxController {
     try {
       final userId = supabaseDataSource.currentUser?.id;
       if (userId != null) {
-        final userSettings = await supabaseDataSource.getUserSettings(userId);
-        autoplay = userSettings?.autoplay ?? true;
+        // FIX: Önce local cache'e bak, yoksa Supabase'e git
+        final cached = await localDataSource.getCachedUserSettings();
+        //log('player controller getUserSettings cached: $cached');
+        if (cached != null) {
+          autoplay = (cached['autoplay'] as bool?) ?? true;
+        } else {
+          final userSettings = await supabaseDataSource.getUserSettings(userId);
+          //log('player controller getUserSettings from supabase: $userSettings');
+          autoplay = userSettings?.autoplay ?? true;
+          if (userSettings != null) {
+            await localDataSource.cacheUserSettings(userSettings.toSupabase());
+          }
+        }
       }
     } catch (e) {
       log('[PlayerController] Autoplay setting error: $e');
@@ -89,11 +124,11 @@ class PlayerController extends GetxController {
       videoId: currentVideo!.videoId,
       autoPlay: autoplay,
       params: const YoutubePlayerParams(
-        showFullscreenButton: true,
+        showFullscreenButton: false,
         showControls: true,
         strictRelatedVideos: true,
         enableCaption: true,
-        captionLanguage: 'tr',
+        captionLanguage: 'tur',
         playsInline: true,
         loop: false,
         mute: false,
@@ -186,17 +221,8 @@ class PlayerController extends GetxController {
 
   // ─── Favori ──────────────────────────────────────────────────────────────
 
-  Future<void> checkFavorite() async {
-    if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
-    if (userId == null) return;
-    try {
-      final ids = await favoritesRepository.getFavoriteVideoIds(userId);
-      isFavorite.value = ids.contains(currentVideo!.videoId);
-    } catch (e) {
-      log('[PlayerController] checkFavorite error: $e');
-    }
-  }
+  // FIX: checkFavorite() kaldırıldı. Artık _resolveIsFavoriteFromCache() kullanılıyor.
+  // toggleFavorite doğrudan state günceller + HomeController/FavoritesController'ı senkronlar.
 
   Future<void> toggleFavorite() async {
     if (currentVideo == null) return;

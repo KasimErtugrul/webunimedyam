@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'favorites_controller.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
@@ -73,12 +74,29 @@ class ProfileController extends GetxController {
     ]);
   }
 
+  // FIX: Favoriler artık FavoritesController'ın local cache'inden okunuyor.
+  // Supabase'e gidilmiyor — çift kaynak sorunu ortadan kalktı.
   Future<void> loadFavorites([String? uid]) async {
-    final userId = uid ?? supabaseDataSource.currentUser?.id;
-    if (userId == null) return;
     try {
       isFavoritesLoading.value = true;
-      favoriteVideos.value = await supabaseDataSource.getUserFavoriteVideos(userId);
+      if (Get.isRegistered<FavoritesController>()) {
+        final fc = Get.find<FavoritesController>();
+        // FavoritesController henüz yüklemediyse bekle
+        if (fc.isLoading.value) {
+          await Future.doWhile(() async {
+            await Future.delayed(const Duration(milliseconds: 50));
+            return fc.isLoading.value;
+          });
+        }
+        favoriteVideos.value = List.of(fc.favoriteVideos);
+      } else {
+        // Fallback: FavoritesController yoksa direkt local'den oku
+        final userId = uid ?? supabaseDataSource.currentUser?.id;
+        if (userId != null) {
+          favoriteVideos.value =
+              await supabaseDataSource.getUserFavoriteVideos(userId);
+        }
+      }
     } catch (e) {
       log('loadFavorites error: $e');
     } finally {
