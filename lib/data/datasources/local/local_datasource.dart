@@ -32,9 +32,11 @@ class LocalDataSource {
     return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
   }
 
+  // FIX: OOM RİSKİ ÖNLENDİ. Artık sadece son 50 videoyu cache'liyor.
   Future<void> cacheVideos(List<VideoModel> videos) async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonList = videos.map((v) => v.toSupabase()).toList();
+    final videosToCache = videos.take(50).toList(); 
+    final jsonList = videosToCache.map((v) => v.toSupabase()).toList();
     await prefs.setString(_videoCacheKey, json.encode(jsonList));
     await prefs.setString(_cacheTimeKey, DateTime.now().toIso8601String());
   }
@@ -121,11 +123,20 @@ class LocalDataSource {
     return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
   }
 
+  // FIX: OOM RİSKİ ÖNLENDİ. Liste 100'ü geçerse en eski favorileri siler.
   Future<void> saveFavoriteVideo(VideoModel video) async {
     final prefs = await SharedPreferences.getInstance();
     final existing = await getFavoriteVideos();
     if (existing.any((v) => v.videoId == video.videoId)) return;
+    
     existing.insert(0, video);
+    
+    // Limit control
+    const maxFavorites = 100;
+    if (existing.length > maxFavorites) {
+      existing.removeRange(maxFavorites, existing.length);
+    }
+    
     await prefs.setString(
       _favoriteVideosKey,
       json.encode(existing.map((v) => v.toSupabase()).toList()),
@@ -148,7 +159,6 @@ class LocalDataSource {
   }
 
   // ─── User Stats Cache ─────────────────────────────────────────────────────
-  // 1 saatlik TTL — istatistikler sık değişmez
 
   static const _userStatsKey = 'user_stats';
   static const _userStatsCacheTimeKey = 'user_stats_cache_time';
@@ -210,7 +220,7 @@ class LocalDataSource {
         DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
             _sectionTtlMinutes;
     if (expired) return null;
-    final jsonStr = prefs.getString(_sectionKey(key));
+        final jsonStr = prefs.getString(_sectionKey(key));
     if (jsonStr == null) return null;
     try {
       final list = json.decode(jsonStr) as List;

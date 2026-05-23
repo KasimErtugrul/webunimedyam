@@ -75,7 +75,7 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    loadUniversitiesAndPlaylists(); // FIX: 2 istek → 1 istek
+    loadUniversitiesAndPlaylists();
     loadVideos();
     loadFavorites();
     loadUniversityStats();
@@ -120,7 +120,6 @@ class HomeController extends GetxController {
     try {
       isVideoSectionsLoading.value = true;
 
-      // Her seksiyon bağımsız — biri başarısız olursa diğerleri etkilenmez
       final results = await Future.wait([
         videoRepository.getTrendingVideos().catchError((e) {
           log('getTrendingVideos error: $e');
@@ -163,7 +162,6 @@ class HomeController extends GetxController {
 
   // ─── Üniversiteler ────────────────────────────────────────────────────────
 
-  // FIX: loadUniversities + loadPlaylists birleştirildi — tek Supabase isteği.
   Future<void> loadUniversitiesAndPlaylists() async {
     try {
       isUniversitiesLoading.value = true;
@@ -228,7 +226,6 @@ class HomeController extends GetxController {
 
   // ─── Oynatma Listeleri ────────────────────────────────────────────────────
 
-  /// Geriye dönük uyumluluk — loadUniversitiesAndPlaylists'e yönlendirir.
   Future<void> loadPlaylists() => loadUniversitiesAndPlaylists();
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
@@ -237,8 +234,7 @@ class HomeController extends GetxController {
     try {
       final userId = supabaseDataSource.currentUser?.id;
       if (userId == null) return;
-      favoriteIds.value =
-          await favoritesRepository.getFavoriteVideoIds(userId);
+      favoriteIds.value = await favoritesRepository.getFavoriteVideoIds(userId);
     } catch (e) {
       log('loadFavorites error: $e');
     }
@@ -246,6 +242,9 @@ class HomeController extends GetxController {
 
   bool isFavorite(String videoId) => favoriteIds.contains(videoId);
 
+  // FIX: Cross-Controller Mutation (Spagetti Bağ) Temizlendi!
+  // Artık FavoritesController'ın listesine dışarıdan insert/remove yapmıyoruz.
+  // Onun yerine kendi public metotlarını çağırıyoruz.
   Future<void> toggleFavorite(String videoId) async {
     final userId = supabaseDataSource.currentUser?.id;
     if (userId == null) {
@@ -255,23 +254,29 @@ class HomeController extends GetxController {
 
     try {
       if (isFavorite(videoId)) {
+        // 1. Supabase'den sil
         await favoritesRepository.removeFavorite(userId, videoId);
+        // 2. Local'den sil
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
+        // 3. Kendi state'ini güncelle
         favoriteIds.remove(videoId);
+        // 4. FavoritesController'ın kendi metoduyla state'ini güncelle
         if (Get.isRegistered<FavoritesController>()) {
-          Get.find<FavoritesController>()
-              .favoriteVideos
-              .removeWhere((v) => v.videoId == videoId);
+          Get.find<FavoritesController>().removeFavoriteVideo(videoId);
         }
       } else {
+        // 1. Supabase'e ekle
         await favoritesRepository.addFavorite(userId, videoId);
         final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
         if (video != null) {
+          // 2. Local'e ekle
           await favoritesRepository.saveFavoriteVideoLocally(video);
+          // 3. FavoritesController'ın kendi metoduyla state'ini güncelle
           if (Get.isRegistered<FavoritesController>()) {
-            Get.find<FavoritesController>().favoriteVideos.insert(0, video);
+            Get.find<FavoritesController>().addFavoriteVideo(video);
           }
         }
+        // 4. Kendi state'ini güncelle
         favoriteIds.add(videoId);
       }
     } catch (e) {
@@ -281,6 +286,9 @@ class HomeController extends GetxController {
 
   // ─── Auth Dialog ──────────────────────────────────────────────────────────
 
+  // TODO: MİMARİ BORÇ (Tech Debt) - Bu UI kodu Controller'da olmamalı.
+  // Controller sadece bir flag kaldırmalı (showAuthRequired = true), UI dinlemeli.
+  // Şu an UI tarafında değişiklik yapmamak için olduğu gibi bırakılmıştır.
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(

@@ -5,57 +5,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../app/themes/app_theme.dart';
-import '../../../data/models/playlist_model.dart';
-import '../../../data/models/video_model.dart';
-import '../../../data/repositories/video_repository.dart';
+
+import '../../controllers/playlist_detail_controller.dart';
 import '../home/widgets/tabs/home_tab/widgets/video_card_widget.dart'; // VideoCardWidget import edildi
 
-class PlaylistDetailScreen extends StatefulWidget {
+class PlaylistDetailScreen extends StatelessWidget {
   const PlaylistDetailScreen({super.key});
 
   @override
-  State<PlaylistDetailScreen> createState() => _PlaylistDetailScreenState();
-}
-
-class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
-  late final PlaylistModel playlist;
-  late final VideoRepository _videoRepository;
-
-  List<VideoModel> _videos = [];
-  bool _isLoading = true;
-  String _error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    playlist = Get.arguments as PlaylistModel;
-    _videoRepository = Get.find<VideoRepository>();
-    _loadVideos();
-  }
-
-  Future<void> _loadVideos() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = '';
-      });
-      final videos = await _videoRepository.getPlaylistVideos(
-        playlist.playlistId,
-      );
-      setState(() {
-        _videos = videos;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Videolar yüklenemedi.';
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+     // Controller'ı en üstte bir kere bağla
+    final controller = Get.put(PlaylistDetailController(videoRepository: Get.find()));
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: CustomScrollView(
@@ -78,9 +38,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   // Arka plan thumbnail (karartmalı)
-                  if (playlist.thumbnailUrl.isNotEmpty)
+                  if (controller.playlist.thumbnailUrl.isNotEmpty)
                     CachedNetworkImage(
-                      imageUrl: playlist.thumbnailUrl,
+                      imageUrl: controller.playlist.thumbnailUrl,
                       fit: BoxFit.cover,
                       errorWidget: (_, _, _) => Container(
                         color: AppTheme.surface(context),
@@ -191,7 +151,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          playlist.title,
+                          controller.playlist.title,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
                             fontSize: 22.sp,
@@ -223,7 +183,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               ),
                               SizedBox(width: 6.w),
                               Text(
-                                '${playlist.itemCount} video',
+                                '${controller.playlist.itemCount} video',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 13.sp,
@@ -242,73 +202,54 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ),
 
           // ── Video Listesi (Artık VideoCardWidget ile) ─────────────────────
-          if (_isLoading)
-            SliverToBoxAdapter(child: _buildShimmer())
-          else if (_error.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.w),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.error_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: 48.sp,
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        _error,
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: 14.sp,
+            Obx(() { // Sadece bu kısım değiştiğinde yenilenir!
+            if (controller.isLoading.value) {
+              return SliverToBoxAdapter(child: _buildShimmer(context));
+            } else if (controller.errorMessage.value.isNotEmpty) {
+              return SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.w),
+                    child: Column(
+                      children: [
+                        Icon(Icons.error_outline_rounded, color: AppTheme.textSec(context), size: 48.sp),
+                        SizedBox(height: 16.h),
+                        Text(controller.errorMessage.value, style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp)),
+                        SizedBox(height: 16.h),
+                        ElevatedButton(
+                          onPressed: controller.loadVideos, // Direkt controller metoduna bağla!
+                          child: const Text('Tekrar Dene'),
                         ),
-                      ),
-                      SizedBox(height: 16.h),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(100.w, 40.h),
-                        ),
-                        onPressed: _loadVideos,
-                        child: Text(
-                          'Tekrar Dene',
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          else if (_videos.isEmpty)
-            SliverToBoxAdapter(
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.w),
-                  child: Text(
-                    'Bu oynatma listesinde video bulunmuyor.',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: 14.sp,
+                      ],
                     ),
                   ),
                 ),
-              ),
-            )
-          else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => VideoCardWidget(video: _videos[index]),
-                childCount: _videos.length,
-              ),
-            ),
+              );
+            } else if (controller.videos.isEmpty) {
+              return SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.w),
+                    child: Text('Bu oynatma listesinde video bulunmuyor.', style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp)),
+                  ),
+                ),
+              );
+            } else {
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => VideoCardWidget(video: controller.videos[index]),
+                  childCount: controller.videos.length,
+                ),
+              );
+            }
+          }),
         ],
       ),
     );
   }
 
   // ── VideoCardWidget uyumlu Shimmer ───────────────────────────────────────
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),

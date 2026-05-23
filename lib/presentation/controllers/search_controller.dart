@@ -35,7 +35,12 @@ class SearchController extends GetxController {
   }
 
   Future<void> _loadHistory() async {
-    history.value = await historyDataSource.getHistory();
+    try {
+      history.value = await historyDataSource.getHistory();
+    } catch (e) {
+      log('_loadHistory error: $e');
+      history.clear(); // Hata olursa boş geç, uygulama çökmesin
+    }
   }
 
   void onQueryChanged(String value) {
@@ -67,21 +72,37 @@ class SearchController extends GetxController {
   Future<void> submitQuery(String q) async {
     final trimmed = q.trim();
     if (trimmed.isEmpty) return;
-    await historyDataSource.addQuery(trimmed);
-    await _loadHistory();
+    
+    // FIX: Local veritabanına yazarken hata olursa (örn depolama dolu) uygulama çökmemeli
+    try {
+      await historyDataSource.addQuery(trimmed);
+      await _loadHistory();
+    } catch (e) {
+      log('submitQuery addHistory error: $e');
+    }
+    
     // Debounce'u iptal edip hemen ara
     _debounce?.cancel();
     isLoading.value = true;
     await _doSearch(trimmed);
   }
 
+  // FIX: Local veritabanından silerken de hata yönetimi eklendi
   Future<void> removeHistory(String q) async {
-    await historyDataSource.removeQuery(q);
-    history.remove(q);
+    try {
+      await historyDataSource.removeQuery(q);
+      history.remove(q);
+    } catch (e) {
+      log('removeHistory error: $e');
+    }
   }
 
   Future<void> clearHistory() async {
-    await historyDataSource.clearAll();
-    history.clear();
+    try {
+      await historyDataSource.clearAll();
+      history.clear();
+    } catch (e) {
+      log('clearHistory error: $e');
+    }
   }
 }

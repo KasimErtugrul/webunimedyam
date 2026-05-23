@@ -4,20 +4,23 @@ import '../datasources/remote/supabase_datasource.dart';
 import '../models/user_stats_model.dart';
 
 class StatsRepository {
-  final SupabaseDataSource supabaseDataSource;
-  final LocalDataSource localDataSource;
+  final SupabaseDataSource _supabase;
+  final LocalDataSource _local;
 
   StatsRepository({
-    required this.supabaseDataSource,
-    required this.localDataSource,
-  });
+    required SupabaseDataSource supabaseDataSource,
+    required LocalDataSource localDataSource,
+  })  : _supabase = supabaseDataSource,
+        _local = localDataSource;
 
   /// Önce local cache'e bakar (1 saatlik TTL).
   /// Cache yoksa/dolmuşsa Supabase'den çeker ve cache'e yazar.
+  /// Ağ hatası olursa, süresi dolmuş olsa bile eski (stale) cache'i dönmeye çalışır.
   Future<UserStatsModel?> getUserStats({bool forceRefresh = false}) async {
+    // 1. Force refresh değilse ve cache'de varsa (TTL dahilinde) direkt dön
     if (!forceRefresh) {
       try {
-        final cached = await localDataSource.getCachedUserStats();
+        final cached = await _local.getCachedUserStats();
         if (cached != null) {
           log('📊💾 [Stats] Kullanıcı istatistikleri LOCAL cache\'den geldi');
           return cached;
@@ -28,24 +31,31 @@ class StatsRepository {
       }
     }
 
+    // 2. Cache yoksa veya forceRefresh ise Supabase'den çek
     try {
       log('📊☁️ [Stats] Kullanıcı istatistikleri Supabase\'den çekiliyor...');
-      final data = await supabaseDataSource.getMyStats();
+      final data = await _supabase.getMyStats();
       if (data == null) {
         log('📊⚠️ [Stats] Supabase\'den veri gelmedi');
         return null;
       }
       final stats = UserStatsModel.fromMap(data);
-      await localDataSource.cacheUserStats(stats);
+      await _local.cacheUserStats(stats);
       log('📊✅ [Stats] İstatistikler geldi ve cache\'e yazıldı (remote)');
       return stats;
     } catch (e) {
+      // 3. Ağ hatası: Uygulama çökmesin, süresi geçmiş eski cache'i bile dönelim (Stale fallback)
       log('📊❌ [Stats] Remote hata: $e → stale cache deneniyor');
-      final stale = await localDataSource.getCachedUserStats();
-      log(stale != null ? '📊💾 [Stats] Stale cache döndürüldü' : '📊❌ [Stats] Stale cache de yok');
-      return stale;
+      try {
+        final stale = await _local.getCachedUserStats(); 
+        log(stale != null ? '📊💾 [Stats] Stale cache döndürüldü' : '📊❌ [Stats] Stale cache de yok');
+        return stale;
+      } catch (staleError) {
+        log('📊❌ [Stats] Stale cache okunurken hata: $staleError');
+        return null;
+      }
     }
   }
 
-  Future<void> clearCache() => localDataSource.clearUserStats();
+  Future<void> clearCache() => _local.clearUserStats();
 }

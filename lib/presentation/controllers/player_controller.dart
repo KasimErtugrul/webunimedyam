@@ -12,7 +12,8 @@ import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import 'home_controller.dart';
 import 'favorites_controller.dart';
-import 'profile_controller.dart';
+
+// ProfileController import'u kaldırıldı! (Spagetti bağ koptu)
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -64,8 +65,6 @@ class PlayerController extends GetxController {
   Future<void> _loadInitialState() async {
     final userId = supabaseDataSource.currentUser?.id;
 
-    // FIX: favoriteIds HomeController'da zaten tutuluyorsa oradan al,
-    // aksi hâlde repository'ye sor — ama tüm listeyi çekme, sadece bu video için bak.
     if (userId != null) {
       _resolveIsFavoriteFromCache();
     }
@@ -77,8 +76,7 @@ class PlayerController extends GetxController {
     ]);
   }
 
-  // FIX: Favori durumunu önce HomeController cache'inden, sonra local cache'den çöz.
-  // Sadece bilinmiyorsa Supabase'e tek satır sorgusu at.
+  // FIX: Doğrudan localDataSource yerine favoritesRepository kullanıldı.
   void _resolveIsFavoriteFromCache() {
     if (currentVideo == null) return;
     final videoId = currentVideo!.videoId;
@@ -90,8 +88,8 @@ class PlayerController extends GetxController {
       return;
     }
 
-    // HomeController yok → local DB'den çek (network yok)
-    localDataSource.getFavoriteVideos().then((locals) {
+    // HomeController yok → Repository'den oku (Repo zaten local'e bakar)
+    favoritesRepository.getFavoriteVideos().then((locals) {
       isFavorite.value = locals.any((v) => v.videoId == videoId);
     });
   }
@@ -102,14 +100,11 @@ class PlayerController extends GetxController {
     try {
       final userId = supabaseDataSource.currentUser?.id;
       if (userId != null) {
-        // FIX: Önce local cache'e bak, yoksa Supabase'e git
         final cached = await localDataSource.getCachedUserSettings();
-        //log('player controller getUserSettings cached: $cached');
         if (cached != null) {
           autoplay = (cached['autoplay'] as bool?) ?? true;
         } else {
           final userSettings = await supabaseDataSource.getUserSettings(userId);
-          //log('player controller getUserSettings from supabase: $userSettings');
           autoplay = userSettings?.autoplay ?? true;
           if (userSettings != null) {
             await localDataSource.cacheUserSettings(userSettings.toSupabase());
@@ -221,9 +216,9 @@ class PlayerController extends GetxController {
 
   // ─── Favori ──────────────────────────────────────────────────────────────
 
-  // FIX: checkFavorite() kaldırıldı. Artık _resolveIsFavoriteFromCache() kullanılıyor.
-  // toggleFavorite doğrudan state günceller + HomeController/FavoritesController'ı senkronlar.
-
+  // FIX: Cross-Controller Mutation temizlendi!
+  // Artık diğer controller'ların listelerine direkt müdahale etmek yerine
+  // onların kendi public metotlarını (addFavoriteVideo / removeFavoriteVideo) çağırıyoruz.
   Future<void> toggleFavorite() async {
     if (currentVideo == null) return;
     final userId = supabaseDataSource.currentUser?.id;
@@ -239,6 +234,7 @@ class PlayerController extends GetxController {
     appFavoriteCount.value += wasAdding ? 1 : -1;
 
     try {
+      // 1. Supabase ve Local Kayıt
       if (!wasAdding) {
         await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
         await favoritesRepository.removeFavoriteVideoLocally(
@@ -248,6 +244,8 @@ class PlayerController extends GetxController {
         await favoritesRepository.addFavorite(userId, currentVideo!.videoId);
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo!);
       }
+
+      // 2. Diğer Controller'ları Güvenle Haberdar Et
       if (Get.isRegistered<HomeController>()) {
         final hc = Get.find<HomeController>();
         if (wasAdding) {
@@ -256,22 +254,26 @@ class PlayerController extends GetxController {
           hc.favoriteIds.remove(currentVideo!.videoId);
         }
       }
+
       if (Get.isRegistered<FavoritesController>()) {
         final fc = Get.find<FavoritesController>();
         if (wasAdding) {
-          fc.favoriteVideos.insert(0, currentVideo!);
+          fc.addFavoriteVideo(currentVideo!); // Güvenli metot çağrısı
         } else {
-          fc.favoriteVideos.removeWhere(
-            (v) => v.videoId == currentVideo!.videoId,
-          );
+          fc.removeFavoriteVideo(
+            currentVideo!.videoId,
+          ); // Güvenli metot çağrısı
         }
       }
+
+      // 3. İstatistikleri Güncelle
       final stats = await supabaseDataSource.getEngagementStats(
         currentVideo!.videoId,
       );
       appFavoriteCount.value =
           stats['app_favorite_count'] ?? appFavoriteCount.value;
     } catch (e) {
+      // Hata olursa Optimistic UI'ı geri al
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
       log('toggleFavorite error: $e');
@@ -282,6 +284,7 @@ class PlayerController extends GetxController {
 
   // ─── Paylaşım ────────────────────────────────────────────────────────────
 
+  // TODO: MİMARİ BORÇ - Get.snackbar UI kodudur, Controller'da olmamalıdır.
   Future<void> shareVideo() async {
     if (currentVideo == null) return;
     if (isShareLoading.value) return;
@@ -358,6 +361,8 @@ class PlayerController extends GetxController {
     }
   }
 
+  // FIX: ProfileController'a direkt müdahale kaldırıldı!
+  // Silme işlemini ProfileController kendi ekranına dönünce Repository'den çekip farkedecek.
   Future<void> deleteComment(String commentId) async {
     if (currentVideo == null) return;
     try {
@@ -368,16 +373,6 @@ class PlayerController extends GetxController {
       );
       appCommentCount.value =
           stats['app_comment_count'] ?? appCommentCount.value;
-
-      if (Get.isRegistered<ProfileController>()) {
-        final userId = supabaseDataSource.currentUser?.id;
-        final hasMoreComments = comments.any((c) => c.userId == userId);
-        if (!hasMoreComments) {
-          Get.find<ProfileController>().commentedVideos.removeWhere(
-            (v) => v.videoId == currentVideo!.videoId,
-          );
-        }
-      }
     } catch (e) {
       log('[PlayerController] deleteComment error: $e');
     }
@@ -385,6 +380,8 @@ class PlayerController extends GetxController {
 
   // ─── Auth Dialog ──────────────────────────────────────────────────────────
 
+  // TODO: MİMARİ BORÇ (Tech Debt) - Bu UI kodu Controller'da olmamalı.
+  // Controller sadece bir flag kaldırmalı (showAuthRequired = true), UI dinlemeli.
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(

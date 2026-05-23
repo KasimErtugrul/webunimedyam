@@ -1,12 +1,12 @@
+// lib/app/bindings/profile_binding.dart
+
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/favorites_repository.dart'; // YENİ EKLENDİ
 import '../../presentation/controllers/profile_controller.dart';
 
-// DÜZELTME #5: ProfileBinding artık kendi bağımlılıklarını tam olarak sağlar.
-// ProfileController.changeTab() artık HomeController'a bağımlı değil,
-// dolayısıyla Profile sayfası tek başına açılsa da crash olmaz.
 class ProfileBinding extends Bindings {
   @override
   void dependencies() {
@@ -22,9 +22,19 @@ class ProfileBinding extends Bindings {
             local: Get.find(),
           ), fenix: true);
     }
+    // FIX: FavoritesRepository kaydı eklendi!
+    if (!Get.isRegistered<FavoritesRepository>()) {
+      Get.lazyPut(() => FavoritesRepository(
+            supabase: Get.find(),
+            local: Get.find(),
+          ), fenix: true);
+    }
+    
+    // FIX: favoritesRepository parametresi eklendi!
     Get.lazyPut(() => ProfileController(
           authRepository: Get.find(),
           supabaseDataSource: Get.find(),
+          favoritesRepository: Get.find(), // YENİ EKLENDİ
         ), fenix: true);
   }
 }

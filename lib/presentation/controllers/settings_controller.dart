@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 
@@ -52,12 +51,15 @@ class SettingsController extends GetxController {
     final current = settings.value;
     if (current == null) return;
     final updated = current.copyWith(theme: theme);
-    await _updateSettings(updated);
+    
+    // Temayı anında değiştir (Optimistic UI)
     Get.changeThemeMode(
       theme == 'dark' ? ThemeMode.dark : ThemeMode.light,
     );
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('theme', theme);
+    
+    // FIX: SharedPreferences bypass KALDIRILDI! 
+    // authRepository.updateUserSettings zaten local cache'e (SP) yazıyor.
+    await _updateSettings(updated);
   }
 
   Future<void> changeLanguage(String language) async {
@@ -67,12 +69,17 @@ class SettingsController extends GetxController {
     await _updateSettings(updated);
   }
 
+  // FIX: Optimistic UI ve Rollback mekanizması eklendi.
   Future<void> _updateSettings(UserSettingsModel updated) async {
+    final oldSettings = settings.value; // Eski ayarı yedekle
     try {
+      settings.value = updated; // Kullanıcıya anında güncellenmiş gibi göster
       await authRepository.updateUserSettings(updated);
-      settings.value = updated;
     } catch (e) {
+      settings.value = oldSettings; // Hata olursa UI'ı eski haline döndür!
       log('_updateSettings error: $e');
+      
+      // TODO: MİMARİ BORÇ (Tech Debt) - Get.snackbar UI kodudur, Controller'da olmamalıdır.
       Get.snackbar('Hata', 'Ayarlar güncellenemedi.');
     }
   }
@@ -83,6 +90,8 @@ class SettingsController extends GetxController {
       Get.offAllNamed('/home');
     } catch (e) {
       log('signOut error: $e');
+      
+      // TODO: MİMARİ BORÇ (Tech Debt) - Get.snackbar UI kodudur, Controller'da olmamalıdır.
       Get.snackbar('Hata', 'Çıkış yapılırken hata oluştu.');
     }
   }

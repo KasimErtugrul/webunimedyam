@@ -2,6 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../../app/routes/app_routes.dart';
@@ -18,58 +19,76 @@ class UniversityListCardWidget extends StatelessWidget {
     final hasThumbnail = playlist.thumbnailUrl.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Card(
         color: AppTheme.card(context),
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          side: BorderSide(
+            color: AppTheme.isDark(context)
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+        ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () =>
               Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
-          splashColor: Theme.of(
-            context,
-          ).colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: Theme.of(
-            context,
-          ).colorScheme.primary.withValues(alpha: 0.04),
+          splashColor: AppTheme.primaryColor.withValues(alpha: 0.08),
+          highlightColor: AppTheme.primaryColor.withValues(alpha: 0.04),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(12.w),
             child: Row(
               children: [
                 // ── Logo ─────────────────────────────────────────────────
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 56.w,
+                  height: 56.w,
+                  padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: AppTheme.surface(context),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.1),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryColor.withValues(alpha: 0.1),
+                        AppTheme.secondaryColor.withValues(alpha: 0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: hasLogo
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(11),
-                          child: CachedNetworkImage(
-                            imageUrl: playlist.logoUrl!,
-                            fit: BoxFit.contain,
-                            placeholder: (_, _) => const SizedBox.shrink(),
-                            errorWidget: (_, _, _) => Icon(
-                              Icons.school_rounded,
-                              color: AppTheme.textSec(context),
-                              size: 28,
-                            ),
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: CachedNetworkImage(
+                      imageUrl: playlist.logoUrl!,
+                      fit: BoxFit.contain,
+                      placeholder: (_, __) => Center(
+                        child: SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            color: AppTheme.primaryColor
+                                .withValues(alpha: 0.5),
                           ),
-                        )
-                      : Icon(
-                          Icons.school_rounded,
-                          color: AppTheme.textSec(context),
-                          size: 28,
                         ),
+                      ),
+                      errorWidget: (_, __, ___) => Icon(
+                        Icons.school_rounded,
+                        color: AppTheme.primaryColor,
+                        size: 24.sp,
+                      ),
+                    ),
+                  )
+                      : Icon(
+                    Icons.school_rounded,
+                    color: AppTheme.primaryColor,
+                    size: 24.sp,
+                  ),
                 ),
 
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
 
                 // ── Ad + video sayısı ─────────────────────────────────────
                 Expanded(
@@ -80,60 +99,120 @@ class UniversityListCardWidget extends StatelessWidget {
                         playlist.title,
                         style: TextStyle(
                           color: AppTheme.textPri(context),
-                          fontSize: 14,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.play_circle_outline_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 13,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${playlist.itemCount} video',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                      SizedBox(height: 8.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                          AppTheme.primaryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 14.sp,
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 4.w),
+                            Text(
+                              '${playlist.itemCount} video',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
 
-                // ── Thumbnail önizleme ────────────────────────────────────
+                // ── Thumbnail önizleme veya İkon ──────────────────────────
                 if (hasThumbnail)
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: playlist.thumbnailUrl,
-                      width: 72,
-                      height: 48,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        width: 72,
-                        height: 48,
-                        color: AppTheme.surface(context),
-                      ),
-                      errorWidget: (_, _, _) => const SizedBox.shrink(),
+                    borderRadius: BorderRadius.circular(10.r),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: playlist.thumbnailUrl,
+                          width: 68.w,
+                          height: 52.w,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            width: 68.w,
+                            height: 52.w,
+                            color: AppTheme.surface(context),
+                            child: Icon(
+                              Icons.image_outlined,
+                              color: AppTheme.textSec(context),
+                              size: 20.sp,
+                            ),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            width: 68.w,
+                            height: 52.w,
+                            color: AppTheme.surface(context),
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: AppTheme.textSec(context),
+                              size: 20.sp,
+                            ),
+                          ),
+                        ),
+                        // Hafif karartma katmanı
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.35),
+                                  Colors.transparent,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Play ikonu
+                        Icon(
+                          Icons.play_circle_fill_rounded,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          size: 22.sp,
+                        ),
+                      ],
                     ),
                   )
                 else
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppTheme.textSec(context),
-                    size: 22,
+                  Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: AppTheme.textSec(context),
+                      size: 14.sp,
+                    ),
                   ),
               ],
             ),

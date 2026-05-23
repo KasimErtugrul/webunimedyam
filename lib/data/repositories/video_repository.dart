@@ -31,7 +31,7 @@ class VideoRepository {
         _local = local;
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
-  // FIX: getUniversities() → getUniversitiesAndPlaylists() ile birleştirildi.
+  
   // Geriye dönük uyumluluk için stub tutuldu.
   Future<List<UniversityModel>> getUniversities() async {
     log('🏛️ [Video] getUniversities → getUniversitiesAndPlaylists\'e yönlendiriliyor');
@@ -40,12 +40,17 @@ class VideoRepository {
   }
 
   /// Tek sorguda hem UniversityModel hem PlaylistModel verisi döner.
-  /// universities_with_stats view'ından çeker (uploads_playlist_id dahil).
+  /// FIX: Eklendi! İnternet yoksa uygulama çökmemeli, boş liste dönmeli.
   Future<List<Map<String, dynamic>>> getUniversitiesAndPlaylists() async {
-    log('🏛️☁️ [Video] Üniversiteler + playlist verisi TEK sorguda Supabase\'den çekiliyor...');
-    final rows = await _supabase.getUniversitiesWithStats();
-    log('🏛️✅ [Video] ${rows.length} üniversite geldi (remote, tek istek)');
-    return rows;
+    try {
+      log('🏛️☁️ [Video] Üniversiteler + playlist verisi TEK sorguda Supabase\'den çekiliyor...');
+      final rows = await _supabase.getUniversitiesWithStats();
+      log('🏛️✅ [Video] ${rows.length} üniversite geldi (remote, tek istek)');
+      return rows;
+    } catch (e) {
+      log('🏛️❌ [Video] Üniversiteler yüklenemedi (offline?): $e');
+      return []; // Uygulama çökmesin, boş liste dönsün
+    }
   }
 
   // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
@@ -68,7 +73,7 @@ class VideoRepository {
       log('🎬❌ [Video] Supabase hatası: $e → eski cache deneniyor');
       final stale = await _local.getCachedVideos();
       log(stale.isNotEmpty ? '🎬💾 [Video] Stale cache döndürüldü: ${stale.length} video' : '🎬❌ [Video] Stale cache de boş');
-      return stale;
+      return stale; // Offline ise eski cache veya boş liste döner, app çökmez
     }
   }
 
@@ -213,7 +218,7 @@ class VideoRepository {
       return models;
     } catch (e) {
       log('📺❌ [Video] Sayfa hata ($sectionType): $e');
-      return [];
+      return []; // Sayfa yüklenemezse boş döner, pagination durur ama app çökmez
     }
   }
 }

@@ -24,7 +24,7 @@ class ProfileViewWidget extends StatelessWidget {
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              expandedHeight: 250.h,
+              expandedHeight: 400.h,
               pinned: true,
               floating: false,
               surfaceTintColor: Colors.transparent,
@@ -75,11 +75,11 @@ class ProfileViewWidget extends StatelessWidget {
                     labelColor: AppTheme.primaryColor,
                     unselectedLabelColor: AppTheme.textSec(context),
                     labelStyle: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w600,
                     ),
                     unselectedLabelStyle: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w500,
                     ),
                     tabs: [
@@ -165,10 +165,7 @@ class ProfileViewWidget extends StatelessWidget {
         ),
         title: Text(
           'Profili Düzenle',
-          style: TextStyle(
-            color: AppTheme.textPri(context),
-            fontSize: 20.sp,
-          ),
+          style: TextStyle(color: AppTheme.textPri(context), fontSize: 20.sp),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -187,7 +184,10 @@ class ProfileViewWidget extends StatelessWidget {
                   color: AppTheme.textSec(context),
                   size: 20.sp,
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 14.h,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -208,7 +208,10 @@ class ProfileViewWidget extends StatelessWidget {
                   color: AppTheme.textSec(context),
                   size: 20.sp,
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 14.h,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -228,9 +231,7 @@ class ProfileViewWidget extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(80.w, 40.h),
-            ),
+            style: ElevatedButton.styleFrom(minimumSize: Size(80.w, 40.h)),
             onPressed: () async {
               Get.back();
               await controller.updateProfile(
@@ -245,10 +246,7 @@ class ProfileViewWidget extends StatelessWidget {
                 controller.errorMessage.value = null;
               }
             },
-            child: Text(
-              'Kaydet',
-              style: TextStyle(fontSize: 14.sp),
-            ),
+            child: Text('Kaydet', style: TextStyle(fontSize: 14.sp)),
           ),
         ],
       ),

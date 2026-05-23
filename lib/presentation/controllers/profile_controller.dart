@@ -1,7 +1,8 @@
 import 'dart:developer';
-import 'favorites_controller.dart';
+
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/favorites_repository.dart'; // YENİ EKLENDİ
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/models/user_settings_model.dart';
@@ -9,12 +10,13 @@ import '../../data/models/video_model.dart';
 
 class ProfileController extends GetxController {
   final AuthRepository authRepository;
-  // DÜZELTME #1: DI singleton — new SupabaseDataSource() değil
   final SupabaseDataSource supabaseDataSource;
+  final FavoritesRepository favoritesRepository; // YENİ EKLENDİ
 
   ProfileController({
     required this.authRepository,
     required this.supabaseDataSource,
+    required this.favoritesRepository, // YENİ EKLENDİ
   });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
@@ -34,7 +36,6 @@ class ProfileController extends GetxController {
   final isSharedLoading      = false.obs;
 
   // ─── UI Mesajları (snackbar yerine observable) ────────────────────────────
-  // Widget bu alanı dinleyip kendi snackbar/toast'ını gösterir.
   final successMessage = RxnString();
   final errorMessage   = RxnString();
 
@@ -74,29 +75,17 @@ class ProfileController extends GetxController {
     ]);
   }
 
-  // FIX: Favoriler artık FavoritesController'ın local cache'inden okunuyor.
-  // Supabase'e gidilmiyor — çift kaynak sorunu ortadan kalktı.
+  // FIX: Busy-wait (Future.doWhile) KALDIRILDI!
+  // FavoritesController'a bağımlılık koptu. Artık veriyi doğrudan FavoritesRepository'den
+  // alıyoruz (Local Cache). Bu en hızlı ve en güvenli yoldur.
   Future<void> loadFavorites([String? uid]) async {
     try {
       isFavoritesLoading.value = true;
-      if (Get.isRegistered<FavoritesController>()) {
-        final fc = Get.find<FavoritesController>();
-        // FavoritesController henüz yüklemediyse bekle
-        if (fc.isLoading.value) {
-          await Future.doWhile(() async {
-            await Future.delayed(const Duration(milliseconds: 50));
-            return fc.isLoading.value;
-          });
-        }
-        favoriteVideos.value = List.of(fc.favoriteVideos);
-      } else {
-        // Fallback: FavoritesController yoksa direkt local'den oku
-        final userId = uid ?? supabaseDataSource.currentUser?.id;
-        if (userId != null) {
-          favoriteVideos.value =
-              await supabaseDataSource.getUserFavoriteVideos(userId);
-        }
-      }
+      final userId = uid ?? supabaseDataSource.currentUser?.id;
+      if (userId == null) return;
+      
+      // Artık Repository karar veriyor: Local boşsa Supabase'e gider!
+      favoriteVideos.value = await favoritesRepository.getUserFavoriteVideos(userId);
     } catch (e) {
       log('loadFavorites error: $e');
     } finally {
@@ -104,6 +93,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  // FIX: supabaseDataSource çağrıları try-catch'e alındı. Offline ise app çökmez.
   Future<void> loadViewedVideos([String? uid]) async {
     final userId = uid ?? supabaseDataSource.currentUser?.id;
     if (userId == null) return;
@@ -112,6 +102,7 @@ class ProfileController extends GetxController {
       viewedVideos.value = await supabaseDataSource.getUserViewedVideos(userId);
     } catch (e) {
       log('loadViewedVideos error: $e');
+      viewedVideos.clear(); // Hata olursa boş liste tut
     } finally {
       isViewedLoading.value = false;
     }
@@ -125,6 +116,7 @@ class ProfileController extends GetxController {
       commentedVideos.value = await supabaseDataSource.getUserCommentedVideos(userId);
     } catch (e) {
       log('loadCommentedVideos error: $e');
+      commentedVideos.clear();
     } finally {
       isCommentedLoading.value = false;
     }
@@ -138,6 +130,7 @@ class ProfileController extends GetxController {
       sharedVideos.value = await supabaseDataSource.getUserSharedVideos(userId);
     } catch (e) {
       log('loadSharedVideos error: $e');
+      sharedVideos.clear();
     } finally {
       isSharedLoading.value = false;
     }
@@ -172,9 +165,6 @@ class ProfileController extends GetxController {
 
   // ─── Yardımcılar ──────────────────────────────────────────────────────────
 
-  // DÜZELTME #5: HomeController'a bağımlılık kaldırıldı.
-  // changeTab artık ProfileController'ın kendi selectedTabIndex'ini değiştirir.
-  // HomeController ile senkronizasyon gerekiyorsa çağıran widget bunu halleder.
   void changeTab(int index) {
     selectedTabIndex.value = index;
   }

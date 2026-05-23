@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/models/video_model.dart';
-import 'profile_controller.dart';
 
 class FavoritesController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -13,9 +12,8 @@ class FavoritesController extends GetxController {
   final favoriteVideos = <VideoModel>[].obs;
   final isLoading = false.obs;
 
-  /// ProfileController kayıtlıysa referans döner, yoksa null — circular dep yok.
-  ProfileController? get _profile =>
-      Get.isRegistered<ProfileController>() ? Get.find<ProfileController>() : null;
+  // FIX: ProfileController bağımlılığı tamamen kaldırıldı! 
+  // Controller'lar birbirinin beynine girmemeli. Her biri kendi verisini Repo'dan çeker.
 
   @override
   void onReady() {
@@ -35,29 +33,29 @@ class FavoritesController extends GetxController {
     }
   }
 
-  /// Favori kaldır: local senkron + ProfileController anında güncellenir.
-  Future<void> removeFavorite(String videoId) async {
+  /// PlayerController/HomeController'dan çağrılır — video favorilenince local'e ekler.
+  /// SADECE KENDİ STATE'İNİ GÜNCELLER.
+  Future<void> addFavoriteVideo(VideoModel video) async {
     try {
-      await favoritesRepository.removeFavoriteVideoLocally(videoId);
-      favoriteVideos.removeWhere((v) => v.videoId == videoId);
-      _profile?.favoriteVideos.removeWhere((v) => v.videoId == videoId);
+      if (favoriteVideos.any((v) => v.videoId == video.videoId)) return;
+      await favoritesRepository.saveFavoriteVideoLocally(video);
+      favoriteVideos.insert(0, video); // Sadece kendi listesi
     } catch (e) {
-      log('removeFavorite error: $e');
+      log('addFavoriteVideo error: $e');
     }
   }
 
-  /// PlayerController'dan çağrılır — video favorilenince local'e ekler.
-  Future<void> addFavoriteVideo(VideoModel video) async {
-    if (favoriteVideos.any((v) => v.videoId == video.videoId)) return;
-    await favoritesRepository.saveFavoriteVideoLocally(video);
-    favoriteVideos.insert(0, video);
-    _profile?.favoriteVideos.insert(0, video);
-  }
-
-  /// PlayerController'dan çağrılır — favori kaldırılınca local'den siler.
+  /// Favori kaldırılınca local'den siler.
+  /// SADECE KENDİ STATE'İNİ GÜNCELLER.
   Future<void> removeFavoriteVideo(String videoId) async {
-    await favoritesRepository.removeFavoriteVideoLocally(videoId);
-    favoriteVideos.removeWhere((v) => v.videoId == videoId);
-    _profile?.favoriteVideos.removeWhere((v) => v.videoId == videoId);
+    try {
+      await favoritesRepository.removeFavoriteVideoLocally(videoId);
+      favoriteVideos.removeWhere((v) => v.videoId == videoId);
+    } catch (e) {
+      log('removeFavoriteVideo error: $e');
+    }
   }
+  
+  // NOT: Eski removeFavorite metodu silindi çünkü removeFavoriteVideo ile tamamen aynı işi yapıyordu.
+  // Eğer UI tarafında somewhere removeFavorite çağırıyorsan, onu removeFavoriteVideo olarak değiştirmelisin.
 }

@@ -20,15 +20,16 @@ class UniversityStatsRepository {
 
   // ─── Genel Yardımcılar ───────────────────────────────────────────────────
 
-  String _cacheKey(String orderBy, {String? filter}) =>
-      'uni_stats_${orderBy}_${filter ?? 'nofilter'}';
+  // FIX: Cache key artık string filter yerine tip güvenli parametrelerle oluşturuluyor.
+  String _cacheKey(String orderBy, {String? filterColumn}) =>
+      'uni_stats_${orderBy}_${filterColumn ?? 'nofilter'}';
 
-  String _cacheTimeKey(String orderBy, {String? filter}) =>
-      'uni_stats_time_${orderBy}_${filter ?? 'nofilter'}';
+  String _cacheTimeKey(String orderBy, {String? filterColumn}) =>
+      'uni_stats_time_${orderBy}_${filterColumn ?? 'nofilter'}';
 
-  Future<bool> _isCacheValid(String orderBy, {String? filter}) async {
+  Future<bool> _isCacheValid(String orderBy, {String? filterColumn}) async {
     final prefs = await SharedPreferences.getInstance();
-    final timeStr = prefs.getString(_cacheTimeKey(orderBy, filter: filter));
+    final timeStr = prefs.getString(_cacheTimeKey(orderBy, filterColumn: filterColumn));
     if (timeStr == null) return false;
     final cacheTime = DateTime.tryParse(timeStr);
     if (cacheTime == null) return false;
@@ -38,10 +39,10 @@ class UniversityStatsRepository {
 
   Future<List<UniversityStatsModel>?> _getFromCache(
     String orderBy, {
-    String? filter,
+    String? filterColumn,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_cacheKey(orderBy, filter: filter));
+    final jsonStr = prefs.getString(_cacheKey(orderBy, filterColumn: filterColumn));
     if (jsonStr == null) return null;
     try {
       final list = json.decode(jsonStr) as List;
@@ -56,50 +57,55 @@ class UniversityStatsRepository {
   Future<void> _saveToCache(
     String orderBy,
     List<UniversityStatsModel> data, {
-    String? filter,
+    String? filterColumn,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      _cacheKey(orderBy, filter: filter),
+      _cacheKey(orderBy, filterColumn: filterColumn),
       json.encode(data.map((e) => e.toMap()).toList()),
     );
     await prefs.setString(
-      _cacheTimeKey(orderBy, filter: filter),
+      _cacheTimeKey(orderBy, filterColumn: filterColumn),
       DateTime.now().toUtc().toIso8601String(),
     );
   }
 
   // ─── Ana Metod ───────────────────────────────────────────────────────────
 
+  // FIX: Artık string filter yok! SupabaseDataSource ile aynı tip güvenli parametreler.
   Future<List<UniversityStatsModel>> getList({
     required String orderBy,
     int limit = 10,
-    String? filter,
+    String? filterColumn,
+    String? filterOperator, // 'gt', 'lt', 'eq' vb.
+    dynamic filterValue,
   }) async {
     // 1. Cache geçerliyse dön
-    if (await _isCacheValid(orderBy, filter: filter)) {
-      final cached = await _getFromCache(orderBy, filter: filter);
+    if (await _isCacheValid(orderBy, filterColumn: filterColumn)) {
+      final cached = await _getFromCache(orderBy, filterColumn: filterColumn);
       if (cached != null && cached.isNotEmpty) {
         log('🏛️💾 [UniStats] LOCAL cache\'den geldi → $orderBy (${cached.length} kayıt)');
         return cached;
       }
     }
 
-    // 2. Supabase'den çek
+    // 2. Supabase'den çek (Yeni tip güvenli metodu kullanarak)
     try {
-      log('🏛️☁️ [UniStats] Cache geçersiz, Supabase\'den çekiliyor → $orderBy${filter != null ? ' (filtre: $filter)' : ''}');
+      log('🏛️☁️ [UniStats] Cache geçersiz, Supabase\'den çekiliyor → $orderBy${filterColumn != null ? ' ($filterColumn $filterOperator $filterValue)' : ''}');
       final data = await _supabase.getUniversityStatsList(
         orderBy: orderBy,
         limit: limit,
-        filter: filter,
+        filterColumn: filterColumn,
+        filterOperator: filterOperator,
+        filterValue: filterValue,
       );
       log('🏛️✅ [UniStats] Supabase\'den geldi → $orderBy, ${data.length} kayıt, cache\'e yazıldı (remote)');
-      await _saveToCache(orderBy, data, filter: filter);
+      await _saveToCache(orderBy, data, filterColumn: filterColumn);
       return data;
     } catch (e) {
       log('🏛️❌ [UniStats] Hata ($orderBy): $e → stale cache deneniyor');
       // 3. Offline fallback: eski cache
-      final stale = await _getFromCache(orderBy, filter: filter);
+      final stale = await _getFromCache(orderBy, filterColumn: filterColumn);
       if (stale != null && stale.isNotEmpty) {
         log('🏛️💾 [UniStats] Stale cache döndürüldü → $orderBy (${stale.length} kayıt)');
       } else {
@@ -132,6 +138,12 @@ class UniversityStatsRepository {
   Future<List<UniversityStatsModel>> getRichestArchive() =>
       getList(orderBy: 'total_duration_sec');
 
+  // FIX: String hack ('app_total_views.lt.50') yerine artık tip güvenli parametreler!
   Future<List<UniversityStatsModel>> getNewlyDiscovered() =>
-      getList(orderBy: 'app_total_viewers', filter: 'app_total_views.lt.50');
+      getList(
+        orderBy: 'app_total_viewers',
+        filterColumn: 'app_total_views',
+        filterOperator: 'lt',
+        filterValue: 50,
+      );
 }

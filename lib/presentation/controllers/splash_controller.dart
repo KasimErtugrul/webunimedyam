@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
@@ -16,15 +17,24 @@ class SplashController extends GetxController {
   Future<void> _navigate() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    final onboardingCompleted = await authRepository.isOnboardingCompleted();
+    try {
+      final onboardingCompleted = await authRepository.isOnboardingCompleted();
 
-    if (!onboardingCompleted) {
-      Get.offAllNamed(AppRoutes.onboarding);
-      return;
+      if (!onboardingCompleted) {
+        Get.offAllNamed(AppRoutes.onboarding);
+        return;
+      }
+
+      // Auth olsun ya da olmasın direkt home'a git.
+      // Favori / yorum gibi işlemlerde zaten auth istenir.
+      Get.offAllNamed(AppRoutes.home);
+      
+    } catch (e) {
+      // FIX: Kritik Güvenlik Ağı (Fail-Safe)
+      // Eğer bu noktada bir hata oluşursa (örn: cache tamamen bozuksa), 
+      // kullanıcıyı splashta mahsur bırakma, direkt Home'a yolla.
+      log('SplashController navigate error: $e');
+      Get.offAllNamed(AppRoutes.home);
     }
-
-    // Auth olsun ya da olmasın direkt home'a git.
-    // Favori / yorum gibi işlemlerde zaten auth istenir.
-    Get.offAllNamed(AppRoutes.home);
   }
 }

@@ -1,7 +1,4 @@
 // lib/app/bindings/home_binding.dart
-//
-// Mevcut dosyayı bu içerikle TAMAMEN değiştirin.
-// Değişiklik: UniversityStatsRepository eklendi ve HomeController'a inject edildi.
 
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
@@ -45,28 +42,28 @@ class HomeBinding extends Bindings {
       fenix: true,
     );
 
-    // ── YENİ ──────────────────────────────────────────────────────────────
     Get.lazyPut(
       () => UniversityStatsRepository(supabase: Get.find()),
       fenix: true,
     );
-    // ──────────────────────────────────────────────────────────────────────
 
     Get.lazyPut(
       () => HomeController(
         videoRepository: Get.find(),
         favoritesRepository: Get.find(),
-        universityStatsRepository: Get.find(), // ← YENİ
+        universityStatsRepository: Get.find(),
         supabaseDataSource: Get.find(),
       ),
       fenix: true,
     );
 
+    // FIX: favoritesRepository eklendi!
     Get.lazyPut(
       () => ProfileController(
-        authRepository: Get.find(),
-        supabaseDataSource: Get.find(),
-      ),
+            authRepository: Get.find(),
+            supabaseDataSource: Get.find(),
+            favoritesRepository: Get.find(), // YENİ EKLENDİ
+          ),
       fenix: true,
     );
 

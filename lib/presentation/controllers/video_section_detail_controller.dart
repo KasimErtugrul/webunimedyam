@@ -20,12 +20,13 @@ class VideoSectionDetailController extends GetxController {
   final isLoading = false.obs;
   final isLoadingMore = false.obs;
   final hasMore = true.obs;
+  
+  // FIX: Pagination sırasında ağ hatası olursa UI'ın haberdar olması için eklendi.
+  final errorMessage = RxnString(); 
 
   static const int _pageSize = 10;
   int _currentOffset = 0;
 
-  // FIX: Ekrandan çıkıp geri dönünce sayfalar bellekte kalır — gereksiz
-  // ağ isteği yapılmaz. Sadece pull-to-refresh tam sıfırlama yapar.
   final _pageCache = <int, List<VideoEngagementModel>>{};
 
   @override
@@ -40,6 +41,7 @@ class VideoSectionDetailController extends GetxController {
   Future<void> loadFirstPage() async {
     _currentOffset = 0;
     hasMore.value = true;
+    errorMessage.value = null; // Hata mesajını temizle
     items.clear();
     _pageCache.clear();
     await _fetchPage();
@@ -52,6 +54,8 @@ class VideoSectionDetailController extends GetxController {
 
   Future<void> _fetchPage() async {
     try {
+      errorMessage.value = null; // Yeni isteğe başlarken hatayı temizle
+      
       final isFirst = _currentOffset == 0;
       if (isFirst) {
         isLoading.value = true;
@@ -59,11 +63,9 @@ class VideoSectionDetailController extends GetxController {
         isLoadingMore.value = true;
       }
 
-      // FIX: Daha önce yüklenen sayfa bellekte varsa tekrar istek atma.
       List<VideoEngagementModel> result;
       if (_pageCache.containsKey(_currentOffset)) {
         result = _pageCache[_currentOffset]!;
-       // log('SECTION_DETAIL CACHE HIT: offset=$_currentOffset');
       } else {
         result = await videoRepository.getVideoSectionPage(
           sectionType: sectionType,
@@ -81,6 +83,8 @@ class VideoSectionDetailController extends GetxController {
       _currentOffset += result.length;
     } catch (e) {
       log('VideoSectionDetailController._fetchPage error: $e');
+      // FIX: Hata olursa UI'a bildir. Kullanıcı "Yeniden Dene" butonu görebilir.
+      errorMessage.value = 'Daha fazla video yüklenirken hata oluştu.'; 
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;

@@ -20,7 +20,8 @@ class AuthController extends GetxController {
       await authRepository.signIn(email: email, password: password);
 
       Get.offAllNamed(AppRoutes.home);
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log('Sign in error: $e', stackTrace: stacktrace); // FIX: Hata logu eklendi
       errorMessage.value = 'Giriş başarısız. Email ve şifrenizi kontrol edin.';
     } finally {
       isLoading.value = false;
@@ -53,10 +54,14 @@ class AuthController extends GetxController {
 
   Future<void> signOut() async {
     try {
+      isLoading.value = true; // FIX: Çıkış butonuna spam yapmayı engelle
       await authRepository.signOut();
       Get.offAllNamed(AppRoutes.home);
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log('Sign out error: $e', stackTrace: stacktrace); // FIX: Hata logu eklendi
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
+    } finally {
+      isLoading.value = false; // FIX: Loading state'i temizle
     }
   }
 }
