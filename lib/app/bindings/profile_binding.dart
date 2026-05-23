@@ -1,10 +1,9 @@
-// lib/app/bindings/profile_binding.dart
-
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
-import '../../data/repositories/favorites_repository.dart'; // YENİ EKLENDİ
+import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/profile_activity_repository.dart'; // YENİ
 import '../../presentation/controllers/profile_controller.dart';
 
 class ProfileBinding extends Bindings {
@@ -22,19 +21,23 @@ class ProfileBinding extends Bindings {
             local: Get.find(),
           ), fenix: true);
     }
-    // FIX: FavoritesRepository kaydı eklendi!
     if (!Get.isRegistered<FavoritesRepository>()) {
       Get.lazyPut(() => FavoritesRepository(
             supabase: Get.find(),
             local: Get.find(),
           ), fenix: true);
     }
-    
-    // FIX: favoritesRepository parametresi eklendi!
+    // YENİ EKLENDİ
+    if (!Get.isRegistered<ProfileActivityRepository>()) {
+      Get.lazyPut(() => ProfileActivityRepository(
+            supabase: Get.find(),
+          ), fenix: true);
+    }
+
     Get.lazyPut(() => ProfileController(
           authRepository: Get.find(),
-          supabaseDataSource: Get.find(),
-          favoritesRepository: Get.find(), // YENİ EKLENDİ
+          favoritesRepository: Get.find(),
+          profileActivityRepository: Get.find(), // YENİ
         ), fenix: true);
   }
 }

@@ -1,22 +1,21 @@
 import 'dart:developer';
-
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
-import '../../data/repositories/favorites_repository.dart'; // YENİ EKLENDİ
-import '../../data/datasources/remote/supabase_datasource.dart';
+import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/profile_activity_repository.dart'; // YENİ
 import '../../data/models/profile_model.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../data/models/video_model.dart';
 
 class ProfileController extends GetxController {
   final AuthRepository authRepository;
-  final SupabaseDataSource supabaseDataSource;
-  final FavoritesRepository favoritesRepository; // YENİ EKLENDİ
+  final FavoritesRepository favoritesRepository;
+  final ProfileActivityRepository profileActivityRepository; // YENİ
 
   ProfileController({
     required this.authRepository,
-    required this.supabaseDataSource,
-    required this.favoritesRepository, // YENİ EKLENDİ
+    required this.favoritesRepository,
+    required this.profileActivityRepository, // YENİ
   });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
@@ -35,11 +34,13 @@ class ProfileController extends GetxController {
   final isCommentedLoading   = false.obs;
   final isSharedLoading      = false.obs;
 
-  // ─── UI Mesajları (snackbar yerine observable) ────────────────────────────
   final successMessage = RxnString();
   final errorMessage   = RxnString();
 
   final selectedTabIndex = 0.obs;
+
+  // Artık supabaseDataSource.currentUser yerine authRepository kullanacağız
+  String? get _currentUserId => authRepository.currentUserId;
 
   @override
   void onReady() {
@@ -64,7 +65,7 @@ class ProfileController extends GetxController {
   }
 
   Future<void> _loadAllActivities() async {
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) return;
 
     await Future.wait([
@@ -75,16 +76,12 @@ class ProfileController extends GetxController {
     ]);
   }
 
-  // FIX: Busy-wait (Future.doWhile) KALDIRILDI!
-  // FavoritesController'a bağımlılık koptu. Artık veriyi doğrudan FavoritesRepository'den
-  // alıyoruz (Local Cache). Bu en hızlı ve en güvenli yoldur.
   Future<void> loadFavorites([String? uid]) async {
     try {
       isFavoritesLoading.value = true;
-      final userId = uid ?? supabaseDataSource.currentUser?.id;
+      final userId = uid ?? _currentUserId;
       if (userId == null) return;
-      
-      // Artık Repository karar veriyor: Local boşsa Supabase'e gider!
+      // FAVORİ REPO KULLANIMI
       favoriteVideos.value = await favoritesRepository.getUserFavoriteVideos(userId);
     } catch (e) {
       log('loadFavorites error: $e');
@@ -93,44 +90,43 @@ class ProfileController extends GetxController {
     }
   }
 
-  // FIX: supabaseDataSource çağrıları try-catch'e alındı. Offline ise app çökmez.
   Future<void> loadViewedVideos([String? uid]) async {
-    final userId = uid ?? supabaseDataSource.currentUser?.id;
+    final userId = uid ?? _currentUserId;
     if (userId == null) return;
     try {
       isViewedLoading.value = true;
-      viewedVideos.value = await supabaseDataSource.getUserViewedVideos(userId);
+      // REPO KULLANIMI
+      viewedVideos.value = await profileActivityRepository.getUserViewedVideos(userId);
     } catch (e) {
       log('loadViewedVideos error: $e');
-      viewedVideos.clear(); // Hata olursa boş liste tut
     } finally {
       isViewedLoading.value = false;
     }
   }
 
   Future<void> loadCommentedVideos([String? uid]) async {
-    final userId = uid ?? supabaseDataSource.currentUser?.id;
+    final userId = uid ?? _currentUserId;
     if (userId == null) return;
     try {
       isCommentedLoading.value = true;
-      commentedVideos.value = await supabaseDataSource.getUserCommentedVideos(userId);
+      // REPO KULLANIMI
+      commentedVideos.value = await profileActivityRepository.getUserCommentedVideos(userId);
     } catch (e) {
       log('loadCommentedVideos error: $e');
-      commentedVideos.clear();
     } finally {
       isCommentedLoading.value = false;
     }
   }
 
   Future<void> loadSharedVideos([String? uid]) async {
-    final userId = uid ?? supabaseDataSource.currentUser?.id;
+    final userId = uid ?? _currentUserId;
     if (userId == null) return;
     try {
       isSharedLoading.value = true;
-      sharedVideos.value = await supabaseDataSource.getUserSharedVideos(userId);
+      // REPO KULLANIMI
+      sharedVideos.value = await profileActivityRepository.getUserSharedVideos(userId);
     } catch (e) {
       log('loadSharedVideos error: $e');
-      sharedVideos.clear();
     } finally {
       isSharedLoading.value = false;
     }

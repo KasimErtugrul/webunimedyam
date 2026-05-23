@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
@@ -11,6 +10,9 @@ class SettingsController extends GetxController {
 
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
+  
+  // YENİ EKLENDİ: UI'ın dinleyeceği bayrak
+  final errorMessage = RxnString();
 
   @override
   void onReady() {
@@ -47,20 +49,13 @@ class SettingsController extends GetxController {
     await _updateSettings(updated);
   }
 
-  Future<void> changeTheme(String theme) async {
-    final current = settings.value;
-    if (current == null) return;
-    final updated = current.copyWith(theme: theme);
-    
-    // Temayı anında değiştir (Optimistic UI)
-    Get.changeThemeMode(
-      theme == 'dark' ? ThemeMode.dark : ThemeMode.light,
-    );
-    
-    // FIX: SharedPreferences bypass KALDIRILDI! 
-    // authRepository.updateUserSettings zaten local cache'e (SP) yazıyor.
-    await _updateSettings(updated);
-  }
+  // settings_controller.dart'ta changeTheme sadece ayarı kaydetsin:
+Future<void> changeTheme(String theme) async {
+  final current = settings.value;
+  if (current == null) return;
+  await _updateSettings(current.copyWith(theme: theme));
+  // Get.changeThemeMode buradan kalktı ↑
+}
 
   Future<void> changeLanguage(String language) async {
     final current = settings.value;
@@ -69,18 +64,16 @@ class SettingsController extends GetxController {
     await _updateSettings(updated);
   }
 
-  // FIX: Optimistic UI ve Rollback mekanizması eklendi.
   Future<void> _updateSettings(UserSettingsModel updated) async {
-    final oldSettings = settings.value; // Eski ayarı yedekle
+    final oldSettings = settings.value;
     try {
-      settings.value = updated; // Kullanıcıya anında güncellenmiş gibi göster
+      settings.value = updated; // Optimistic UI
       await authRepository.updateUserSettings(updated);
     } catch (e) {
-      settings.value = oldSettings; // Hata olursa UI'ı eski haline döndür!
+      settings.value = oldSettings; // Rollback
       log('_updateSettings error: $e');
-      
-      // TODO: MİMARİ BORÇ (Tech Debt) - Get.snackbar UI kodudur, Controller'da olmamalıdır.
-      Get.snackbar('Hata', 'Ayarlar güncellenemedi.');
+      // YENİ: Get.snackbar yerine bayrak kaldırılıyor
+      errorMessage.value = 'Ayarlar güncellenemedi.';
     }
   }
 
@@ -90,9 +83,8 @@ class SettingsController extends GetxController {
       Get.offAllNamed('/home');
     } catch (e) {
       log('signOut error: $e');
-      
-      // TODO: MİMARİ BORÇ (Tech Debt) - Get.snackbar UI kodudur, Controller'da olmamalıdır.
-      Get.snackbar('Hata', 'Çıkış yapılırken hata oluştu.');
+      // YENİ: Get.snackbar yerine bayrak kaldırılıyor
+      errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     }
   }
 }

@@ -2,8 +2,8 @@
 
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../data/repositories/auth_repository.dart'; // YENİ EKLENDİ
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
@@ -12,20 +12,19 @@ import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
-import '../../data/datasources/remote/supabase_datasource.dart';
 import 'favorites_controller.dart';
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
   final FavoritesRepository favoritesRepository;
   final UniversityStatsRepository universityStatsRepository;
-  final SupabaseDataSource supabaseDataSource;
+  final AuthRepository authRepository; // YENİ: SupabaseDataSource yerine
 
   HomeController({
     required this.videoRepository,
     required this.favoritesRepository,
     required this.universityStatsRepository,
-    required this.supabaseDataSource,
+    required this.authRepository, // YENİ
   });
 
   // ─── Mevcut State ─────────────────────────────────────────────────────────
@@ -69,6 +68,14 @@ class HomeController extends GetxController {
   final videosNewUndiscovered = <VideoEngagementModel>[].obs;
 
   final isVideoSectionsLoading = false.obs;
+
+  // ─── UI Bayrakları ────────────────────────────────────────────────────────
+  final showAuthRequired = false.obs;
+
+  // ─── Yardımcılar ─────────────────────────────────────────────────────────
+  
+  // Auth artık Repository üzerinden takip ediliyor
+  String? get _currentUserId => authRepository.currentUserId;
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -232,7 +239,7 @@ class HomeController extends GetxController {
 
   Future<void> loadFavorites() async {
     try {
-      final userId = supabaseDataSource.currentUser?.id;
+      final userId = _currentUserId; // Artık AuthRepository'den geliyor
       if (userId == null) return;
       favoriteIds.value = await favoritesRepository.getFavoriteVideoIds(userId);
     } catch (e) {
@@ -242,88 +249,35 @@ class HomeController extends GetxController {
 
   bool isFavorite(String videoId) => favoriteIds.contains(videoId);
 
-  // FIX: Cross-Controller Mutation (Spagetti Bağ) Temizlendi!
-  // Artık FavoritesController'ın listesine dışarıdan insert/remove yapmıyoruz.
-  // Onun yerine kendi public metotlarını çağırıyoruz.
   Future<void> toggleFavorite(String videoId) async {
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId; // Artık AuthRepository'den geliyor
     if (userId == null) {
-      _showAuthDialog();
+      showAuthRequired.value = true; // UI'a bayrak kaldırılıyor
       return;
     }
 
     try {
       if (isFavorite(videoId)) {
-        // 1. Supabase'den sil
         await favoritesRepository.removeFavorite(userId, videoId);
-        // 2. Local'den sil
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
-        // 3. Kendi state'ini güncelle
         favoriteIds.remove(videoId);
-        // 4. FavoritesController'ın kendi metoduyla state'ini güncelle
         if (Get.isRegistered<FavoritesController>()) {
           Get.find<FavoritesController>().removeFavoriteVideo(videoId);
         }
       } else {
-        // 1. Supabase'e ekle
         await favoritesRepository.addFavorite(userId, videoId);
         final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
         if (video != null) {
-          // 2. Local'e ekle
           await favoritesRepository.saveFavoriteVideoLocally(video);
-          // 3. FavoritesController'ın kendi metoduyla state'ini güncelle
           if (Get.isRegistered<FavoritesController>()) {
             Get.find<FavoritesController>().addFavoriteVideo(video);
           }
         }
-        // 4. Kendi state'ini güncelle
         favoriteIds.add(videoId);
       }
     } catch (e) {
       log('toggleFavorite error: $e');
     }
-  }
-
-  // ─── Auth Dialog ──────────────────────────────────────────────────────────
-
-  // TODO: MİMARİ BORÇ (Tech Debt) - Bu UI kodu Controller'da olmamalı.
-  // Controller sadece bir flag kaldırmalı (showAuthRequired = true), UI dinlemeli.
-  // Şu an UI tarafında değişiklik yapmamak için olduğu gibi bırakılmıştır.
-  void _showAuthDialog() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Giriş Gerekiyor',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
-          style: TextStyle(color: Color(0xFF9E9EB8)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Vazgeç',
-                style: TextStyle(color: Color(0xFF9E9EB8))),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              Get.back();
-              Get.toNamed('/login');
-            },
-            child: const Text('Giriş Yap'),
-          ),
-        ],
-      ),
-    );
   }
 
   // ─── Navigasyon ──────────────────────────────────────────────────────────

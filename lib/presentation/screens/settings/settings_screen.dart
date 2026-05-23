@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
                   fontSize: 13.sp,
                 ),
               ),
-              activeThumbColor : AppTheme.primaryColor,
+              activeThumbColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               dense: false,
             ),
@@ -59,7 +59,7 @@ class SettingsScreen extends StatelessWidget {
                   fontSize: 13.sp,
                 ),
               ),
-              activeThumbColor : AppTheme.primaryColor,
+              activeThumbColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               dense: false,
             ),
@@ -190,6 +190,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               onTap: () {
                 controller.changeTheme('dark');
+                Get.changeThemeMode(ThemeMode.dark); // UI katmanına taşındı ✅
                 Get.back();
               },
               contentPadding: EdgeInsets.symmetric(horizontal: 8.w),

@@ -11,13 +11,38 @@ import '../../../../../controllers/home_controller.dart';
 
 import 'widgets/video_card_widget.dart';
 
-class HomeTabWidget extends StatelessWidget {
+class HomeTabWidget extends StatefulWidget {
   const HomeTabWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
+  State<HomeTabWidget> createState() => _HomeTabWidgetState();
+}
 
+class _HomeTabWidgetState extends State<HomeTabWidget> {
+  final controller = Get.find<HomeController>();
+  Worker? _authWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
+    _authWorker = ever(controller.showAuthRequired, (required) {
+      if (required) {
+        _showAuthDialog();
+        controller.showAuthRequired.value = false; // Bayrağı sıfırla
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authWorker?.dispose(); // Memory leak'i önle
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
@@ -64,7 +89,9 @@ class HomeTabWidget extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.person_outline_rounded, size: 24.sp),
                       onPressed: () {
-                        if (controller.supabaseDataSource.currentUser != null) {
+                        // DİKKAT: Eski supabaseDataSource.currentUser temizlendi!
+                        // Artık AuthRepository üzerinden giriş durumu kontrol ediliyor.
+                        if (controller.authRepository.isLoggedIn) {
                           Get.toNamed(AppRoutes.profile);
                         } else {
                           Get.toNamed(AppRoutes.login);
@@ -155,6 +182,47 @@ class HomeTabWidget extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+
+  // ── Auth Dialog (UI Katmanında Yaşıyor) ────────────────────────────────
+  void _showAuthDialog() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Giriş Gerekiyor',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
+          style: TextStyle(color: Color(0xFF9E9EB8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Vazgeç',
+              style: TextStyle(color: Color(0xFF9E9EB8)),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Get.back();
+              Get.toNamed(AppRoutes.login);
+            },
+            child: const Text('Giriş Yap'),
+          ),
+        ],
       ),
     );
   }

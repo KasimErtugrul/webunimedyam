@@ -1,31 +1,28 @@
 import 'dart:developer';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
+import '../../data/repositories/engagement_repository.dart';
+import '../../data/repositories/auth_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
-import '../../data/datasources/remote/supabase_datasource.dart';
-import '../../data/datasources/local/local_datasource.dart';
 import 'home_controller.dart';
 import 'favorites_controller.dart';
-
-// ProfileController import'u kaldırıldı! (Spagetti bağ koptu)
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
   final CommentRepository commentRepository;
-  final SupabaseDataSource supabaseDataSource;
-  final LocalDataSource localDataSource;
+  final EngagementRepository engagementRepository;
+  final AuthRepository authRepository;
 
   PlayerController({
     required this.favoritesRepository,
     required this.commentRepository,
-    required this.supabaseDataSource,
-    required this.localDataSource,
+    required this.engagementRepository,
+    required this.authRepository,
   });
 
   late YoutubePlayerController youtubeController;
@@ -47,7 +44,13 @@ class PlayerController extends GetxController {
   final appCommentCount = 0.obs;
   final isInitialStatsLoading = true.obs;
 
+  // UI Bayrakları
+  final showAuthRequired = false.obs;
+  final snackbarMessage = RxnString();
+
   VideoModel? currentVideo;
+
+  String? get _currentUserId => authRepository.currentUserId;
 
   @override
   void onInit() {
@@ -63,8 +66,7 @@ class PlayerController extends GetxController {
   }
 
   Future<void> _loadInitialState() async {
-    final userId = supabaseDataSource.currentUser?.id;
-
+    final userId = _currentUserId;
     if (userId != null) {
       _resolveIsFavoriteFromCache();
     }
@@ -76,19 +78,16 @@ class PlayerController extends GetxController {
     ]);
   }
 
-  // FIX: Doğrudan localDataSource yerine favoritesRepository kullanıldı.
   void _resolveIsFavoriteFromCache() {
     if (currentVideo == null) return;
     final videoId = currentVideo!.videoId;
 
-    // HomeController zaten favoriteIds'i bellekte tutuyorsa hemen kullan
     if (Get.isRegistered<HomeController>()) {
       final hc = Get.find<HomeController>();
       isFavorite.value = hc.favoriteIds.contains(videoId);
       return;
     }
 
-    // HomeController yok → Repository'den oku (Repo zaten local'e bakar)
     favoritesRepository.getFavoriteVideos().then((locals) {
       isFavorite.value = locals.any((v) => v.videoId == videoId);
     });
@@ -98,19 +97,8 @@ class PlayerController extends GetxController {
     bool autoplay = true;
 
     try {
-      final userId = supabaseDataSource.currentUser?.id;
-      if (userId != null) {
-        final cached = await localDataSource.getCachedUserSettings();
-        if (cached != null) {
-          autoplay = (cached['autoplay'] as bool?) ?? true;
-        } else {
-          final userSettings = await supabaseDataSource.getUserSettings(userId);
-          autoplay = userSettings?.autoplay ?? true;
-          if (userSettings != null) {
-            await localDataSource.cacheUserSettings(userSettings.toSupabase());
-          }
-        }
-      }
+      final userSettings = await authRepository.getUserSettings();
+      autoplay = userSettings?.autoplay ?? true;
     } catch (e) {
       log('[PlayerController] Autoplay setting error: $e');
     }
@@ -137,7 +125,7 @@ class PlayerController extends GetxController {
     if (currentVideo == null) return;
     if (showInitialLoader) isInitialStatsLoading.value = true;
     try {
-      final stats = await supabaseDataSource.getEngagementStats(
+      final stats = await engagementRepository.getEngagementStats(
         currentVideo!.videoId,
       );
       appViewCount.value = stats['app_view_count'] ?? 0;
@@ -156,23 +144,19 @@ class PlayerController extends GetxController {
 
   Future<void> _recordView() async {
     if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) return;
-    try {
-      await supabaseDataSource.recordView(userId, currentVideo!.videoId);
-    } catch (e) {
-      log('[PlayerController] _recordView error: $e');
-    }
+    await engagementRepository.recordView(userId, currentVideo!.videoId);
   }
 
   // ─── Beğeni ──────────────────────────────────────────────────────────────
 
   Future<void> checkLike() async {
     if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) return;
     try {
-      isLiked.value = await supabaseDataSource.isLiked(
+      isLiked.value = await engagementRepository.isLiked(
         userId,
         currentVideo!.videoId,
       );
@@ -183,9 +167,9 @@ class PlayerController extends GetxController {
 
   Future<void> toggleLike() async {
     if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) {
-      _showAuthDialog();
+      showAuthRequired.value = true; // Bayrak kaldırıldı
       return;
     }
     if (isLikeLoading.value) return;
@@ -197,11 +181,11 @@ class PlayerController extends GetxController {
 
     try {
       if (wasLiked) {
-        await supabaseDataSource.removeLike(userId, currentVideo!.videoId);
+        await engagementRepository.removeLike(userId, currentVideo!.videoId);
       } else {
-        await supabaseDataSource.addLike(userId, currentVideo!.videoId);
+        await engagementRepository.addLike(userId, currentVideo!.videoId);
       }
-      final stats = await supabaseDataSource.getEngagementStats(
+      final stats = await engagementRepository.getEngagementStats(
         currentVideo!.videoId,
       );
       appLikeCount.value = stats['app_like_count'] ?? appLikeCount.value;
@@ -216,14 +200,11 @@ class PlayerController extends GetxController {
 
   // ─── Favori ──────────────────────────────────────────────────────────────
 
-  // FIX: Cross-Controller Mutation temizlendi!
-  // Artık diğer controller'ların listelerine direkt müdahale etmek yerine
-  // onların kendi public metotlarını (addFavoriteVideo / removeFavoriteVideo) çağırıyoruz.
   Future<void> toggleFavorite() async {
     if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) {
-      _showAuthDialog();
+      showAuthRequired.value = true; // Bayrak kaldırıldı
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -234,7 +215,6 @@ class PlayerController extends GetxController {
     appFavoriteCount.value += wasAdding ? 1 : -1;
 
     try {
-      // 1. Supabase ve Local Kayıt
       if (!wasAdding) {
         await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
         await favoritesRepository.removeFavoriteVideoLocally(
@@ -245,7 +225,6 @@ class PlayerController extends GetxController {
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo!);
       }
 
-      // 2. Diğer Controller'ları Güvenle Haberdar Et
       if (Get.isRegistered<HomeController>()) {
         final hc = Get.find<HomeController>();
         if (wasAdding) {
@@ -258,22 +237,18 @@ class PlayerController extends GetxController {
       if (Get.isRegistered<FavoritesController>()) {
         final fc = Get.find<FavoritesController>();
         if (wasAdding) {
-          fc.addFavoriteVideo(currentVideo!); // Güvenli metot çağrısı
+          fc.addFavoriteVideo(currentVideo!);
         } else {
-          fc.removeFavoriteVideo(
-            currentVideo!.videoId,
-          ); // Güvenli metot çağrısı
+          fc.removeFavoriteVideo(currentVideo!.videoId);
         }
       }
 
-      // 3. İstatistikleri Güncelle
-      final stats = await supabaseDataSource.getEngagementStats(
+      final stats = await engagementRepository.getEngagementStats(
         currentVideo!.videoId,
       );
       appFavoriteCount.value =
           stats['app_favorite_count'] ?? appFavoriteCount.value;
     } catch (e) {
-      // Hata olursa Optimistic UI'ı geri al
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
       log('toggleFavorite error: $e');
@@ -284,7 +259,6 @@ class PlayerController extends GetxController {
 
   // ─── Paylaşım ────────────────────────────────────────────────────────────
 
-  // TODO: MİMARİ BORÇ - Get.snackbar UI kodudur, Controller'da olmamalıdır.
   Future<void> shareVideo() async {
     if (currentVideo == null) return;
     if (isShareLoading.value) return;
@@ -295,11 +269,11 @@ class PlayerController extends GetxController {
       await SharePlus.instance.share(
         ShareParams(text: text, subject: currentVideo!.title),
       );
-      final userId = supabaseDataSource.currentUser?.id;
+      final userId = _currentUserId;
       if (userId != null) {
         isShareLoading.value = true;
-        await supabaseDataSource.recordShare(userId, currentVideo!.videoId);
-        final stats = await supabaseDataSource.getEngagementStats(
+        await engagementRepository.recordShare(userId, currentVideo!.videoId);
+        final stats = await engagementRepository.getEngagementStats(
           currentVideo!.videoId,
         );
         appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
@@ -307,14 +281,7 @@ class PlayerController extends GetxController {
     } catch (e) {
       log('[PlayerController] shareVideo fallback to clipboard: $e');
       await Clipboard.setData(ClipboardData(text: videoUrl));
-      Get.snackbar(
-        'Bağlantı kopyalandı',
-        'Video bağlantısı panoya kopyalandı.',
-        backgroundColor: const Color(0xFF1E1E2E),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(12),
-      );
+      snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.'; // Bayrak kaldırıldı
     } finally {
       isShareLoading.value = false;
     }
@@ -338,9 +305,9 @@ class PlayerController extends GetxController {
 
   Future<void> addComment(String content) async {
     if (currentVideo == null) return;
-    final userId = supabaseDataSource.currentUser?.id;
+    final userId = _currentUserId;
     if (userId == null) {
-      _showAuthDialog();
+      showAuthRequired.value = true; // DÜZELTİLDİ: Eski _showAuthDialog yerine bayrak
       return;
     }
     if (content.trim().isEmpty) return;
@@ -351,7 +318,7 @@ class PlayerController extends GetxController {
         content: content.trim(),
       );
       await loadComments();
-      final stats = await supabaseDataSource.getEngagementStats(
+      final stats = await engagementRepository.getEngagementStats(
         currentVideo!.videoId,
       );
       appCommentCount.value =
@@ -361,14 +328,12 @@ class PlayerController extends GetxController {
     }
   }
 
-  // FIX: ProfileController'a direkt müdahale kaldırıldı!
-  // Silme işlemini ProfileController kendi ekranına dönünce Repository'den çekip farkedecek.
   Future<void> deleteComment(String commentId) async {
     if (currentVideo == null) return;
     try {
       await commentRepository.deleteComment(commentId);
       comments.removeWhere((c) => c.id == commentId);
-      final stats = await supabaseDataSource.getEngagementStats(
+      final stats = await engagementRepository.getEngagementStats(
         currentVideo!.videoId,
       );
       appCommentCount.value =
@@ -376,50 +341,6 @@ class PlayerController extends GetxController {
     } catch (e) {
       log('[PlayerController] deleteComment error: $e');
     }
-  }
-
-  // ─── Auth Dialog ──────────────────────────────────────────────────────────
-
-  // TODO: MİMARİ BORÇ (Tech Debt) - Bu UI kodu Controller'da olmamalı.
-  // Controller sadece bir flag kaldırmalı (showAuthRequired = true), UI dinlemeli.
-  void _showAuthDialog() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Giriş Gerekiyor',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
-          style: TextStyle(color: Color(0xFF9E9EB8)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Vazgeç',
-              style: TextStyle(color: Color(0xFF9E9EB8)),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () {
-              Get.back();
-              Get.toNamed('/login');
-            },
-            child: const Text('Giriş Yap'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override

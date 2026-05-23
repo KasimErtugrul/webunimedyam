@@ -24,16 +24,50 @@ class _PlayerScreenState extends State<PlayerScreen> {
   late final PlayerController _controller;
   late final TextEditingController _commentController;
 
+  // GetX Workers (Dinleyiciler) - Memory leak olmaması için dispose edilmeli
+  Worker? _authWorker;
+  Worker? _snackbarWorker;
+
   @override
   void initState() {
     super.initState();
     _controller = Get.find<PlayerController>();
     _commentController = TextEditingController();
+
+    // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
+    
+    // 1. Giriş yapılması gerektiğinde Dialog aç
+    _authWorker = ever(_controller.showAuthRequired, (required) {
+      if (required) {
+        _showAuthDialog();
+        // Bayrağı hemen sıfırla ki bir daha tetiklenmesin
+        _controller.showAuthRequired.value = false;
+      }
+    });
+
+    // 2. Snackbar mesajı geldiğinde göster
+    _snackbarWorker = ever(_controller.snackbarMessage, (message) {
+      if (message != null) {
+        Get.snackbar(
+          'Bilgi',
+          message,
+          backgroundColor: const Color(0xFF1E1E2E),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+        // Mesajı sıfırla
+        _controller.snackbarMessage.value = null;
+      }
+    });
   }
 
   @override
   void dispose() {
     _commentController.dispose();
+    // Dinleyicileri temizle
+    _authWorker?.dispose();
+    _snackbarWorker?.dispose();
     super.dispose();
   }
 
@@ -52,8 +86,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         );
       }
 
-      // NO MORE YoutubePlayerScaffold.
-      // We directly return our standard Scaffold, and embed the player inline.
       return Scaffold(
         backgroundColor: AppTheme.bg(context),
         appBar: AppBar(
@@ -71,7 +103,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         body: Column(
           children: [
             // ── Video oynatıcı + geri butonu ──────────────────────────
-            // We pass the raw YoutubePlayer directly into our stack constructor now.
             _buildPlayerWithBackButton(
               context,
               YoutubePlayer(
@@ -193,7 +224,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _controller.comments.length,
-                        separatorBuilder: (_, _) => Divider(
+                        separatorBuilder: (_, __) => Divider(
                           color: AppTheme.surface(context),
                           height: 1.h,
                           thickness: 1.h,
@@ -217,8 +248,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   /// Player üzerine geri butonu koyar.
-  /// `YoutubePlayer` fullscreen'e girince OverlayPortal ile üst katmana yerleştiği için,
-  /// bu widget ve geri butonu otomatik olarak altta kalır ve fullscreen modunu engellemez.
   Widget _buildPlayerWithBackButton(BuildContext context, Widget player) {
     return Stack(
       children: [
@@ -247,6 +276,47 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ── Auth Dialog (Artık UI katmanında yaşıyor!) ──────────────────────────
+  void _showAuthDialog() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Giriş Gerekiyor',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
+          style: TextStyle(color: Color(0xFF9E9EB8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Vazgeç',
+              style: TextStyle(color: Color(0xFF9E9EB8)),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Get.back();
+              Get.toNamed('/login');
+            },
+            child: const Text('Giriş Yap'),
+          ),
+        ],
+      ),
     );
   }
 }
