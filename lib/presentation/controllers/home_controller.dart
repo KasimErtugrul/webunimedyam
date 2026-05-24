@@ -206,7 +206,7 @@ class HomeController extends GetxController {
 
       final uni = selectedUniversity.value;
       if (uni != null) {
-        videos.value = await videoRepository.getVideosByUniversity(uni.id);
+        videos.value = await videoRepository.getVideosByUniversity(uni.id!);
       } else {
         videos.value = await videoRepository.getLatestVideosPerUniversity();
       }
@@ -292,7 +292,7 @@ class HomeController extends GetxController {
     final uni = selectedUniversity.value;
     if (uni == null) return 'ÜniTV';
     final name = uni.name;
-    if (name.length > 20) return '${name.substring(0, 18)}…';
+    if (name!.length > 20) return '${name.substring(0, 18)}…';
     return name;
   }
 }
