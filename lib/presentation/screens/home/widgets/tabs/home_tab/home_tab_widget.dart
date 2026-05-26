@@ -25,7 +25,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
     _authWorker = ever(controller.showAuthRequired, (required) {
       if (required) {
@@ -46,142 +46,153 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
-        child: Obx(() {
-          return RefreshIndicator(
-            color: Theme.of(context).colorScheme.primary,
-            onRefresh: () async {
-              await controller.refreshVideos();
-              await controller.loadPlaylists();
-              await controller.loadUniversityStats();
-            },
-            child: CustomScrollView(
-              slivers: [
-                // ── AppBar ─────────────────────────────────────────────
-                SliverAppBar(
-                  floating: true,
-                  snap: true,
-                  backgroundColor: AppTheme.bg(context),
-                  automaticallyImplyLeading: false,
-                  title: Row(
-                    children: [
-                      Container(
-                        width: 32.w,
-                        height: 32.h,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          size: 20.sp,
-                        ),
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () async {
+            await controller.refreshVideos();
+            await controller.loadPlaylists();
+            await controller.loadUniversityStats();
+          },
+          child: CustomScrollView(
+            slivers: [
+              // ── AppBar (statik — sadece başlık reaktif) ────────────
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                backgroundColor: AppTheme.bg(context),
+                automaticallyImplyLeading: false,
+                title: Row(
+                  children: [
+                    Container(
+                      width: 32.w,
+                      height: 32.h,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
-                      SizedBox(width: 8.w),
-                      Obx(() => Text(controller.appBarTitle)),
-                    ],
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: Icon(Icons.search_rounded, size: 24.sp),
-                      onPressed: () => Get.toNamed(AppRoutes.search),
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 20.sp,
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.person_outline_rounded, size: 24.sp),
-                      onPressed: () {
-                        // DİKKAT: Eski supabaseDataSource.currentUser temizlendi!
-                        // Artık AuthRepository üzerinden giriş durumu kontrol ediliyor.
-                        if (controller.authRepository.isLoggedIn) {
-                          Get.toNamed(AppRoutes.profile);
-                        } else {
-                          Get.toNamed(AppRoutes.login);
-                        }
-                      },
-                    ),
+                    SizedBox(width: 8.w),
+                    Obx(() => Text(controller.appBarTitle)),
                   ],
                 ),
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.search_rounded, size: 24.sp),
+                    onPressed: () => Get.toNamed(AppRoutes.search),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.person_outline_rounded, size: 24.sp),
+                    onPressed: () {
+                      if (controller.authRepository.isLoggedIn) {
+                        Get.toNamed(AppRoutes.profile);
+                      } else {
+                        Get.toNamed(AppRoutes.login);
+                      }
+                    },
+                  ),
+                ],
+              ),
 
-                // ── Video Listesi Başlığı ───────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-                    child: Text(
-                      'Son Videolar',
-                      style:
-                          Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22.sp,
-                              ),
-                    ),
+              // ── Video Listesi Başlığı (statik) ───────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
+                  child: Text(
+                    'Son Videolar',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22.sp,
+                        ),
                   ),
                 ),
+              ),
 
-                // ── Video Listesi ──────────────────────────────────────
-                if (controller.isLoading.value)
-                  SliverToBoxAdapter(child: _buildVideoShimmer(context))
-                else if (controller.errorMessage.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.w),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.error_outline_rounded,
-                            color: AppTheme.textSec(context),
-                            size: 48.sp,
-                          ),
-                          SizedBox(height: 16.h),
-                          Text(
-                            controller.errorMessage.value,
-                            style: TextStyle(
-                              color: AppTheme.textSec(context),
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(100.w, 40.h),
-                            ),
-                            onPressed: controller.loadVideos,
-                            child: Text(
-                              'Tekrar Dene',
-                              style: TextStyle(fontSize: 14.sp),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else if (controller.videos.isEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.w),
-                      child: Center(
-                        child: Text(
-                          'Henüz video yok.',
-                          style: TextStyle(
-                            color: AppTheme.textSec(context),
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          VideoCardWidget(video: controller.videos[index]),
-                      childCount: controller.videos.length,
-                    ),
-                  ),
+              // ── İçerik Alanı (tek Obx — sadece bu kısım rebuild olur) ──
+              Obx(() => _buildContentSliver(context)),
 
-                SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-              ],
+              // ── Alt Boşluk (statik) ──────────────────────────────────
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Reaktif İçerik Seçici ──────────────────────────────────────────────
+  Widget _buildContentSliver(BuildContext context) {
+    if (controller.isLoading.value) {
+      return SliverToBoxAdapter(child: _buildVideoShimmer(context));
+    }
+
+    if (controller.errorMessage.isNotEmpty) {
+      return SliverToBoxAdapter(child: _buildErrorWidget(context));
+    }
+
+    if (controller.videos.isEmpty) {
+      return SliverToBoxAdapter(child: _buildEmptyWidget(context));
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => VideoCardWidget(video: controller.videos[index]),
+        childCount: controller.videos.length,
+      ),
+    );
+  }
+
+  // ── Hata Widget ────────────────────────────────────────────────────────
+  Widget _buildErrorWidget(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(32.w),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: AppTheme.textSec(context),
+            size: 48.sp,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            controller.errorMessage.value,
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: 14.sp,
             ),
-          );
-        }),
+          ),
+          SizedBox(height: 16.h),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(100.w, 40.h),
+            ),
+            onPressed: controller.loadVideos,
+            child: Text(
+              'Tekrar Dene',
+              style: TextStyle(fontSize: 14.sp),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Boş Liste Widget ───────────────────────────────────────────────────
+  Widget _buildEmptyWidget(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(32.w),
+      child: Center(
+        child: Text(
+          'Henüz video yok.',
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: 14.sp,
+          ),
+        ),
       ),
     );
   }
@@ -227,6 +238,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
+  // ── Shimmer Yükleniyor ─────────────────────────────────────────────────
   Widget _buildVideoShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),

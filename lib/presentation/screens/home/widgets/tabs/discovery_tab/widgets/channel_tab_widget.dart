@@ -1,4 +1,4 @@
-// ─── Kanal Sekmesi ────────────────────────────────────────────────────────────
+// lib/presentation/screens/home/widgets/tabs/channel_tab/channel_tab_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,39 +13,51 @@ class ChannelTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return RefreshIndicator(
-        color: Theme.of(context).colorScheme.primary,
-        onRefresh: () async {
-          await controller.loadUniversityStats();
-        },
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(top: 16.h, bottom: 24.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: buildUniversitySections(
-                    configs: uniSectionConfigs,
-                    allItems: [
-                      controller.statsMostWatched.toList(),
-                      controller.statsMostLiked.toList(),
-                      controller.statsPopularInApp.toList(),
-                      controller.statsMostFavorited.toList(),
-                      controller.statsActiveLast30.toList(),
-                      controller.statsBiggestChannels.toList(),
-                      controller.statsRichestArchive.toList(),
-                      controller.statsNewlyDiscovered.toList(),
-                    ],
-                    isLoading: controller.isStatsLoading.value,
-                  ),
-                ),
+    // ── Rx Listeleri bir diziye alıyoruz ki index üzerinden eşleşebilsin ──
+    final statsRxLists = [
+      controller.statsMostWatched,
+      controller.statsMostLiked,
+      controller.statsPopularInApp,
+      controller.statsMostFavorited,
+      controller.statsActiveLast30,
+      controller.statsBiggestChannels,
+      controller.statsRichestArchive,
+      controller.statsNewlyDiscovered,
+    ];
+
+    return RefreshIndicator(
+      color: Theme.of(context).colorScheme.primary,
+      onRefresh: () async {
+        await controller.loadUniversityStats();
+      },
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16.h, bottom: 24.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // ── Her section için ayrı Obx ──────────────────────────
+                children: List.generate(statsRxLists.length, (index) {
+                  return Obx(() {
+                    final widgets = buildUniversitySections(
+                      configs: [uniSectionConfigs[index]],
+                      allItems: [statsRxLists[index].toList()],
+                      isLoading: controller.isStatsLoading.value,
+                    );
+
+                    if (widgets.length == 1) return widgets.first;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: widgets,
+                    );
+                  });
+                }),
               ),
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }
