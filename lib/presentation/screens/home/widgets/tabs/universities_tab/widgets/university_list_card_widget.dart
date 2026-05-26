@@ -1,4 +1,4 @@
-// ── Liste kartı ──────────────────────────────────────────────────────────────
+// lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/university_list_card_widget.dart
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -7,16 +7,20 @@ import 'package:get/get.dart';
 
 import '../../../../../../../app/routes/app_routes.dart';
 import '../../../../../../../app/themes/app_theme.dart';
-import '../../../../../../../data/models/playlist_model.dart';
+import '../../../../../../../data/models/university_model.dart';
 
 class UniversityListCardWidget extends StatelessWidget {
-  final PlaylistModel playlist;
-  const UniversityListCardWidget({super.key, required this.playlist});
+  /// Widget artık doğrudan [UniversityModel] kabul eder.
+  /// [playlist] yerine [university] kullanılır; bu sayede
+  /// üniversite detay sayfasına tüm bilgiler aktarılabilir.
+  final UniversityModel university;
+
+  const UniversityListCardWidget({super.key, required this.university});
 
   @override
   Widget build(BuildContext context) {
-    final hasLogo = playlist.logoUrl != null && playlist.logoUrl!.isNotEmpty;
-    final hasThumbnail = playlist.thumbnailUrl.isNotEmpty;
+    final hasLogo =
+        university.logoUrl != null && university.logoUrl!.isNotEmpty;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
@@ -33,8 +37,10 @@ class UniversityListCardWidget extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () =>
-              Get.toNamed(AppRoutes.playlistDetail, arguments: playlist),
+          onTap: () => Get.toNamed(
+            AppRoutes.universityDetail,
+            arguments: university,
+          ),
           splashColor: AppTheme.primaryColor.withValues(alpha: 0.08),
           highlightColor: AppTheme.primaryColor.withValues(alpha: 0.04),
           child: Padding(
@@ -59,33 +65,33 @@ class UniversityListCardWidget extends StatelessWidget {
                   ),
                   child: hasLogo
                       ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: CachedNetworkImage(
-                      imageUrl: playlist.logoUrl!,
-                      fit: BoxFit.contain,
-                      placeholder: (_, __) => Center(
-                        child: SizedBox(
-                          width: 20.w,
-                          height: 20.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.w,
-                            color: AppTheme.primaryColor
-                                .withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: CachedNetworkImage(
+                            imageUrl: university.logoUrl!,
+                            fit: BoxFit.contain,
+                            placeholder: (_, __) => Center(
+                              child: SizedBox(
+                                width: 20.w,
+                                height: 20.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.w,
+                                  color: AppTheme.primaryColor
+                                      .withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Icon(
+                              Icons.school_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 24.sp,
+                            ),
                           ),
-                        ),
-                      ),
-                      errorWidget: (_, __, ___) => Icon(
-                        Icons.school_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 24.sp,
-                      ),
-                    ),
-                  )
+                        )
                       : Icon(
-                    Icons.school_rounded,
-                    color: AppTheme.primaryColor,
-                    size: 24.sp,
-                  ),
+                          Icons.school_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 24.sp,
+                        ),
                 ),
 
                 SizedBox(width: 14.w),
@@ -96,7 +102,7 @@ class UniversityListCardWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        playlist.title,
+                        university.name ?? '',
                         style: TextStyle(
                           color: AppTheme.textPri(context),
                           fontSize: 15.sp,
@@ -106,36 +112,57 @@ class UniversityListCardWidget extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                          AppTheme.primaryColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                      SizedBox(height: 6.h),
+                      Row(
+                        children: [
+                          if (university.city != null) ...[
                             Icon(
-                              Icons.play_circle_fill_rounded,
-                              color: AppTheme.primaryColor,
-                              size: 14.sp,
+                              Icons.location_on_rounded,
+                              size: 12.sp,
+                              color: AppTheme.textSec(context),
                             ),
-                            SizedBox(width: 4.w),
+                            SizedBox(width: 2.w),
                             Text(
-                              '${playlist.itemCount} video',
+                              university.city!,
                               style: TextStyle(
-                                color: AppTheme.primaryColor,
+                                color: AppTheme.textSec(context),
                                 fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                            SizedBox(width: 8.w),
                           ],
-                        ),
+                          if (university.videoCount != null)
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 3.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.play_circle_fill_rounded,
+                                    color: AppTheme.primaryColor,
+                                    size: 12.sp,
+                                  ),
+                                  SizedBox(width: 3.w),
+                                  Text(
+                                    '${university.videoCount} video',
+                                    style: TextStyle(
+                                      color: AppTheme.primaryColor,
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -143,77 +170,20 @@ class UniversityListCardWidget extends StatelessWidget {
 
                 SizedBox(width: 12.w),
 
-                // ── Thumbnail önizleme veya İkon ──────────────────────────
-                if (hasThumbnail)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: playlist.thumbnailUrl,
-                          width: 68.w,
-                          height: 52.w,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            width: 68.w,
-                            height: 52.w,
-                            color: AppTheme.surface(context),
-                            child: Icon(
-                              Icons.image_outlined,
-                              color: AppTheme.textSec(context),
-                              size: 20.sp,
-                            ),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            width: 68.w,
-                            height: 52.w,
-                            color: AppTheme.surface(context),
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              color: AppTheme.textSec(context),
-                              size: 20.sp,
-                            ),
-                          ),
-                        ),
-                        // Hafif karartma katmanı
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.black.withValues(alpha: 0.35),
-                                  Colors.transparent,
-                                ],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Play ikonu
-                        Icon(
-                          Icons.play_circle_fill_rounded,
-                          color: Colors.white.withValues(alpha: 0.9),
-                          size: 22.sp,
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  Container(
-                    width: 36.w,
-                    height: 36.w,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface(context),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: AppTheme.textSec(context),
-                      size: 14.sp,
-                    ),
+                // ── Ok ────────────────────────────────────────────────────
+                Container(
+                  width: 32.w,
+                  height: 32.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
                   ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: AppTheme.primaryColor,
+                    size: 13.sp,
+                  ),
+                ),
               ],
             ),
           ),

@@ -49,14 +49,10 @@ class VideoHorizontalSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Get.toNamed(
                   AppRoutes.videoSectionDetail,
-                  arguments: {
-                    'type': config.type,
-                    'title': config.title,
-                  },
+                  arguments: {'type': config.type, 'title': config.title},
                 ),
                 style: TextButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -75,7 +71,7 @@ class VideoHorizontalSection extends StatelessWidget {
 
         // ── Yatay Liste ──────────────────────────────────────────────────
         SizedBox(
-          height: 200.h,
+          height: 220.h,
           child: isLoading
               ? _buildShimmer(context)
               : ListView.builder(

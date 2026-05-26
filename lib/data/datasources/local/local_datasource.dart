@@ -1,3 +1,4 @@
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/video_model.dart';
 import '../../models/user_stats_model.dart';
@@ -35,7 +36,7 @@ class LocalDataSource {
   // FIX: OOM RİSKİ ÖNLENDİ. Artık sadece son 50 videoyu cache'liyor.
   Future<void> cacheVideos(List<VideoModel> videos) async {
     final prefs = await SharedPreferences.getInstance();
-    final videosToCache = videos.take(50).toList(); 
+    final videosToCache = videos.take(50).toList();
     final jsonList = videosToCache.map((v) => v.toSupabase()).toList();
     await prefs.setString(_videoCacheKey, json.encode(jsonList));
     await prefs.setString(_cacheTimeKey, DateTime.now().toIso8601String());
@@ -128,15 +129,15 @@ class LocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     final existing = await getFavoriteVideos();
     if (existing.any((v) => v.videoId == video.videoId)) return;
-    
+
     existing.insert(0, video);
-    
+
     // Limit control
     const maxFavorites = 100;
     if (existing.length > maxFavorites) {
       existing.removeRange(maxFavorites, existing.length);
     }
-    
+
     await prefs.setString(
       _favoriteVideosKey,
       json.encode(existing.map((v) => v.toSupabase()).toList()),
@@ -174,7 +175,7 @@ class LocalDataSource {
 
     final expired =
         DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
-            _statsTtlMinutes;
+        _statsTtlMinutes;
     if (expired) return null;
 
     final jsonStr = prefs.getString(_userStatsKey);
@@ -192,7 +193,9 @@ class LocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userStatsKey, json.encode(stats.toMap()));
     await prefs.setString(
-        _userStatsCacheTimeKey, DateTime.now().toUtc().toIso8601String());
+      _userStatsCacheTimeKey,
+      DateTime.now().toUtc().toIso8601String(),
+    );
   }
 
   Future<void> clearUserStats() async {
@@ -218,21 +221,28 @@ class LocalDataSource {
     if (cacheTime == null) return null;
     final expired =
         DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
-            _sectionTtlMinutes;
+        _sectionTtlMinutes;
     if (expired) return null;
-        final jsonStr = prefs.getString(_sectionKey(key));
+    final jsonStr = prefs.getString(_sectionKey(key));
     if (jsonStr == null) return null;
     try {
       final list = json.decode(jsonStr) as List;
       return list
-          .map((e) => VideoEngagementModel.fromMap(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => VideoEngagementModel.fromMap(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
           .toList();
     } catch (_) {
       return null;
     }
   }
 
-  Future<void> cacheVideoSection(String key, List<VideoEngagementModel> items) async {
+  Future<void> cacheVideoSection(
+    String key,
+    List<VideoEngagementModel> items,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _sectionKey(key),
@@ -247,7 +257,9 @@ class LocalDataSource {
   Future<void> clearVideoSectionCache() async {
     final prefs = await SharedPreferences.getInstance();
     final keys = prefs.getKeys().where(
-      (k) => k.startsWith(_videoSectionPrefix) || k.startsWith(_videoSectionTimePrefix),
+      (k) =>
+          k.startsWith(_videoSectionPrefix) ||
+          k.startsWith(_videoSectionTimePrefix),
     );
     for (final k in keys) {
       await prefs.remove(k);

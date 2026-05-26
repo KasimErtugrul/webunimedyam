@@ -31,7 +31,11 @@ class VideoRepository {
         _local = local;
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
-  
+
+  Future<UniversityModel> getUniversityById(int id) async {
+    return await _supabase.getUniversityById(id);
+  }
+
   // Geriye dönük uyumluluk için stub tutuldu.
   Future<List<UniversityModel>> getUniversities() async {
     log('🏛️ [Video] getUniversities → getUniversitiesAndPlaylists\'e yönlendiriliyor');

@@ -79,6 +79,15 @@ class SupabaseDataSource {
     return (data as List).map((e) => UniversityModel.fromSupabase(e)).toList();
   }
 
+  Future<UniversityModel> getUniversityById(int id) async {
+    final data = await _client
+        .from('universities')
+        .select()
+        .eq('id', id)
+        .single();
+    return UniversityModel.fromSupabase(data);
+  }
+
   // ─── Video Cache ──────────────────────────────────────────────────────────
   // FIX: Tüm listelere limit ve offset eklendi.
   Future<List<VideoModel>> getCachedVideos({int limit = 500, int offset = 0}) async {
@@ -241,9 +250,7 @@ class SupabaseDataSource {
   Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount({int limit = 500}) async {
     final data = await _client
         .from('universities_with_stats')
-        .select(
-          'id, name, channel_id, video_count, thumbnail_url, logo_url, uploads_playlist_id',
-        )
+        .select('*')
         .order('name', ascending: true)
         .limit(limit); // FIX: Pagination
 

@@ -1,3 +1,4 @@
+// lib/presentation/screens/home/widgets/tabs/universities_tab/universities_tab_widget.dart
 // ════════════════════════════════════════════════════════════════════════════════
 // Üniversiteler Sekmesi
 // ════════════════════════════════════════════════════════════════════════════════
@@ -22,15 +23,15 @@ class UniversitiesTabWidget extends StatelessWidget {
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         child: Obx(() {
-          final isLoading = controller.isPlaylistsLoading.value;
-          final playlists = controller.playlists;
-          final isEmpty = !isLoading && playlists.isEmpty;
+          final isLoading = controller.isUniversitiesLoading.value;
+          final universities = controller.universities;
+          final isEmpty = !isLoading && universities.isEmpty;
 
           return RefreshIndicator(
             color: AppTheme.primaryColor,
             backgroundColor: AppTheme.card(context),
             displacement: 40.h,
-            onRefresh: controller.loadPlaylists,
+            onRefresh: controller.loadUniversitiesAndPlaylists,
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
@@ -60,7 +61,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                              color:
+                                  AppTheme.primaryColor.withValues(alpha: 0.3),
                               blurRadius: 8.r,
                               offset: Offset(0, 2.h),
                             ),
@@ -133,14 +135,14 @@ class UniversitiesTabWidget extends StatelessWidget {
                 ),
 
                 // ── İstatistik Satırı ────────────────────────────────────
-                if (!isLoading && playlists.isNotEmpty)
+                if (!isLoading && universities.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 4.h),
                       child: Row(
                         children: [
                           Text(
-                            '${playlists.length} üniversite',
+                            '${universities.length} üniversite',
                             style: TextStyle(
                               fontSize: 13.sp,
                               color: AppTheme.textSec(context),
@@ -173,7 +175,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, 14.h),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (_, __) => const UniversityCardShimmerWidget(),
+                        (_, __) => const UniversityCardShimmerWidget(),
                         childCount: 6,
                       ),
                     ),
@@ -225,7 +227,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                             SizedBox(
                               height: 44.h,
                               child: ElevatedButton.icon(
-                                onPressed: controller.loadPlaylists,
+                                onPressed:
+                                    controller.loadUniversitiesAndPlaylists,
                                 icon: Icon(
                                   Icons.refresh_rounded,
                                   size: 20.sp,
@@ -256,20 +259,15 @@ class UniversitiesTabWidget extends StatelessWidget {
                   ),
 
                 // ── Üniversite Listesi ───────────────────────────────────
-                if (!isLoading && playlists.isNotEmpty)
+                if (!isLoading && universities.isNotEmpty)
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, 32.h),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (_, i) {
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: UniversityListCardWidget(
-                              playlist: playlists[i],
-                            ),
-                          );
-                        },
-                        childCount: playlists.length,
+                        (_, i) => UniversityListCardWidget(
+                          university: universities[i],
+                        ),
+                        childCount: universities.length,
                       ),
                     ),
                   ),

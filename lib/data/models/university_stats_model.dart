@@ -1,5 +1,17 @@
 // lib/data/models/university_stats_model.dart
 
+/*  UniversityStatsModel
+Kaynak: university_stats view'i — 7 tablodan hesaplanan sonuç
+%100 view
+universities'den gelenler
+university_id, name, logo_url, city, subscriber_count
+Hesaplanan / birleşik kolonlar
+total_videos, total_yt_views, total_yt_likes, 
+videos_last_30_days, total_duration_sec, app_total_views, 
+app_total_likes, most_viewed_title, latest_video_title, 
+app_top_video_title...
+ */
+
 class UniversityStatsModel {
   final int universityId;
   final String name;

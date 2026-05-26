@@ -1,3 +1,13 @@
+/*UserStatsModel
+Kaynak: user_stats view'i — 6 tablodan hesaplanan sonuç
+%100 view
+userId, username, fullName, avatarUrl — profiles tablosundan
+totalWatched, totalLiked, currentStreakDays, topUniversityName, 
+lastWatchedTitle... — hesaplanan
+Bu model da tamamen user_stats view'ini temsil ediyor. 
+profiles tablosunun tüm kolonları değil, sadece özet birkaç alan burada var.
+*/
+
 class UserStatsModel {
   final String userId;
   final String? username;

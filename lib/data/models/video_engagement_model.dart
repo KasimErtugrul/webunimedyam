@@ -1,5 +1,21 @@
 // lib/data/models/video_engagement_model.dart
 
+/* VideoEngagementModel
+Kaynak: video_engagement_stats view'i — 6 tablodan hesaplanan sonuç
+%100 view
+videos_cache'den gelenler
+video_id, title, channel_title, university_id, published_at, 
+duration, is_hd, is_live, yt_view_count, yt_like_count
+
+Hesaplanan / join'den gelen
+app_view_count, app_like_count, app_favorite_count, 
+app_share_count, app_comment_count, engagement_score, 
+like_rate_pct, comment_rate_pct, first_viewed_at, last_viewed_at
+Bu model da bir tabloyu değil, video_engagement_stats view'ini 
+temsil ediyor. VideoModel'in "zenginleştirilmiş" hali gibi düşünebilirsin — 
+ama ayrı tutulması doğru.
+ */
+
 import 'video_model.dart';
 
 class VideoEngagementModel {
@@ -55,21 +71,21 @@ class VideoEngagementModel {
 
   /// Player'a geçmek için VideoModel'e dönüştür
   VideoModel toVideoModel() => VideoModel(
-        videoId: videoId,
-        title: title,
-        description: '',
-        thumbnailUrl: fallbackThumbnailUrl,
-        maxresThumbnailUrl: thumbnailUrl,
-        duration: duration,
-        viewCount: ytViewCount,
-        likeCount: ytLikeCount,
-        commentCount: 0,
-        tags: const [],
-        isHd: isHd,
-        channelTitle: channelTitle,
-        publishedAt: publishedAt,
-        universityId: universityId,
-      );
+    videoId: videoId,
+    title: title,
+    description: '',
+    thumbnailUrl: fallbackThumbnailUrl,
+    maxresThumbnailUrl: thumbnailUrl,
+    duration: duration,
+    viewCount: ytViewCount,
+    likeCount: ytLikeCount,
+    commentCount: 0,
+    tags: const [],
+    isHd: isHd,
+    channelTitle: channelTitle,
+    publishedAt: publishedAt,
+    universityId: universityId,
+  );
 
   factory VideoEngagementModel.fromMap(Map<String, dynamic> map) {
     return VideoEngagementModel(
@@ -79,7 +95,7 @@ class VideoEngagementModel {
       universityId: map['university_id'] as int?,
       publishedAt:
           DateTime.tryParse(map['published_at'] as String? ?? '') ??
-              DateTime.now(),
+          DateTime.now(),
       duration: map['duration'] as String? ?? '',
       isHd: map['is_hd'] as bool? ?? false,
       isLive: map['is_live'] as bool? ?? false,
@@ -125,9 +141,8 @@ class VideoEngagementModel {
     'last_viewed_at': lastViewedAt?.toIso8601String(),
   };
 
-
-@override
-String toString() {
+  @override
+  String toString() {
     return 'VideoEngagementModel{videoId=$videoId, title=$title, channelTitle=$channelTitle, universityId=$universityId, publishedAt=$publishedAt, duration=$duration, isHd=$isHd, isLive=$isLive, ytViewCount=$ytViewCount, ytLikeCount=$ytLikeCount, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount, engagementScore=$engagementScore, likeRatePct=$likeRatePct, commentRatePct=$commentRatePct, firstViewedAt=$firstViewedAt, lastViewedAt=$lastViewedAt}';
   }
 }

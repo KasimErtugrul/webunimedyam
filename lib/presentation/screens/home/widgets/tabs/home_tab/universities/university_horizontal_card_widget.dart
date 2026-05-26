@@ -3,7 +3,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
+import '../../../../../../../app/routes/app_routes.dart';
 import '../../../../../../../app/themes/app_theme.dart';
 import '../../../../../../../data/models/university_stats_model.dart';
 
@@ -31,107 +33,116 @@ class UniversityHorizontalCard extends StatelessWidget {
     this.showLogoLarge = false,
   });
 
+  void _navigateToDetail() {
+    // universityId'yi int olarak geçiyoruz.
+    // UniversityDetailController hem UniversityModel hem int argument'ı destekler.
+    Get.toNamed(AppRoutes.universityDetail, arguments: stats.universityId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 160.w,
-      height: 200.h,
-      margin: EdgeInsets.only(right: 12.w),
-      decoration: BoxDecoration(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Üst: Thumbnail / Logo ─────────────────────────────────────
-          Expanded(
-            flex: 6,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _buildImage(context),
-                // Gradient overlay
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 40.h,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          AppTheme.card(context).withValues(alpha:  0.85),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ── Alt: İsim + Chip ──────────────────────────────────────────
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return GestureDetector(
+      onTap: _navigateToDetail,
+      child: Container(
+        width: 160.w,
+        height: 200.h,
+        margin: EdgeInsets.only(right: 12.w),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Üst: Thumbnail / Logo ─────────────────────────────────────
+            Expanded(
+              flex: 6,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Text(
-                    stats.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
-                    ),
-                  ),
-                  // İstatistik chip
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha:0.15),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          statIcon,
-                          size: 10.sp,
-                          color: AppTheme.primaryColor,
+                  _buildImage(context),
+                  // Gradient overlay
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 40.h,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            AppTheme.card(context).withValues(alpha: 0.85),
+                          ],
                         ),
-                        SizedBox(width: 3.w),
-                        Flexible(
-                          child: Text(
-                            statLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppTheme.primaryColor,
-                              fontSize: 9.5.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // ── Alt: İsim + Chip ──────────────────────────────────────────
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      stats.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppTheme.textPri(context),
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                      ),
+                    ),
+                    // İstatistik chip
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            statIcon,
+                            size: 10.sp,
+                            color: AppTheme.primaryColor,
+                          ),
+                          SizedBox(width: 3.w),
+                          Flexible(
+                            child: Text(
+                              statLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontSize: 9.5.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -144,7 +155,6 @@ class UniversityHorizontalCard extends StatelessWidget {
     }
 
     if (showLogoLarge) {
-      // Logo listesi: beyaz/gri arka plan üzerinde logo ortada
       return Container(
         color: AppTheme.isDark(context)
             ? const Color(0xFF2A2A2A)

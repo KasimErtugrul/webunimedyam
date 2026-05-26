@@ -1,0 +1,793 @@
+// lib/presentation/screens/university_detail/university_detail_screen.dart
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../app/themes/app_theme.dart';
+import '../../controllers/university_detail_controller.dart';
+import '../home/widgets/tabs/home_tab/widgets/video_card_widget.dart';
+
+class UniversityDetailScreen extends StatelessWidget {
+  const UniversityDetailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<UniversityDetailController>();
+    // final uni = controller.university;
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppTheme.bg(context),
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            // ── SliverAppBar ──────────────────────────────────────────────
+            SliverAppBar(
+              expandedHeight: 300.h,
+              pinned: true,
+              floating: false,
+              backgroundColor: AppTheme.bg(context),
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppTheme.textPri(context),
+                  size: 22.sp,
+                ),
+                onPressed: () => Get.back(),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: _Header(controller: controller),
+              ),
+            ),
+
+            // ── TabBar ────────────────────────────────────────────────────
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarDelegate(context: context),
+            ),
+          ],
+          body: TabBarView(
+            children: [
+              _AboutTab(controller: controller),
+              _VideosTab(controller: controller),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Header (SliverAppBar arka plan içeriği)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _Header extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _Header({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final uni = controller.university.value;
+      if (uni == null) {
+        return Container(
+          color: Colors.transparent,
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+      return Container(
+        color: AppTheme.bg(context),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 60.h), // AppBar yüksekliği kadar boşluk
+            // ── Logo ────────────────────────────────────────────────────────
+            Container(
+              width: 88.w,
+              height: 88.w,
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.primaryColor.withValues(alpha: 0.15),
+                    AppTheme.secondaryColor.withValues(alpha: 0.08),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(22.r),
+                border: Border.all(
+                  color: AppTheme.isDark(context)
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.06),
+                ),
+              ),
+              child: hasLogo
+                  ? CachedNetworkImage(
+                      imageUrl: uni.logoUrl!,
+                      fit: BoxFit.contain,
+                      placeholder: (_, __) => Center(
+                        child: SizedBox(
+                          width: 24.w,
+                          height: 24.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (_, __, ___) => Icon(
+                        Icons.school_rounded,
+                        color: AppTheme.primaryColor,
+                        size: 36.sp,
+                      ),
+                    )
+                  : Icon(
+                      Icons.school_rounded,
+                      color: AppTheme.primaryColor,
+                      size: 36.sp,
+                    ),
+            ),
+
+            SizedBox(height: 12.h),
+
+            // ── Üniversite Adı ───────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Text(
+                uni.name ?? '',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPri(context),
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            if (uni.city != null) ...[
+              SizedBox(height: 4.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 14.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                  SizedBox(width: 3.w),
+                  Text(
+                    uni.city!,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: AppTheme.textSec(context),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            SizedBox(height: 14.h),
+
+            // ── İstatistik Çipleri ────────────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _StatChip(
+                  icon: Icons.people_rounded,
+                  label: controller.formattedSubscriberCount,
+                  tooltip: 'Abone',
+                ),
+                SizedBox(width: 8.w),
+                _StatChip(
+                  icon: Icons.visibility_rounded,
+                  label: controller.formattedViewCount,
+                  tooltip: 'İzlenme',
+                ),
+                if (uni.videoCount != null) ...[
+                  SizedBox(width: 8.w),
+                  _StatChip(
+                    icon: Icons.play_circle_rounded,
+                    label: '${uni.videoCount}',
+                    tooltip: 'Video',
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      );
+    }); // Obx
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String tooltip;
+
+  const _StatChip({
+    required this.icon,
+    required this.label,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+        decoration: BoxDecoration(
+          color: AppTheme.primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13.sp, color: AppTheme.primaryColor),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TabBar Delegate (pinned)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  final BuildContext context;
+  const _TabBarDelegate({required this.context});
+
+  @override
+  double get minExtent => 48;
+  @override
+  double get maxExtent => 48;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: AppTheme.bg(context),
+      child: TabBar(
+        labelColor: AppTheme.primaryColor,
+        unselectedLabelColor: AppTheme.textSec(context),
+        indicatorColor: AppTheme.primaryColor,
+        indicatorWeight: 2.5,
+        labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
+        tabs: const [
+          Tab(text: 'Hakkında'),
+          Tab(text: 'Videolar'),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_TabBarDelegate oldDelegate) => false;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Hakkında Sekmesi
+// ════════════════════════════════════════════════════════════════════════════
+
+class _AboutTab extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _AboutTab({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final uni = controller.university.value;
+      if (uni == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 32.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Açıklama ─────────────────────────────────────────────────────
+            _SectionTitle(title: 'Açıklama'),
+            SizedBox(height: 8.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                color: AppTheme.card(context),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                  color: AppTheme.isDark(context)
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.06),
+                ),
+              ),
+              child: Text(
+                (uni.description != null && uni.description!.isNotEmpty)
+                    ? uni.description!
+                    : 'Bu üniversite için açıklama bulunmuyor.',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: AppTheme.textSec(context),
+                  height: 1.6,
+                  fontStyle:
+                      (uni.description != null && uni.description!.isNotEmpty)
+                      ? FontStyle.normal
+                      : FontStyle.italic,
+                ),
+              ),
+            ),
+            SizedBox(height: 20.h),
+
+            // ── Genel Bilgiler ───────────────────────────────────────────────
+            _SectionTitle(title: 'Genel Bilgiler'),
+            SizedBox(height: 8.h),
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.card(context),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                  color: AppTheme.isDark(context)
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.06),
+                ),
+              ),
+              child: Column(
+                children: [
+                  _InfoRow(
+                    icon: Icons.location_on_rounded,
+                    label: 'Şehir',
+                    value: uni.city ?? '—',
+                    isFirst: true,
+                  ),
+                  _InfoRow(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Kuruluş Yılı',
+                    value: uni.foundedYear != null ? '${uni.foundedYear}' : '—',
+                  ),
+                  _InfoRow(
+                    icon: Icons.play_circle_rounded,
+                    label: 'Video Sayısı',
+                    value: uni.videoCount != null ? '${uni.videoCount}' : '—',
+                  ),
+                  _InfoRow(
+                    icon: Icons.people_rounded,
+                    label: 'Abone Sayısı',
+                    value: uni.subscriberCount != null
+                        ? controller.formattedSubscriberCount
+                        : '—',
+                  ),
+                  _InfoRow(
+                    icon: Icons.visibility_rounded,
+                    label: 'Toplam İzlenme',
+                    value: uni.viewCount != null
+                        ? controller.formattedViewCount
+                        : '—',
+                    isLast: true,
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            // ── Bağlantılar ──────────────────────────────────────────────────
+            if (uni.websiteUrl != null || uni.customUrl != null) ...[
+              _SectionTitle(title: 'Bağlantılar'),
+              SizedBox(height: 8.h),
+              if (uni.websiteUrl != null && uni.websiteUrl!.isNotEmpty)
+                _LinkButton(
+                  icon: Icons.language_rounded,
+                  label: 'Resmi Web Sitesi',
+                  url: uni.websiteUrl!,
+                ),
+              if (uni.customUrl != null && uni.customUrl!.isNotEmpty) ...[
+                SizedBox(height: 8.h),
+                _LinkButton(
+                  icon: Icons.play_circle_fill_rounded,
+                  label: 'YouTube Kanalı',
+                  url: 'https://www.youtube.com/${uni.customUrl}',
+                  color: const Color(0xFFFF0000),
+                ),
+              ],
+              if (uni.radioLink != null && uni.radioLink!.isNotEmpty) ...[
+                SizedBox(height: 8.h),
+                _LinkButton(
+                  icon: Icons.radio_rounded,
+                  label: 'Üniversite Radyosu',
+                  url: uni.radioLink!,
+                  color: const Color(0xFF8B5CF6),
+                ),
+              ],
+              SizedBox(height: 20.h),
+            ],
+
+            // ── YouTube Kanal Bilgisi ─────────────────────────────────────────
+            if (uni.channelId != null) ...[
+              _SectionTitle(title: 'YouTube Kanalı'),
+              SizedBox(height: 8.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.card(context),
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(
+                    color: AppTheme.isDark(context)
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : Colors.black.withValues(alpha: 0.06),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.tag_rounded,
+                      label: 'Kanal ID',
+                      value: uni.channelId!,
+                      isFirst: true,
+                      isLast: uni.channelSyncedAt == null,
+                    ),
+                    if (uni.channelSyncedAt != null)
+                      _InfoRow(
+                        icon: Icons.sync_rounded,
+                        label: 'Son Senkronizasyon',
+                        value: _formatDate(uni.channelSyncedAt!),
+                        isLast: true,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
+  String _formatDate(String isoDate) {
+    try {
+      final dt = DateTime.parse(isoDate).toLocal();
+      return '${dt.day}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
+    } catch (_) {
+      return isoDate;
+    }
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
+        color: AppTheme.textPri(context),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isFirst;
+  final bool isLast;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isFirst = false,
+    this.isLast = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+          child: Row(
+            children: [
+              Container(
+                width: 34.w,
+                height: 34.w,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(9.r),
+                ),
+                child: Icon(icon, size: 17.sp, color: AppTheme.primaryColor),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: AppTheme.textSec(context),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: AppTheme.textPri(context),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            thickness: 1,
+            indent: 14.w,
+            endIndent: 14.w,
+            color: AppTheme.isDark(context)
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.05),
+          ),
+      ],
+    );
+  }
+}
+
+class _LinkButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String url;
+  final Color? color;
+
+  const _LinkButton({
+    required this.icon,
+    required this.label,
+    required this.url,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = color ?? AppTheme.primaryColor;
+
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      borderRadius: BorderRadius.circular(14.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: AppTheme.isDark(context)
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34.w,
+              height: 34.w,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(9.r),
+              ),
+              child: Icon(icon, size: 17.sp, color: iconColor),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPri(context),
+                ),
+              ),
+            ),
+            Icon(
+              Icons.open_in_new_rounded,
+              size: 16.sp,
+              color: AppTheme.textSec(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Videolar Sekmesi
+// ════════════════════════════════════════════════════════════════════════════
+
+class _VideosTab extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _VideosTab({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isLoading = controller.isLoading.value;
+      final videos = controller.videos;
+      final error = controller.errorMessage.value;
+
+      // ── Yükleniyor ───────────────────────────────────────────────────────
+      if (isLoading) {
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          itemCount: 6,
+          itemBuilder: (_, __) => _VideoShimmer(),
+        );
+      }
+
+      // ── Hata ─────────────────────────────────────────────────────────────
+      if (error.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 48.sp,
+                  color: AppTheme.textSec(context),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  error,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 16.h),
+                ElevatedButton.icon(
+                  onPressed: controller.loadVideos,
+                  icon: Icon(Icons.refresh_rounded, size: 18.sp),
+                  label: Text('Tekrar Dene', style: TextStyle(fontSize: 13.sp)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // ── Boş ──────────────────────────────────────────────────────────────
+      if (videos.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(40.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72.w,
+                  height: 72.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.card(context),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.videocam_off_rounded,
+                    size: 36.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Henüz video yok',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPri(context),
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  'Bu üniversiteye ait video bulunamadı.',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // ── Video Listesi ─────────────────────────────────────────────────────
+      return RefreshIndicator(
+        color: AppTheme.primaryColor,
+        backgroundColor: AppTheme.card(context),
+        onRefresh: controller.loadVideos,
+        child: ListView.builder(
+          padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+          itemCount: videos.length,
+          itemBuilder: (_, i) => VideoCardWidget(video: videos[i]),
+        ),
+      );
+    });
+  }
+}
+
+/// Shimmer yükleniyor kartı
+class _VideoShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      child: Shimmer.fromColors(
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
+        child: Container(
+          height: 100.h,
+          decoration: BoxDecoration(
+            color: AppTheme.card(context),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+        ),
+      ),
+    );
+  }
+}
