@@ -17,15 +17,13 @@ class VideoSectionDetailBinding extends Bindings {
     }
     if (!Get.isRegistered<VideoRepository>()) {
       Get.lazyPut(
-        () => VideoRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ),
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
         fenix: true,
       );
     }
     Get.lazyPut(
       () => VideoSectionDetailController(videoRepository: Get.find()),
+      fenix: true, // ← EKLE
     );
   }
 }

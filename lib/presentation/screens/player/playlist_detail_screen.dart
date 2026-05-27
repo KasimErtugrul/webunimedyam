@@ -15,7 +15,7 @@ class PlaylistDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
      // Controller'ı en üstte bir kere bağla
-    final controller = Get.put(PlaylistDetailController(videoRepository: Get.find()));
+  final controller = Get.find<PlaylistDetailController>();
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: CustomScrollView(

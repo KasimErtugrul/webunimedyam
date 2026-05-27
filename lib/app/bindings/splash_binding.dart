@@ -8,21 +8,27 @@ import '../../presentation/controllers/splash_controller.dart';
 class SplashBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => LocalDataSource());
-    Get.lazyPut(() => SupabaseDataSource());
-
-    Get.lazyPut(() => AuthRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ));
-
-    Get.lazyPut(() => VideoRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ));
-
-    Get.lazyPut(() => SplashController(
-          authRepository: Get.find(),
-        ));
+    if (!Get.isRegistered<LocalDataSource>()) {
+      Get.lazyPut(() => LocalDataSource(), fenix: true);
+    }
+    if (!Get.isRegistered<SupabaseDataSource>()) {
+      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+    }
+    if (!Get.isRegistered<AuthRepository>()) {
+      Get.lazyPut(
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
+    if (!Get.isRegistered<VideoRepository>()) {
+      Get.lazyPut(
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
+    Get.lazyPut(
+      () => SplashController(authRepository: Get.find()),
+      fenix: true,
+    );
   }
 }

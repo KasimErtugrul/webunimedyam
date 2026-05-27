@@ -5,11 +5,11 @@ import '../../data/repositories/search_repository.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/models/video_model.dart';
 
-class SearchController extends GetxController {
+class VideoSearchController extends GetxController {
   final SearchRepository searchRepository;
   final SearchHistoryDataSource historyDataSource;
 
-  SearchController({
+  VideoSearchController({
     required this.searchRepository,
     required this.historyDataSource,
   });
@@ -72,7 +72,7 @@ class SearchController extends GetxController {
   Future<void> submitQuery(String q) async {
     final trimmed = q.trim();
     if (trimmed.isEmpty) return;
-    
+
     // FIX: Local veritabanına yazarken hata olursa (örn depolama dolu) uygulama çökmemeli
     try {
       await historyDataSource.addQuery(trimmed);
@@ -80,7 +80,7 @@ class SearchController extends GetxController {
     } catch (e) {
       log('submitQuery addHistory error: $e');
     }
-    
+
     // Debounce'u iptal edip hemen ara
     _debounce?.cancel();
     isLoading.value = true;

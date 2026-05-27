@@ -14,13 +14,14 @@ class SettingsBinding extends Bindings {
       Get.lazyPut(() => LocalDataSource(), fenix: true);
     }
     if (!Get.isRegistered<AuthRepository>()) {
-      Get.lazyPut(() => AuthRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
-    Get.lazyPut(() => SettingsController(
-          authRepository: Get.find(),
-        ));
+    Get.lazyPut(
+      () => SettingsController(authRepository: Get.find()),
+      fenix: true, // ← EKLENMELİ
+    );
   }
 }

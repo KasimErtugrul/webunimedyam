@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:get/get.dart';
+import '../../app/routes/app_routes.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 
@@ -10,7 +11,7 @@ class SettingsController extends GetxController {
 
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
-  
+
   // YENİ EKLENDİ: UI'ın dinleyeceği bayrak
   final errorMessage = RxnString();
 
@@ -43,19 +44,17 @@ class SettingsController extends GetxController {
   Future<void> toggleAutoplay() async {
     final current = settings.value;
     if (current == null) return;
-    final updated = current.copyWith(
-      autoplay: !current.autoplay,
-    );
+    final updated = current.copyWith(autoplay: !current.autoplay);
     await _updateSettings(updated);
   }
 
   // settings_controller.dart'ta changeTheme sadece ayarı kaydetsin:
-Future<void> changeTheme(String theme) async {
-  final current = settings.value;
-  if (current == null) return;
-  await _updateSettings(current.copyWith(theme: theme));
-  // Get.changeThemeMode buradan kalktı ↑
-}
+  Future<void> changeTheme(String theme) async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(current.copyWith(theme: theme));
+    // Get.changeThemeMode buradan kalktı ↑
+  }
 
   Future<void> changeLanguage(String language) async {
     final current = settings.value;
@@ -80,10 +79,9 @@ Future<void> changeTheme(String theme) async {
   Future<void> signOut() async {
     try {
       await authRepository.signOut();
-      Get.offAllNamed('/home');
+      Get.offAllNamed(AppRoutes.home); // ← Sabit kullan
     } catch (e) {
       log('signOut error: $e');
-      // YENİ: Get.snackbar yerine bayrak kaldırılıyor
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     }
   }

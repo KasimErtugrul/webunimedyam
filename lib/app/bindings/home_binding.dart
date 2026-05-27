@@ -11,7 +11,7 @@ import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
-import '../../presentation/controllers/settings_controller.dart';
+//import '../../presentation/controllers/settings_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -27,30 +27,21 @@ class HomeBinding extends Bindings {
     // ── Repositories ──────────────────────────────────────────────────────
     if (!Get.isRegistered<AuthRepository>()) {
       Get.lazyPut(
-        () => AuthRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ),
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
         fenix: true,
       );
     }
 
     if (!Get.isRegistered<VideoRepository>()) {
       Get.lazyPut(
-        () => VideoRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ),
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
         fenix: true,
       );
     }
 
     if (!Get.isRegistered<FavoritesRepository>()) {
       Get.lazyPut(
-        () => FavoritesRepository(
-          supabase: Get.find(),
-          local: Get.find(),
-        ),
+        () => FavoritesRepository(supabase: Get.find(), local: Get.find()),
         fenix: true,
       );
     }
@@ -64,43 +55,43 @@ class HomeBinding extends Bindings {
 
     if (!Get.isRegistered<ProfileActivityRepository>()) {
       Get.lazyPut(
-        () => ProfileActivityRepository(
-          supabase: Get.find(),
-        ),
+        () => ProfileActivityRepository(supabase: Get.find()),
         fenix: true,
       );
     }
 
     // ── Controllers ────────────────────────────────────────────────────────
-    
+
     // DİKKAT: supabaseDataSource parametresi kaldırıldı, authRepository eklendi!
     Get.lazyPut(
       () => HomeController(
-            videoRepository: Get.find(),
-            favoritesRepository: Get.find(),
-            universityStatsRepository: Get.find(),
-            authRepository: Get.find(), // YENİ EKLENDİ
-          ),
+        videoRepository: Get.find(),
+        favoritesRepository: Get.find(),
+        universityStatsRepository: Get.find(),
+        authRepository: Get.find(), // YENİ EKLENDİ
+      ),
       fenix: true,
     );
 
-    Get.lazyPut(
-      () => ProfileController(
-            authRepository: Get.find(),
-            favoritesRepository: Get.find(),
-            profileActivityRepository: Get.find(),
-          ),
-      fenix: true,
-    );
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.lazyPut(
+        () => ProfileController(
+          authRepository: Get.find(),
+          favoritesRepository: Get.find(),
+          profileActivityRepository: Get.find(),
+        ),
+        fenix: true,
+      );
+    }
 
     Get.lazyPut(
       () => FavoritesController(favoritesRepository: Get.find()),
       fenix: true,
     );
 
-    Get.lazyPut(
+    /* Get.lazyPut(
       () => SettingsController(authRepository: Get.find()),
       fenix: true,
-    );
+    ); */
   }
 }

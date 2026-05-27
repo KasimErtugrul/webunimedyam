@@ -1,16 +1,18 @@
 import 'dart:developer';
+
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
-import 'home_controller.dart';
-import 'favorites_controller.dart';
+
+// HomeController ve FavoritesController IMPORT EDİLMİYOR! Bağımlılık yok.
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -44,19 +46,18 @@ class PlayerController extends GetxController {
   final appCommentCount = 0.obs;
   final isInitialStatsLoading = true.obs;
 
-  // UI Bayrakları
   final showAuthRequired = false.obs;
   final snackbarMessage = RxnString();
 
-  VideoModel? currentVideo;
+  final currentVideo = Rxn<VideoModel>();
 
   String? get _currentUserId => authRepository.currentUserId;
 
   @override
   void onInit() {
     super.onInit();
-    currentVideo = Get.arguments as VideoModel?;
-    if (currentVideo != null) {
+    currentVideo.value = Get.arguments as VideoModel?;
+    if (currentVideo.value != null) {
       _initPlayer().then((_) {
         isPlayerReady.value = true;
         loadComments();
@@ -68,7 +69,7 @@ class PlayerController extends GetxController {
   Future<void> _loadInitialState() async {
     final userId = _currentUserId;
     if (userId != null) {
-      _resolveIsFavoriteFromCache();
+      _resolveIsFavoriteFromCache(); // DÜZELTİLDI: HomeController kullanmıyor
     }
 
     await Future.wait([
@@ -78,15 +79,10 @@ class PlayerController extends GetxController {
     ]);
   }
 
+  // DÜZELTİLDİ: HomeController'a bağımlılık yok, doğrudan repository'den kontrol
   void _resolveIsFavoriteFromCache() {
-    if (currentVideo == null) return;
-    final videoId = currentVideo!.videoId;
-
-    if (Get.isRegistered<HomeController>()) {
-      final hc = Get.find<HomeController>();
-      isFavorite.value = hc.favoriteIds.contains(videoId);
-      return;
-    }
+    if (currentVideo.value == null) return;
+    final videoId = currentVideo.value!.videoId;
 
     favoritesRepository.getFavoriteVideos().then((locals) {
       isFavorite.value = locals.any((v) => v.videoId == videoId);
@@ -95,7 +91,6 @@ class PlayerController extends GetxController {
 
   Future<void> _initPlayer() async {
     bool autoplay = true;
-
     try {
       final userSettings = await authRepository.getUserSettings();
       autoplay = userSettings?.autoplay ?? true;
@@ -104,7 +99,7 @@ class PlayerController extends GetxController {
     }
 
     youtubeController = YoutubePlayerController.fromVideoId(
-      videoId: currentVideo!.videoId,
+      videoId: currentVideo.value!.videoId,
       autoPlay: autoplay,
       params: const YoutubePlayerParams(
         showFullscreenButton: false,
@@ -122,11 +117,11 @@ class PlayerController extends GetxController {
   // ─── Stats ───────────────────────────────────────────────────────────────
 
   Future<void> _loadEngagementStats({bool showInitialLoader = false}) async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     if (showInitialLoader) isInitialStatsLoading.value = true;
     try {
       final stats = await engagementRepository.getEngagementStats(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
       appViewCount.value = stats['app_view_count'] ?? 0;
       appLikeCount.value = stats['app_like_count'] ?? 0;
@@ -143,22 +138,22 @@ class PlayerController extends GetxController {
   // ─── Görüntüleme ─────────────────────────────────────────────────────────
 
   Future<void> _recordView() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     final userId = _currentUserId;
     if (userId == null) return;
-    await engagementRepository.recordView(userId, currentVideo!.videoId);
+    await engagementRepository.recordView(userId, currentVideo.value!.videoId);
   }
 
   // ─── Beğeni ──────────────────────────────────────────────────────────────
 
   Future<void> checkLike() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     final userId = _currentUserId;
     if (userId == null) return;
     try {
       isLiked.value = await engagementRepository.isLiked(
         userId,
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
     } catch (e) {
       log('[PlayerController] checkLike error: $e');
@@ -166,10 +161,10 @@ class PlayerController extends GetxController {
   }
 
   Future<void> toggleLike() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     final userId = _currentUserId;
     if (userId == null) {
-      showAuthRequired.value = true; // Bayrak kaldırıldı
+      showAuthRequired.value = true;
       return;
     }
     if (isLikeLoading.value) return;
@@ -181,12 +176,12 @@ class PlayerController extends GetxController {
 
     try {
       if (wasLiked) {
-        await engagementRepository.removeLike(userId, currentVideo!.videoId);
+        await engagementRepository.removeLike(userId, currentVideo.value!.videoId);
       } else {
-        await engagementRepository.addLike(userId, currentVideo!.videoId);
+        await engagementRepository.addLike(userId, currentVideo.value!.videoId);
       }
       final stats = await engagementRepository.getEngagementStats(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
       appLikeCount.value = stats['app_like_count'] ?? appLikeCount.value;
     } catch (e) {
@@ -198,13 +193,12 @@ class PlayerController extends GetxController {
     }
   }
 
-  // ─── Favori ──────────────────────────────────────────────────────────────
-
+  // ─── Favori – DÜZELTİLDİ: SADECE REPOSİTORY İŞLEMLERİ, DİĞER CONTROLLER'LARA DOKUNMA ───
   Future<void> toggleFavorite() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     final userId = _currentUserId;
     if (userId == null) {
-      showAuthRequired.value = true; // Bayrak kaldırıldı
+      showAuthRequired.value = true;
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -216,38 +210,24 @@ class PlayerController extends GetxController {
 
     try {
       if (!wasAdding) {
-        await favoritesRepository.removeFavorite(userId, currentVideo!.videoId);
-        await favoritesRepository.removeFavoriteVideoLocally(
-          currentVideo!.videoId,
-        );
+        // Favoriden çıkar
+        await favoritesRepository.removeFavorite(userId, currentVideo.value!.videoId);
+        await favoritesRepository.removeFavoriteVideoLocally(currentVideo.value!.videoId);
       } else {
-        await favoritesRepository.addFavorite(userId, currentVideo!.videoId);
-        await favoritesRepository.saveFavoriteVideoLocally(currentVideo!);
+        // Favoriye ekle
+        await favoritesRepository.addFavorite(userId, currentVideo.value!.videoId);
+        await favoritesRepository.saveFavoriteVideoLocally(currentVideo.value!);
       }
 
-      if (Get.isRegistered<HomeController>()) {
-        final hc = Get.find<HomeController>();
-        if (wasAdding) {
-          hc.favoriteIds.add(currentVideo!.videoId);
-        } else {
-          hc.favoriteIds.remove(currentVideo!.videoId);
-        }
-      }
-
-      if (Get.isRegistered<FavoritesController>()) {
-        final fc = Get.find<FavoritesController>();
-        if (wasAdding) {
-          fc.addFavoriteVideo(currentVideo!);
-        } else {
-          fc.removeFavoriteVideo(currentVideo!.videoId);
-        }
-      }
-
+      // Engagement istatistiklerini yenile
       final stats = await engagementRepository.getEngagementStats(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
-      appFavoriteCount.value =
-          stats['app_favorite_count'] ?? appFavoriteCount.value;
+      appFavoriteCount.value = stats['app_favorite_count'] ?? appFavoriteCount.value;
+
+      // NOT: HomeController ve FavoritesController artık burada güncellenmiyor.
+      // Onlar, FavoritesRepository'den yayınlanan stream event'lerine abone olarak
+      // kendi state'lerini güncelleyecekler.
     } catch (e) {
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
@@ -260,41 +240,41 @@ class PlayerController extends GetxController {
   // ─── Paylaşım ────────────────────────────────────────────────────────────
 
   Future<void> shareVideo() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     if (isShareLoading.value) return;
-    final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo!.videoId}';
-    final text = '${currentVideo!.title}\n$videoUrl';
+    final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
+    final text = '${currentVideo.value!.title}\n$videoUrl';
 
     try {
       await SharePlus.instance.share(
-        ShareParams(text: text, subject: currentVideo!.title),
+        ShareParams(text: text, subject: currentVideo.value!.title),
       );
       final userId = _currentUserId;
       if (userId != null) {
         isShareLoading.value = true;
-        await engagementRepository.recordShare(userId, currentVideo!.videoId);
+        await engagementRepository.recordShare(userId, currentVideo.value!.videoId);
         final stats = await engagementRepository.getEngagementStats(
-          currentVideo!.videoId,
+          currentVideo.value!.videoId,
         );
         appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
       }
     } catch (e) {
       log('[PlayerController] shareVideo fallback to clipboard: $e');
       await Clipboard.setData(ClipboardData(text: videoUrl));
-      snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.'; // Bayrak kaldırıldı
+      snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
     } finally {
       isShareLoading.value = false;
     }
   }
 
-  // ─── Yorumlar ─────────────────────────────────────────────────────────────
+  // ─── Yorumlar ────────────────────────────────────────────────────────────
 
   Future<void> loadComments() async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     try {
       isCommentsLoading.value = true;
       comments.value = await commentRepository.getComments(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
     } catch (e) {
       log('[PlayerController] loadComments error: $e');
@@ -304,40 +284,38 @@ class PlayerController extends GetxController {
   }
 
   Future<void> addComment(String content) async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     final userId = _currentUserId;
     if (userId == null) {
-      showAuthRequired.value = true; // DÜZELTİLDİ: Eski _showAuthDialog yerine bayrak
+      showAuthRequired.value = true;
       return;
     }
     if (content.trim().isEmpty) return;
     try {
       await commentRepository.addComment(
         userId: userId,
-        videoId: currentVideo!.videoId,
+        videoId: currentVideo.value!.videoId,
         content: content.trim(),
       );
       await loadComments();
       final stats = await engagementRepository.getEngagementStats(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
-      appCommentCount.value =
-          stats['app_comment_count'] ?? appCommentCount.value;
+      appCommentCount.value = stats['app_comment_count'] ?? appCommentCount.value;
     } catch (e) {
       log('[PlayerController] addComment error: $e');
     }
   }
 
   Future<void> deleteComment(String commentId) async {
-    if (currentVideo == null) return;
+    if (currentVideo.value == null) return;
     try {
       await commentRepository.deleteComment(commentId);
       comments.removeWhere((c) => c.id == commentId);
       final stats = await engagementRepository.getEngagementStats(
-        currentVideo!.videoId,
+        currentVideo.value!.videoId,
       );
-      appCommentCount.value =
-          stats['app_comment_count'] ?? appCommentCount.value;
+      appCommentCount.value = stats['app_comment_count'] ?? appCommentCount.value;
     } catch (e) {
       log('[PlayerController] deleteComment error: $e');
     }

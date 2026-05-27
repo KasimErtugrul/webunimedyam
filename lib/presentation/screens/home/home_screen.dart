@@ -17,10 +17,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
 
-    return Obx(
-      () => Scaffold(
-        backgroundColor: AppTheme.bg(context),
-        body: IndexedStack(
+    // Scaffold artık Obx dışında — yalnızca bir kez build edilir.
+    // Sadece reaktif olan body (IndexedStack) ve bottomNavigationBar kendi Obx'leri içinde sarılır.
+    return Scaffold(
+      backgroundColor: AppTheme.bg(context),
+      body: Obx(
+        () => IndexedStack(
           index: controller.selectedIndex.value,
           children: const [
             HomeTabWidget(),
@@ -28,7 +30,9 @@ class HomeScreen extends StatelessWidget {
             UniversitiesTabWidget(),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
+      ),
+      bottomNavigationBar: Obx(
+        () => BottomNavigationBar(
           currentIndex: controller.selectedIndex.value,
           onTap: controller.changeTab,
           items: const [

@@ -20,32 +20,35 @@ class PlayerBinding extends Bindings {
 
     // Repositories
     if (!Get.isRegistered<AuthRepository>()) {
-      Get.lazyPut(() => AuthRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
     if (!Get.isRegistered<FavoritesRepository>()) {
-      Get.lazyPut(() => FavoritesRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => FavoritesRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
     // YENİ EKLENDİ
     if (!Get.isRegistered<EngagementRepository>()) {
-      Get.lazyPut(() => EngagementRepository(
-            supabase: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => EngagementRepository(supabase: Get.find()),
+        fenix: true,
+      );
     }
 
-    Get.lazyPut(() => CommentRepository(supabase: Get.find()));
+    Get.lazyPut(() => CommentRepository(supabase: Get.find()), fenix: true);
 
-    // Controller (Eski parametreler silindi, yeni repo ve auth eklendi)
-    Get.lazyPut(() => PlayerController(
-          favoritesRepository: Get.find(),
-          commentRepository: Get.find(),
-          engagementRepository: Get.find(), // YENİ
-          authRepository: Get.find(),      // YENİ
-        ));
+    Get.lazyPut(
+      () => PlayerController(
+        favoritesRepository: Get.find(),
+        commentRepository: Get.find(),
+        engagementRepository: Get.find(),
+        authRepository: Get.find(),
+      ),
+      fenix: true,
+    );
   }
 }

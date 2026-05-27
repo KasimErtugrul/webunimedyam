@@ -12,6 +12,9 @@ class PlaylistDetailBinding extends Bindings {
         fenix: true,
       );
     }
-    Get.lazyPut(() => PlaylistDetailController(videoRepository: Get.find()));
+    Get.lazyPut(
+      () => PlaylistDetailController(videoRepository: Get.find()),
+      fenix: true,
+    );
   }
 }

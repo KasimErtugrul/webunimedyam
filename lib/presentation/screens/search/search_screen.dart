@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
-import '../../controllers/search_controller.dart' as sc;
+import '../../controllers/video_search_controller.dart';
 import 'widgets/video_result_card_widget.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -14,18 +14,20 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  late final sc.SearchController controller;
+  late final VideoSearchController controller;
   late final TextEditingController _textController;
   late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    controller = Get.find<sc.SearchController>();
+    controller = Get.find<VideoSearchController>();
     _textController = TextEditingController();
     _focusNode = FocusNode();
     // Ekran açılınca klavye otomatik aç
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
   }
 
   @override
@@ -72,10 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
             onChanged: controller.onQueryChanged,
             onSubmitted: _onSubmit,
             textInputAction: TextInputAction.search,
-            style: TextStyle(
-              color: AppTheme.textPri(context),
-              fontSize: 16.sp,
-            ),
+            style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp),
             decoration: InputDecoration(
               hintText: 'Video ara...',
               hintStyle: TextStyle(
@@ -84,25 +83,30 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               filled: true,
               fillColor: AppTheme.card(context),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 10.h,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide.none,
               ),
-              suffixIcon: Obx(() => controller.query.value.isNotEmpty
-                  ? IconButton(
-                      icon: Icon(
-                        Icons.close_rounded,
-                        color: AppTheme.textSec(context),
-                        size: 20.sp,
-                      ),
-                      onPressed: () {
-                        _textController.clear();
-                        controller.onQueryChanged('');
-                        _focusNode.requestFocus();
-                      },
-                    )
-                  : const SizedBox.shrink()),
+              suffixIcon: Obx(
+                () => controller.query.value.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: AppTheme.textSec(context),
+                          size: 20.sp,
+                        ),
+                        onPressed: () {
+                          _textController.clear();
+                          controller.onQueryChanged('');
+                          _focusNode.requestFocus();
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ),
           ),
         ),
@@ -171,7 +175,7 @@ class _SearchScreenState extends State<SearchScreen> {
 // ── Geçmiş paneli ─────────────────────────────────────────────────────────────
 
 class _HistoryView extends StatelessWidget {
-  final sc.SearchController controller;
+  final VideoSearchController controller;
   final void Function(String) onTap;
 
   const _HistoryView({required this.controller, required this.onTap});
@@ -261,11 +265,17 @@ class _HistoryView extends StatelessWidget {
                     ),
                     onPressed: () => controller.removeHistory(q),
                     padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.h),
+                    constraints: BoxConstraints(
+                      minWidth: 32.w,
+                      minHeight: 32.h,
+                    ),
                   ),
                   onTap: () => onTap(q),
                   dense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 4.h,
+                  ),
                 );
               },
             ),

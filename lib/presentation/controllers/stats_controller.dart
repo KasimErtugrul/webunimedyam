@@ -14,11 +14,11 @@ class StatsController extends GetxController {
   final errorMessage = Rxn<String>();
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
-  @override
-  void onInit() {
-    super.onInit();
-    _load();
-  }
+ @override
+void onReady() {
+  super.onReady();
+  _load();
+}
 
   // ─── Public API ───────────────────────────────────────────────────────────
 

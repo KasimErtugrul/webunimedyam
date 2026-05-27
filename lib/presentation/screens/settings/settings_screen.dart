@@ -4,8 +4,40 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/settings_controller.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  late final SettingsController _controller;
+  Worker? _errorWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.find<SettingsController>();
+    _errorWorker = ever(_controller.errorMessage, (message) {
+      if (message != null && mounted) {
+        Get.snackbar(
+          'Hata',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.9),
+          colorText: Colors.white,
+        );
+        _controller.errorMessage.value = null; // Sıfırla
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _errorWorker?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,8 +221,8 @@ class SettingsScreen extends StatelessWidget {
                 size: 24.sp,
               ),
               onTap: () {
-                controller.changeTheme('dark');
-                Get.changeThemeMode(ThemeMode.dark); // UI katmanına taşındı ✅
+                controller.changeTheme('light');
+                Get.changeThemeMode(ThemeMode.light); // ← EKLENMELİ
                 Get.back();
               },
               contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -210,7 +242,8 @@ class SettingsScreen extends StatelessWidget {
                 size: 24.sp,
               ),
               onTap: () {
-                controller.changeTheme('light');
+                controller.changeTheme('dark');
+                Get.changeThemeMode(ThemeMode.dark); // ← EKLENMELİ
                 Get.back();
               },
               contentPadding: EdgeInsets.symmetric(horizontal: 8.w),

@@ -9,20 +9,17 @@ class AuthBinding extends Bindings {
   void dependencies() {
     // Daha önce register edilmemişse kaydet (splash atlandıysa)
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource());
+      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
     }
     if (!Get.isRegistered<LocalDataSource>()) {
-      Get.lazyPut(() => LocalDataSource());
+      Get.lazyPut(() => LocalDataSource(), fenix: true);
     }
     if (!Get.isRegistered<AuthRepository>()) {
-      Get.lazyPut(() => AuthRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ));
+      Get.lazyPut(
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
-
-    Get.lazyPut(() => AuthController(
-          authRepository: Get.find(),
-        ));
+    Get.lazyPut(() => AuthController(authRepository: Get.find()), fenix: true);
   }
 }

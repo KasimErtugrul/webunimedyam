@@ -1,9 +1,8 @@
-// lib/presentation/controllers/home_controller.dart
-
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
-import '../../data/repositories/auth_repository.dart'; // YENİ EKLENDİ
+import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
@@ -12,19 +11,20 @@ import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
-import 'favorites_controller.dart';
+
+// FavoritesController IMPORT EDİLMİYOR! Bağımlılık yok.
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
   final FavoritesRepository favoritesRepository;
   final UniversityStatsRepository universityStatsRepository;
-  final AuthRepository authRepository; // YENİ: SupabaseDataSource yerine
+  final AuthRepository authRepository;
 
   HomeController({
     required this.videoRepository,
     required this.favoritesRepository,
     required this.universityStatsRepository,
-    required this.authRepository, // YENİ
+    required this.authRepository,
   });
 
   // ─── Mevcut State ─────────────────────────────────────────────────────────
@@ -73,11 +73,22 @@ class HomeController extends GetxController {
   final showAuthRequired = false.obs;
 
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
-  
-  // Auth artık Repository üzerinden takip ediliyor
+
   String? get _currentUserId => authRepository.currentUserId;
 
+  // Stream aboneliği için tutucu
+  late final StreamSubscription<FavoriteChange> _favoriteSubscription;
+
   // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Favori değişimlerini dinle
+    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((event) {
+      _onFavoriteChanged(event);
+    });
+  }
 
   @override
   void onReady() {
@@ -89,12 +100,31 @@ class HomeController extends GetxController {
     loadVideoSections();
   }
 
+  @override
+  void onClose() {
+    _favoriteSubscription.cancel();
+    super.onClose();
+  }
+
+  // ─── Favori değişimlerini işle ───────────────────────────────────────────
+  void _onFavoriteChanged(FavoriteChange event) {
+    if (event.isFavorite) {
+      if (!favoriteIds.contains(event.videoId)) {
+        favoriteIds.add(event.videoId);
+      }
+      // Eğer video objesi geldiyse, isteğe bağlı olarak videos listesinde güncelleme yapılabilir
+      // (PlayerController'dan gelen event'te video var, HomeController'dan gelen event'te yok)
+    } else {
+      favoriteIds.remove(event.videoId);
+    }
+    log('[HomeController] Favori değişikliği algılandı: ${event.videoId} → ${event.isFavorite}');
+  }
+
   // ─── Üniversite Stats Yükleme ─────────────────────────────────────────────
 
   Future<void> loadUniversityStats() async {
     try {
       isStatsLoading.value = true;
-
       final results = await Future.wait([
         universityStatsRepository.getMostWatched(),
         universityStatsRepository.getMostLiked(),
@@ -105,7 +135,6 @@ class HomeController extends GetxController {
         universityStatsRepository.getRichestArchive(),
         universityStatsRepository.getNewlyDiscovered(),
       ]);
-
       statsMostWatched.value = results[0];
       statsMostLiked.value = results[1];
       statsPopularInApp.value = results[2];
@@ -126,7 +155,6 @@ class HomeController extends GetxController {
   Future<void> loadVideoSections() async {
     try {
       isVideoSectionsLoading.value = true;
-
       final results = await Future.wait([
         videoRepository.getTrendingVideos().catchError((e) {
           log('getTrendingVideos error: $e');
@@ -153,7 +181,6 @@ class HomeController extends GetxController {
           return <VideoEngagementModel>[];
         }),
       ]);
-
       videosTrending.value = results[0];
       videosMostWatched.value = results[1];
       videosMostLiked.value = results[2];
@@ -203,7 +230,6 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-
       final uni = selectedUniversity.value;
       if (uni != null) {
         videos.value = await videoRepository.getVideosByUniversity(uni.id!);
@@ -235,11 +261,11 @@ class HomeController extends GetxController {
 
   Future<void> loadPlaylists() => loadUniversitiesAndPlaylists();
 
-  // ─── Favoriler ────────────────────────────────────────────────────────────
+  // ─── Favoriler – DÜZELTİLDI: SADECE KENDİ STATE'İNİ GÜNCELLER, BAŞKA CONTROLLER'LARA DOKUNMAZ ───
 
   Future<void> loadFavorites() async {
     try {
-      final userId = _currentUserId; // Artık AuthRepository'den geliyor
+      final userId = _currentUserId;
       if (userId == null) return;
       favoriteIds.value = await favoritesRepository.getFavoriteVideoIds(userId);
     } catch (e) {
@@ -250,31 +276,28 @@ class HomeController extends GetxController {
   bool isFavorite(String videoId) => favoriteIds.contains(videoId);
 
   Future<void> toggleFavorite(String videoId) async {
-    final userId = _currentUserId; // Artık AuthRepository'den geliyor
+    final userId = _currentUserId;
     if (userId == null) {
-      showAuthRequired.value = true; // UI'a bayrak kaldırılıyor
+      showAuthRequired.value = true;
       return;
     }
 
     try {
       if (isFavorite(videoId)) {
+        // Favoriden çıkar
         await favoritesRepository.removeFavorite(userId, videoId);
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
-        favoriteIds.remove(videoId);
-        if (Get.isRegistered<FavoritesController>()) {
-          Get.find<FavoritesController>().removeFavoriteVideo(videoId);
-        }
+        // favoriteIds set'i stream event ile güncellenecek ( _onFavoriteChanged )
       } else {
+        // Favoriye ekle
         await favoritesRepository.addFavorite(userId, videoId);
         final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
         if (video != null) {
           await favoritesRepository.saveFavoriteVideoLocally(video);
-          if (Get.isRegistered<FavoritesController>()) {
-            Get.find<FavoritesController>().addFavoriteVideo(video);
-          }
         }
-        favoriteIds.add(videoId);
+        // favoriteIds set'i stream event ile güncellenecek
       }
+      // NOT: FavoritesController'a doğrudan erişim kaldırıldı.
     } catch (e) {
       log('toggleFavorite error: $e');
     }

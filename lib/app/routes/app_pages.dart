@@ -12,6 +12,8 @@ import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
 import '../../presentation/screens/university_detail/university_detail_screen.dart'; // ← YENİ
+import '../bindings/onboarding_bindings.dart';
+import '../bindings/playlist_detail_binding.dart';
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
@@ -34,7 +36,7 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.onboarding,
       page: () => const OnboardingScreen(),
-      binding: SplashBinding(),
+      binding: OnboardingBinding(),
     ),
     GetPage(
       name: AppRoutes.home,
@@ -49,18 +51,14 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.playlistDetail,
       page: () => const PlaylistDetailScreen(),
-      binding: PlayerBinding(),
+      binding: PlaylistDetailBinding(), // ← DOĞRU
     ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
     ),
-   /*  GetPage(
-      name: AppRoutes.favorites,
-      page: () => const FavoritesScreen(),
-      binding: FavoritesBinding(),
-    ), */
+   
     GetPage(
       name: AppRoutes.settings,
       page: () => const SettingsScreen(),
@@ -91,7 +89,8 @@ abstract class AppPages {
       page: () => const VideoSectionDetailScreen(),
       binding: VideoSectionDetailBinding(),
     ),
-    GetPage(                                            // ← YENİ
+    GetPage(
+      // ← YENİ
       name: AppRoutes.universityDetail,
       page: () => const UniversityDetailScreen(),
       binding: UniversityDetailBinding(),
