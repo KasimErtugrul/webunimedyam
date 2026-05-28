@@ -63,7 +63,6 @@ class AuthRepository {
     await _supabase.updateUserSettings(settings);
     await _local.cacheUserSettings(settings.toSupabase());
     await _local.setTheme(settings.theme); // ✅ Kalıcı kayıt
-    await _local.setLanguage(settings.language); // ✅ Dil de kaydedilsin
   }
 
 Future<void> clearLocalCache() async {
@@ -134,6 +133,12 @@ Future<void> clearLocalCache() async {
       return null; // UI çökmesin, varsayılan ayarlar kullanılsın
     }
   }
+
+   Future<void> saveThemeLocally(String theme) async {
+    await _local.setTheme(theme);
+  }
+
+  
 
   Future<bool> isOnboardingCompleted() async {
     // 1. Local flag önce kontrol et
