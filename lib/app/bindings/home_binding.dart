@@ -89,9 +89,6 @@ class HomeBinding extends Bindings {
       fenix: true,
     );
 
-    /* Get.lazyPut(
-      () => SettingsController(authRepository: Get.find()),
-      fenix: true,
-    ); */
+    
   }
 }

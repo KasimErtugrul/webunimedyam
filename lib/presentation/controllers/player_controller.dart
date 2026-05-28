@@ -11,6 +11,7 @@ import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
+import 'settings_controller.dart';
 
 // HomeController ve FavoritesController IMPORT EDİLMİYOR! Bağımlılık yok.
 
@@ -89,14 +90,11 @@ class PlayerController extends GetxController {
     });
   }
 
+  // lib/presentation/controllers/player_controller.dart — _initPlayer düzeltmesi
   Future<void> _initPlayer() async {
-    bool autoplay = true;
-    try {
-      final userSettings = await authRepository.getUserSettings();
-      autoplay = userSettings?.autoplay ?? true;
-    } catch (e) {
-      log('[PlayerController] Autoplay setting error: $e');
-    }
+    // authRepository.getUserSettings() kaldırıldı
+    final autoplay =
+        Get.find<SettingsController>().settings.value?.autoplay ?? true;
 
     youtubeController = YoutubePlayerController.fromVideoId(
       videoId: currentVideo.value!.videoId,
@@ -176,7 +174,10 @@ class PlayerController extends GetxController {
 
     try {
       if (wasLiked) {
-        await engagementRepository.removeLike(userId, currentVideo.value!.videoId);
+        await engagementRepository.removeLike(
+          userId,
+          currentVideo.value!.videoId,
+        );
       } else {
         await engagementRepository.addLike(userId, currentVideo.value!.videoId);
       }
@@ -211,11 +212,19 @@ class PlayerController extends GetxController {
     try {
       if (!wasAdding) {
         // Favoriden çıkar
-        await favoritesRepository.removeFavorite(userId, currentVideo.value!.videoId);
-        await favoritesRepository.removeFavoriteVideoLocally(currentVideo.value!.videoId);
+        await favoritesRepository.removeFavorite(
+          userId,
+          currentVideo.value!.videoId,
+        );
+        await favoritesRepository.removeFavoriteVideoLocally(
+          currentVideo.value!.videoId,
+        );
       } else {
         // Favoriye ekle
-        await favoritesRepository.addFavorite(userId, currentVideo.value!.videoId);
+        await favoritesRepository.addFavorite(
+          userId,
+          currentVideo.value!.videoId,
+        );
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo.value!);
       }
 
@@ -223,7 +232,8 @@ class PlayerController extends GetxController {
       final stats = await engagementRepository.getEngagementStats(
         currentVideo.value!.videoId,
       );
-      appFavoriteCount.value = stats['app_favorite_count'] ?? appFavoriteCount.value;
+      appFavoriteCount.value =
+          stats['app_favorite_count'] ?? appFavoriteCount.value;
 
       // NOT: HomeController ve FavoritesController artık burada güncellenmiyor.
       // Onlar, FavoritesRepository'den yayınlanan stream event'lerine abone olarak
@@ -242,7 +252,8 @@ class PlayerController extends GetxController {
   Future<void> shareVideo() async {
     if (currentVideo.value == null) return;
     if (isShareLoading.value) return;
-    final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
+    final videoUrl =
+        'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
     final text = '${currentVideo.value!.title}\n$videoUrl';
 
     try {
@@ -252,7 +263,10 @@ class PlayerController extends GetxController {
       final userId = _currentUserId;
       if (userId != null) {
         isShareLoading.value = true;
-        await engagementRepository.recordShare(userId, currentVideo.value!.videoId);
+        await engagementRepository.recordShare(
+          userId,
+          currentVideo.value!.videoId,
+        );
         final stats = await engagementRepository.getEngagementStats(
           currentVideo.value!.videoId,
         );
@@ -301,7 +315,8 @@ class PlayerController extends GetxController {
       final stats = await engagementRepository.getEngagementStats(
         currentVideo.value!.videoId,
       );
-      appCommentCount.value = stats['app_comment_count'] ?? appCommentCount.value;
+      appCommentCount.value =
+          stats['app_comment_count'] ?? appCommentCount.value;
     } catch (e) {
       log('[PlayerController] addComment error: $e');
     }
@@ -315,7 +330,8 @@ class PlayerController extends GetxController {
       final stats = await engagementRepository.getEngagementStats(
         currentVideo.value!.videoId,
       );
-      appCommentCount.value = stats['app_comment_count'] ?? appCommentCount.value;
+      appCommentCount.value =
+          stats['app_comment_count'] ?? appCommentCount.value;
     } catch (e) {
       log('[PlayerController] deleteComment error: $e');
     }

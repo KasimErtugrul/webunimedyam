@@ -6,6 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // screenutil eklen
 import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
 import 'app/themes/app_theme.dart';
+import 'data/datasources/local/local_datasource.dart';
+import 'data/datasources/remote/supabase_datasource.dart';
+import 'data/repositories/auth_repository.dart';
+import 'presentation/controllers/settings_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +26,17 @@ void main() async {
 
   // screenutil başlatma - uygulama başlamadan önce ekran ölçekleme ayarları
   await ScreenUtil.ensureScreenSize(); // Gerçek ekran boyutlarını almak için
+  // Singleton olarak app genelinde kayıt
+  final supabase = SupabaseDataSource();
+  final local = LocalDataSource();
+  final authRepo = AuthRepository(supabase: supabase, local: local);
 
+  await Get.putAsync<SettingsController>(() async {
+    final ctrl = SettingsController(authRepository: authRepo);
+    await ctrl.loadSettings(); // Başlarken bir kez yükle
+    return ctrl;
+  }, permanent: true);
+  
   runApp(MyApp(initialTheme: savedTheme));
 }
 

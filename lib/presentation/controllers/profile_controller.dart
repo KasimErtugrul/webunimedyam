@@ -54,7 +54,7 @@ class ProfileController extends GetxController {
     try {
       isLoading.value = true;
       profile.value = await authRepository.getProfile();
-      settings.value = await authRepository.getUserSettings();
+      //settings.value = await authRepository.getUserSettings();
     } catch (e) {
       log('loadProfile error: $e');
     } finally {

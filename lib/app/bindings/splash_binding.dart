@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
-import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/splash_controller.dart';
 
 class SplashBinding extends Bindings {
@@ -20,12 +19,7 @@ class SplashBinding extends Bindings {
         fenix: true,
       );
     }
-    if (!Get.isRegistered<VideoRepository>()) {
-      Get.lazyPut(
-        () => VideoRepository(supabase: Get.find(), local: Get.find()),
-        fenix: true,
-      );
-    }
+    
     Get.lazyPut(
       () => SplashController(authRepository: Get.find()),
       fenix: true,

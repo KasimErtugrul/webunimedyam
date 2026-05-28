@@ -65,17 +65,26 @@ class FavoritesRepository extends GetxService {
     }
   }
 
-  Future<List<String>> getFavoriteVideoIds(String userId) async {
-    try {
-      log('❤️☁️ [Favori] Favori ID\'leri Supabase\'den çekiliyor → $userId');
-      final ids = await _supabase.getFavoriteVideoIds(userId);
-      log('❤️✅ [Favori] ${ids.length} favori ID geldi (remote)');
-      return ids;
-    } catch (e) {
-      log('❤️❌ [Favori] Favori ID\'leri çekilemedi (offline?): $e');
-      return [];
+  // lib/data/repositories/favorites_repository.dart
+Future<List<String>> getFavoriteVideoIds(String userId) async {
+  try {
+    // 1. Önce local'e bak — video nesneleri zaten cache'deyse ID'leri oradan çek
+    final localVideos = await _local.getFavoriteVideos();
+    if (localVideos.isNotEmpty) {
+      log('❤️💾 [Favori] ID\'ler LOCAL\'den geldi (${localVideos.length} adet)');
+      return localVideos.map((v) => v.videoId).toList();
     }
+
+    // 2. Local boşsa Supabase'e git
+    log('❤️☁️ [Favori] Favori ID\'leri Supabase\'den çekiliyor → $userId');
+    final ids = await _supabase.getFavoriteVideoIds(userId);
+    log('❤️✅ [Favori] ${ids.length} favori ID geldi (remote)');
+    return ids;
+  } catch (e) {
+    log('❤️❌ [Favori] Favori ID\'leri çekilemedi (offline?): $e');
+    return [];
   }
+}
 
   // ─── YAZMA İŞLEMLERİ (Write) ──────────────────────────────────────────────
 

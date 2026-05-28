@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'package:get/get.dart';
-import '../../app/routes/app_routes.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
+import 'auth_controller.dart';
 
-class SettingsController extends GetxController {
+class SettingsController extends GetxService {
   final AuthRepository authRepository;
 
   SettingsController({required this.authRepository});
@@ -76,12 +76,13 @@ class SettingsController extends GetxController {
     }
   }
 
+  // lib/presentation/controllers/settings_controller.dart
   Future<void> signOut() async {
+    // Kendi implementasyonu silindi, AuthController'a delegate edildi
     try {
-      await authRepository.signOut();
-      Get.offAllNamed(AppRoutes.home); // ← Sabit kullan
+      await Get.find<AuthController>().signOut();
     } catch (e) {
-      log('signOut error: $e');
+      log('signOut delegate error: $e');
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     }
   }
