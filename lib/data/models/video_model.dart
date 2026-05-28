@@ -76,6 +76,7 @@ class VideoModel {
       'published_at': publishedAt.toIso8601String(),
       'cached_at': DateTime.now().toIso8601String(),
       if (universityId != null) 'university_id': universityId,
+      if (universityName != null) 'university_name': universityName,
     };
   }
 

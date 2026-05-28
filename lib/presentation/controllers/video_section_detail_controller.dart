@@ -20,9 +20,9 @@ class VideoSectionDetailController extends GetxController {
   final isLoading = false.obs;
   final isLoadingMore = false.obs;
   final hasMore = true.obs;
-  
+
   // FIX: Pagination sırasında ağ hatası olursa UI'ın haberdar olması için eklendi.
-  final errorMessage = RxnString(); 
+  final errorMessage = RxnString();
 
   static const int _pageSize = 10;
   int _currentOffset = 0;
@@ -32,7 +32,11 @@ class VideoSectionDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments as Map<String, dynamic>;
+    final args = Get.arguments;
+    if (args is! Map<String, dynamic>) {
+      errorMessage.value = 'Sayfa bilgisi alınamadı.';
+      return;
+    }
     sectionType = args['type'] as VideoSectionType;
     sectionTitle = args['title'] as String;
     loadFirstPage();
@@ -55,7 +59,7 @@ class VideoSectionDetailController extends GetxController {
   Future<void> _fetchPage() async {
     try {
       errorMessage.value = null; // Yeni isteğe başlarken hatayı temizle
-      
+
       final isFirst = _currentOffset == 0;
       if (isFirst) {
         isLoading.value = true;
@@ -84,7 +88,7 @@ class VideoSectionDetailController extends GetxController {
     } catch (e) {
       log('VideoSectionDetailController._fetchPage error: $e');
       // FIX: Hata olursa UI'a bildir. Kullanıcı "Yeniden Dene" butonu görebilir.
-      errorMessage.value = 'Daha fazla video yüklenirken hata oluştu.'; 
+      errorMessage.value = 'Daha fazla video yüklenirken hata oluştu.';
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;

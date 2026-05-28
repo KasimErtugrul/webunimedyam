@@ -270,15 +270,19 @@ class SupabaseDataSource {
     return data?['completed'] ?? false;
   }
 
-  Future<void> completeOnboarding(String userId) async {
-    await _client
-        .from('onboarding')
-        .update({
+ // lib/data/datasources/remote/supabase_datasource.dart
+Future<void> completeOnboarding(String userId) async {
+  await _client
+      .from('onboarding')
+      .upsert(                          // ← update → upsert
+        {
+          'user_id': userId,            // ← id alanı eklendi
           'completed': true,
           'completed_at': DateTime.now().toIso8601String(),
-        })
-        .eq('user_id', userId);
-  }
+        },
+        onConflict: 'user_id',
+      );
+}
 
   // ─── Arama ───────────────────────────────────────────────────────────────
   Future<List<VideoModel>> searchVideos(String query, {int limit = 30}) async {

@@ -1,4 +1,3 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/video_model.dart';
 import '../../models/user_stats_model.dart';
@@ -12,20 +11,27 @@ class LocalDataSource {
   static const _themeKey = 'theme';
   static const _languageKey = 'language';
 
+  SharedPreferences? _prefs;
+
+  Future<SharedPreferences> get _p async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
+
   // Onboarding
   Future<bool> isOnboardingCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     return prefs.getBool(_onboardingKey) ?? false;
   }
 
   Future<void> setOnboardingCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setBool(_onboardingKey, true);
   }
 
   // Video Cache
   Future<List<VideoModel>> getCachedVideos() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final jsonString = prefs.getString(_videoCacheKey);
     if (jsonString == null) return [];
 
@@ -35,7 +41,7 @@ class LocalDataSource {
 
   // FIX: OOM RİSKİ ÖNLENDİ. Artık sadece son 50 videoyu cache'liyor.
   Future<void> cacheVideos(List<VideoModel> videos) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final videosToCache = videos.take(50).toList();
     final jsonList = videosToCache.map((v) => v.toSupabase()).toList();
     await prefs.setString(_videoCacheKey, json.encode(jsonList));
@@ -43,15 +49,15 @@ class LocalDataSource {
   }
 
   Future<bool> isCacheValid() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final cacheTimeString = prefs.getString(_cacheTimeKey);
     if (cacheTimeString == null) return false;
 
     final cacheTime = DateTime.tryParse(cacheTimeString);
     if (cacheTime == null) return false;
 
-    final now = DateTime.now().toUtc().add(const Duration(hours: 3));
-    if (now.weekday == DateTime.sunday) return true;
+    final now =
+        DateTime.now(); // local time doğrudan kullan, toUtc() + add() gerek yok    if (now.weekday == DateTime.sunday) return true;
 
     final minuteOfDay = now.hour * 60 + now.minute;
     const cronStart = 8 * 60;
@@ -64,30 +70,30 @@ class LocalDataSource {
   }
 
   Future<void> clearCache() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.remove(_videoCacheKey);
     await prefs.remove(_cacheTimeKey);
   }
 
   // Theme
   Future<String> getTheme() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     return prefs.getString(_themeKey) ?? 'dark';
   }
 
   Future<void> setTheme(String theme) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setString(_themeKey, theme);
   }
 
   // Language
   Future<String> getLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     return prefs.getString(_languageKey) ?? 'tr';
   }
 
   Future<void> setLanguage(String language) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setString(_languageKey, language);
   }
 
@@ -96,19 +102,19 @@ class LocalDataSource {
   static const _userSettingsKey = 'user_settings';
 
   Future<Map<String, dynamic>?> getCachedUserSettings() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final s = prefs.getString(_userSettingsKey);
     if (s == null) return null;
     return Map<String, dynamic>.from(json.decode(s) as Map);
   }
 
   Future<void> cacheUserSettings(Map<String, dynamic> settings) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setString(_userSettingsKey, json.encode(settings));
   }
 
   Future<void> clearUserSettings() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.remove(_userSettingsKey);
   }
 
@@ -117,7 +123,7 @@ class LocalDataSource {
   static const _favoriteVideosKey = 'favorite_videos';
 
   Future<List<VideoModel>> getFavoriteVideos() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final jsonString = prefs.getString(_favoriteVideosKey);
     if (jsonString == null) return [];
     final List<dynamic> jsonList = json.decode(jsonString);
@@ -126,7 +132,7 @@ class LocalDataSource {
 
   // FIX: OOM RİSKİ ÖNLENDİ. Liste 100'ü geçerse en eski favorileri siler.
   Future<void> saveFavoriteVideo(VideoModel video) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final existing = await getFavoriteVideos();
     if (existing.any((v) => v.videoId == video.videoId)) return;
 
@@ -145,7 +151,7 @@ class LocalDataSource {
   }
 
   Future<void> removeFavoriteVideo(String videoId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final existing = await getFavoriteVideos();
     existing.removeWhere((v) => v.videoId == videoId);
     await prefs.setString(
@@ -155,7 +161,7 @@ class LocalDataSource {
   }
 
   Future<void> clearFavoriteVideos() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.remove(_favoriteVideosKey);
   }
 
@@ -166,7 +172,7 @@ class LocalDataSource {
   static const _statsTtlMinutes = 60;
 
   Future<UserStatsModel?> getCachedUserStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final timeStr = prefs.getString(_userStatsCacheTimeKey);
     if (timeStr == null) return null;
 
@@ -190,7 +196,7 @@ class LocalDataSource {
   }
 
   Future<void> cacheUserStats(UserStatsModel stats) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setString(_userStatsKey, json.encode(stats.toMap()));
     await prefs.setString(
       _userStatsCacheTimeKey,
@@ -199,7 +205,7 @@ class LocalDataSource {
   }
 
   Future<void> clearUserStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.remove(_userStatsKey);
     await prefs.remove(_userStatsCacheTimeKey);
   }
@@ -214,7 +220,7 @@ class LocalDataSource {
   String _sectionTimeKey(String key) => '$_videoSectionTimePrefix$key';
 
   Future<List<VideoEngagementModel>?> getCachedVideoSection(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final timeStr = prefs.getString(_sectionTimeKey(key));
     if (timeStr == null) return null;
     final cacheTime = DateTime.tryParse(timeStr);
@@ -243,7 +249,7 @@ class LocalDataSource {
     String key,
     List<VideoEngagementModel> items,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     await prefs.setString(
       _sectionKey(key),
       json.encode(items.map((e) => e.toMap()).toList()),
@@ -255,14 +261,12 @@ class LocalDataSource {
   }
 
   Future<void> clearVideoSectionCache() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _p;
     final keys = prefs.getKeys().where(
       (k) =>
           k.startsWith(_videoSectionPrefix) ||
           k.startsWith(_videoSectionTimePrefix),
     );
-    for (final k in keys) {
-      await prefs.remove(k);
-    }
+    await Future.wait(keys.map((k) => prefs.remove(k)));
   }
 }

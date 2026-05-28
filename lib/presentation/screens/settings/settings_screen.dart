@@ -242,8 +242,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 size: 24.sp,
               ),
               onTap: () {
-                controller.changeTheme('dark');
-                Get.changeThemeMode(ThemeMode.dark); // ← EKLENMELİ
+                controller.changeTheme('light'); // ← Açık = 'light'
+                Get.changeThemeMode(ThemeMode.light);
                 Get.back();
               },
               contentPadding: EdgeInsets.symmetric(horizontal: 8.w),

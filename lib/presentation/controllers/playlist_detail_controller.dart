@@ -19,7 +19,13 @@ class PlaylistDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    playlist = Get.arguments as PlaylistModel;
+    final args = Get.arguments;
+    if (args is! PlaylistModel) {
+      errorMessage.value = 'Playlist bilgisi alınamadı.';
+      isLoading.value = false;
+      return;
+    }
+    playlist = args;
     loadVideos();
   }
 
@@ -27,7 +33,9 @@ class PlaylistDetailController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      videos.value = await videoRepository.getPlaylistVideos(playlist.playlistId);
+      videos.value = await videoRepository.getPlaylistVideos(
+        playlist.playlistId,
+      );
     } catch (e) {
       log('PlaylistDetail loadVideos error: $e');
       errorMessage.value = 'Videolar yüklenemedi.';

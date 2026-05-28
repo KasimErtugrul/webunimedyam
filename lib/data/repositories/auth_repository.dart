@@ -11,8 +11,8 @@ class AuthRepository {
   AuthRepository({
     required SupabaseDataSource supabase,
     required LocalDataSource local,
-  })  : _supabase = supabase,
-        _local = local;
+  }) : _supabase = supabase,
+       _local = local;
 
   bool get isLoggedIn => _supabase.currentUser != null;
   String? get currentUserId => _supabase.currentUser?.id;
@@ -21,7 +21,7 @@ class AuthRepository {
   // ─── YAZMA İŞLEMLERİ (Write) ─────────────────────────────────────────────
   // Bu işlemlerde try-catch YOK. Çünkü hata olursa Controller'ın bunu yakalayıp
   // ekrana "Şifre yanlış" veya "İnternet yok" yazması gerekir.
-  
+
   Future<void> signUp({
     required String email,
     required String password,
@@ -35,22 +35,22 @@ class AuthRepository {
     );
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     log('🔑☁️ [Auth] Giriş isteği Supabase\'e gönderiliyor → $email');
-    await _supabase.signIn(
-      email: email,
-      password: password,
-    );
+    await _supabase.signIn(email: email, password: password);
   }
 
   Future<void> signOut() async {
-    log('🚪🧹 [Auth] Çıkış yapılıyor, local cache temizleniyor...');
-    await _local.clearUserSettings();
+    log('🚪🧹 [Auth] Çıkış yapılıyor, tüm local veriler temizleniyor...');
+    await Future.wait([
+      _local.clearUserSettings(),
+      _local.clearFavoriteVideos(), // ← EKSİKTİ
+      _local.clearCache(), // ← EKSİKTİ (video cache)
+      _local.clearUserStats(), // ← EKSİKTİ
+      _local.clearVideoSectionCache(), // ← EKSİKTİ
+    ]);
     await _supabase.signOut();
-    log('✅ [Auth] Çıkış tamamlandı');
+    log('✅ [Auth] Çıkış tamamlandı, tüm cache temizlendi');
   }
 
   Future<void> updateProfile(ProfileModel profile) async {
@@ -81,15 +81,17 @@ class AuthRepository {
 
   Future<ProfileModel?> getProfile() async {
     final userId = currentUserId;
-    if (userId == null) { 
-      log('⚠️ [Auth] getProfile: kullanıcı giriş yapmamış'); 
-      return null; 
+    if (userId == null) {
+      log('⚠️ [Auth] getProfile: kullanıcı giriş yapmamış');
+      return null;
     }
-    
+
     try {
       log('👤☁️ [Auth] Profil Supabase\'den çekiliyor → $userId');
       final profile = await _supabase.getProfile(userId);
-      log('${profile != null ? '✅' : '❌'} [Auth] Profil ${profile != null ? 'geldi: ${profile.username}' : 'bulunamadı'}');
+      log(
+        '${profile != null ? '✅' : '❌'} [Auth] Profil ${profile != null ? 'geldi: ${profile.username}' : 'bulunamadı'}',
+      );
       return profile;
     } catch (e) {
       log('👤❌ [Auth] Profil çekilemedi (offline?): $e');
@@ -126,10 +128,12 @@ class AuthRepository {
   Future<bool> isOnboardingCompleted() async {
     // 1. Local flag önce kontrol et
     if (await _local.isOnboardingCompleted()) {
-      log('🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor');
+      log(
+        '🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor',
+      );
       return true;
     }
-    
+
     final userId = currentUserId;
     if (userId == null) return false;
 
