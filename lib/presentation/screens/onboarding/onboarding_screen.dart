@@ -13,9 +13,15 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
+ final PageController _pageController = PageController();
   int _currentPage = 0;
-final controller = Get.find<OnboardingController>();
+  late final OnboardingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<OnboardingController>();  // ← güvenli
+  }
 
   final List<Map<String, dynamic>> _pages = [
     {

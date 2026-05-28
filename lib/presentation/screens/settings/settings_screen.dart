@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/settings_controller.dart';
 
@@ -32,6 +33,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     });
   }
+
+void _showClearCacheDialog(BuildContext context, SettingsController controller) {
+  Get.dialog(
+    AlertDialog(
+      backgroundColor: AppTheme.card(context),
+      title: Text(
+        'Cache Temizle',
+        style: TextStyle(color: AppTheme.textPri(context), fontSize: 20.sp),
+      ),
+      content: Text(
+        'Uygulama cache\'i temizlenecek. Bu işlem video geçmişini ve geçici verileri siler.',
+        style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: Text(
+            'İptal',
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            minimumSize: Size(80.w, 36.h),
+          ),
+          onPressed: () {
+            Get.back();
+            controller.clearCache();
+          },
+          child: Text('Temizle', style: TextStyle(fontSize: 14.sp)),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+    ),
+  );
+}
 
   @override
   void dispose() {
@@ -114,13 +154,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   fontSize: 16.sp,
                 ),
               ),
-              subtitle: Text(
-                settings?.theme == 'dark' ? 'Koyu' : 'Açık',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: 13.sp,
-                ),
-              ),
+              subtitle: Text(() {
+                switch (settings?.theme) {
+                  case 'dark':
+                    return 'Koyu';
+                  case 'light':
+                    return 'Açık';
+                  default:
+                    return 'Sistem';
+                }
+              }()),
               trailing: Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textSec(context),
@@ -167,6 +210,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SectionHeader(title: 'Hesap'),
             ListTile(
               leading: Icon(
+                Icons.person_outline,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Profili Düzenle',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              trailing: Icon(Icons.chevron_right_rounded, size: 20.sp),
+              onTap: () => Get.toNamed(AppRoutes.profile),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.info_outline,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Hakkında',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              subtitle: Text(
+                'ÇOMÜ TV v1.0.0',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_outline,
+                color: Colors.orange,
+                size: 24.sp,
+              ),
+              title: Text(
+                'Cache Temizle',
+                style: TextStyle(color: Colors.orange, fontSize: 16.sp),
+              ),
+              onTap: () => _showClearCacheDialog(context, controller),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+            ),
+
+            // "Sistem" seçeneğini de tema diyaloğuna ekle:
+            ListTile(
+              title: Text('Sistem'),
+              leading: Icon(Icons.brightness_auto_rounded),
+              onTap: () {
+                controller.changeTheme('system');
+                Get.changeThemeMode(ThemeMode.system);
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Icon(
                 Icons.logout_rounded,
                 color: Colors.red,
                 size: 24.sp,
@@ -208,21 +314,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text(
-                'Koyu',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: 16.sp,
-                ),
-              ),
+              title: Text('Koyu'),
               leading: Icon(
                 Icons.dark_mode_rounded,
                 color: AppTheme.textSec(context),
                 size: 24.sp,
               ),
               onTap: () {
-                controller.changeTheme('light');
-                Get.changeThemeMode(ThemeMode.light); // ← EKLENMELİ
+                controller.changeTheme('dark'); // ✅ 'dark'
+                Get.changeThemeMode(ThemeMode.dark); // ✅ ThemeMode.dark
                 Get.back();
               },
               contentPadding: EdgeInsets.symmetric(horizontal: 8.w),

@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
+import 'favorites_controller.dart';
+import 'home_controller.dart';
 
 class AuthController extends GetxController {
   final AuthRepository authRepository;
@@ -21,7 +23,10 @@ class AuthController extends GetxController {
 
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
-      log('Sign in error: $e', stackTrace: stacktrace); // FIX: Hata logu eklendi
+      log(
+        'Sign in error: $e',
+        stackTrace: stacktrace,
+      ); // FIX: Hata logu eklendi
       errorMessage.value = 'Giriş başarısız. Email ve şifrenizi kontrol edin.';
     } finally {
       isLoading.value = false;
@@ -54,11 +59,21 @@ class AuthController extends GetxController {
 
   Future<void> signOut() async {
     try {
-      isLoading.value = true; // FIX: Çıkış butonuna spam yapmayı engelle
+      isLoading.value = true;
       await authRepository.signOut();
+      // Bağımlı controller'ları resetle
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().favoriteIds.clear();
+      }
+      if (Get.isRegistered<FavoritesController>()) {
+        Get.find<FavoritesController>().favoriteVideos.clear();
+      }
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
-      log('Sign out error: $e', stackTrace: stacktrace); // FIX: Hata logu eklendi
+      log(
+        'Sign out error: $e',
+        stackTrace: stacktrace,
+      ); // FIX: Hata logu eklendi
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     } finally {
       isLoading.value = false; // FIX: Loading state'i temizle

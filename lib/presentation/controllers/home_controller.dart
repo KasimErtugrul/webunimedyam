@@ -77,7 +77,6 @@ class HomeController extends GetxController {
   String? get _currentUserId => authRepository.currentUserId;
   bool get isLoggedIn => authRepository.isLoggedIn;
 
-
   // Stream aboneliği için tutucu
   late final StreamSubscription<FavoriteChange> _favoriteSubscription;
 
@@ -87,7 +86,9 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     // Favori değişimlerini dinle
-    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((event) {
+    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((
+      event,
+    ) {
       _onFavoriteChanged(event);
     });
   }
@@ -119,7 +120,9 @@ class HomeController extends GetxController {
     } else {
       favoriteIds.remove(event.videoId);
     }
-    log('[HomeController] Favori değişikliği algılandı: ${event.videoId} → ${event.isFavorite}');
+    log(
+      '[HomeController] Favori değişikliği algılandı: ${event.videoId} → ${event.isFavorite}',
+    );
   }
 
   // ─── Üniversite Stats Yükleme ─────────────────────────────────────────────
@@ -204,13 +207,17 @@ class HomeController extends GetxController {
       isPlaylistsLoading.value = true;
       playlistsError.value = '';
       final rows = await videoRepository.getUniversitiesAndPlaylists();
-      universities.value = rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+      universities.value = rows
+          .map((r) => UniversityModel.fromSupabase(r))
+          .toList();
       playlists.value = rows
-          .map((r) => PlaylistModel.fromUniversity(
-                r,
-                videoCount: (r['video_count'] as int?) ?? 0,
-                thumbnailUrl: r['thumbnail_url'] as String? ?? '',
-              ))
+          .map(
+            (r) => PlaylistModel.fromUniversity(
+              r,
+              videoCount: (r['video_count'] as int?) ?? 0,
+              thumbnailUrl: r['thumbnail_url'] as String? ?? '',
+            ),
+          )
           .toList();
     } catch (e) {
       log('loadUniversitiesAndPlaylists error: $e');
@@ -316,8 +323,8 @@ class HomeController extends GetxController {
   String get appBarTitle {
     final uni = selectedUniversity.value;
     if (uni == null) return 'ÜniTV';
-    final name = uni.name;
-    if (name!.length > 20) return '${name.substring(0, 18)}…';
+    final name = uni.name ?? 'ÜniTV'; // ← null guard
+    if (name.length > 20) return '${name.substring(0, 18)}…';
     return name;
   }
 }

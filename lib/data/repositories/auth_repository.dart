@@ -60,11 +60,21 @@ class AuthRepository {
   }
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
-    log('⚙️✏️ [Auth] Ayarlar güncelleniyor → Supabase + local cache');
     await _supabase.updateUserSettings(settings);
     await _local.cacheUserSettings(settings.toSupabase());
-    log('✅ [Auth] Ayarlar güncellendi');
+    await _local.setTheme(settings.theme); // ✅ Kalıcı kayıt
+    await _local.setLanguage(settings.language); // ✅ Dil de kaydedilsin
   }
+
+Future<void> clearLocalCache() async {
+  log('🧹 [Auth] Sadece local cache temizleniyor (çıkış yok)...');
+  await Future.wait([
+    _local.clearCache(),
+    _local.clearUserStats(),
+    _local.clearVideoSectionCache(),
+  ]);
+  log('✅ [Auth] Local cache temizlendi');
+}
 
   Future<void> completeOnboarding() async {
     log('🎓✅ [Auth] Onboarding tamamlandı → local + Supabase yazılıyor');

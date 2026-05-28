@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../app/routes/app_routes.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 import 'auth_controller.dart';
@@ -76,11 +78,38 @@ class SettingsController extends GetxService {
     }
   }
 
+  Future<void> clearCache() async {
+  try {
+    isLoading.value = true;
+    // AuthRepository üzerinden local datasource'a eriş
+    // ya da doğrudan LocalDataSource'u inject et
+    await authRepository.clearLocalCache();
+    errorMessage.value = null;
+    Get.snackbar(
+      'Başarılı',
+      'Cache temizlendi.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.withValues(alpha: 0.9),
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    log('clearCache error: $e');
+    errorMessage.value = 'Cache temizlenemedi.';
+  } finally {
+    isLoading.value = false;
+  }
+}
+
   // lib/presentation/controllers/settings_controller.dart
   Future<void> signOut() async {
-    // Kendi implementasyonu silindi, AuthController'a delegate edildi
     try {
-      await Get.find<AuthController>().signOut();
+      if (Get.isRegistered<AuthController>()) {
+        await Get.find<AuthController>().signOut();
+      } else {
+        // AuthController yoksa direkt AuthRepository'ye git
+        await authRepository.signOut();
+        Get.offAllNamed(AppRoutes.home);
+      }
     } catch (e) {
       log('signOut delegate error: $e');
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';

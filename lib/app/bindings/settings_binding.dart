@@ -19,9 +19,11 @@ class SettingsBinding extends Bindings {
         fenix: true,
       );
     }
-    Get.lazyPut(
-      () => SettingsController(authRepository: Get.find()),
-      fenix: true, // ← EKLENMELİ
-    );
+    if (!Get.isRegistered<SettingsController>()) {
+      Get.lazyPut(
+        () => SettingsController(authRepository: Get.find()),
+        fenix: true,
+      );
+    }
   }
 }

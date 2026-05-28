@@ -56,8 +56,7 @@ class LocalDataSource {
     final cacheTime = DateTime.tryParse(cacheTimeString);
     if (cacheTime == null) return false;
 
-    final now =
-        DateTime.now(); // local time doğrudan kullan, toUtc() + add() gerek yok    if (now.weekday == DateTime.sunday) return true;
+    final now = DateTime.now(); // local time doğrudan kullan
 
     final minuteOfDay = now.hour * 60 + now.minute;
     const cronStart = 8 * 60;

@@ -26,17 +26,19 @@ void main() async {
 
   // screenutil başlatma - uygulama başlamadan önce ekran ölçekleme ayarları
   await ScreenUtil.ensureScreenSize(); // Gerçek ekran boyutlarını almak için
-  // Singleton olarak app genelinde kayıt
-  final supabase = SupabaseDataSource();
-  final local = LocalDataSource();
-  final authRepo = AuthRepository(supabase: supabase, local: local);
+  Get.put<SupabaseDataSource>(SupabaseDataSource(), permanent: true);
+  Get.put<LocalDataSource>(LocalDataSource(), permanent: true);
+  Get.put<AuthRepository>(
+    AuthRepository(supabase: Get.find(), local: Get.find()),
+    permanent: true,
+  );
 
   await Get.putAsync<SettingsController>(() async {
-    final ctrl = SettingsController(authRepository: authRepo);
-    await ctrl.loadSettings(); // Başlarken bir kez yükle
+    final ctrl = SettingsController(authRepository: Get.find());
+    await ctrl.loadSettings();
     return ctrl;
   }, permanent: true);
-  
+
   runApp(MyApp(initialTheme: savedTheme));
 }
 
