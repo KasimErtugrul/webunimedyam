@@ -78,7 +78,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       appBar: AppBar(
-        backgroundColor: AppTheme.bg(context),
+       /*  backgroundColor: AppTheme.bg(context),
         elevation: 0,
         leading: IconButton(
           icon: Icon(
@@ -87,7 +87,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             size: 18.sp,
           ),
           onPressed: () => Get.back(),
-        ),
+        ), */
       ),
       body: Obx(() {
         if (!_controller.isPlayerReady.value) {
@@ -267,11 +267,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     itemBuilder: (context, index) {
                       return CommentTileWidget(
                         comment: _controller.comments[index],
-                        onDelete: () {
-                          _controller.deleteComment(
-                            _controller.comments[index].id,
-                          );
-                        },
+                        canDelete:
+                            _controller.comments[index].userId ==
+                            _controller.currentUserId,
+                        onDelete: () => _controller.deleteComment(
+                          _controller.comments[index].id,
+                        ),
                       );
                     },
                   );

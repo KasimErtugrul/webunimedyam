@@ -75,6 +75,8 @@ class HomeController extends GetxController {
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
 
   String? get _currentUserId => authRepository.currentUserId;
+  bool get isLoggedIn => authRepository.isLoggedIn;
+
 
   // Stream aboneliği için tutucu
   late final StreamSubscription<FavoriteChange> _favoriteSubscription;

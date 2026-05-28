@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../presentation/controllers/onboarding_controller.dart';
 
 class OnboardingBinding extends Bindings {
   @override
@@ -19,5 +20,8 @@ class OnboardingBinding extends Bindings {
         fenix: true,
       );
     }
+    Get.lazyPut(() => OnboardingController(authRepository: Get.find()), fenix: true);
+
   }
+  
 }

@@ -88,10 +88,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   IconButton(
                     icon: Icon(Icons.person_outline_rounded, size: 24.sp),
                     onPressed: () {
-                      if (controller.authRepository.isLoggedIn) {
+                      if (controller.isLoggedIn) {
                         Get.toNamed(AppRoutes.profile);
-                      } else {
-                        Get.toNamed(AppRoutes.login);
                       }
                     },
                   ),
@@ -105,9 +103,9 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   child: Text(
                     'Son Videolar',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22.sp,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22.sp,
+                    ),
                   ),
                 ),
               ),
@@ -160,21 +158,13 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           SizedBox(height: 16.h),
           Text(
             controller.errorMessage.value,
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: 14.sp,
-            ),
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
           ),
           SizedBox(height: 16.h),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(100.w, 40.h),
-            ),
+            style: ElevatedButton.styleFrom(minimumSize: Size(100.w, 40.h)),
             onPressed: controller.loadVideos,
-            child: Text(
-              'Tekrar Dene',
-              style: TextStyle(fontSize: 14.sp),
-            ),
+            child: Text('Tekrar Dene', style: TextStyle(fontSize: 14.sp)),
           ),
         ],
       ),
@@ -188,10 +178,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       child: Center(
         child: Text(
           'Henüz video yok.',
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: 14.sp,
-          ),
+          style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
         ),
       ),
     );

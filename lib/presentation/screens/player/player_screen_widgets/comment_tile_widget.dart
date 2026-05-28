@@ -10,11 +10,13 @@ import '../../../../data/models/comment_model.dart';
 
 class CommentTileWidget extends StatelessWidget {
   final CommentModel comment;
+  final bool canDelete; // ← eklendi
   final VoidCallback onDelete;
 
   const CommentTileWidget({
     super.key,
     required this.comment,
+    required this.canDelete,
     required this.onDelete,
   });
 
@@ -62,6 +64,7 @@ class CommentTileWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (canDelete)
           GestureDetector(
             onTap: onDelete,
             child: Padding(

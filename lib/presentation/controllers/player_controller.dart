@@ -51,6 +51,8 @@ class PlayerController extends GetxController {
   final snackbarMessage = RxnString();
 
   final currentVideo = Rxn<VideoModel>();
+  String? get currentUserId => authRepository.currentUserId; // public
+
 
   String? get _currentUserId => authRepository.currentUserId;
 

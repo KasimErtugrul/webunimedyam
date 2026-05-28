@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
-import '../../../app/routes/app_routes.dart';
-import '../../../data/repositories/auth_repository.dart';
+
+import '../../controllers/onboarding_controller.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,6 +15,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+final controller = Get.find<OnboardingController>();
 
   final List<Map<String, dynamic>> _pages = [
     {
@@ -61,9 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _completeOnboarding() async {
-    final authRepository = Get.find<AuthRepository>();
-    await authRepository.completeOnboarding();
-    Get.offAllNamed(AppRoutes.home);
+    controller.complete();
   }
 
   @override
