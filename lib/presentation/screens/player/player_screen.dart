@@ -111,7 +111,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         _buildPlayerWithBackButton(
           context,
           YoutubePlayer(
-            controller: _controller.youtubeController,
+            controller: _controller.youtubeController!,
             aspectRatio: 16 / 9,
           ),
         ),

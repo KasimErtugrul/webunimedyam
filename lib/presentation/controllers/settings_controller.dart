@@ -14,11 +14,7 @@ class SettingsController extends GetxService {
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
-  @override
-  void onReady() {
-    super.onReady();
-    loadSettings();
-  }
+
 
   Future<void> loadSettings() async {
     try {

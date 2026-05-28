@@ -56,14 +56,14 @@ class LocalDataSource {
     final cacheTime = DateTime.tryParse(cacheTimeString);
     if (cacheTime == null) return false;
 
-    final now = DateTime.now(); // local time doğrudan kullan
+    final nowUtc = DateTime.now().toUtc();
 
-    final minuteOfDay = now.hour * 60 + now.minute;
+    final minuteOfDay = nowUtc.hour * 60 + nowUtc.minute;
     const cronStart = 8 * 60;
     const cronEnd = 22 * 60 + 45;
     if (minuteOfDay < cronStart || minuteOfDay > cronEnd) return true;
 
-    final nowUtc = DateTime.now().toUtc();
+    //final nowUtc = DateTime.now().toUtc();
     final cacheUtc = cacheTime.toUtc();
     return nowUtc.difference(cacheUtc).inMinutes < 15;
   }

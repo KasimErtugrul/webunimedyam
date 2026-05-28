@@ -28,7 +28,7 @@ class PlayerController extends GetxController {
     required this.authRepository,
   });
 
-  late YoutubePlayerController youtubeController;
+  YoutubePlayerController? youtubeController;
   final comments = <CommentModel>[].obs;
 
   final isFavorite = false.obs;
@@ -52,7 +52,6 @@ class PlayerController extends GetxController {
 
   final currentVideo = Rxn<VideoModel>();
   String? get currentUserId => authRepository.currentUserId;
-
 
   @override
   void onInit() {
@@ -250,31 +249,37 @@ class PlayerController extends GetxController {
   // ─── Paylaşım ────────────────────────────────────────────────────────────
 
   Future<void> shareVideo() async {
-  if (currentVideo.value == null) return;
-  if (isShareLoading.value) return;
-  isShareLoading.value = true;  // ← EN BAŞA AL
-  
-  final videoUrl = 'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
-  final text = '${currentVideo.value!.title}\n$videoUrl';
+    if (currentVideo.value == null) return;
+    if (isShareLoading.value) return;
+    isShareLoading.value = true; // ← EN BAŞA AL
 
-  try {
-    await SharePlus.instance.share(
-      ShareParams(text: text, subject: currentVideo.value!.title),
-    );
-    final userId = currentUserId;
-    if (userId != null) {
-      await engagementRepository.recordShare(userId, currentVideo.value!.videoId);
-      final stats = await engagementRepository.getEngagementStats(currentVideo.value!.videoId);
-      appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
+    final videoUrl =
+        'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
+    final text = '${currentVideo.value!.title}\n$videoUrl';
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: text, subject: currentVideo.value!.title),
+      );
+      final userId = currentUserId;
+      if (userId != null) {
+        await engagementRepository.recordShare(
+          userId,
+          currentVideo.value!.videoId,
+        );
+        final stats = await engagementRepository.getEngagementStats(
+          currentVideo.value!.videoId,
+        );
+        appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
+      }
+    } catch (e) {
+      log('[PlayerController] shareVideo fallback to clipboard: $e');
+      await Clipboard.setData(ClipboardData(text: videoUrl));
+      snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
+    } finally {
+      isShareLoading.value = false; // ← burada kalabilir
     }
-  } catch (e) {
-    log('[PlayerController] shareVideo fallback to clipboard: $e');
-    await Clipboard.setData(ClipboardData(text: videoUrl));
-    snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
-  } finally {
-    isShareLoading.value = false;  // ← burada kalabilir
   }
-}
 
   // ─── Yorumlar ────────────────────────────────────────────────────────────
 
@@ -334,7 +339,7 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
-    youtubeController.close();
+    youtubeController?.close();
     super.onClose();
   }
 }
