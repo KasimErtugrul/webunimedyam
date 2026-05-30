@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67433845227",
+    "project_id": "unitv-33f05",
+    "storage_bucket": "unitv-33f05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67433845227:android:11396a22a5093a5207c9ae",
+        "android_client_info": {
+          "package_name": "com.developfly.unitv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOhOjoSpDeXDcu4DEYxNrU7qKJZ7hSCwk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

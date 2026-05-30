@@ -17,7 +17,6 @@ class UniversityDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<UniversityDetailController>();
-    // final uni = controller.university;
 
     return DefaultTabController(
       length: 2,
@@ -40,6 +39,52 @@ class UniversityDetailScreen extends StatelessWidget {
                 ),
                 onPressed: () => Get.back(),
               ),
+              // ── Favoriye Al Butonu ──────────────────────────────────────
+              actions: [
+                Obx(() {
+                  final isFav = controller.isFavorite.value;
+                  final isLoading = controller.isFavoriteLoading.value;
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8.w),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 44.w,
+                            height: 44.w,
+                            child: Center(
+                              child: SizedBox(
+                                width: 20.w,
+                                height: 20.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            tooltip: isFav
+                                ? 'Favorilerden çıkar'
+                                : 'Favorilere ekle',
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              transitionBuilder: (child, anim) =>
+                                  ScaleTransition(scale: anim, child: child),
+                              child: Icon(
+                                isFav
+                                    ? Icons.bookmark_rounded
+                                    : Icons.bookmark_border_rounded,
+                                key: ValueKey(isFav),
+                                color: isFav
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.textPri(context),
+                                size: 26.sp,
+                              ),
+                            ),
+                            onPressed: controller.toggleFavorite,
+                          ),
+                  );
+                }),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: _Header(controller: controller),
               ),
@@ -204,6 +249,42 @@ class _Header extends StatelessWidget {
                 ],
               ],
             ),
+
+            SizedBox(height: 8.h),
+
+            // ── Favori Durum Göstergesi (isteğe bağlı küçük badge) ─────────
+            Obx(() {
+              if (!controller.isFavorite.value) return const SizedBox.shrink();
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.bookmark_rounded,
+                      size: 12.sp,
+                      color: AppTheme.primaryColor,
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      'Favorilerimde',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ],
         ),
       );
@@ -315,6 +396,59 @@ class _AboutTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Favoriye Al CTA Butonu ──────────────────────────────────────
+            Obx(() {
+              final isFav = controller.isFavorite.value;
+              final isLoading = controller.isFavoriteLoading.value;
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: isLoading ? null : controller.toggleFavorite,
+                  icon: isLoading
+                      ? SizedBox(
+                          width: 16.w,
+                          height: 16.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          isFav
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          size: 18.sp,
+                        ),
+                  label: Text(
+                    isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isFav
+                        ? AppTheme.card(context)
+                        : AppTheme.primaryColor,
+                    foregroundColor: isFav
+                        ? AppTheme.primaryColor
+                        : Colors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                      side: isFav
+                          ? BorderSide(
+                              color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                            )
+                          : BorderSide.none,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            SizedBox(height: 20.h),
+
             // ── Açıklama ─────────────────────────────────────────────────────
             _SectionTitle(title: 'Açıklama'),
             SizedBox(height: 8.h),

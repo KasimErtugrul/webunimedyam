@@ -90,7 +90,7 @@ class SupabaseDataSource {
 
   // ─── Video Cache ──────────────────────────────────────────────────────────
   // FIX: Tüm listelere limit ve offset eklendi.
-  Future<List<VideoModel>> getCachedVideos({int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getCachedVideos({int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('videos_cache')
         .select('*, universities(name)')
@@ -107,7 +107,7 @@ class SupabaseDataSource {
     }).toList();
   }
 
-  Future<List<VideoModel>> getCachedVideosByUniversity(int universityId, {int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getCachedVideosByUniversity(int universityId, {int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('videos_cache')
         .select('*, universities(name)')
@@ -141,7 +141,7 @@ class SupabaseDataSource {
   }
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
-  Future<List<String>> getFavoriteVideoIds(String userId, {int limit = 500}) async {
+  Future<List<String>> getFavoriteVideoIds(String userId, {int limit = 20}) async {
     final data = await _client
         .from('favorites')
         .select('video_id')
@@ -150,7 +150,7 @@ class SupabaseDataSource {
     return (data as List).map((e) => e['video_id'] as String).toList();
   }
 
-  Future<List<VideoModel>> getUserFavoriteVideos(String userId, {int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getUserFavoriteVideos(String userId, {int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('favorites')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -220,7 +220,7 @@ class SupabaseDataSource {
         .eq('id', commentId);
   }
 
-  Future<List<VideoModel>> getUserCommentedVideos(String userId, {int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getUserCommentedVideos(String userId, {int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('comments')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -329,7 +329,7 @@ Future<void> completeOnboarding(String userId) async {
     }, onConflict: 'user_id,video_id');
   }
 
-  Future<List<VideoModel>> getUserViewedVideos(String userId, {int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getUserViewedVideos(String userId, {int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('content_views')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -359,7 +359,7 @@ Future<void> completeOnboarding(String userId) async {
     }, onConflict: 'user_id,video_id');
   }
 
-  Future<List<VideoModel>> getUserSharedVideos(String userId, {int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getUserSharedVideos(String userId, {int limit = 20, int offset = 0}) async {
     final data = await _client
         .from('shared')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -579,4 +579,62 @@ Future<void> completeOnboarding(String userId) async {
         limit: limit,
         offset: offset,
       );
+
+      // ─── Üniversite Favorileri ────────────────────────────────────────────────────
+ 
+/// Kullanıcının favori üniversite id'lerini getirir.
+Future<List<int>> getFavoriteUniversityIds(String userId) async {
+  final data = await _client
+      .from('university_favorites')
+      .select('university_id')
+      .eq('user_id', userId);
+  return (data as List).map((e) => e['university_id'] as int).toList();
+}
+ 
+/// Kullanıcının favori üniversitelerini tam model olarak getirir.
+Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
+  final data = await _client
+      .from('university_favorites')
+      .select('university_id, created_at, universities(*)')
+      .eq('user_id', userId)
+      .order('created_at', ascending: false);
+ 
+  final List<UniversityModel> universities = [];
+  for (final row in (data as List)) {
+    final uniData = row['universities'];
+    if (uniData == null) continue;
+    universities.add(UniversityModel.fromSupabase(
+      Map<String, dynamic>.from(uniData as Map),
+    ));
+  }
+  return universities;
+}
+ 
+/// Üniversiteyi favorilere ekler.
+Future<void> addUniversityFavorite(String userId, int universityId) async {
+  await _client.from('university_favorites').insert({
+    'user_id': userId,
+    'university_id': universityId,
+  });
+}
+ 
+/// Üniversiteyi favorilerden çıkarır.
+Future<void> removeUniversityFavorite(String userId, int universityId) async {
+  await _client
+      .from('university_favorites')
+      .delete()
+      .eq('user_id', userId)
+      .eq('university_id', universityId);
+}
+ 
+/// Tek bir üniversitenin favori durumunu kontrol eder.
+Future<bool> isUniversityFavorited(String userId, int universityId) async {
+  final data = await _client
+      .from('university_favorites')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('university_id', universityId)
+      .maybeSingle();
+  return data != null;
+}
 }
