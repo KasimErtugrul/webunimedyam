@@ -637,4 +637,40 @@ Future<bool> isUniversityFavorited(String userId, int universityId) async {
       .maybeSingle();
   return data != null;
 }
+
+  // ─── FCM Token Yönetimi ──────────────────────────────────────────────────
+
+  /// FCM token'ını Supabase'e upsert eder (ekle veya güncelle).
+  Future<void> upsertFcmToken({
+    required String userId,
+    required String token,
+    required String platform, // 'android' | 'ios' | 'web'
+  }) async {
+    await _client.from('fcm_tokens').upsert(
+      {
+        'user_id':    userId,
+        'token':      token,
+        'platform':   platform,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,token',
+    );
+  }
+
+  /// Belirli bir token'ı siler (logout veya token yenileme).
+  Future<void> deleteFcmToken({
+    required String userId,
+    required String token,
+  }) async {
+    await _client
+        .from('fcm_tokens')
+        .delete()
+        .eq('user_id', userId)
+        .eq('token', token);
+  }
+
+  /// Kullanıcıya ait tüm FCM token'larını siler.
+  Future<void> deleteAllFcmTokens(String userId) async {
+    await _client.from('fcm_tokens').delete().eq('user_id', userId);
+  }
 }

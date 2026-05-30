@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'dart:developer';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -15,28 +17,31 @@ import 'data/datasources/local/local_datasource.dart';
 import 'data/datasources/remote/supabase_datasource.dart';
 import 'data/repositories/auth_repository.dart';
 import 'presentation/controllers/settings_controller.dart';
+import 'services/notification_service.dart';
 
-// Background mesaj handler (uygulama kapalıyken bile çalışır)
+// ─── Background mesaj handler ─────────────────────────────────────────────
+// Bu fonksiyon top-level olmalı (sınıf dışı) ve Firebase.initializeApp
+// çağrısı içermeli.
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  log("Arka planda mesaj alındı: ${message.notification?.title}");
-  // Burada istediğin işlemi yapabilirsin (bildirim göster vs.)
+  log('[FCM] Arka planda mesaj: ${message.notification?.title}');
+  // Ek işlem gerekmiyorsa boş bırakılabilir; sistem bildirimi otomatik gösterilir.
 }
 
-
+// ─── main ─────────────────────────────────────────────────────────────────
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ==================== Firebase Initialize ====================
+  // ==================== Firebase ====================
   await Firebase.initializeApp();
-  
-  // Background handler'ı kaydet
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // ==================== Supabase Initialize ====================
+  // ==================== Supabase ====================
   await Supabase.initialize(
     url: 'https://ftqjpfqzjuthoifkyqgl.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
   );
 
   // ==================== Diğer Ayarlar ====================
@@ -45,7 +50,7 @@ void main() async {
 
   await ScreenUtil.ensureScreenSize();
 
-  // Dependency Injection
+  // ==================== Dependency Injection ====================
   Get.put<SupabaseDataSource>(SupabaseDataSource(), permanent: true);
   Get.put<LocalDataSource>(LocalDataSource(), permanent: true);
   Get.put<AuthRepository>(
@@ -59,9 +64,14 @@ void main() async {
     return ctrl;
   }, permanent: true);
 
+  // ==================== Bildirim Servisi ====================
+  // FCM izni isteme, token kaydetme ve dinleyicileri kur.
+  await NotificationService.instance.initialize();
+
   runApp(MyApp(initialTheme: savedTheme));
 }
 
+// ─── App Widget ───────────────────────────────────────────────────────────
 class MyApp extends StatelessWidget {
   final String initialTheme;
   const MyApp({super.key, required this.initialTheme});
@@ -78,7 +88,8 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
+          themeMode:
+              initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
           initialRoute: AppRoutes.splash,
           getPages: AppPages.pages,
         );
