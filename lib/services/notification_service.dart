@@ -7,6 +7,8 @@
 //  4. Foreground / background / terminated bildirimleri dinler
 //  5. Bildirime tıklandığında ilgili üniversite sayfasına yönlendirir
 
+// Eğer kullanıcı giriş yapmamışsa token kaydedilmez, giriş yapınca kaydedilir, çıkış yapınca silinir.
+
 import 'dart:developer';
 import 'dart:io';
 

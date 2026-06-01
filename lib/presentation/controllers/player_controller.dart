@@ -180,10 +180,8 @@ class PlayerController extends GetxController {
       } else {
         await engagementRepository.addLike(userId, currentVideo.value!.videoId);
       }
-      final stats = await engagementRepository.getEngagementStats(
-        currentVideo.value!.videoId,
-      );
-      appLikeCount.value = stats['app_like_count'] ?? appLikeCount.value;
+      // OPTİMİZASYON: getEngagementStats() çağrısı kaldırıldı.
+      // appLikeCount zaten yukarıda optimistic olarak güncellendi — doğru delta kesin.
     } catch (e) {
       isLiked.value = wasLiked;
       appLikeCount.value += wasLiked ? 1 : -1;
@@ -210,7 +208,6 @@ class PlayerController extends GetxController {
 
     try {
       if (!wasAdding) {
-        // Favoriden çıkar
         await favoritesRepository.removeFavorite(
           userId,
           currentVideo.value!.videoId,
@@ -219,24 +216,14 @@ class PlayerController extends GetxController {
           currentVideo.value!.videoId,
         );
       } else {
-        // Favoriye ekle
         await favoritesRepository.addFavorite(
           userId,
           currentVideo.value!.videoId,
         );
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo.value!);
       }
-
-      // Engagement istatistiklerini yenile
-      final stats = await engagementRepository.getEngagementStats(
-        currentVideo.value!.videoId,
-      );
-      appFavoriteCount.value =
-          stats['app_favorite_count'] ?? appFavoriteCount.value;
-
-      // NOT: HomeController ve FavoritesController artık burada güncellenmiyor.
-      // Onlar, FavoritesRepository'den yayınlanan stream event'lerine abone olarak
-      // kendi state'lerini güncelleyecekler.
+      // OPTİMİZASYON: getEngagementStats() kaldırıldı.
+      // appFavoriteCount zaten optimistic güncellendi.
     } catch (e) {
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
@@ -267,10 +254,8 @@ class PlayerController extends GetxController {
           userId,
           currentVideo.value!.videoId,
         );
-        final stats = await engagementRepository.getEngagementStats(
-          currentVideo.value!.videoId,
-        );
-        appShareCount.value = stats['app_share_count'] ?? appShareCount.value;
+        // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic güncelleme yeterli.
+        appShareCount.value += 1;
       }
     } catch (e) {
       log('[PlayerController] shareVideo fallback to clipboard: $e');
@@ -312,11 +297,8 @@ class PlayerController extends GetxController {
         content: content.trim(),
       );
       await loadComments();
-      final stats = await engagementRepository.getEngagementStats(
-        currentVideo.value!.videoId,
-      );
-      appCommentCount.value =
-          stats['app_comment_count'] ?? appCommentCount.value;
+      // OPTİMİZASYON: getEngagementStats() kaldırıldı — yorum sayısını doğrudan güncelle.
+      appCommentCount.value += 1;
     } catch (e) {
       log('[PlayerController] addComment error: $e');
     }
@@ -327,11 +309,8 @@ class PlayerController extends GetxController {
     try {
       await commentRepository.deleteComment(commentId);
       comments.removeWhere((c) => c.id == commentId);
-      final stats = await engagementRepository.getEngagementStats(
-        currentVideo.value!.videoId,
-      );
-      appCommentCount.value =
-          stats['app_comment_count'] ?? appCommentCount.value;
+      // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic azalt.
+      if (appCommentCount.value > 0) appCommentCount.value -= 1;
     } catch (e) {
       log('[PlayerController] deleteComment error: $e');
     }

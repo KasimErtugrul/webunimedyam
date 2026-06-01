@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,9 @@ class SettingsController extends GetxService {
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
   final errorMessage = RxnString();
+
+  Timer? _settingsDebounce;
+  UserSettingsModel? _lastSavedSettings;
 
 
 
@@ -163,15 +167,28 @@ class SettingsController extends GetxService {
 
   // ─── Private ──────────────────────────────────────────────────────────────
 
+  /// Debounce ile Supabase'e yaz — 800 ms içinde birden fazla toggle
+  /// gelirse sadece en son değer gönderilir (tek network isteği).
   Future<void> _updateSettings(UserSettingsModel updated) async {
-    final oldSettings = settings.value;
-    try {
-      settings.value = updated; // Optimistic UI
-      await authRepository.updateUserSettings(updated);
-    } catch (e) {
-      settings.value = oldSettings; // Rollback
-      log('_updateSettings error: $e');
-      errorMessage.value = 'Ayarlar güncellenemedi.';
-    }
+    final oldSettings = _lastSavedSettings ?? settings.value;
+    settings.value = updated; // Optimistic UI — anında güncelle
+
+    _settingsDebounce?.cancel();
+    _settingsDebounce = Timer(const Duration(milliseconds: 800), () async {
+      try {
+        await authRepository.updateUserSettings(updated);
+        _lastSavedSettings = updated;
+        log('⚙️✅ [Settings] Supabase\'e yazıldı (debounce)');
+      } catch (e) {
+        settings.value = oldSettings; // Rollback
+        log('_updateSettings error: $e');
+        errorMessage.value = 'Ayarlar güncellenemedi.';
+      }
+    });
   }
-}
+
+  @override
+  void onClose() {
+    _settingsDebounce?.cancel();
+    super.onClose();
+  }}

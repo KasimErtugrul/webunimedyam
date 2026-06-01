@@ -1,6 +1,9 @@
 // lib/data/repositories/video_repository.dart
 
+import 'dart:convert';
 import 'dart:developer';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
@@ -139,6 +142,100 @@ class VideoRepository {
       return [];
     }
   }
+
+  // ─── Video Engagement — Ana Sayfa RPC Bundle ─────────────────────────────
+
+  static const _bundleCacheKey = 'video_sections_bundle';
+  static const _bundleTimeKey  = 'video_sections_bundle_time';
+  static const _bundleTtlMinutes = 30;
+
+  Future<bool> _isBundleCacheValid() async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeStr = prefs.getString(_bundleTimeKey);
+    if (timeStr == null) return false;
+    final cacheTime = DateTime.tryParse(timeStr);
+    if (cacheTime == null) return false;
+    return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes < _bundleTtlMinutes;
+  }
+
+  Future<Map<String, dynamic>?> _getBundleFromCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonStr = prefs.getString(_bundleCacheKey);
+    if (jsonStr == null) return null;
+    try {
+      return Map<String, dynamic>.from(json.decode(jsonStr) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _saveBundleToCache(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_bundleCacheKey, json.encode(data));
+    await prefs.setString(_bundleTimeKey, DateTime.now().toUtc().toIso8601String());
+  }
+
+  List<VideoEngagementModel> _parseSection(dynamic raw) {
+    if (raw == null) return [];
+    return (raw as List).map((e) =>
+        VideoEngagementModel.fromMap(Map<String, dynamic>.from(e as Map))).toList();
+  }
+
+  /// 6 video section'ını tek RPC çağrısıyla çeker.
+  /// Dönüş: key → liste map'i.
+  Future<Map<String, List<VideoEngagementModel>>> getAllVideoSections() async {
+    // 1. Cache kontrolü
+    if (await _isBundleCacheValid()) {
+      final cached = await _getBundleFromCache();
+      if (cached != null) {
+        log('📺💾 [Video] Video sections bundle LOCAL cache\'den geldi');
+        return _bundleToSectionMap(cached);
+      }
+    }
+
+    // 2. RPC çağrısı
+    try {
+      log('📺☁️ [Video] Video sections RPC → get_home_video_sections');
+      final data = await _supabase.getHomeVideoSections();
+      if (data != null) {
+        log('📺✅ [Video] Video sections bundle geldi, cache\'e yazıldı');
+        await _saveBundleToCache(data);
+        return _bundleToSectionMap(data);
+      }
+    } catch (e) {
+      log('📺❌ [Video] Video sections RPC hata: $e → stale cache deneniyor');
+    }
+
+    // 3. Stale fallback
+    final stale = await _getBundleFromCache();
+    if (stale != null) {
+      log('📺💾 [Video] Stale video sections bundle döndürüldü');
+      return _bundleToSectionMap(stale);
+    }
+
+    log('📺❌ [Video] Stale cache de yok → boş map');
+    return _emptyBundle();
+  }
+
+  Map<String, List<VideoEngagementModel>> _bundleToSectionMap(Map<String, dynamic> data) {
+    return {
+      'trending':        _parseSection(data['trending']),
+      'most_watched':    _parseSection(data['most_watched']),
+      'most_liked':      _parseSection(data['most_liked']),
+      'most_favorited':  _parseSection(data['most_favorited']),
+      'most_commented':  _parseSection(data['most_commented']),
+      'new_undiscovered':_parseSection(data['new_undiscovered']),
+    };
+  }
+
+  Map<String, List<VideoEngagementModel>> _emptyBundle() => {
+    'trending': [],
+    'most_watched': [],
+    'most_liked': [],
+    'most_favorited': [],
+    'most_commented': [],
+    'new_undiscovered': [],
+  };
 
   // ─── Video Engagement — Ana Sayfa (ilk 10, 30 dk TTL cache) ─────────────
 

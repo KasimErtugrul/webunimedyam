@@ -12,7 +12,7 @@ import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
 
-// FavoritesController IMPORT EDİLMİYOR! Bağımlılık yok.
+// FavoritesController IMPORT EDİLMİYOR — bağımlılık yok.
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
@@ -130,24 +130,16 @@ class HomeController extends GetxController {
   Future<void> loadUniversityStats() async {
     try {
       isStatsLoading.value = true;
-      final results = await Future.wait([
-        universityStatsRepository.getMostWatched(),
-        universityStatsRepository.getMostLiked(),
-        universityStatsRepository.getPopularInApp(),
-        universityStatsRepository.getMostFavorited(),
-        universityStatsRepository.getMostActiveLast30Days(),
-        universityStatsRepository.getBiggestChannels(),
-        universityStatsRepository.getRichestArchive(),
-        universityStatsRepository.getNewlyDiscovered(),
-      ]);
-      statsMostWatched.value = results[0];
-      statsMostLiked.value = results[1];
-      statsPopularInApp.value = results[2];
-      statsMostFavorited.value = results[3];
-      statsActiveLast30.value = results[4];
-      statsBiggestChannels.value = results[5];
-      statsRichestArchive.value = results[6];
-      statsNewlyDiscovered.value = results[7];
+      // OPTİMİZASYON: 8 ayrı çağrı → tek RPC bundle
+      final bundle = await universityStatsRepository.getAllStats();
+      statsMostWatched.value    = bundle['most_watched']        ?? [];
+      statsMostLiked.value      = bundle['most_liked']          ?? [];
+      statsPopularInApp.value   = bundle['popular_in_app']      ?? [];
+      statsMostFavorited.value  = bundle['most_favorited']      ?? [];
+      statsActiveLast30.value   = bundle['most_active_last_30'] ?? [];
+      statsBiggestChannels.value= bundle['biggest_channels']    ?? [];
+      statsRichestArchive.value = bundle['richest_archive']     ?? [];
+      statsNewlyDiscovered.value= bundle['newly_discovered']    ?? [];
     } catch (e) {
       log('loadUniversityStats error: $e');
     } finally {
@@ -160,38 +152,14 @@ class HomeController extends GetxController {
   Future<void> loadVideoSections() async {
     try {
       isVideoSectionsLoading.value = true;
-      final results = await Future.wait([
-        videoRepository.getTrendingVideos().catchError((e) {
-          log('getTrendingVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-        videoRepository.getMostWatchedVideos().catchError((e) {
-          log('getMostWatchedVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-        videoRepository.getMostLikedVideos().catchError((e) {
-          log('getMostLikedVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-        videoRepository.getMostFavoritedVideos().catchError((e) {
-          log('getMostFavoritedVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-        videoRepository.getMostCommentedVideos().catchError((e) {
-          log('getMostCommentedVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-        videoRepository.getNewUndiscoveredVideos().catchError((e) {
-          log('getNewUndiscoveredVideos error: $e');
-          return <VideoEngagementModel>[];
-        }),
-      ]);
-      videosTrending.value = results[0];
-      videosMostWatched.value = results[1];
-      videosMostLiked.value = results[2];
-      videosMostFavorited.value = results[3];
-      videosMostCommented.value = results[4];
-      videosNewUndiscovered.value = results[5];
+      // OPTİMİZASYON: 6 ayrı çağrı → tek RPC bundle
+      final bundle = await videoRepository.getAllVideoSections();
+      videosTrending.value       = bundle['trending']         ?? [];
+      videosMostWatched.value    = bundle['most_watched']     ?? [];
+      videosMostLiked.value      = bundle['most_liked']       ?? [];
+      videosMostFavorited.value  = bundle['most_favorited']   ?? [];
+      videosMostCommented.value  = bundle['most_commented']   ?? [];
+      videosNewUndiscovered.value= bundle['new_undiscovered'] ?? [];
     } catch (e) {
       log('loadVideoSections error: $e');
     } finally {
