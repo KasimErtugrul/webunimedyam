@@ -72,11 +72,13 @@ class PlayerController extends GetxController {
       _resolveIsFavoriteFromCache(); // DÜZELTİLDI: HomeController kullanmıyor
     }
 
-    await Future.wait([
-      _loadEngagementStats(showInitialLoader: true),
-      if (userId != null) checkLike(),
-      _recordView(),
-    ]);
+    // DÜZELTME: _recordView() önce bitmeli ki Supabase'deki materialized view
+    // refresh triggerı ateşlensin. Ardından stats yüklenirse view sayısı doğru gelir.
+    // checkLike() ise DB'yi okur, view ile yarışmaz → paralel çalışabilir.
+    if (userId != null) {
+      await Future.wait([_recordView(), checkLike()]);
+    }
+    await _loadEngagementStats(showInitialLoader: true);
   }
 
   // DÜZELTİLDİ: HomeController'a bağımlılık yok, doğrudan repository'den kontrol

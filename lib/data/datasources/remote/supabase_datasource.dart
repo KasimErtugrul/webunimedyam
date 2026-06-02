@@ -89,6 +89,23 @@ class SupabaseDataSource {
   }
 
   // ─── Video Cache ──────────────────────────────────────────────────────────
+
+  Future<VideoModel?> getVideoById(String videoId) async {
+    final data = await _client
+        .from('videos_cache')
+        .select('*, universities(name)')
+        .eq('video_id', videoId)
+        .maybeSingle();
+
+    if (data == null) return null;
+    final row = Map<String, dynamic>.from(data);
+    if (row['universities'] != null) {
+      row['university_name'] = row['universities']['name'];
+    }
+    row.remove('universities');
+    return VideoModel.fromSupabase(row);
+  }
+
   // FIX: Tüm listelere limit ve offset eklendi.
   Future<List<VideoModel>> getCachedVideos({int limit = 20, int offset = 0}) async {
     final data = await _client
@@ -617,6 +634,23 @@ Future<void> addUniversityFavorite(String userId, int universityId) async {
     'university_id': universityId,
   });
 }
+
+  // ─── Home RPC Bundle'ları ─────────────────────────────────────────────────
+
+  /// 8 ayrı university_stats çağrısını tek RPC'ye indirgir.
+  Future<Map<String, dynamic>?> getHomeUniversityStats() async {
+    final data = await _client.rpc('get_home_university_stats');
+    if (data == null) return null;
+    return Map<String, dynamic>.from(data as Map);
+  }
+
+  /// 6 ayrı video_engagement_stats çağrısını tek RPC'ye indirgir.
+  Future<Map<String, dynamic>?> getHomeVideoSections() async {
+    final data = await _client.rpc('get_home_video_sections');
+    if (data == null) return null;
+    return Map<String, dynamic>.from(data as Map);
+  }
+
  
 /// Üniversiteyi favorilerden çıkarır.
 Future<void> removeUniversityFavorite(String userId, int universityId) async {
@@ -637,22 +671,6 @@ Future<bool> isUniversityFavorited(String userId, int universityId) async {
       .maybeSingle();
   return data != null;
 }
-
-  // ─── Home RPC Bundle'ları ─────────────────────────────────────────────────
-
-  /// 8 ayrı university_stats çağrısını tek RPC'ye indirgir.
-  Future<Map<String, dynamic>?> getHomeUniversityStats() async {
-    final data = await _client.rpc('get_home_university_stats');
-    if (data == null) return null;
-    return Map<String, dynamic>.from(data as Map);
-  }
-
-  /// 6 ayrı video_engagement_stats çağrısını tek RPC'ye indirgir.
-  Future<Map<String, dynamic>?> getHomeVideoSections() async {
-    final data = await _client.rpc('get_home_video_sections');
-    if (data == null) return null;
-    return Map<String, dynamic>.from(data as Map);
-  }
 
   // ─── FCM Token Yönetimi ──────────────────────────────────────────────────
 

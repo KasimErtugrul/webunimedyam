@@ -5,7 +5,8 @@
 //  2. FCM token'ını alır ve Supabase'e kaydeder
 //  3. Token yenilendiğinde otomatik günceller
 //  4. Foreground / background / terminated bildirimleri dinler
-//  5. Bildirime tıklandığında ilgili üniversite sayfasına yönlendirir
+//  5. Bildirime tıklandığında o videonun izleme sayfasına yönlendirir
+//     (geri tuşu ana sayfaya döner — sanki uygulamayı açıp oradan girmiş gibi)
 
 // Eğer kullanıcı giriş yapmamışsa token kaydedilmez, giriş yapınca kaydedilir, çıkış yapınca silinir.
 
@@ -16,6 +17,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../app/routes/app_routes.dart';
+import '../data/datasources/remote/supabase_datasource.dart';
 
 class NotificationService {
   NotificationService._();
@@ -156,12 +160,12 @@ class NotificationService {
   void _handleForegroundMessage(RemoteMessage message) {
     log('[FCM] Foreground mesaj: ${message.notification?.title}');
 
-    // Uygulama açıkken GetX snackbar göster
     final title = message.notification?.title ?? '';
     final body  = message.notification?.body  ?? '';
 
     if (title.isEmpty && body.isEmpty) return;
 
+    // Uygulama açıkken GetX snackbar göster; snackbar'a tıklayınca da videoya git
     Get.snackbar(
       title,
       body,
@@ -172,19 +176,31 @@ class NotificationService {
     );
   }
 
-  void _handleNotificationTap(RemoteMessage message) {
+  Future<void> _handleNotificationTap(RemoteMessage message) async {
     log('[FCM] Bildirime tıklandı: ${message.data}');
 
-    final type          = message.data['type'] ?? '';
-    final universityId  = message.data['university_id'];
+    final type    = message.data['type'] ?? '';
+    final videoId = message.data['video_id'];
 
-    if (type == 'new_university_video' && universityId != null) {
-      final id = int.tryParse(universityId);
-      if (id != null) {
-        // Üniversite detay sayfasına yönlendir
-        // AppRoutes.universityDetail'in argüman olarak int aldığını varsayıyoruz
-        Get.toNamed('/university-detail', arguments: id);
+    if (type != 'new_university_video' || videoId == null) return;
+
+    try {
+      // Supabase'den video detayını çek
+      final ds = Get.find<SupabaseDataSource>();
+      final video = await ds.getVideoById(videoId as String);
+
+      if (video == null) {
+        log('[FCM] Video bulunamadı: $videoId');
+        return;
       }
+
+      // Stack'i sıfırla: Home'u base olarak koy, Player'ı üstüne aç.
+      // Böylece geri tuşu ana sayfaya döner — kullanıcı oradan girmiş gibi hisseder.
+      Get.offAllNamed(AppRoutes.home);
+      await Future.delayed(const Duration(milliseconds: 200));
+      Get.toNamed(AppRoutes.player, arguments: video);
+    } catch (e) {
+      log('[FCM] Bildirim navigasyonu hatası: $e');
     }
   }
 }
