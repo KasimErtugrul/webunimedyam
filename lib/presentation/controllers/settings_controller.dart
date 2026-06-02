@@ -1,24 +1,32 @@
+// lib/presentation/controllers/settings_controller.dart
+// MEVCUT DOSYANIN ÜSTÜNE YAZAR
+
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
+import '../../data/datasources/remote/supabase_datasource.dart';
 import 'auth_controller.dart';
 
 class SettingsController extends GetxService {
   final AuthRepository authRepository;
+  final SupabaseDataSource _supabase;
 
-  SettingsController({required this.authRepository});
+  SettingsController({
+    required this.authRepository,
+    required SupabaseDataSource supabase,
+  }) : _supabase = supabase;
 
-  final settings = Rxn<UserSettingsModel>();
-  final isLoading = false.obs;
-  final errorMessage = RxnString();
+  final settings      = Rxn<UserSettingsModel>();
+  final isLoading     = false.obs;
+  final errorMessage  = RxnString();
 
   Timer? _settingsDebounce;
   UserSettingsModel? _lastSavedSettings;
 
-
+  // ─── Yükleme ──────────────────────────────────────────────────────────────
 
   Future<void> loadSettings() async {
     try {
@@ -37,9 +45,7 @@ class SettingsController extends GetxService {
     final current = settings.value;
     if (current == null) return;
     await _updateSettings(current.copyWith(theme: theme));
-    // SharedPreferences'a da yaz (main.dart startup için)
     await authRepository.saveThemeLocally(theme);
-    // UI'ı anında güncelle
     final mode = theme == 'dark'
         ? ThemeMode.dark
         : theme == 'light'
@@ -94,7 +100,15 @@ class SettingsController extends GetxService {
     );
   }
 
-  // ─── Gizlilik ─────────────────────────────────────────────────────────────
+  Future<void> toggleNotifyFollowRequests() async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(
+      current.copyWith(notifyFollowRequests: !current.notifyFollowRequests),
+    );
+  }
+
+  // ─── Gizlilik — Eski ──────────────────────────────────────────────────────
 
   Future<void> toggleWatchHistory() async {
     final current = settings.value;
@@ -112,14 +126,53 @@ class SettingsController extends GetxService {
     );
   }
 
+  // ─── Gizlilik — YENİ Visibility ───────────────────────────────────────────
+
+  /// Profil görünürlüğünü günceller (profiles tablosu + ayarlar)
+  Future<void> changeProfileVisibility(VisibilityOption visibility) async {
+    final userId = _supabase.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      // profiles tablosunu güncelle
+      await _supabase.updateProfileVisibility(userId, visibility.value);
+      log('⚙️✅ [Settings] profileVisibility → ${visibility.value}');
+    } catch (e) {
+      log('changeProfileVisibility error: $e');
+      errorMessage.value = 'Profil görünürlüğü güncellenemedi.';
+    }
+  }
+
+  Future<void> changeWatchHistoryVisibility(VisibilityOption v) async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(current.copyWith(watchHistoryVisibility: v));
+  }
+
+  Future<void> changeLikesVisibility(VisibilityOption v) async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(current.copyWith(likesVisibility: v));
+  }
+
+  Future<void> changeFavoritesVisibility(VisibilityOption v) async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(current.copyWith(favoritesVisibility: v));
+  }
+
+  Future<void> changeCommentsVisibility(VisibilityOption v) async {
+    final current = settings.value;
+    if (current == null) return;
+    await _updateSettings(current.copyWith(commentsVisibility: v));
+  }
+
   // ─── Erişilebilirlik ──────────────────────────────────────────────────────
 
   Future<void> toggleReducedMotion() async {
     final current = settings.value;
     if (current == null) return;
-    await _updateSettings(
-      current.copyWith(reducedMotion: !current.reducedMotion),
-    );
+    await _updateSettings(current.copyWith(reducedMotion: !current.reducedMotion));
   }
 
   Future<void> changeTextScale(double scale) async {
@@ -167,11 +220,9 @@ class SettingsController extends GetxService {
 
   // ─── Private ──────────────────────────────────────────────────────────────
 
-  /// Debounce ile Supabase'e yaz — 800 ms içinde birden fazla toggle
-  /// gelirse sadece en son değer gönderilir (tek network isteği).
   Future<void> _updateSettings(UserSettingsModel updated) async {
     final oldSettings = _lastSavedSettings ?? settings.value;
-    settings.value = updated; // Optimistic UI — anında güncelle
+    settings.value = updated; // Optimistic UI
 
     _settingsDebounce?.cancel();
     _settingsDebounce = Timer(const Duration(milliseconds: 800), () async {
@@ -191,4 +242,5 @@ class SettingsController extends GetxService {
   void onClose() {
     _settingsDebounce?.cancel();
     super.onClose();
-  }}
+  }
+}

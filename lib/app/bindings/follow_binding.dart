@@ -1,13 +1,13 @@
-// lib/app/bindings/settings_binding.dart
-// MEVCUT DOSYANIN ÜSTÜNE YAZAR
+// lib/app/bindings/follow_binding.dart
 
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
-import '../../presentation/controllers/settings_controller.dart';
+import '../../data/repositories/follow_repository.dart';
+import '../../presentation/controllers/follow_controller.dart';
 
-class SettingsBinding extends Bindings {
+class FollowBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<SupabaseDataSource>()) {
@@ -22,12 +22,15 @@ class SettingsBinding extends Bindings {
         fenix: true,
       );
     }
-    if (!Get.isRegistered<SettingsController>()) {
+    if (!Get.isRegistered<FollowRepository>()) {
       Get.lazyPut(
-        () => SettingsController(
-          authRepository: Get.find(),
-          supabase: Get.find(),
-        ),
+        () => FollowRepository(supabase: Get.find()),
+        fenix: true,
+      );
+    }
+    if (!Get.isRegistered<FollowController>()) {
+      Get.lazyPut(
+        () => FollowController(followRepository: Get.find()),
         fenix: true,
       );
     }

@@ -107,7 +107,10 @@ class SupabaseDataSource {
   }
 
   // FIX: Tüm listelere limit ve offset eklendi.
-  Future<List<VideoModel>> getCachedVideos({int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getCachedVideos({
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('videos_cache')
         .select('*, universities(name)')
@@ -124,7 +127,11 @@ class SupabaseDataSource {
     }).toList();
   }
 
-  Future<List<VideoModel>> getCachedVideosByUniversity(int universityId, {int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getCachedVideosByUniversity(
+    int universityId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('videos_cache')
         .select('*, universities(name)')
@@ -142,7 +149,10 @@ class SupabaseDataSource {
     }).toList();
   }
 
-  Future<List<VideoModel>> getLatestVideoPerUniversity({int limit = 500, int offset = 0}) async {
+  Future<List<VideoModel>> getLatestVideoPerUniversity({
+    int limit = 500,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('latest_videos_per_university')
         .select()
@@ -158,7 +168,10 @@ class SupabaseDataSource {
   }
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
-  Future<List<String>> getFavoriteVideoIds(String userId, {int limit = 20}) async {
+  Future<List<String>> getFavoriteVideoIds(
+    String userId, {
+    int limit = 20,
+  }) async {
     final data = await _client
         .from('favorites')
         .select('video_id')
@@ -167,7 +180,11 @@ class SupabaseDataSource {
     return (data as List).map((e) => e['video_id'] as String).toList();
   }
 
-  Future<List<VideoModel>> getUserFavoriteVideos(String userId, {int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getUserFavoriteVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('favorites')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -205,7 +222,11 @@ class SupabaseDataSource {
   }
 
   // ─── Yorumlar ─────────────────────────────────────────────────────────────
-  Future<List<CommentModel>> getComments(String videoId, {int limit = 200, int offset = 0}) async {
+  Future<List<CommentModel>> getComments(
+    String videoId, {
+    int limit = 200,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('comments')
         .select('*, profiles(username, avatar_url)')
@@ -237,7 +258,11 @@ class SupabaseDataSource {
         .eq('id', commentId);
   }
 
-  Future<List<VideoModel>> getUserCommentedVideos(String userId, {int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getUserCommentedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('comments')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -264,7 +289,9 @@ class SupabaseDataSource {
   }
 
   // ─── Oynatma Listeleri ────────────────────────────────────────────────────
-  Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount({int limit = 500}) async {
+  Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount({
+    int limit = 500,
+  }) async {
     final data = await _client
         .from('universities_with_stats')
         .select('*')
@@ -274,8 +301,9 @@ class SupabaseDataSource {
     return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getUniversitiesWithStats({int limit = 500}) =>
-      getUniversitiesWithVideoCount(limit: limit);
+  Future<List<Map<String, dynamic>>> getUniversitiesWithStats({
+    int limit = 500,
+  }) => getUniversitiesWithVideoCount(limit: limit);
 
   // ─── Onboarding ──────────────────────────────────────────────────────────
   Future<bool> isOnboardingCompleted(String userId) async {
@@ -287,19 +315,18 @@ class SupabaseDataSource {
     return data?['completed'] ?? false;
   }
 
- // lib/data/datasources/remote/supabase_datasource.dart
-Future<void> completeOnboarding(String userId) async {
-  await _client
-      .from('onboarding')
-      .upsert(                          // ← update → upsert
-        {
-          'user_id': userId,            // ← id alanı eklendi
-          'completed': true,
-          'completed_at': DateTime.now().toIso8601String(),
-        },
-        onConflict: 'user_id',
-      );
-}
+  // lib/data/datasources/remote/supabase_datasource.dart
+  Future<void> completeOnboarding(String userId) async {
+    await _client.from('onboarding').upsert(
+      // ← update → upsert
+      {
+        'user_id': userId, // ← id alanı eklendi
+        'completed': true,
+        'completed_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id',
+    );
+  }
 
   // ─── Arama ───────────────────────────────────────────────────────────────
   Future<List<VideoModel>> searchVideos(String query, {int limit = 30}) async {
@@ -346,7 +373,11 @@ Future<void> completeOnboarding(String userId) async {
     }, onConflict: 'user_id,video_id');
   }
 
-  Future<List<VideoModel>> getUserViewedVideos(String userId, {int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getUserViewedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('content_views')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -376,7 +407,11 @@ Future<void> completeOnboarding(String userId) async {
     }, onConflict: 'user_id,video_id');
   }
 
-  Future<List<VideoModel>> getUserSharedVideos(String userId, {int limit = 20, int offset = 0}) async {
+  Future<List<VideoModel>> getUserSharedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     final data = await _client
         .from('shared')
         .select('video_id, created_at, videos_cache(*, universities(name))')
@@ -528,112 +563,106 @@ Future<void> completeOnboarding(String userId) async {
   Future<List<Map<String, dynamic>>> getTrendingVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'engagement_score',
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'engagement_score',
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostWatchedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'yt_view_count',
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'yt_view_count',
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostLikedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_like_count',
-        filterColumn: 'app_like_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_like_count',
+    filterColumn: 'app_like_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostFavoritedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_favorite_count',
-        filterColumn: 'app_favorite_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_favorite_count',
+    filterColumn: 'app_favorite_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostCommentedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_comment_count',
-        filterColumn: 'app_comment_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_comment_count',
+    filterColumn: 'app_comment_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getNewAndUndiscoveredVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'published_at',
-        filterColumn: 'app_view_count',
-        filterOperator: 'eq',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'published_at',
+    filterColumn: 'app_view_count',
+    filterOperator: 'eq',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
-      // ─── Üniversite Favorileri ────────────────────────────────────────────────────
- 
-/// Kullanıcının favori üniversite id'lerini getirir.
-Future<List<int>> getFavoriteUniversityIds(String userId) async {
-  final data = await _client
-      .from('university_favorites')
-      .select('university_id')
-      .eq('user_id', userId);
-  return (data as List).map((e) => e['university_id'] as int).toList();
-}
- 
-/// Kullanıcının favori üniversitelerini tam model olarak getirir.
-Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
-  final data = await _client
-      .from('university_favorites')
-      .select('university_id, created_at, universities(*)')
-      .eq('user_id', userId)
-      .order('created_at', ascending: false);
- 
-  final List<UniversityModel> universities = [];
-  for (final row in (data as List)) {
-    final uniData = row['universities'];
-    if (uniData == null) continue;
-    universities.add(UniversityModel.fromSupabase(
-      Map<String, dynamic>.from(uniData as Map),
-    ));
+  // ─── Üniversite Favorileri ────────────────────────────────────────────────────
+
+  /// Kullanıcının favori üniversite id'lerini getirir.
+  Future<List<int>> getFavoriteUniversityIds(String userId) async {
+    final data = await _client
+        .from('university_favorites')
+        .select('university_id')
+        .eq('user_id', userId);
+    return (data as List).map((e) => e['university_id'] as int).toList();
   }
-  return universities;
-}
- 
-/// Üniversiteyi favorilere ekler.
-Future<void> addUniversityFavorite(String userId, int universityId) async {
-  await _client.from('university_favorites').insert({
-    'user_id': userId,
-    'university_id': universityId,
-  });
-}
+
+  /// Kullanıcının favori üniversitelerini tam model olarak getirir.
+  Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
+    final data = await _client
+        .from('university_favorites')
+        .select('university_id, created_at, universities(*)')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+
+    final List<UniversityModel> universities = [];
+    for (final row in (data as List)) {
+      final uniData = row['universities'];
+      if (uniData == null) continue;
+      universities.add(
+        UniversityModel.fromSupabase(Map<String, dynamic>.from(uniData as Map)),
+      );
+    }
+    return universities;
+  }
+
+  /// Üniversiteyi favorilere ekler.
+  Future<void> addUniversityFavorite(String userId, int universityId) async {
+    await _client.from('university_favorites').insert({
+      'user_id': userId,
+      'university_id': universityId,
+    });
+  }
 
   // ─── Home RPC Bundle'ları ─────────────────────────────────────────────────
 
@@ -651,26 +680,25 @@ Future<void> addUniversityFavorite(String userId, int universityId) async {
     return Map<String, dynamic>.from(data as Map);
   }
 
- 
-/// Üniversiteyi favorilerden çıkarır.
-Future<void> removeUniversityFavorite(String userId, int universityId) async {
-  await _client
-      .from('university_favorites')
-      .delete()
-      .eq('user_id', userId)
-      .eq('university_id', universityId);
-}
- 
-/// Tek bir üniversitenin favori durumunu kontrol eder.
-Future<bool> isUniversityFavorited(String userId, int universityId) async {
-  final data = await _client
-      .from('university_favorites')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('university_id', universityId)
-      .maybeSingle();
-  return data != null;
-}
+  /// Üniversiteyi favorilerden çıkarır.
+  Future<void> removeUniversityFavorite(String userId, int universityId) async {
+    await _client
+        .from('university_favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('university_id', universityId);
+  }
+
+  /// Tek bir üniversitenin favori durumunu kontrol eder.
+  Future<bool> isUniversityFavorited(String userId, int universityId) async {
+    final data = await _client
+        .from('university_favorites')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('university_id', universityId)
+        .maybeSingle();
+    return data != null;
+  }
 
   // ─── FCM Token Yönetimi ──────────────────────────────────────────────────
 
@@ -680,15 +708,12 @@ Future<bool> isUniversityFavorited(String userId, int universityId) async {
     required String token,
     required String platform, // 'android' | 'ios' | 'web'
   }) async {
-    await _client.from('fcm_tokens').upsert(
-      {
-        'user_id':    userId,
-        'token':      token,
-        'platform':   platform,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'user_id,token',
-    );
+    await _client.from('fcm_tokens').upsert({
+      'user_id': userId,
+      'token': token,
+      'platform': platform,
+      'updated_at': DateTime.now().toIso8601String(),
+    }, onConflict: 'user_id,token');
   }
 
   /// Belirli bir token'ı siler (logout veya token yenileme).
@@ -706,5 +731,154 @@ Future<bool> isUniversityFavorited(String userId, int universityId) async {
   /// Kullanıcıya ait tüm FCM token'larını siler.
   Future<void> deleteAllFcmTokens(String userId) async {
     await _client.from('fcm_tokens').delete().eq('user_id', userId);
+  }
+
+  // ─── Profil Görünürlüğü ───────────────────────────────────────────────────
+
+  Future<void> updateProfileVisibility(String userId, String visibility) async {
+    await _client
+        .from('profiles')
+        .update({'profile_visibility': visibility})
+        .eq('id', userId);
+  }
+
+  // ─── Takip Sistemi ────────────────────────────────────────────────────────
+
+  /// Bir kullanıcıyı takip et (insert)
+  /// Hedef profil private ise status='pending', değilse 'accepted'
+  Future<void> followUser({
+    required String followerId,
+    required String followingId,
+    bool requireApproval = false,
+  }) async {
+    await _client.from('user_follows').insert({
+      'follower_id': followerId,
+      'following_id': followingId,
+      'status': requireApproval ? 'pending' : 'accepted',
+    });
+  }
+
+  /// Takibi bırak (delete)
+  Future<void> unfollowUser({
+    required String followerId,
+    required String followingId,
+  }) async {
+    await _client
+        .from('user_follows')
+        .delete()
+        .eq('follower_id', followerId)
+        .eq('following_id', followingId);
+  }
+
+  /// Mevcut kullanıcının followingId'yi takip edip etmediğini döner.
+  /// null → takip yok, FollowModel → takip var (status: pending/accepted)
+  Future<Map<String, dynamic>?> getFollowStatus({
+    required String followerId,
+    required String followingId,
+  }) async {
+    return await _client
+        .from('user_follows')
+        .select()
+        .eq('follower_id', followerId)
+        .eq('following_id', followingId)
+        .maybeSingle();
+  }
+
+  /// Bir kullanıcının TAKİPÇİLERİNİ listeler (beni takip edenler)
+  Future<List<Map<String, dynamic>>> getFollowers(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final data = await _client
+        .from('user_follows')
+        .select('''
+          id, follower_id, following_id, status, created_at,
+          follower_profile:profiles!follower_id (
+            id, username, full_name, avatar_url, profile_visibility
+          )
+        ''')
+        .eq('following_id', userId)
+        .eq('status', 'accepted')
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
+
+    return (data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Bir kullanıcının TAKİP ETTİKLERİNİ listeler
+  Future<List<Map<String, dynamic>>> getFollowing(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final data = await _client
+        .from('user_follows')
+        .select('''
+          id, follower_id, following_id, status, created_at,
+          following_profile:profiles!following_id (
+            id, username, full_name, avatar_url, profile_visibility
+          )
+        ''')
+        .eq('follower_id', userId)
+        .eq('status', 'accepted')
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
+
+    return (data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Kullanıcının takipçi ve takip edilen sayılarını döner
+  Future<Map<String, dynamic>?> getFollowCounts(String userId) async {
+    return await _client
+        .from('user_follow_counts')
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+  }
+
+  /// Bekleyen takip isteklerini döner (sadece kendi hesabı için)
+  Future<List<Map<String, dynamic>>> getPendingFollowRequests(
+    String userId, {
+    int limit = 50,
+  }) async {
+    final data = await _client
+        .from('user_follows')
+        .select('''
+          id, follower_id, following_id, status, created_at,
+          follower_profile:profiles!follower_id (
+            id, username, full_name, avatar_url
+          )
+        ''')
+        .eq('following_id', userId)
+        .eq('status', 'pending')
+        .order('created_at', ascending: false)
+        .limit(limit);
+
+    return (data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Takip isteğini kabul et
+  Future<void> acceptFollowRequest(String followId) async {
+    await _client
+        .from('user_follows')
+        .update({'status': 'accepted'})
+        .eq('id', followId);
+  }
+
+  /// Takip isteğini reddet (sil)
+  Future<void> rejectFollowRequest(String followId) async {
+    await _client.from('user_follows').delete().eq('id', followId);
+  }
+
+  /// Verilen userId'nin profilini username ile birlikte çek
+  Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
+    return await _client
+        .from('profiles')
+        .select(
+          'id, username, full_name, avatar_url, profile_visibility, created_at',
+        )
+        .eq('id', userId)
+        .maybeSingle();
   }
 }

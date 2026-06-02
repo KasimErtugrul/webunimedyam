@@ -3,7 +3,9 @@ import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/follow_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart'; // YENİ
+import '../../presentation/controllers/follow_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
 
 class ProfileBinding extends Bindings {
@@ -16,28 +18,42 @@ class ProfileBinding extends Bindings {
       Get.lazyPut(() => LocalDataSource(), fenix: true);
     }
     if (!Get.isRegistered<AuthRepository>()) {
-      Get.lazyPut(() => AuthRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
     if (!Get.isRegistered<FavoritesRepository>()) {
-      Get.lazyPut(() => FavoritesRepository(
-            supabase: Get.find(),
-            local: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => FavoritesRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
     // YENİ EKLENDİ
     if (!Get.isRegistered<ProfileActivityRepository>()) {
-      Get.lazyPut(() => ProfileActivityRepository(
-            supabase: Get.find(),
-          ), fenix: true);
+      Get.lazyPut(
+        () => ProfileActivityRepository(supabase: Get.find()),
+        fenix: true,
+      );
     }
 
-    Get.lazyPut(() => ProfileController(
-          authRepository: Get.find(),
-          favoritesRepository: Get.find(),
-          profileActivityRepository: Get.find(), // YENİ
-        ), fenix: true);
+    Get.lazyPut(
+      () => ProfileController(
+        authRepository: Get.find(),
+        favoritesRepository: Get.find(),
+        profileActivityRepository: Get.find(), // YENİ
+      ),
+      fenix: true,
+    );
+
+    if (!Get.isRegistered<FollowRepository>()) {
+      Get.lazyPut(() => FollowRepository(supabase: Get.find()), fenix: true);
+    }
+    if (!Get.isRegistered<FollowController>()) {
+      Get.lazyPut(
+        () => FollowController(followRepository: Get.find()),
+        fenix: true,
+      );
+    }
   }
 }

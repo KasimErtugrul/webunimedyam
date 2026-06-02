@@ -1,6 +1,6 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Profil başlığı
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================
+// lib/presentation/screens/profile/widgets/profile_header_widget.dart
+// ============================================================
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +9,11 @@ import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/profile_controller.dart';
+import '../../../../controllers/follow_controller.dart';
+import '../../../follow/widgets/follow_button_widget.dart';
 import 'stat_chip_widget.dart';
 import 'stat_divider_widget.dart';
+
 
 class ProfileHeaderWidget extends StatelessWidget {
   final ProfileController controller;
@@ -20,6 +23,12 @@ class ProfileHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final profile = controller.profile.value;
+      final isOwnProfile = controller.isOwnProfile;
+
+      // FollowController kayıtlıysa al, yoksa null kalır
+      final followCtrl = Get.isRegistered<FollowController>()
+          ? Get.find<FollowController>()
+          : null;
 
       return Container(
         color: AppTheme.bg(context),
@@ -27,6 +36,9 @@ class ProfileHeaderWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // ────────────────────────────────────────────
+            // Avatar
+            // ────────────────────────────────────────────
             Stack(
               children: [
                 Container(
@@ -47,7 +59,8 @@ class ProfileHeaderWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty
+                  child: profile?.avatarUrl != null &&
+                          profile!.avatarUrl!.isNotEmpty
                       ? ClipOval(
                           child: CachedNetworkImage(
                             imageUrl: profile.avatarUrl!,
@@ -69,7 +82,12 @@ class ProfileHeaderWidget extends StatelessWidget {
                 ),
               ],
             ),
+
             SizedBox(height: 12.h),
+
+            // ────────────────────────────────────────────
+            // Kullanıcı adı
+            // ────────────────────────────────────────────
             Text(
               profile?.username ?? 'Kullanıcı',
               style: TextStyle(
@@ -78,6 +96,10 @@ class ProfileHeaderWidget extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
+            // ────────────────────────────────────────────
+            // Tam isim (varsa)
+            // ────────────────────────────────────────────
             if ((profile?.fullName ?? '').isNotEmpty) ...[
               SizedBox(height: 2.h),
               Text(
@@ -88,7 +110,20 @@ class ProfileHeaderWidget extends StatelessWidget {
                 ),
               ),
             ],
+
+            // ────────────────────────────────────────────
+            // Takipçi / Takip edilen sayıları
+            // ────────────────────────────────────────────
+            if (profile != null) ...[
+              SizedBox(height: 12.h),
+              FollowCountsWidget(userId: profile.id),
+            ],
+
             SizedBox(height: 16.h),
+
+            // ────────────────────────────────────────────
+            // İstatistik chipleri
+            // ────────────────────────────────────────────
             Obx(
               () => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -119,6 +154,14 @@ class ProfileHeaderWidget extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ────────────────────────────────────────────
+            // Takip butonu (başkasının profili ise)
+            // ────────────────────────────────────────────
+            if (!isOwnProfile && profile != null) ...[
+              SizedBox(height: 16.h),
+              FollowButtonWidget(targetProfile: profile),
+            ],
           ],
         ),
       );

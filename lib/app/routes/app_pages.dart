@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../presentation/screens/follow/followers_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
@@ -12,6 +13,7 @@ import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
 import '../../presentation/screens/university_detail/university_detail_screen.dart'; // ← YENİ
+import '../bindings/follow_binding.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/playlist_detail_binding.dart';
 import '../bindings/splash_binding.dart';
@@ -94,6 +96,12 @@ abstract class AppPages {
       name: AppRoutes.universityDetail,
       page: () => const UniversityDetailScreen(),
       binding: UniversityDetailBinding(),
+    ),
+
+     GetPage(
+      name: AppRoutes.followers,
+      page: () => const FollowersScreen(),
+      binding: FollowBinding(),
     ),
   ];
 }

@@ -59,7 +59,10 @@ void main() async {
   );
 
   await Get.putAsync<SettingsController>(() async {
-    final ctrl = SettingsController(authRepository: Get.find());
+    final ctrl = SettingsController(
+      authRepository: Get.find(),
+      supabase: Get.find(),
+    );
     await ctrl.loadSettings();
     return ctrl;
   }, permanent: true);
@@ -88,8 +91,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode:
-              initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
+          themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
           initialRoute: AppRoutes.splash,
           getPages: AppPages.pages,
         );
