@@ -3,15 +3,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../data/datasources/remote/supabase_datasource.dart';
 import '../../controllers/profile_controller.dart';
 import 'widgets/profile_view_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  /// Binding ile aynı tag hesaplaması: targetUserId ?? currentUserId
+  String get _tag {
+    final args = Get.arguments as Map<String, dynamic>?;
+    final targetUserId = args?['userId'] as String?;
+    if (targetUserId != null) return targetUserId;
+    final supabase = Get.find<SupabaseDataSource>();
+    return supabase.currentUser?.id ?? 'anonymous';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ProfileController>();
+    final controller = Get.find<ProfileController>(tag: _tag);
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -34,19 +44,12 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Giriş yapılmamış ekranı
-// ═══════════════════════════════════════════════════════════════════════════
-
 class _NotLoggedInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Profil',
-          style: TextStyle(fontSize: 20.sp),
-        ),
+        title: Text('Profil', style: TextStyle(fontSize: 20.sp)),
       ),
       body: Center(
         child: Padding(
@@ -98,10 +101,7 @@ class _NotLoggedInView extends StatelessWidget {
                     minimumSize: Size(double.infinity, 48.h),
                   ),
                   onPressed: () => Get.toNamed(AppRoutes.login),
-                  child: Text(
-                    'Giriş Yap',
-                    style: TextStyle(fontSize: 16.sp),
-                  ),
+                  child: Text('Giriş Yap', style: TextStyle(fontSize: 16.sp)),
                 ),
               ),
               SizedBox(height: 12.h),
@@ -121,10 +121,7 @@ class _NotLoggedInView extends StatelessWidget {
                     minimumSize: Size(double.infinity, 48.h),
                   ),
                   onPressed: () => Get.toNamed(AppRoutes.register),
-                  child: Text(
-                    'Kayıt Ol',
-                    style: TextStyle(fontSize: 16.sp),
-                  ),
+                  child: Text('Kayıt Ol', style: TextStyle(fontSize: 16.sp)),
                 ),
               ),
             ],

@@ -115,6 +115,19 @@ class AuthRepository {
     }
   }
 
+   /// Başkasının profilini ID ile çek (public profil bilgisi).
+  Future<ProfileModel?> getProfileById(String userId) async {
+    try {
+      log('👤☁️ [Auth] Profil çekiliyor (by ID) → $userId');
+      final data = await _supabase.getPublicProfile(userId);
+      if (data == null) return null;
+      return ProfileModel.fromSupabase(data);
+    } catch (e) {
+      log('👤❌ [Auth] getProfileById error: $e');
+      return null;
+    }
+  }
+
   Future<UserSettingsModel?> getUserSettings() async {
     final userId = currentUserId;
     if (userId == null) return null;

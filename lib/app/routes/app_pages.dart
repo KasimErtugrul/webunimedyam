@@ -59,6 +59,7 @@ abstract class AppPages {
       name: AppRoutes.profile,
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
+      preventDuplicates: false, // Farklı kullanıcı profillerinin stack'te açılmasına izin ver
     ),
    
     GetPage(

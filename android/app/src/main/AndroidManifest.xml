@@ -1,12 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Android 13+ (API 33+) için bildirim izni zorunlu -->
+    <!-- Android 13+ (API 33+) bildirim izni zorunlu -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:label="unitv"
+        android:label="ÇOMÜ TV"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -16,31 +17,45 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
             <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <!-- Launcher intent -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!--
+                FCM bildirimine tıklanınca uygulamayı ön plana getiren intent.
+                click_action: "FLUTTER_NOTIFICATION_CLICK" ile eşleşmelidir.
+                singleTop + bu intent-filter sayesinde MainActivity yeniden
+                oluşturulmaz; Flutter FCM plugin yeni mesajı mevcut activity'e iletir.
+            -->
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
         </activity>
 
-        <!-- FCM: Arka plan bildirimleri için varsayılan kanal -->
+        <!-- FCM: Arka plan bildirimleri için varsayılan kanal ID'si -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="high_importance_channel" />
 
-        <!-- FCM: Bildirim simgesi (drawable'dan beyaz/şeffaf ikon kullan) -->
+        <!-- FCM: Bildirim simgesi (beyaz/şeffaf PNG, drawable klasöründen) -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher" />
 
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <!-- Flutter embedding -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
     </application>
 
     <queries>

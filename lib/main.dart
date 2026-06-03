@@ -19,38 +19,38 @@ import 'data/repositories/auth_repository.dart';
 import 'presentation/controllers/settings_controller.dart';
 import 'services/notification_service.dart';
 
-// ─── Background mesaj handler ─────────────────────────────────────────────
-// Bu fonksiyon top-level olmalı (sınıf dışı) ve Firebase.initializeApp
-// çağrısı içermeli.
+// ─── Background mesaj handler (top-level, sınıf dışı) ─────────────────────
+// Uygulama KAPALI iken gelen FCM mesajlarını işler.
+// Navigasyon burada yapılmaz; getInitialMessage() ile main akışta yapılır.
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  log('[FCM] Arka planda mesaj: ${message.notification?.title}');
-  // Ek işlem gerekmiyorsa boş bırakılabilir; sistem bildirimi otomatik gösterilir.
+  log('[FCM-BG] Arka planda mesaj alındı: ${message.notification?.title}');
+  // Sistem bildirimi OS tarafından otomatik gösterilir.
+  // Ek işlem gerekmiyorsa boş bırakılır.
 }
 
-// ─── main ─────────────────────────────────────────────────────────────────
+// ─── main ──────────────────────────────────────────────────────────────────
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ==================== Firebase ====================
+  // ── Firebase ──────────────────────────────────────────────────────────────
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // ==================== Supabase ====================
+  // ── Supabase ──────────────────────────────────────────────────────────────
   await Supabase.initialize(
-    url: 'https://ftqjpfqzjuthoifkyqgl.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
+    url:     'https://ftqjpfqzjuthoifkyqgl.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
   );
 
-  // ==================== Diğer Ayarlar ====================
-  final prefs = await SharedPreferences.getInstance();
+  // ── Tema ──────────────────────────────────────────────────────────────────
+  final prefs      = await SharedPreferences.getInstance();
   final savedTheme = prefs.getString('theme') ?? 'dark';
 
   await ScreenUtil.ensureScreenSize();
 
-  // ==================== Dependency Injection ====================
+  // ── Dependency Injection ──────────────────────────────────────────────────
   Get.put<SupabaseDataSource>(SupabaseDataSource(), permanent: true);
   Get.put<LocalDataSource>(LocalDataSource(), permanent: true);
   Get.put<AuthRepository>(
@@ -61,20 +61,20 @@ void main() async {
   await Get.putAsync<SettingsController>(() async {
     final ctrl = SettingsController(
       authRepository: Get.find(),
-      supabase: Get.find(),
+      supabase:       Get.find(),
     );
     await ctrl.loadSettings();
     return ctrl;
   }, permanent: true);
 
-  // ==================== Bildirim Servisi ====================
-  // FCM izni isteme, token kaydetme ve dinleyicileri kur.
+  // ── Bildirim Servisi ──────────────────────────────────────────────────────
+  // İzin ister, token kaydeder, tüm FCM dinleyicilerini kurar.
   await NotificationService.instance.initialize();
 
   runApp(MyApp(initialTheme: savedTheme));
 }
 
-// ─── App Widget ───────────────────────────────────────────────────────────
+// ─── App Widget ────────────────────────────────────────────────────────────
 class MyApp extends StatelessWidget {
   final String initialTheme;
   const MyApp({super.key, required this.initialTheme});
@@ -82,18 +82,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
+      designSize:      const Size(375, 812),
+      minTextAdapt:    true,
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
-          title: 'UniTV',
+          title:                      'ÇOMÜ TV',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme:                      AppTheme.lightTheme,
+          darkTheme:                  AppTheme.darkTheme,
           themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
           initialRoute: AppRoutes.splash,
-          getPages: AppPages.pages,
+          getPages:     AppPages.pages,
         );
       },
     );

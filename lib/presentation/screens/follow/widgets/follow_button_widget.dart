@@ -1,4 +1,4 @@
-// lib/presentation/screens/profile/widgets/follow_button_widget.dart
+// lib/presentation/screens/follow/widgets/follow_button_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +8,16 @@ import '../../../../data/models/follow_model.dart';
 import '../../../../data/models/profile_model.dart';
 import '../../../controllers/follow_controller.dart';
 
+/// Tag'li FollowController'ı bulur.
+/// [userId]: hedef kullanıcının ID'si (tag olarak kullanılır).
+FollowController? _findCtrl(String userId) {
+  if (Get.isRegistered<FollowController>(tag: userId)) {
+    return Get.find<FollowController>(tag: userId);
+  }
+  return null;
+}
+
 /// Profil ekranında gösterilen Takip Et / Takibi Bırak / İstek Gönderildi butonu.
-/// FollowController'ın kayıtlı olduğunu varsayar.
 class FollowButtonWidget extends StatelessWidget {
   final ProfileModel targetProfile;
 
@@ -17,13 +25,13 @@ class FollowButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<FollowController>()) return const SizedBox.shrink();
-    final ctrl = Get.find<FollowController>();
+    final ctrl = _findCtrl(targetProfile.id);
+    if (ctrl == null) return const SizedBox.shrink();
 
     return Obx(() {
-      final isLoading = ctrl.isFollowLoading.value;
-      final follow    = ctrl.currentProfileFollow.value;
-      final isPending = follow?.status == FollowStatus.pending;
+      final isLoading      = ctrl.isFollowLoading.value;
+      final follow         = ctrl.currentProfileFollow.value;
+      final isPending      = follow?.status == FollowStatus.pending;
       final isFollowingUser = follow?.status == FollowStatus.accepted;
 
       if (isLoading) {
@@ -149,7 +157,8 @@ class _FollowChip extends StatelessWidget {
   }
 }
 
-/// Profil başlığında gösterilen takipçi sayıları
+/// Profil başlığında gösterilen takipçi/takip sayıları widget'ı.
+/// [userId]: hedef kullanıcının ID'si (FollowController tag'i).
 class FollowCountsWidget extends StatelessWidget {
   final String userId;
 
@@ -157,8 +166,8 @@ class FollowCountsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<FollowController>()) return const SizedBox.shrink();
-    final ctrl = Get.find<FollowController>();
+    final ctrl = _findCtrl(userId);
+    if (ctrl == null) return const SizedBox.shrink();
 
     return Obx(() {
       final counts = ctrl.followCounts.value;

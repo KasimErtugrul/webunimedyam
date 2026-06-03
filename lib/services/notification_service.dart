@@ -1,14 +1,17 @@
 // lib/services/notification_service.dart
 //
-// Bu servis:
-//  1. Firebase Messaging izni ister
-//  2. FCM token'ını alır ve Supabase'e kaydeder
-//  3. Token yenilendiğinde otomatik günceller
-//  4. Foreground / background / terminated bildirimleri dinler
-//  5. Bildirime tıklandığında o videonun izleme sayfasına yönlendirir
-//     (geri tuşu ana sayfaya döner — sanki uygulamayı açıp oradan girmiş gibi)
-
-// Eğer kullanıcı giriş yapmamışsa token kaydedilmez, giriş yapınca kaydedilir, çıkış yapınca silinir.
+// Bildirim akışı:
+//   1. FCM izni istenir
+//   2. Token → Supabase fcm_tokens tablosuna kaydedilir
+//   3. Token yenilenince otomatik güncellenir
+//   4. Foreground → snackbar (tıklanınca player'a gider)
+//   5. Background tap → player'a gider
+//   6. Terminated tap → uygulama yüklendikten sonra player'a gider
+//
+// Navigasyon stratejisi:
+//   • Home stack'e base olarak konur
+//   • Player onun üstüne açılır
+//   • Geri tuşu → Home (kullanıcı normal girmiş gibi hisseder)
 
 import 'dart:developer';
 import 'dart:io';
@@ -26,45 +29,43 @@ class NotificationService {
   static final NotificationService instance = NotificationService._();
 
   final _messaging = FirebaseMessaging.instance;
-  final _supabase = Supabase.instance.client;
+  final _supabase   = Supabase.instance.client;
 
-  // ─── Başlat ─────────────────────────────────────────────────────────────
-
-  /// main() içinde await ile çağrılmalı.
+  // ─── initialize ──────────────────────────────────────────────────────────
+  /// main() içinde `await NotificationService.instance.initialize()` ile çağır.
   Future<void> initialize() async {
     // 1. İzin iste
     final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
+      alert:       true,
+      badge:       true,
+      sound:       true,
       provisional: false,
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      log('[FCM] Kullanıcı bildirim iznini reddetti.');
+      log('[FCM] Bildirim izni reddedildi.');
       return;
     }
-
     log('[FCM] Bildirim izni: ${settings.authorizationStatus}');
 
-    // 2. iOS için APNs token'ının hazır olmasını bekle
+    // 2. iOS → APNs token hazır olsun
     if (Platform.isIOS) {
       await _messaging.getAPNSToken();
     }
 
-    // 3. Foreground bildirim gösterimini etkinleştir
+    // 3. Foreground bildirim gösterimi (iOS için şart)
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // 4. Token'ı kaydet (kullanıcı giriş yapmışsa)
+    // 4. Giriş yapmışsa token'ı kaydet
     await _saveTokenIfLoggedIn();
 
     // 5. Token yenilenince güncelle
     _messaging.onTokenRefresh.listen((newToken) async {
-      log('[FCM] Token yenilendi, Supabase güncelleniyor…');
+      log('[FCM] Token yenilendi → Supabase güncelleniyor…');
       await _upsertToken(newToken);
     });
 
@@ -74,24 +75,22 @@ class NotificationService {
     // 7. Arka planda bildirime tıklanınca
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
 
-    // 8. Uygulama kapalıyken tıklanmış bildirimi işle
+    // 8. Uygulama KAPALI iken bildirime tıklanmış → başlatma mesajı
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      // Uygulama tam yüklenince yönlendir
+      // Widget ağacı hazır olunca yönlendir
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleNotificationTap(initialMessage);
       });
     }
   }
 
-  // ─── Auth Durumu Değişince Çağır ────────────────────────────────────────
+  // ─── Auth Hooks ──────────────────────────────────────────────────────────
 
-  /// Login sonrası çağır: token'ı o anki kullanıcıya bağlar.
-  Future<void> onUserLogin() async {
-    await _saveTokenIfLoggedIn();
-  }
+  /// Login sonrası çağır → token'ı o anki kullanıcıya bağlar.
+  Future<void> onUserLogin() async => _saveTokenIfLoggedIn();
 
-  /// Logout öncesi çağır: token'ı DB'den sil.
+  /// Logout ÖNCE çağır → token'ı DB'den sil.
   Future<void> onUserLogout() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
@@ -112,19 +111,19 @@ class NotificationService {
     }
   }
 
-  // ─── Token Kayıt ────────────────────────────────────────────────────────
+  // ─── Token Yönetimi ───────────────────────────────────────────────────────
 
   Future<void> _saveTokenIfLoggedIn() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      log('[FCM] Kullanıcı giriş yapmamış, token kaydedilmedi.');
+      log('[FCM] Kullanıcı giriş yapmamış → token kaydedilmedi.');
       return;
     }
 
     try {
       final token = await _messaging.getToken();
       if (token == null) {
-        log('[FCM] Token alınamadı.');
+        log('[FCM] FCM token alınamadı.');
         return;
       }
       await _upsertToken(token);
@@ -149,13 +148,13 @@ class NotificationService {
         },
         onConflict: 'user_id,token',
       );
-      log('[FCM] Token Supabase\'e kaydedildi (platform: $platform).');
+      log('[FCM] Token kaydedildi (platform: $platform).');
     } catch (e) {
       log('[FCM] Token upsert hatası: $e');
     }
   }
 
-  // ─── Mesaj İşleyiciler ──────────────────────────────────────────────────
+  // ─── Mesaj İşleyiciler ────────────────────────────────────────────────────
 
   void _handleForegroundMessage(RemoteMessage message) {
     log('[FCM] Foreground mesaj: ${message.notification?.title}');
@@ -165,40 +164,49 @@ class NotificationService {
 
     if (title.isEmpty && body.isEmpty) return;
 
-    // Uygulama açıkken GetX snackbar göster; snackbar'a tıklayınca da videoya git
+    // Snackbar'a tıklayınca da videoya git
     Get.snackbar(
       title,
       body,
       snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 4),
-      margin: const EdgeInsets.all(12),
-      onTap: (_) => _handleNotificationTap(message),
+      duration:      const Duration(seconds: 5),
+      margin:        const EdgeInsets.all(12),
+      backgroundColor: Get.theme.colorScheme.surfaceContainerHighest.withOpacity(0.95),
+      colorText:     Get.theme.colorScheme.onSurface,
+      onTap:         (_) => _handleNotificationTap(message),
     );
   }
 
   Future<void> _handleNotificationTap(RemoteMessage message) async {
     log('[FCM] Bildirime tıklandı: ${message.data}');
 
-    final type    = message.data['type'] ?? '';
-    final videoId = message.data['video_id'];
+    final type    = message.data['type']     ?? '';
+    final videoId = message.data['video_id'] as String?;
 
-    if (type != 'new_university_video' || videoId == null) return;
+    if (type != 'new_university_video' || videoId == null || videoId.isEmpty) {
+      log('[FCM] Geçersiz bildirim verisi → navigasyon iptal.');
+      return;
+    }
 
     try {
       // Supabase'den video detayını çek
-      final ds = Get.find<SupabaseDataSource>();
-      final video = await ds.getVideoById(videoId as String);
+      final ds    = Get.find<SupabaseDataSource>();
+      final video = await ds.getVideoById(videoId);
 
       if (video == null) {
         log('[FCM] Video bulunamadı: $videoId');
         return;
       }
 
-      // Stack'i sıfırla: Home'u base olarak koy, Player'ı üstüne aç.
-      // Böylece geri tuşu ana sayfaya döner — kullanıcı oradan girmiş gibi hisseder.
+      // Önce stack'i temizle, Home'u base yap; ardından Player'ı aç.
+      // Böylece geri tuşu Home'a döner (kullanıcı normal girmiş gibi hisseder).
       Get.offAllNamed(AppRoutes.home);
-      await Future.delayed(const Duration(milliseconds: 200));
+
+      // Kısa gecikme: Home binding'in tamamlanmasını bekle
+      await Future.delayed(const Duration(milliseconds: 300));
       Get.toNamed(AppRoutes.player, arguments: video);
+
+      log('[FCM] Navigasyon tamamlandı → video: ${video.title}');
     } catch (e) {
       log('[FCM] Bildirim navigasyonu hatası: $e');
     }

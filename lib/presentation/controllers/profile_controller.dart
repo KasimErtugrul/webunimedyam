@@ -1,3 +1,5 @@
+// lib/presentation/controllers/profile_controller.dart
+
 import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -20,23 +22,22 @@ class ProfileController extends GetxController {
   });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
-  final profile = Rxn<ProfileModel>();
-  final settings = Rxn<UserSettingsModel>();
+  final profile   = Rxn<ProfileModel>();
   final isLoading = false.obs;
 
   // ─── Aktivite Listeleri ───────────────────────────────────────────────────
-  final favoriteVideos = <VideoModel>[].obs;
-  final viewedVideos = <VideoModel>[].obs;
-  final commentedVideos = <VideoModel>[].obs;
-  final sharedVideos = <VideoModel>[].obs;
+  final favoriteVideos   = <VideoModel>[].obs;
+  final viewedVideos     = <VideoModel>[].obs;
+  final commentedVideos  = <VideoModel>[].obs;
+  final sharedVideos     = <VideoModel>[].obs;
 
-  final isFavoritesLoading = false.obs;
-  final isViewedLoading = false.obs;
-  final isCommentedLoading = false.obs;
-  final isSharedLoading = false.obs;
+  final isFavoritesLoading  = false.obs;
+  final isViewedLoading     = false.obs;
+  final isCommentedLoading  = false.obs;
+  final isSharedLoading     = false.obs;
 
   final successMessage = RxnString();
-  final errorMessage = RxnString();
+  final errorMessage   = RxnString();
 
   final selectedTabIndex = 0.obs;
 
@@ -45,6 +46,7 @@ class ProfileController extends GetxController {
   String? get _currentUserId => authRepository.currentUserId;
 
   /// Route arguments'tan gelen hedef userId.
+  /// Binding'de kullanılan tag ile tutarlı olmalı.
   /// null ise kendi profilimiz demektir.
   String? get targetUserId {
     final args = Get.arguments as Map<String, dynamic>?;
@@ -62,11 +64,11 @@ class ProfileController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    final tag = targetUserId ?? (_currentUserId ?? 'anonymous');
     loadProfile().then((_) {
-      // FollowController'ı hedef profil için başlat
       final targetId = targetUserId ?? _currentUserId;
-      if (targetId != null && Get.isRegistered<FollowController>()) {
-        Get.find<FollowController>().initForProfile(targetId);
+      if (targetId != null && Get.isRegistered<FollowController>(tag: tag)) {
+        Get.find<FollowController>(tag: tag).initForProfile(targetId);
       }
     });
   }
@@ -78,13 +80,11 @@ class ProfileController extends GetxController {
       isLoading.value = true;
 
       if (isOwnProfile) {
-        // ── Kendi profilimiz ──
         profile.value = await authRepository.getProfile();
       } else {
-        // ── Başkasının profili ──
         final tid = targetUserId;
         if (tid != null) {
-        //  profile.value = await authRepository.getProfileById(tid);
+          profile.value = await authRepository.getProfileById(tid);
         }
       }
     } catch (e) {
@@ -93,7 +93,6 @@ class ProfileController extends GetxController {
       isLoading.value = false;
     }
 
-    // Aktiviteleri yükle
     _loadAllActivities();
   }
 
@@ -101,8 +100,6 @@ class ProfileController extends GetxController {
     final userId = isOwnProfile ? _currentUserId : targetUserId;
     if (userId == null) return;
 
-    // Kendi profilimizde tüm aktiviteleri yükle
-    // Başkasının profilinde visibility kontrolü yapılacak
     if (isOwnProfile) {
       await Future.wait([
         loadFavorites(userId),
@@ -111,28 +108,51 @@ class ProfileController extends GetxController {
         loadSharedVideos(userId),
       ]);
     } else {
-      // Başkasının profili — sadece izin verilen aktiviteleri yükle
       await _loadOtherUserActivities(userId);
     }
   }
 
-  /// Başkasının profilinde visibility kurallarına göre aktivite yükle
   Future<void> _loadOtherUserActivities(String userId) async {
-    final followCtrl = Get.isRegistered<FollowController>()
-        ? Get.find<FollowController>()
+    final tag = targetUserId ?? (_currentUserId ?? 'anonymous');
+    final followCtrl = Get.isRegistered<FollowController>(tag: tag)
+        ? Get.find<FollowController>(tag: tag)
         : null;
-    final isFollowing = followCtrl?.isFollowing(userId) ?? false;
+    final isFollowingTarget = followCtrl?.isFollowing(userId) ?? false;
 
-    // Her aktivite tipi için visibility kontrolü
-    // TODO: Backend'den visibility bilgisi geldikçe burayı güncelle
-    // Şimdilik公开 olanları yüklüyoruz
+    final targetProfile = profile.value;
 
-    await Future.wait([
-      loadFavorites(userId),
-      loadViewedVideos(userId),
-      loadCommentedVideos(userId),
-      loadSharedVideos(userId),
-    ]);
+    final favVis = targetProfile != null
+        ? _visibilityFromProfile(targetProfile, 'favorites')
+        : VisibilityOption.public;
+    if (_canViewActivity(favVis, isFollowingTarget)) {
+      await loadFavorites(userId);
+    }
+
+    final watchVis = targetProfile != null
+        ? _visibilityFromProfile(targetProfile, 'watch_history')
+        : VisibilityOption.public;
+    if (_canViewActivity(watchVis, isFollowingTarget)) {
+      await loadViewedVideos(userId);
+    }
+
+    final commentVis = targetProfile != null
+        ? _visibilityFromProfile(targetProfile, 'comments')
+        : VisibilityOption.public;
+    if (_canViewActivity(commentVis, isFollowingTarget)) {
+      await loadCommentedVideos(userId);
+    }
+
+    await loadSharedVideos(userId);
+  }
+
+  VisibilityOption _visibilityFromProfile(ProfileModel p, String type) {
+    return VisibilityOption.public;
+  }
+
+  bool _canViewActivity(VisibilityOption visibility, bool isFollowing) {
+    if (visibility == VisibilityOption.public) return true;
+    if (visibility == VisibilityOption.friends && isFollowing) return true;
+    return false;
   }
 
   // ─── Aktivite Yükleme ────────────────────────────────────────────────────
@@ -142,9 +162,8 @@ class ProfileController extends GetxController {
       isFavoritesLoading.value = true;
       final userId = uid ?? _currentUserId;
       if (userId == null) return;
-      favoriteVideos.value = await favoritesRepository.getUserFavoriteVideos(
-        userId,
-      );
+      favoriteVideos.value =
+          await favoritesRepository.getUserFavoriteVideos(userId);
     } catch (e) {
       log('loadFavorites error: $e');
     } finally {
@@ -205,12 +224,10 @@ class ProfileController extends GetxController {
     if (current == null) return;
 
     try {
-      final updated = ProfileModel(
-        id: current.id,
-        username: username ?? current.username,
-        fullName: fullName ?? current.fullName,
-        avatarUrl: avatarUrl ?? current.avatarUrl,
-        createdAt: current.createdAt,
+      final updated = current.copyWith(
+        username:  username,
+        fullName:  fullName,
+        avatarUrl: avatarUrl,
       );
       await authRepository.updateProfile(updated);
       profile.value = updated;
@@ -223,14 +240,10 @@ class ProfileController extends GetxController {
 
   // ─── Yardımcılar ──────────────────────────────────────────────────────────
 
-  void changeTab(int index) {
-    selectedTabIndex.value = index;
-  }
+  void changeTab(int index) => selectedTabIndex.value = index;
 
   bool get isLoggedIn => authRepository.isLoggedIn;
 
-  /// Belirli bir sekmeyi görüntüleme izni var mı?
-  /// [visibility] = sekmenin gizlilik ayarı
   bool canViewTab(VisibilityOption visibility) {
     if (isOwnProfile) return true;
     if (visibility == VisibilityOption.public) return true;
@@ -238,26 +251,15 @@ class ProfileController extends GetxController {
     final targetId = targetUserId;
     if (targetId == null) return false;
 
-    final followCtrl = Get.isRegistered<FollowController>()
-        ? Get.find<FollowController>()
+    final tag = targetId;
+    final followCtrl = Get.isRegistered<FollowController>(tag: tag)
+        ? Get.find<FollowController>(tag: tag)
         : null;
     final isFollowing = followCtrl?.isFollowing(targetId) ?? false;
 
     if (visibility == VisibilityOption.friends && isFollowing) return true;
-
     return false;
   }
 
-  /// Profili yenile
-  Future<void> refreshProfile() async {
-    await loadProfile();
-  }
-}
-
-// ─── Visibility Seçenekleri ─────────────────────────────────────────────────
-
-enum VisibilityOption {
-  public,
-  friends,
-  private,
+  Future<void> refreshProfile() async => loadProfile();
 }

@@ -5,35 +5,42 @@ import 'package:get/get.dart';
 import '../../data/repositories/follow_repository.dart';
 import '../../data/models/follow_model.dart';
 import '../../data/models/profile_model.dart';
-import '../../data/models/user_settings_model.dart';
+import '../../data/models/user_settings_model.dart'; // VisibilityOption
 
 class FollowController extends GetxController {
   final FollowRepository followRepository;
 
   FollowController({required this.followRepository});
 
-  // ─── Hedef kullanıcı için durum ───────────────────────────────────────────
-  // Profil ekranında açık olan kullanıcıya ait takip durumu
+  // ─── Mevcut profil sayfası için durum ────────────────────────────────────
   final currentProfileFollow = Rxn<FollowModel>();
-  final followCounts          = Rxn<FollowCounts>();
-  final isFollowLoading       = false.obs;
+  final followCounts         = Rxn<FollowCounts>();
+  final isFollowLoading      = false.obs;
+
+  // ─── Aktif profil userId'si (FollowCounts yenileme için) ─────────────────
+  String? _activeProfileUserId;
 
   // ─── Takipçi/takip edilen listeleri ──────────────────────────────────────
-  final followers     = <FollowModel>[].obs;
-  final following     = <FollowModel>[].obs;
+  final followers       = <FollowModel>[].obs;
+  final following       = <FollowModel>[].obs;
   final pendingRequests = <FollowModel>[].obs;
 
-  final isFollowersLoading  = false.obs;
-  final isFollowingLoading  = false.obs;
-  final isPendingLoading    = false.obs;
+  final isFollowersLoading = false.obs;
+  final isFollowingLoading = false.obs;
+  final isPendingLoading   = false.obs;
 
   final errorMessage   = RxnString();
   final successMessage = RxnString();
 
   // ─── Başlatma ─────────────────────────────────────────────────────────────
 
-  /// Profil ekranı açıldığında çağrılır. [targetUserId]: profili açılan kullanıcı
+  /// Profil ekranı açıldığında çağrılır.
   Future<void> initForProfile(String targetUserId) async {
+    _activeProfileUserId = targetUserId;
+    // Önceki profil verilerini temizle
+    currentProfileFollow.value = null;
+    followCounts.value = null;
+
     await Future.wait([
       loadFollowStatus(targetUserId),
       loadFollowCounts(targetUserId),
@@ -62,50 +69,50 @@ class FollowController extends GetxController {
     }
   }
 
-  /// Takip et / takibi bırak toggle.
-  /// [targetProfile]: hedef kullanıcının profil bilgisi (visibility kontrolü için)
+  // ─── Takip Et / Bırak ────────────────────────────────────────────────────
+
   Future<void> toggleFollow(ProfileModel targetProfile) async {
-    final current = currentProfileFollow.value;
+    final previous = currentProfileFollow.value;
 
     try {
       isFollowLoading.value = true;
 
-      if (current == null) {
+      if (previous == null) {
         // Henüz takip etmiyor → takip et
         final requireApproval =
             targetProfile.profileVisibility == VisibilityOption.private;
 
         await followRepository.followUser(
-          followingId: targetProfile.id,
+          followingId:     targetProfile.id,
           requireApproval: requireApproval,
         );
 
-        // Optimistic: yeni FollowModel oluştur
+        // Optimistic güncelleme
         currentProfileFollow.value = FollowModel(
-          id: '',
-          followerId: '',
+          id:          '',
+          followerId:  '',
           followingId: targetProfile.id,
-          status: requireApproval ? FollowStatus.pending : FollowStatus.accepted,
-          createdAt: DateTime.now(),
+          status:      requireApproval ? FollowStatus.pending : FollowStatus.accepted,
+          createdAt:   DateTime.now(),
         );
 
         successMessage.value = requireApproval
             ? 'Takip isteği gönderildi.'
             : '${targetProfile.username ?? 'Kullanıcı'} takip edildi.';
       } else {
-        // Zaten takip ediyor → takibi bırak
+        // Takip ediyor veya istek gönderilmiş → geri al
         await followRepository.unfollowUser(targetProfile.id);
         currentProfileFollow.value = null;
         successMessage.value = 'Takip bırakıldı.';
       }
 
-      // Sayıları yenile
+      // Sayıları Supabase view'dan gerçek değerlerle yenile
       await loadFollowCounts(targetProfile.id);
     } catch (e) {
       log('toggleFollow error: $e');
-      errorMessage.value = 'İşlem başarısız oldu. Tekrar deneyin.';
+      errorMessage.value = 'İşlem başarısız. Tekrar deneyin.';
       // Rollback
-      currentProfileFollow.value = current;
+      currentProfileFollow.value = previous;
     } finally {
       isFollowLoading.value = false;
     }
@@ -154,7 +161,12 @@ class FollowController extends GetxController {
     try {
       await followRepository.acceptRequest(request.id);
       pendingRequests.removeWhere((r) => r.id == request.id);
-      successMessage.value = '${request.followerUsername ?? 'İstek'} kabul edildi.';
+      successMessage.value =
+          '${request.followerUsername ?? 'İstek'} kabul edildi.';
+      // Kendi takipçi sayısını güncelle
+      if (_activeProfileUserId != null) {
+        await loadFollowCounts(_activeProfileUserId!);
+      }
     } catch (e) {
       log('acceptRequest error: $e');
       errorMessage.value = 'İstek kabul edilemedi.';
@@ -173,7 +185,7 @@ class FollowController extends GetxController {
 
   // ─── Yardımcılar ──────────────────────────────────────────────────────────
 
-  /// Mevcut kullanıcı [targetUserId]'yi takip ediyor mu?
+  /// Mevcut kullanıcı [targetUserId]'yi kabul edilmiş olarak takip ediyor mu?
   bool isFollowing(String targetUserId) {
     final f = currentProfileFollow.value;
     return f != null &&
