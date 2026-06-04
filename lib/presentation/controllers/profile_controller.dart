@@ -22,22 +22,22 @@ class ProfileController extends GetxController {
   });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
-  final profile   = Rxn<ProfileModel>();
+  final profile = Rxn<ProfileModel>();
   final isLoading = false.obs;
 
   // ─── Aktivite Listeleri ───────────────────────────────────────────────────
-  final favoriteVideos   = <VideoModel>[].obs;
-  final viewedVideos     = <VideoModel>[].obs;
-  final commentedVideos  = <VideoModel>[].obs;
-  final sharedVideos     = <VideoModel>[].obs;
+  final favoriteVideos = <VideoModel>[].obs;
+  final viewedVideos = <VideoModel>[].obs;
+  final commentedVideos = <VideoModel>[].obs;
+  final sharedVideos = <VideoModel>[].obs;
 
-  final isFavoritesLoading  = false.obs;
-  final isViewedLoading     = false.obs;
-  final isCommentedLoading  = false.obs;
-  final isSharedLoading     = false.obs;
+  final isFavoritesLoading = false.obs;
+  final isViewedLoading = false.obs;
+  final isCommentedLoading = false.obs;
+  final isSharedLoading = false.obs;
 
   final successMessage = RxnString();
-  final errorMessage   = RxnString();
+  final errorMessage = RxnString();
 
   final selectedTabIndex = 0.obs;
 
@@ -46,7 +46,6 @@ class ProfileController extends GetxController {
   String? get _currentUserId => authRepository.currentUserId;
 
   /// Route arguments'tan gelen hedef userId.
-  /// Binding'de kullanılan tag ile tutarlı olmalı.
   /// null ise kendi profilimiz demektir.
   String? get targetUserId {
     final args = Get.arguments as Map<String, dynamic>?;
@@ -100,59 +99,14 @@ class ProfileController extends GetxController {
     final userId = isOwnProfile ? _currentUserId : targetUserId;
     if (userId == null) return;
 
-    if (isOwnProfile) {
-      await Future.wait([
-        loadFavorites(userId),
-        loadViewedVideos(userId),
-        loadCommentedVideos(userId),
-        loadSharedVideos(userId),
-      ]);
-    } else {
-      await _loadOtherUserActivities(userId);
-    }
-  }
-
-  Future<void> _loadOtherUserActivities(String userId) async {
-    final tag = targetUserId ?? (_currentUserId ?? 'anonymous');
-    final followCtrl = Get.isRegistered<FollowController>(tag: tag)
-        ? Get.find<FollowController>(tag: tag)
-        : null;
-    final isFollowingTarget = followCtrl?.isFollowing(userId) ?? false;
-
-    final targetProfile = profile.value;
-
-    final favVis = targetProfile != null
-        ? _visibilityFromProfile(targetProfile, 'favorites')
-        : VisibilityOption.public;
-    if (_canViewActivity(favVis, isFollowingTarget)) {
-      await loadFavorites(userId);
-    }
-
-    final watchVis = targetProfile != null
-        ? _visibilityFromProfile(targetProfile, 'watch_history')
-        : VisibilityOption.public;
-    if (_canViewActivity(watchVis, isFollowingTarget)) {
-      await loadViewedVideos(userId);
-    }
-
-    final commentVis = targetProfile != null
-        ? _visibilityFromProfile(targetProfile, 'comments')
-        : VisibilityOption.public;
-    if (_canViewActivity(commentVis, isFollowingTarget)) {
-      await loadCommentedVideos(userId);
-    }
-
-    await loadSharedVideos(userId);
-  }
-
-  VisibilityOption _visibilityFromProfile(ProfileModel p, String type) {
-    return VisibilityOption.public;
-  }
-
-  bool _canViewActivity(VisibilityOption visibility, bool isFollowing) {
-    if (visibility == VisibilityOption.public) return true;
-    if (visibility == VisibilityOption.friends && isFollowing) return true;
-    return false;
+    // Her iki durumda da aynı metodları çağır.
+    // RLS zaten izin kontrolünü yapıyor — izin yoksa boş döner.
+    await Future.wait([
+      loadFavorites(userId),
+      loadViewedVideos(userId),
+      loadCommentedVideos(userId),
+      loadSharedVideos(userId),
+    ]);
   }
 
   // ─── Aktivite Yükleme ────────────────────────────────────────────────────
@@ -162,8 +116,9 @@ class ProfileController extends GetxController {
       isFavoritesLoading.value = true;
       final userId = uid ?? _currentUserId;
       if (userId == null) return;
-      favoriteVideos.value =
-          await favoritesRepository.getUserFavoriteVideos(userId);
+      favoriteVideos.value = await favoritesRepository.getUserFavoriteVideos(
+        userId,
+      );
     } catch (e) {
       log('loadFavorites error: $e');
     } finally {
@@ -176,8 +131,9 @@ class ProfileController extends GetxController {
     if (userId == null) return;
     try {
       isViewedLoading.value = true;
-      viewedVideos.value =
-          await profileActivityRepository.getUserViewedVideos(userId);
+      viewedVideos.value = await profileActivityRepository.getUserViewedVideos(
+        userId,
+      );
     } catch (e) {
       log('loadViewedVideos error: $e');
     } finally {
@@ -190,8 +146,8 @@ class ProfileController extends GetxController {
     if (userId == null) return;
     try {
       isCommentedLoading.value = true;
-      commentedVideos.value =
-          await profileActivityRepository.getUserCommentedVideos(userId);
+      commentedVideos.value = await profileActivityRepository
+          .getUserCommentedVideos(userId);
     } catch (e) {
       log('loadCommentedVideos error: $e');
     } finally {
@@ -204,8 +160,9 @@ class ProfileController extends GetxController {
     if (userId == null) return;
     try {
       isSharedLoading.value = true;
-      sharedVideos.value =
-          await profileActivityRepository.getUserSharedVideos(userId);
+      sharedVideos.value = await profileActivityRepository.getUserSharedVideos(
+        userId,
+      );
     } catch (e) {
       log('loadSharedVideos error: $e');
     } finally {
@@ -220,13 +177,20 @@ class ProfileController extends GetxController {
     String? fullName,
     String? avatarUrl,
   }) async {
+    // GÜVENLİK: Sadece kendi profilini güncelleyebilir
+    if (!isOwnProfile) {
+      log('updateProfile: başkasının profili güncellenemez!');
+      errorMessage.value = 'Bu profili düzenleme yetkiniz yok.';
+      return;
+    }
+
     final current = profile.value;
     if (current == null) return;
 
     try {
       final updated = current.copyWith(
-        username:  username,
-        fullName:  fullName,
+        username: username,
+        fullName: fullName,
         avatarUrl: avatarUrl,
       );
       await authRepository.updateProfile(updated);
@@ -251,9 +215,8 @@ class ProfileController extends GetxController {
     final targetId = targetUserId;
     if (targetId == null) return false;
 
-    final tag = targetId;
-    final followCtrl = Get.isRegistered<FollowController>(tag: tag)
-        ? Get.find<FollowController>(tag: tag)
+    final followCtrl = Get.isRegistered<FollowController>(tag: targetId)
+        ? Get.find<FollowController>(tag: targetId)
         : null;
     final isFollowing = followCtrl?.isFollowing(targetId) ?? false;
 

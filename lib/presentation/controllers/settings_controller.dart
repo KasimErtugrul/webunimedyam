@@ -1,5 +1,4 @@
 // lib/presentation/controllers/settings_controller.dart
-// MEVCUT DOSYANIN ÜSTÜNE YAZAR
 
 import 'dart:async';
 import 'dart:developer';
@@ -9,6 +8,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import 'auth_controller.dart';
+import 'profile_controller.dart';
 
 class SettingsController extends GetxService {
   final AuthRepository authRepository;
@@ -19,19 +19,44 @@ class SettingsController extends GetxService {
     required SupabaseDataSource supabase,
   }) : _supabase = supabase;
 
-  final settings      = Rxn<UserSettingsModel>();
-  final isLoading     = false.obs;
-  final errorMessage  = RxnString();
+  final settings        = Rxn<UserSettingsModel>();
+  final isLoading       = false.obs;
+  final errorMessage    = RxnString();
+  final profileVisibility = VisibilityOption.public.obs;
 
   Timer? _settingsDebounce;
   UserSettingsModel? _lastSavedSettings;
+
+  // ─── Tavan kontrolü ───────────────────────────────────────────────────────
+  // Bir aktivite görünürlüğü profil görünürlüğünden daha açık olamaz.
+  // public > friends > private sıralaması.
+
+  static const _order = [
+    VisibilityOption.private,
+    VisibilityOption.friends,
+    VisibilityOption.public,
+  ];
+
+  /// Verilen aktivite değeri profil tavanını aşıyorsa tavana indirir, aşmıyorsa olduğu gibi döner.
+  VisibilityOption _clamp(VisibilityOption activity) {
+    final ceiling = profileVisibility.value;
+    if (_order.indexOf(activity) > _order.indexOf(ceiling)) return ceiling;
+    return activity;
+  }
+
+  /// Bu seçenek profil tavanı dahilinde mi? (UI'da disabled kontrolü için)
+  bool isAllowed(VisibilityOption option) {
+    return _order.indexOf(option) <= _order.indexOf(profileVisibility.value);
+  }
 
   // ─── Yükleme ──────────────────────────────────────────────────────────────
 
   Future<void> loadSettings() async {
     try {
       isLoading.value = true;
-      settings.value = await authRepository.getUserSettings();
+      settings.value  = await authRepository.getUserSettings();
+      final p = await authRepository.getProfile();
+      if (p != null) profileVisibility.value = p.profileVisibility;
     } catch (e) {
       log('loadSettings error: $e');
     } finally {
@@ -48,137 +73,173 @@ class SettingsController extends GetxService {
     await authRepository.saveThemeLocally(theme);
     final mode = theme == 'dark'
         ? ThemeMode.dark
-        : theme == 'light'
-            ? ThemeMode.light
-            : ThemeMode.system;
+        : theme == 'light' ? ThemeMode.light : ThemeMode.system;
     Get.changeThemeMode(mode);
   }
 
   // ─── Oynatma ──────────────────────────────────────────────────────────────
 
   Future<void> toggleAutoplay() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(autoplay: !current.autoplay));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(autoplay: !c.autoplay));
   }
 
   Future<void> toggleSubtitles() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(showSubtitles: !current.showSubtitles));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(showSubtitles: !c.showSubtitles));
   }
 
   Future<void> changeVideoQuality(String quality) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(videoQuality: quality));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(videoQuality: quality));
   }
 
   // ─── Bildirimler ──────────────────────────────────────────────────────────
 
   Future<void> toggleNotifications() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(notificationsEnabled: !current.notificationsEnabled),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(notificationsEnabled: !c.notificationsEnabled));
   }
 
   Future<void> toggleNotifyNewVideos() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(notifyNewVideos: !current.notifyNewVideos),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(notifyNewVideos: !c.notifyNewVideos));
   }
 
   Future<void> toggleNotifyCommentReplies() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(notifyCommentReplies: !current.notifyCommentReplies),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(notifyCommentReplies: !c.notifyCommentReplies));
   }
 
   Future<void> toggleNotifyFollowRequests() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(notifyFollowRequests: !current.notifyFollowRequests),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(notifyFollowRequests: !c.notifyFollowRequests));
   }
 
-  // ─── Gizlilik — Eski ──────────────────────────────────────────────────────
+  // ─── Gizlilik — Eski (geriye uyumluluk) ───────────────────────────────────
 
   Future<void> toggleWatchHistory() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(showWatchHistory: !current.showWatchHistory),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(showWatchHistory: !c.showWatchHistory));
   }
 
   Future<void> toggleFavoritesPublic() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(
-      current.copyWith(showFavoritesPublic: !current.showFavoritesPublic),
-    );
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(showFavoritesPublic: !c.showFavoritesPublic));
   }
 
-  // ─── Gizlilik — YENİ Visibility ───────────────────────────────────────────
+  // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
 
-  /// Profil görünürlüğünü günceller (profiles tablosu + ayarlar)
-  Future<void> changeProfileVisibility(VisibilityOption visibility) async {
-    final userId = _supabase.currentUser?.id;
-    if (userId == null) return;
+  /// Profil görünürlüğünü değiştir.
+  /// Tavan düştüğünde tavanı aşan aktiviteler otomatik indirilir.
+  /// Tavan yükseldiğinde aktivitelere dokunulmaz (kullanıcı kendi seçer).
+  Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
+    final userId  = _supabase.currentUser?.id;
+    final current = settings.value;
+    if (userId == null || current == null) return;
+
+    final oldVisibility = profileVisibility.value;
+    profileVisibility.value = newVisibility; // Optimistic UI
 
     try {
-      // profiles tablosunu güncelle
-      await _supabase.updateProfileVisibility(userId, visibility.value);
-      log('⚙️✅ [Settings] profileVisibility → ${visibility.value}');
+      // 1) profiles tablosunu güncelle
+      await _supabase.updateProfileVisibility(userId, newVisibility.value);
+      log('⚙️✅ [Settings] profileVisibility → ${newVisibility.value}');
+
+      // 2) Tavan düştüyse taşan aktiviteleri indir
+      final clamped = _clampAllActivities(current);
+      if (clamped != null) {
+        await _updateSettings(clamped);
+        log('⚙️✅ [Settings] Taşan aktiviteler tavana indirildi');
+      }
+
+      // 3) ProfileController varsa senkronize et
+      if (Get.isRegistered<ProfileController>()) {
+        final profileCtrl = Get.find<ProfileController>();
+        final existing    = profileCtrl.profile.value;
+        if (existing != null) {
+          profileCtrl.profile.value =
+              existing.copyWith(profileVisibility: newVisibility);
+        }
+      }
     } catch (e) {
+      profileVisibility.value = oldVisibility; // Rollback
       log('changeProfileVisibility error: $e');
       errorMessage.value = 'Profil görünürlüğü güncellenemedi.';
     }
   }
 
+  /// Tüm aktiviteleri mevcut tavana göre clamp eder.
+  /// Hiçbiri taşmıyorsa null döner (gereksiz kayıt yok).
+  UserSettingsModel? _clampAllActivities(UserSettingsModel current) {
+    final w = _clamp(current.watchHistoryVisibility);
+    final l = _clamp(current.likesVisibility);
+    final f = _clamp(current.favoritesVisibility);
+    final c = _clamp(current.commentsVisibility);
+
+    if (w == current.watchHistoryVisibility &&
+        l == current.likesVisibility        &&
+        f == current.favoritesVisibility    &&
+        c == current.commentsVisibility) {
+      return null;
+    }
+
+    return current.copyWith(
+      watchHistoryVisibility: w,
+      likesVisibility:        l,
+      favoritesVisibility:    f,
+      commentsVisibility:     c,
+    );
+  }
+
+  // ─── Gizlilik — Aktivite Görünürlükleri ───────────────────────────────────
+  // Her setter önce tavan kontrolü yapar; tavan izin vermiyorsa sessizce reddeder.
+
   Future<void> changeWatchHistoryVisibility(VisibilityOption v) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(watchHistoryVisibility: v));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(watchHistoryVisibility: _clamp(v)));
   }
 
   Future<void> changeLikesVisibility(VisibilityOption v) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(likesVisibility: v));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(likesVisibility: _clamp(v)));
   }
 
   Future<void> changeFavoritesVisibility(VisibilityOption v) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(favoritesVisibility: v));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(favoritesVisibility: _clamp(v)));
   }
 
   Future<void> changeCommentsVisibility(VisibilityOption v) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(commentsVisibility: v));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(commentsVisibility: _clamp(v)));
   }
 
   // ─── Erişilebilirlik ──────────────────────────────────────────────────────
 
   Future<void> toggleReducedMotion() async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(reducedMotion: !current.reducedMotion));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(reducedMotion: !c.reducedMotion));
   }
 
   Future<void> changeTextScale(double scale) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(textScaleFactor: scale));
+    final c = settings.value;
+    if (c == null) return;
+    await _updateSettings(c.copyWith(textScaleFactor: scale));
   }
 
   // ─── Cache ────────────────────────────────────────────────────────────────
@@ -221,8 +282,8 @@ class SettingsController extends GetxService {
   // ─── Private ──────────────────────────────────────────────────────────────
 
   Future<void> _updateSettings(UserSettingsModel updated) async {
-    final oldSettings = _lastSavedSettings ?? settings.value;
-    settings.value = updated; // Optimistic UI
+    final old = _lastSavedSettings ?? settings.value;
+    settings.value = updated;
 
     _settingsDebounce?.cancel();
     _settingsDebounce = Timer(const Duration(milliseconds: 800), () async {
@@ -231,7 +292,7 @@ class SettingsController extends GetxService {
         _lastSavedSettings = updated;
         log('⚙️✅ [Settings] Supabase\'e yazıldı (debounce)');
       } catch (e) {
-        settings.value = oldSettings; // Rollback
+        settings.value = old;
         log('_updateSettings error: $e');
         errorMessage.value = 'Ayarlar güncellenemedi.';
       }

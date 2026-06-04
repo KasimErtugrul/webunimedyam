@@ -1,9 +1,11 @@
 // lib/main.dart
 
 import 'dart:developer';
+import 'dart:io' as io;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +34,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 // ─── main ──────────────────────────────────────────────────────────────────
 void main() async {
+   if (kDebugMode) {
+    io.HttpClient.enableTimelineLogging = true;
+  }
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Firebase ──────────────────────────────────────────────────────────────

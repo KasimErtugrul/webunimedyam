@@ -1,4 +1,4 @@
-// lib/presentation/screens/followers/followers_screen.dart
+// lib/presentation/screens/follow/followers_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../data/models/follow_model.dart';
+import '../../../data/repositories/follow_repository.dart';
 import '../../controllers/follow_controller.dart';
 
 class FollowersScreen extends StatefulWidget {
@@ -25,11 +26,21 @@ class _FollowersScreenState extends State<FollowersScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl = Get.find<FollowController>();
 
     final args = Get.arguments as Map<String, dynamic>? ?? {};
-    _userId     = args['userId'] as String? ?? '';
+    _userId = args['userId'] as String? ?? '';
     _initialTab = args['initialTab'] as int? ?? 0;
+
+    // Önce profil ekranından tag'li controller'ı bulmayı dene.
+    // Yoksa (örn. doğrudan açılırsa) kendi tag'iyle yeni bir tane oluştur.
+    if (Get.isRegistered<FollowController>(tag: _userId)) {
+      _ctrl = Get.find<FollowController>(tag: _userId);
+    } else {
+      _ctrl = Get.put(
+        FollowController(followRepository: Get.find<FollowRepository>()),
+        tag: _userId,
+      );
+    }
 
     _tabController = TabController(
       length: 2,
@@ -117,35 +128,30 @@ class _FollowList extends StatelessWidget {
         return Center(
           child: Text(
             emptyMessage,
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: 15.sp,
-            ),
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 15.sp),
           ),
         );
       }
       return ListView.separated(
         padding: EdgeInsets.symmetric(vertical: 8.h),
         itemCount: listObs.length,
-        separatorBuilder: (_, __) => Divider(
-          height: 1,
-          color: AppTheme.surface(context),
-          indent: 72.w,
-        ),
+        separatorBuilder: (_, __) =>
+            Divider(height: 1, color: AppTheme.surface(context), indent: 72.w),
         itemBuilder: (context, i) {
-          final item   = listObs[i];
+          final item = listObs[i];
           final avatar = avatarKeyFn(item);
-          final name   = nameFn(item);
+          final name = nameFn(item);
           final userId = idFn(item);
 
           return ListTile(
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 4.h,
+            ),
             leading: CircleAvatar(
               radius: 24.r,
               backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.15),
-              backgroundImage:
-                  avatar != null ? NetworkImage(avatar) : null,
+              backgroundImage: avatar != null ? NetworkImage(avatar) : null,
               child: avatar == null
                   ? Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
@@ -170,10 +176,8 @@ class _FollowList extends StatelessWidget {
               color: AppTheme.textSec(context),
               size: 20.sp,
             ),
-            onTap: () => Get.toNamed(
-              AppRoutes.profile,
-              arguments: {'userId': userId},
-            ),
+            onTap: () =>
+                Get.toNamed(AppRoutes.profile, arguments: {'userId': userId}),
           );
         },
       );

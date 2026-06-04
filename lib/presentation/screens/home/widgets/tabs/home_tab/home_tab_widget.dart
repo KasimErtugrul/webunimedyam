@@ -90,6 +90,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     onPressed: () {
                       if (controller.isLoggedIn) {
                         Get.toNamed(AppRoutes.profile);
+                      } else {
+                        Get.toNamed(AppRoutes.login);
                       }
                     },
                   ),

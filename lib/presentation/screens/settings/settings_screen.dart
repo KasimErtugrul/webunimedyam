@@ -1,6 +1,4 @@
 // lib/presentation/screens/settings/settings_screen.dart
-// MEVCUT DOSYANIN ÜSTÜNE YAZAR
-// Değişiklik: Gizlilik bölümü tamamen yenilendi — VisibilityOption dropdown'ları eklendi
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -53,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Obx(() {
         final s         = _controller.settings.value;
         final isLoading = _controller.isLoading.value;
+        final profVis   = _controller.profileVisibility.value;
 
         if (isLoading && s == null) {
           return const Center(child: CircularProgressIndicator());
@@ -61,6 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return ListView(
           padding: EdgeInsets.only(bottom: 32.h),
           children: [
+
             // ═══ GÖRÜNÜM ═══════════════════════════════════════
             _SectionHeader(title: 'Görünüm'),
             _SettingsTile(
@@ -79,11 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               secondary: Icon(Icons.play_circle_outline,
                   color: AppTheme.textSec(context), size: 24.sp),
               title: Text('Otomatik Oynat',
-                  style: TextStyle(
-                      color: AppTheme.textPri(context), fontSize: 16.sp)),
+                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
               subtitle: Text('Sıradaki videoyu otomatik başlat',
-                  style: TextStyle(
-                      color: AppTheme.textSec(context), fontSize: 13.sp)),
+                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
@@ -93,11 +91,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               secondary: Icon(Icons.subtitles_outlined,
                   color: AppTheme.textSec(context), size: 24.sp),
               title: Text('Altyazı',
-                  style: TextStyle(
-                      color: AppTheme.textPri(context), fontSize: 16.sp)),
+                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
               subtitle: Text('Altyazıyı varsayılan açık göster',
-                  style: TextStyle(
-                      color: AppTheme.textSec(context), fontSize: 13.sp)),
+                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
@@ -111,11 +107,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               secondary: Icon(Icons.notifications_outlined,
                   color: AppTheme.textSec(context), size: 24.sp),
               title: Text('Bildirimler',
-                  style: TextStyle(
-                      color: AppTheme.textPri(context), fontSize: 16.sp)),
+                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
               subtitle: Text('Tüm bildirimleri aç/kapat',
-                  style: TextStyle(
-                      color: AppTheme.textSec(context), fontSize: 13.sp)),
+                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
@@ -126,11 +120,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.ondemand_video_outlined,
                     color: AppTheme.textSec(context), size: 24.sp),
                 title: Text('Yeni Video',
-                    style: TextStyle(
-                        color: AppTheme.textPri(context), fontSize: 16.sp)),
+                    style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
                 subtitle: Text('Takip ettiğin kanalların yeni videoları',
-                    style: TextStyle(
-                        color: AppTheme.textSec(context), fontSize: 13.sp)),
+                    style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
@@ -140,11 +132,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.comment_outlined,
                     color: AppTheme.textSec(context), size: 24.sp),
                 title: Text('Yorum Yanıtları',
-                    style: TextStyle(
-                        color: AppTheme.textPri(context), fontSize: 16.sp)),
+                    style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
                 subtitle: Text('Yorumlarına gelen yanıtlar',
-                    style: TextStyle(
-                        color: AppTheme.textSec(context), fontSize: 13.sp)),
+                    style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
@@ -154,11 +144,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: Icon(Icons.person_add_outlined,
                     color: AppTheme.textSec(context), size: 24.sp),
                 title: Text('Takip İstekleri',
-                    style: TextStyle(
-                        color: AppTheme.textPri(context), fontSize: 16.sp)),
+                    style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
                 subtitle: Text('Yeni takip isteği geldiğinde bildir',
-                    style: TextStyle(
-                        color: AppTheme.textSec(context), fontSize: 13.sp)),
+                    style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
@@ -168,35 +156,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _Divider(),
             _SectionHeader(title: 'Gizlilik'),
 
-            // Profil Görünürlüğü — en önemli alan
+            // Profil = master anahtar, tavan kısıtı yok
             _VisibilityTile(
               icon: Icons.account_circle_outlined,
               title: 'Profil Görünürlüğü',
               subtitle: 'Profilini kimler görebilir?',
-              current: VisibilityOption.public, // Profil tablosundan gelir
-              // ProfileController'dan okumak için: Get.find<ProfileController>().profile.value?.profileVisibility
+              current: profVis,
+              ceiling: null, // master — hiçbir kısıt yok
               onChanged: _controller.changeProfileVisibility,
             ),
 
+            // Tavan bilgi notu
+            _CeilingNote(profileVisibility: profVis),
+
             Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
               child: Text(
-                'Aktivite Görünürlüğü',
+                'Aktivite Görünürlüğü'.toUpperCase(),
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
                 ),
               ),
             ),
 
+            // Aktivite tile'ları — hepsi profil görünürlüğünü tavan olarak alır
             _VisibilityTile(
               icon: Icons.history_outlined,
               title: 'İzleme Geçmişi',
               subtitle: 'İzlediğin videolar',
               current: s?.watchHistoryVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
               onChanged: _controller.changeWatchHistoryVisibility,
             ),
             _VisibilityTile(
@@ -204,6 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Beğeniler',
               subtitle: 'Beğendiğin videolar',
               current: s?.likesVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
               onChanged: _controller.changeLikesVisibility,
             ),
             _VisibilityTile(
@@ -211,6 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Favoriler',
               subtitle: 'Favori listelerin',
               current: s?.favoritesVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
               onChanged: _controller.changeFavoritesVisibility,
             ),
             _VisibilityTile(
@@ -218,6 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Yorumlar',
               subtitle: 'Yaptığın yorumlar',
               current: s?.commentsVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
               onChanged: _controller.changeCommentsVisibility,
             ),
 
@@ -230,8 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               secondary: Icon(Icons.animation_outlined,
                   color: AppTheme.textSec(context), size: 24.sp),
               title: Text('Animasyonları Azalt',
-                  style: TextStyle(
-                      color: AppTheme.textPri(context), fontSize: 16.sp)),
+                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
@@ -257,7 +251,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ─── Theme Dialog ──────────────────────────────────────────────────────────
   void _showThemeDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -287,14 +280,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _themeLabel(String? theme) {
     switch (theme) {
-      case 'dark':   return 'Koyu';
-      case 'light':  return 'Açık';
-      default:       return 'Sistem';
+      case 'dark':  return 'Koyu';
+      case 'light': return 'Açık';
+      default:      return 'Sistem';
     }
   }
 }
 
-// ─── Yardımcı Widget'lar ──────────────────────────────────────────────────────
+// ─── Tavan bilgi notu ─────────────────────────────────────────────────────────
+
+class _CeilingNote extends StatelessWidget {
+  final VisibilityOption profileVisibility;
+  const _CeilingNote({required this.profileVisibility});
+
+  @override
+  Widget build(BuildContext context) {
+    if (profileVisibility == VisibilityOption.public) return const SizedBox.shrink();
+
+    final isPrivate = profileVisibility == VisibilityOption.private;
+    final color     = isPrivate ? Colors.orange : Colors.blue;
+    final icon      = isPrivate ? Icons.lock_outline : Icons.people_outlined;
+    final msg       = isPrivate
+        ? 'Profil gizli — aktiviteler en fazla "Gizli" yapılabilir.'
+        : 'Profil arkadaşlara açık — aktiviteler en fazla "Arkadaşlara açık" yapılabilir.';
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: color.withValues(alpha: 0.22), width: 0.8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 15.sp, color: color),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              msg,
+              style: TextStyle(color: color, fontSize: 12.sp, height: 1.45),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Ortak widget'lar ─────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -319,13 +354,11 @@ class _SectionHeader extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 8.h,
-      thickness: 0.5,
-      color: AppTheme.surface(context),
-    );
-  }
+  Widget build(BuildContext context) => Divider(
+        height: 8.h,
+        thickness: 0.5,
+        color: AppTheme.surface(context),
+      );
 }
 
 class _SettingsTile extends StatelessWidget {
@@ -347,34 +380,33 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: AppTheme.textSec(context), size: 24.sp),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: titleColor ?? AppTheme.textPri(context),
-          fontSize: 16.sp,
-        ),
-      ),
+      title: Text(title,
+          style: TextStyle(
+              color: titleColor ?? AppTheme.textPri(context), fontSize: 16.sp)),
       subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(
-                  color: AppTheme.textSec(context), fontSize: 13.sp),
-            )
+          ? Text(subtitle!,
+              style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp))
           : null,
-      trailing: Icon(Icons.chevron_right,
-          color: AppTheme.textSec(context), size: 20.sp),
+      trailing:
+          Icon(Icons.chevron_right, color: AppTheme.textSec(context), size: 20.sp),
       onTap: onTap,
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
     );
   }
 }
 
-/// Görünürlük seçici tile — 3 seçenekli bottom sheet açar
+// ─── Görünürlük seçici tile ───────────────────────────────────────────────────
+
 class _VisibilityTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VisibilityOption current;
+
+  /// null = master (profil görünürlüğü), tavan kısıtı yok.
+  /// non-null = aktivite tile'ı, bu değer tavan olarak uygulanır.
+  final VisibilityOption? ceiling;
+
   final Future<void> Function(VisibilityOption) onChanged;
 
   const _VisibilityTile({
@@ -382,38 +414,43 @@ class _VisibilityTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.current,
+    required this.ceiling,
     required this.onChanged,
   });
+
+  // Bir seçenek bu tile için seçilebilir mi?
+  bool _isAllowed(VisibilityOption option) {
+    if (ceiling == null) return true; // master — hepsi serbest
+    const order = [
+      VisibilityOption.private,
+      VisibilityOption.friends,
+      VisibilityOption.public,
+    ];
+    return order.indexOf(option) <= order.indexOf(ceiling!);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: AppTheme.textSec(context), size: 24.sp),
-      title: Text(
-        title,
-        style:
-            TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp),
-      ),
-      subtitle: Text(
-        subtitle,
-        style:
-            TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp),
-      ),
+      title: Text(title,
+          style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
+      subtitle: Text(subtitle,
+          style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _VisibilityBadge(option: current),
           SizedBox(width: 4.w),
-          Icon(Icons.chevron_right,
-              color: AppTheme.textSec(context), size: 20.sp),
+          Icon(Icons.chevron_right, color: AppTheme.textSec(context), size: 20.sp),
         ],
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-      onTap: () => _showVisibilitySheet(context),
+      onTap: () => _showSheet(context),
     );
   }
 
-  void _showVisibilitySheet(BuildContext context) {
+  void _showSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -433,48 +470,24 @@ class _VisibilityTile extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12.h),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPri(context),
-              ),
-            ),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPri(context))),
             SizedBox(height: 4.h),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: AppTheme.textSec(context),
-              ),
-            ),
+            Text(subtitle,
+                style: TextStyle(
+                    fontSize: 13.sp, color: AppTheme.textSec(context))),
             SizedBox(height: 12.h),
             for (final option in VisibilityOption.values)
-              ListTile(
-                leading: _visibilityIcon(option, context),
-                title: Text(
-                  option.label,
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontSize: 15.sp,
-                    fontWeight: option == current
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                subtitle: Text(
-                  option.sublabel,
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: 12.sp,
-                  ),
-                ),
-                trailing: option == current
-                    ? Icon(Icons.check_rounded,
-                        color: AppTheme.primaryColor, size: 20.sp)
-                    : null,
+              _VisibilityOptionRow(
+                option:    option,
+                isCurrent: option == current,
+                isAllowed: _isAllowed(option),
+                ceiling:   ceiling,
                 onTap: () {
+                  if (!_isAllowed(option)) return;
                   Get.back();
                   onChanged(option);
                 },
@@ -485,64 +498,94 @@ class _VisibilityTile extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _visibilityIcon(VisibilityOption option, BuildContext context) {
-    IconData icon;
-    Color color;
-    switch (option) {
-      case VisibilityOption.public:
-        icon  = Icons.public_outlined;
-        color = Colors.green;
-        break;
-      case VisibilityOption.friends:
-        icon  = Icons.people_outlined;
-        color = Colors.blue;
-        break;
-      case VisibilityOption.private:
-        icon  = Icons.lock_outline;
-        color = Colors.orange;
-        break;
-    }
-    return Container(
-      width: 36.w,
-      height: 36.h,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8.r),
+// ─── Bottom sheet satırı — disabled mantığı burada ───────────────────────────
+
+class _VisibilityOptionRow extends StatelessWidget {
+  final VisibilityOption option;
+  final bool isCurrent;
+  final bool isAllowed;
+  final VisibilityOption? ceiling;
+  final VoidCallback onTap;
+
+  const _VisibilityOptionRow({
+    required this.option,
+    required this.isCurrent,
+    required this.isAllowed,
+    required this.ceiling,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final (iconData, color) = _iconAndColor(option);
+    final dimmed = !isAllowed;
+
+    return Opacity(
+      opacity: dimmed ? 0.35 : 1.0,
+      child: ListTile(
+        enabled: isAllowed,
+        onTap: isAllowed ? onTap : null,
+        leading: Container(
+          width: 36.w,
+          height: 36.h,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Icon(iconData, color: color, size: 20.sp),
+        ),
+        title: Text(
+          option.label,
+          style: TextStyle(
+            color: AppTheme.textPri(context),
+            fontSize: 15.sp,
+            fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+        subtitle: Text(
+          // Kilitli ise nedenini açıkla
+          dimmed
+              ? 'Profil "${ceiling!.label}" olduğu için seçilemiyor'
+              : option.sublabel,
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: 12.sp,
+          ),
+        ),
+        trailing: isCurrent
+            ? Icon(Icons.check_rounded, color: AppTheme.primaryColor, size: 20.sp)
+            : dimmed
+                ? Icon(Icons.lock_outline,
+                    color: AppTheme.textSec(context), size: 16.sp)
+                : null,
       ),
-      child: Icon(icon, color: color, size: 20.sp),
     );
+  }
+
+  (IconData, Color) _iconAndColor(VisibilityOption o) {
+    switch (o) {
+      case VisibilityOption.public:  return (Icons.public_outlined,  Colors.green);
+      case VisibilityOption.friends: return (Icons.people_outlined,  Colors.blue);
+      case VisibilityOption.private: return (Icons.lock_outline,     Colors.orange);
+    }
   }
 }
 
-/// Mini badge — "Herkese", "Arkadaş", "Gizli"
+// ─── Mini badge ───────────────────────────────────────────────────────────────
+
 class _VisibilityBadge extends StatelessWidget {
   final VisibilityOption option;
   const _VisibilityBadge({required this.option});
 
   @override
   Widget build(BuildContext context) {
-    late final Color color;
-    late final String label;
-    late final IconData icon;
-
-    switch (option) {
-      case VisibilityOption.public:
-        color = Colors.green;
-        label = 'Herkese';
-        icon  = Icons.public_outlined;
-        break;
-      case VisibilityOption.friends:
-        color = Colors.blue;
-        label = 'Arkadaş';
-        icon  = Icons.people_outlined;
-        break;
-      case VisibilityOption.private:
-        color = Colors.orange;
-        label = 'Gizli';
-        icon  = Icons.lock_outline;
-        break;
-    }
+    final (icon, color, label) = switch (option) {
+      VisibilityOption.public  => (Icons.public_outlined,  Colors.green,  'Herkese'),
+      VisibilityOption.friends => (Icons.people_outlined,  Colors.blue,   'Arkadaş'),
+      VisibilityOption.private => (Icons.lock_outline,     Colors.orange, 'Gizli'),
+    };
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
@@ -556,14 +599,9 @@ class _VisibilityBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 12.sp, color: color),
           SizedBox(width: 4.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11.sp, color: color, fontWeight: FontWeight.w500)),
         ],
       ),
     );

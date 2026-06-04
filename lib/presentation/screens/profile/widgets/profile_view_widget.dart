@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Ana profil görünümü
-// ═══════════════════════════════════════════════════════════════════════════
+// lib/presentation/screens/profile/widgets/profile_view_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,38 +26,39 @@ class ProfileViewWidget extends StatelessWidget {
               pinned: true,
               floating: false,
               surfaceTintColor: Colors.transparent,
-              actions: [
-                // ── İstatistik butonu ──────────────────────────────────────
-                IconButton(
-                  icon: Icon(
-                    Icons.bar_chart_rounded,
-                    color: AppTheme.textPri(context),
-                    size: 24.sp,
-                  ),
-                  tooltip: 'İstatistiklerim',
-                  onPressed: () => Get.toNamed(AppRoutes.stats),
-                ),
-                // ── Ayarlar butonu ─────────────────────────────────────────
-                IconButton(
-                  icon: Icon(
-                    Icons.settings_outlined,
-                    color: AppTheme.textPri(context),
-                    size: 24.sp,
-                  ),
-                  tooltip: 'Ayarlar',
-                  onPressed: () => Get.toNamed(AppRoutes.settings),
-                ),
-                // ── Profil düzenle butonu ──────────────────────────────────
-                IconButton(
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: AppTheme.textPri(context),
-                    size: 24.sp,
-                  ),
-                  tooltip: 'Profili Düzenle',
-                  onPressed: () => _showEditProfileDialog(context, controller),
-                ),
-              ],
+              // ── Sadece kendi profilinde göster ──────────────────────────
+              actions: controller.isOwnProfile
+                  ? [
+                      IconButton(
+                        icon: Icon(
+                          Icons.bar_chart_rounded,
+                          color: AppTheme.textPri(context),
+                          size: 24.sp,
+                        ),
+                        tooltip: 'İstatistiklerim',
+                        onPressed: () => Get.toNamed(AppRoutes.stats),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.settings_outlined,
+                          color: AppTheme.textPri(context),
+                          size: 24.sp,
+                        ),
+                        tooltip: 'Ayarlar',
+                        onPressed: () => Get.toNamed(AppRoutes.settings),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          color: AppTheme.textPri(context),
+                          size: 24.sp,
+                        ),
+                        tooltip: 'Profili Düzenle',
+                        onPressed: () =>
+                            _showEditProfileDialog(context, controller),
+                      ),
+                    ]
+                  : [], // Başkasının profilinde hiçbir şey gösterme
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
                 background: ProfileHeaderWidget(controller: controller),
@@ -111,32 +110,48 @@ class ProfileViewWidget extends StatelessWidget {
                 videos: controller.favoriteVideos,
                 isLoading: controller.isFavoritesLoading,
                 emptyIcon: Icons.favorite_outline_rounded,
-                emptyText: 'Henüz favori eklemedin',
-                emptySubtext: 'Beğendiğin videoları favorilere ekle',
+                emptyText: controller.isOwnProfile
+                    ? 'Henüz favori eklemedin'
+                    : 'Favori bulunamadı',
+                emptySubtext: controller.isOwnProfile
+                    ? 'Beğendiğin videoları favorilere ekle'
+                    : 'Bu kullanıcının favorileri gizli olabilir',
                 onRefresh: () => controller.loadFavorites(),
               ),
               VideoActivityTabWidget(
                 videos: controller.viewedVideos,
                 isLoading: controller.isViewedLoading,
                 emptyIcon: Icons.play_circle_outline_rounded,
-                emptyText: 'Henüz video izlemedin',
-                emptySubtext: 'İzlediğin videolar burada görünür',
+                emptyText: controller.isOwnProfile
+                    ? 'Henüz video izlemedin'
+                    : 'İzleme geçmişi bulunamadı',
+                emptySubtext: controller.isOwnProfile
+                    ? 'İzlediğin videolar burada görünür'
+                    : 'Bu kullanıcının izleme geçmişi gizli olabilir',
                 onRefresh: () => controller.loadViewedVideos(),
               ),
               VideoActivityTabWidget(
                 videos: controller.commentedVideos,
                 isLoading: controller.isCommentedLoading,
                 emptyIcon: Icons.chat_bubble_outline_rounded,
-                emptyText: 'Henüz yorum yapmadın',
-                emptySubtext: 'Yorum yaptığın videolar burada görünür',
+                emptyText: controller.isOwnProfile
+                    ? 'Henüz yorum yapmadın'
+                    : 'Yorum bulunamadı',
+                emptySubtext: controller.isOwnProfile
+                    ? 'Yorum yaptığın videolar burada görünür'
+                    : 'Bu kullanıcının yorumları gizli olabilir',
                 onRefresh: () => controller.loadCommentedVideos(),
               ),
               VideoActivityTabWidget(
                 videos: controller.sharedVideos,
                 isLoading: controller.isSharedLoading,
                 emptyIcon: Icons.share_outlined,
-                emptyText: 'Henüz paylaşım yapmadın',
-                emptySubtext: 'Paylaştığın videolar burada görünür',
+                emptyText: controller.isOwnProfile
+                    ? 'Henüz paylaşım yapmadın'
+                    : 'Paylaşım bulunamadı',
+                emptySubtext: controller.isOwnProfile
+                    ? 'Paylaştığın videolar burada görünür'
+                    : 'Bu kullanıcının paylaşımları gizli olabilir',
                 onRefresh: () => controller.loadSharedVideos(),
               ),
             ],
@@ -150,6 +165,9 @@ class ProfileViewWidget extends StatelessWidget {
     BuildContext context,
     ProfileController controller,
   ) {
+    // Güvenlik: sadece kendi profilinde açılabilir
+    if (!controller.isOwnProfile) return;
+
     final usernameCtrl = TextEditingController(
       text: controller.profile.value?.username ?? '',
     );

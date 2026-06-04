@@ -14,22 +14,22 @@ class FollowController extends GetxController {
 
   // ─── Mevcut profil sayfası için durum ────────────────────────────────────
   final currentProfileFollow = Rxn<FollowModel>();
-  final followCounts         = Rxn<FollowCounts>();
-  final isFollowLoading      = false.obs;
+  final followCounts = Rxn<FollowCounts>();
+  final isFollowLoading = false.obs;
 
   // ─── Aktif profil userId'si (FollowCounts yenileme için) ─────────────────
   String? _activeProfileUserId;
 
   // ─── Takipçi/takip edilen listeleri ──────────────────────────────────────
-  final followers       = <FollowModel>[].obs;
-  final following       = <FollowModel>[].obs;
+  final followers = <FollowModel>[].obs;
+  final following = <FollowModel>[].obs;
   final pendingRequests = <FollowModel>[].obs;
 
   final isFollowersLoading = false.obs;
   final isFollowingLoading = false.obs;
-  final isPendingLoading   = false.obs;
+  final isPendingLoading = false.obs;
 
-  final errorMessage   = RxnString();
+  final errorMessage = RxnString();
   final successMessage = RxnString();
 
   // ─── Başlatma ─────────────────────────────────────────────────────────────
@@ -52,8 +52,9 @@ class FollowController extends GetxController {
   Future<void> loadFollowStatus(String targetUserId) async {
     try {
       isFollowLoading.value = true;
-      currentProfileFollow.value =
-          await followRepository.getMyFollowStatus(targetUserId);
+      currentProfileFollow.value = await followRepository.getMyFollowStatus(
+        targetUserId,
+      );
     } catch (e) {
       log('loadFollowStatus error: $e');
     } finally {
@@ -82,18 +83,17 @@ class FollowController extends GetxController {
         final requireApproval =
             targetProfile.profileVisibility == VisibilityOption.private;
 
-        await followRepository.followUser(
-          followingId:     targetProfile.id,
-          requireApproval: requireApproval,
-        );
+        await followRepository.followUserById(targetProfile.id);
 
         // Optimistic güncelleme
         currentProfileFollow.value = FollowModel(
-          id:          '',
-          followerId:  '',
+          id: '',
+          followerId: '',
           followingId: targetProfile.id,
-          status:      requireApproval ? FollowStatus.pending : FollowStatus.accepted,
-          createdAt:   DateTime.now(),
+          status: requireApproval
+              ? FollowStatus.pending
+              : FollowStatus.accepted,
+          createdAt: DateTime.now(),
         );
 
         successMessage.value = requireApproval

@@ -1,3 +1,10 @@
+// lib/data/repositories/profile_activity_repository.dart
+//
+// NOT: Visibility kontrolü tamamen DB katmanında (RLS) yapılır.
+// can_view_profile() ve can_view_activity() SECURITY DEFINER fonksiyonları
+// hangi kullanıcının ne göreceğine karar verir.
+// Dart katmanı sadece Supabase'den veriyi çeker — boş dönerse gizlidir.
+
 import 'dart:developer';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_model.dart';
@@ -7,9 +14,6 @@ class ProfileActivityRepository {
 
   ProfileActivityRepository({required SupabaseDataSource supabase})
       : _supabase = supabase;
-
-  // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
-  // Tümü try-catch'li. Offline ise boş liste döner, profil ekranı çökmez.
 
   Future<List<VideoModel>> getUserViewedVideos(String userId) async {
     try {
