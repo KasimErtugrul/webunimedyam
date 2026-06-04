@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../presentation/screens/follow/followers_screen.dart';
+import '../../presentation/screens/notification/notification_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
@@ -103,6 +104,11 @@ abstract class AppPages {
       name: AppRoutes.followers,
       page: () => const FollowersScreen(),
       binding: FollowBinding(),
+    ),
+     GetPage(
+      name: AppRoutes.notifications,
+      page: () => const NotificationsScreen(),
+      //binding: NotificationsBinding(),
     ),
   ];
 }
