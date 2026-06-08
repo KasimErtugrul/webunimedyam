@@ -23,49 +23,72 @@ class PlayerScreen extends StatefulWidget {
 class _PlayerScreenState extends State<PlayerScreen> {
   late final PlayerController _controller;
   late final TextEditingController _commentController;
+  late final ScrollController _scrollController;
 
-  // GetX Workers (Dinleyiciler) - Memory leak olmaması için dispose edilmeli
   Worker? _authWorker;
   Worker? _snackbarWorker;
+
+  static const double _miniW = 192.0;
+  static const double _miniH = 108.0;
+  static const double _miniPad = 14.0;
+  static const Duration _animDur = Duration(milliseconds: 280);
+  static const Curve _animCurve = Curves.easeInOutCubic;
+
+  double _bigH = 0;
+
+  // Sadece true veya false — arada kalmaz
+  bool _isMini = false;
 
   @override
   void initState() {
     super.initState();
     _controller = Get.find<PlayerController>();
     _commentController = TextEditingController();
+    _scrollController = ScrollController()..addListener(_onScroll);
 
-    // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
-
-    // 1. Giriş yapılması gerektiğinde Dialog aç
-    _authWorker = ever(_controller.showAuthRequired, (required) {
-      if (required) {
+    _authWorker = ever(_controller.showAuthRequired, (v) {
+      if (v) {
         _showAuthDialog();
-        // Bayrağı hemen sıfırla ki bir daha tetiklenmesin
         _controller.showAuthRequired.value = false;
       }
     });
-
-    // 2. Snackbar mesajı geldiğinde göster
-    _snackbarWorker = ever(_controller.snackbarMessage, (message) {
-      if (message != null) {
+    _snackbarWorker = ever(_controller.snackbarMessage, (msg) {
+      if (msg != null) {
         Get.snackbar(
           'Bilgi',
-          message,
+          msg,
           backgroundColor: const Color(0xFF1E1E2E),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
         );
-        // Mesajı sıfırla
         _controller.snackbarMessage.value = null;
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _bigH = MediaQuery.of(context).size.width * 9 / 16);
+    });
+  }
+
+  void _onScroll() {
+    if (_bigH == 0) return;
+    // Player tamamen ekrandan çıktıysa mini, herhangi bir kısmı görünüyorsa büyük
+    final shouldBeMini = _scrollController.offset >= _bigH;
+    if (shouldBeMini != _isMini) {
+      setState(() => _isMini = shouldBeMini);
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(0, duration: _animDur, curve: _animCurve);
   }
 
   @override
   void dispose() {
     _commentController.dispose();
-    // Dinleyicileri temizle
+    _scrollController.dispose();
     _authWorker?.dispose();
     _snackbarWorker?.dispose();
     super.dispose();
@@ -73,22 +96,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold artık Obx dışında — yalnızca bir kez build edilir.
-    // Obx yalnızca body içeriğini sarar; sadece o alan rebuild olur.
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      appBar: AppBar(
-       /*  backgroundColor: AppTheme.bg(context),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppTheme.textPri(context),
-            size: 18.sp,
-          ),
-          onPressed: () => Get.back(),
-        ), */
-      ),
       body: Obx(() {
         if (!_controller.isPlayerReady.value) {
           return Center(
@@ -98,216 +107,96 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
           );
         }
-        return _buildContent(context);
+        return _buildBody(context);
       }),
     );
   }
 
-  // ── Ana içerik (video + bilgi + yorumlar) ─────────────────────────────
-  Widget _buildContent(BuildContext context) {
-    return Column(
-      children: [
-        // ── Video oynatıcı + geri butonu ──────────────────────────
-        _buildPlayerWithBackButton(
-          context,
-          YoutubePlayer(
-            controller: _controller.youtubeController!,
-            aspectRatio: 16 / 9,
-          ),
-        ),
+  Widget _buildBody(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final screenW = mq.size.width;
+    final screenH = mq.size.height;
+    final topPad = mq.padding.top;
+    final botPad = mq.padding.bottom;
+    final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
-        // ── Kaydırılabilir içerik ─────────────────────────────────
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── Başlık
-                Obx(() {
-                  return Text(
-                    _controller.currentVideo.value?.title ?? '',
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                      height: 1.4,
-                    ),
-                  );
-                }),
+    // Hedef değerler — binary, arada değil
+    final double targetLeft = _isMini ? screenW - _miniW - _miniPad : 0;
+    final double targetTop = _isMini
+        ? screenH - _miniH - _miniPad - botPad - 56
+        : topPad;
+    final double targetW = _isMini ? _miniW : screenW;
+    final double targetH = _isMini ? _miniH : bigH;
 
-                SizedBox(height: 6.h),
-
-                // ── YouTube meta (görüntülenme · tarih · süre)
-                Obx(() {
-                  if (_controller.currentVideo.value != null) {
-                    return YoutubeMetaWidget(
-                      video: _controller.currentVideo.value!,
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-
-                // ── Üniversite bilgisi
-                Obx(() {
-                  if (_controller
-                          .currentVideo
-                          .value
-                          ?.universityName
-                          ?.isNotEmpty ==
-                      true) {
-                    return Padding(
-                      padding: EdgeInsets.only(top: 10.h),
-                      child: UniversityRowWidget(
-                        universityName:
-                            _controller.currentVideo.value!.universityName!,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-
-                SizedBox(height: 14.h),
-
-                // ── Aksiyon + Uygulama istatistikleri
-                EngagementBarWidget(controller: _controller),
-
-                SizedBox(height: 16.h),
-
-                // ── Açıklama
-                Obx(() {
-                  if (_controller.currentVideo.value?.description.isNotEmpty ==
-                      true) {
-                    return ExpandableDescriptionWidget(
-                      text: _controller.currentVideo.value!.description,
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-
-                // ── Etiketler
-                Obx(() {
-                  if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
-                    return Padding(
-                      padding: EdgeInsets.only(top: 14.h),
-                      child: TagsRowWidget(
-                        tags: _controller.currentVideo.value!.tags,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-
-                SizedBox(height: 20.h),
-                Divider(
-                  color: AppTheme.surface(context),
-                  height: 1.h,
-                  thickness: 1.h,
-                ),
-                SizedBox(height: 16.h),
-
-                // ── Yorumlar başlık
-                Obx(() {
-                  return CommentsHeaderWidget(
-                    count: _controller.appCommentCount.value,
-                  );
-                }),
-
-                SizedBox(height: 12.h),
-
-                // ── Yorum giriş
-                CommentInputWidget(
-                  textController: _commentController,
-                  onSend: () {
-                    _controller.addComment(_commentController.text);
-                    _commentController.clear();
-                  },
-                ),
-
-                SizedBox(height: 16.h),
-
-                // ── Yorum listesi
-                Obx(() {
-                  if (_controller.isCommentsLoading.value) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24.h),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary,
-                          strokeWidth: 2.w,
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (_controller.comments.isEmpty) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20.h),
-                      child: Center(
-                        child: Text(
-                          'Henüz yorum yok. İlk yorumu sen yap!',
-                          style: TextStyle(
-                            color: AppTheme.textSec(context),
-                            fontSize: 13.sp,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _controller.comments.length,
-                    separatorBuilder: (_, __) => Divider(
-                      color: AppTheme.surface(context),
-                      height: 1.h,
-                      thickness: 1.h,
-                    ),
-                    itemBuilder: (context, index) {
-                      return CommentTileWidget(
-                        comment: _controller.comments[index],
-                        canDelete:
-                            _controller.comments[index].userId ==
-                            _controller.currentUserId,
-                        onDelete: () => _controller.deleteComment(
-                          _controller.comments[index].id,
-                        ),
-                      );
-                    },
-                  );
-                }),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Player üzerine geri butonu koyar.
-  Widget _buildPlayerWithBackButton(BuildContext context, Widget player) {
     return Stack(
       children: [
-        player,
-        Positioned(
-          top: 8.h,
-          left: 4.w,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20.r),
-              onTap: () => Get.back(),
-              child: Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 18.sp,
+        // ── Scroll içeriği ──────────────────────────────────────────────
+        CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: topPad + bigH)),
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate(_buildContentItems(context)),
+              ),
+            ),
+          ],
+        ),
+
+        // ── Player — tek instance, animate ile kayar ────────────────────
+        AnimatedPositioned(
+          duration: _animDur,
+          curve: _animCurve,
+          left: targetLeft,
+          top: targetTop,
+          width: targetW,
+          height: targetH,
+          child: GestureDetector(
+            onTap: _isMini ? _scrollToTop : null,
+            child: AnimatedContainer(
+              duration: _animDur,
+              curve: _animCurve,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
+                boxShadow: _isMini
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    YoutubePlayer(
+                      controller: _controller.youtubeController!,
+                      aspectRatio: 16 / 9,
+                    ),
+
+                    // Büyük modda geri butonu
+                    if (!_isMini)
+                      Positioned(
+                        top: 8.h,
+                        left: 4.w,
+                        child: _backButton(context),
+                      ),
+
+                    // Mini modda üst bar
+                    if (_isMini)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: _miniTopBar(),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -317,7 +206,177 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  // ── Auth Dialog (Artık UI katmanında yaşıyor!) ──────────────────────────
+  List<Widget> _buildContentItems(BuildContext context) {
+    return [
+      Obx(
+        () => Text(
+          _controller.currentVideo.value?.title ?? '',
+          style: TextStyle(
+            color: AppTheme.textPri(context),
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            height: 1.4,
+          ),
+        ),
+      ),
+
+      SizedBox(height: 6.h),
+
+      Obx(() {
+        if (_controller.currentVideo.value != null) {
+          return YoutubeMetaWidget(video: _controller.currentVideo.value!);
+        }
+        return const SizedBox.shrink();
+      }),
+
+      Obx(() {
+        if (_controller.currentVideo.value?.universityName?.isNotEmpty ==
+            true) {
+          return Padding(
+            padding: EdgeInsets.only(top: 10.h),
+            child: UniversityRowWidget(
+              universityName: _controller.currentVideo.value!.universityName!,
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      }),
+
+      SizedBox(height: 14.h),
+      EngagementBarWidget(controller: _controller),
+      SizedBox(height: 16.h),
+
+      Obx(() {
+        if (_controller.currentVideo.value?.description.isNotEmpty == true) {
+          return ExpandableDescriptionWidget(
+            text: _controller.currentVideo.value!.description,
+          );
+        }
+        return const SizedBox.shrink();
+      }),
+
+      Obx(() {
+        if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
+          return Padding(
+            padding: EdgeInsets.only(top: 14.h),
+            child: TagsRowWidget(tags: _controller.currentVideo.value!.tags),
+          );
+        }
+        return const SizedBox.shrink();
+      }),
+
+      SizedBox(height: 20.h),
+      Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
+      SizedBox(height: 16.h),
+
+      Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
+      SizedBox(height: 12.h),
+
+      CommentInputWidget(
+        textController: _commentController,
+        onSend: () {
+          _controller.addComment(_commentController.text);
+          _commentController.clear();
+        },
+      ),
+
+      SizedBox(height: 16.h),
+
+      Obx(() {
+        if (_controller.isCommentsLoading.value) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+                strokeWidth: 2.w,
+              ),
+            ),
+          );
+        }
+        if (_controller.comments.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.h),
+            child: Center(
+              child: Text(
+                'Henüz yorum yok. İlk yorumu sen yap!',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
+            ),
+          );
+        }
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _controller.comments.length,
+          separatorBuilder: (_, __) =>
+              Divider(color: AppTheme.surface(context), height: 1.h),
+          itemBuilder: (ctx, i) => CommentTileWidget(
+            comment: _controller.comments[i],
+            canDelete:
+                _controller.comments[i].userId == _controller.currentUserId,
+            onDelete: () =>
+                _controller.deleteComment(_controller.comments[i].id),
+          ),
+        );
+      }),
+
+      SizedBox(height: 32.h),
+    ];
+  }
+
+  Widget _backButton(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20.r),
+        onTap: () => Get.back(),
+        child: Container(
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.45),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 18.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _miniTopBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black.withValues(alpha: 0.65), Colors.transparent],
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.open_in_full_rounded, color: Colors.white, size: 12),
+          const Spacer(),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Get.back(),
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(Icons.close_rounded, color: Colors.white, size: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(
