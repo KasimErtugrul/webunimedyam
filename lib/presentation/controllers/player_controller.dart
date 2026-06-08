@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-
+import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
@@ -20,12 +20,14 @@ class PlayerController extends GetxController {
   final CommentRepository commentRepository;
   final EngagementRepository engagementRepository;
   final AuthRepository authRepository;
+  final VideoRepository videoRepository; // ← YENİ
 
   PlayerController({
     required this.favoritesRepository,
     required this.commentRepository,
     required this.engagementRepository,
     required this.authRepository,
+    required this.videoRepository, // ← YENİ
   });
 
   YoutubePlayerController? youtubeController;
@@ -50,6 +52,9 @@ class PlayerController extends GetxController {
   final showAuthRequired = false.obs;
   final snackbarMessage = RxnString();
 
+  final suggestedVideos = <VideoModel>[].obs;
+  final isSuggestedLoading = false.obs;
+
   final currentVideo = Rxn<VideoModel>();
   String? get currentUserId => authRepository.currentUserId;
 
@@ -62,6 +67,7 @@ class PlayerController extends GetxController {
         isPlayerReady.value = true;
         loadComments();
         _loadInitialState();
+        loadSuggestedVideos(); // ← YENİ
       });
     }
   }
@@ -142,6 +148,21 @@ class PlayerController extends GetxController {
     if (userId == null) return;
     await engagementRepository.recordView(userId, currentVideo.value!.videoId);
   }
+
+  // ─── Önerilen Videolar ───────────────────────────────────────────────────
+Future<void> loadSuggestedVideos() async {
+  if (currentVideo.value == null) return;
+  try {
+    isSuggestedLoading.value = true;
+    suggestedVideos.value = await videoRepository.getSuggestedVideos(
+      currentVideo.value!.videoId,
+    );
+  } catch (e) {
+    log('[PlayerController] loadSuggestedVideos error: $e');
+  } finally {
+    isSuggestedLoading.value = false;
+  }
+}
 
   // ─── Beğeni ──────────────────────────────────────────────────────────────
 

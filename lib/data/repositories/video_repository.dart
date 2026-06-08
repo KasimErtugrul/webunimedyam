@@ -143,6 +143,19 @@ class VideoRepository {
     }
   }
 
+  // ─── Öneri Sistemi ────────────────────────────────────────────────────────
+Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
+  try {
+    log('🎯☁️ [Video] Önerilen videolar çekiliyor → videoId: $videoId');
+    final videos = await _supabase.getSuggestedVideos(videoId);
+    log('🎯✅ [Video] ${videos.length} öneri geldi (remote)');
+    return videos;
+  } catch (e) {
+    log('🎯❌ [Video] getSuggestedVideos hata: $e');
+    return [];
+  }
+}
+
   // ─── Video Engagement — Ana Sayfa RPC Bundle ─────────────────────────────
 
   static const _bundleCacheKey = 'video_sections_bundle';
