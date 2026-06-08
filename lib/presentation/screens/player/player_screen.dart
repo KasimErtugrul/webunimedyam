@@ -28,6 +28,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Worker? _authWorker;
   Worker? _snackbarWorker;
 
+  // Overlay: WebView'ın üzerine çıkmak için tek güvenilir yol
+  OverlayEntry? _overlayEntry;
+
   static const double _miniW = 192.0;
   static const double _miniH = 108.0;
   static const double _miniPad = 14.0;
@@ -35,8 +38,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   static const Curve _animCurve = Curves.easeInOutCubic;
 
   double _bigH = 0;
-
-  // Sadece true veya false — arada kalmaz
   bool _isMini = false;
 
   @override
@@ -68,16 +69,37 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      setState(() => _bigH = MediaQuery.of(context).size.width * 9 / 16);
+      final h = MediaQuery.of(context).size.width * 9 / 16;
+      setState(() => _bigH = h);
+      _insertOverlay();
     });
+  }
+
+  // ── Overlay oluştur ──────────────────────────────────────────────────────
+  void _insertOverlay() {
+    _overlayEntry = OverlayEntry(
+      builder: (_) => _OverlayButtons(
+        isMini: _isMini,
+        bigH: _bigH,
+        miniW: _miniW,
+        miniH: _miniH,
+        miniPad: _miniPad,
+        animDur: _animDur,
+        animCurve: _animCurve,
+        onBack: () => Get.back(),
+        onExpand: _scrollToTop,
+      ),
+    );
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   void _onScroll() {
     if (_bigH == 0) return;
-    // Player tamamen ekrandan çıktıysa mini, herhangi bir kısmı görünüyorsa büyük
     final shouldBeMini = _scrollController.offset >= _bigH;
     if (shouldBeMini != _isMini) {
       setState(() => _isMini = shouldBeMini);
+      // Overlay'i de yeniden çiz
+      _overlayEntry?.markNeedsBuild();
     }
   }
 
@@ -87,6 +109,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   void dispose() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
     _commentController.dispose();
     _scrollController.dispose();
     _authWorker?.dispose();
@@ -120,7 +144,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final botPad = mq.padding.bottom;
     final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
-    // Hedef değerler — binary, arada değil
     final double targetLeft = _isMini ? screenW - _miniW - _miniPad : 0;
     final double targetTop = _isMini
         ? screenH - _miniH - _miniPad - botPad - 56
@@ -128,9 +151,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final double targetW = _isMini ? _miniW : screenW;
     final double targetH = _isMini ? _miniH : bigH;
 
+    // Overlay'deki state'i güncelle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _overlayEntry?.markNeedsBuild();
+    });
+
     return Stack(
       children: [
-        // ── Scroll içeriği ──────────────────────────────────────────────
+        // ── Scroll içeriği ───────────────────────────────────────────────
         CustomScrollView(
           controller: _scrollController,
           physics: const BouncingScrollPhysics(),
@@ -145,7 +173,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ],
         ),
 
-        // ── Player — tek instance, animate ile kayar ────────────────────
+        // ── Player — sadece video, butonlar Overlay'de ──────────────────
         AnimatedPositioned(
           duration: _animDur,
           curve: _animCurve,
@@ -172,31 +200,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    YoutubePlayer(
-                      controller: _controller.youtubeController!,
-                      aspectRatio: 16 / 9,
-                    ),
-
-                    // Büyük modda geri butonu
-                    if (!_isMini)
-                      Positioned(
-                        top: 8.h,
-                        left: 4.w,
-                        child: _backButton(context),
-                      ),
-
-                    // Mini modda üst bar
-                    if (_isMini)
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: _miniTopBar(),
-                      ),
-                  ],
+                child: YoutubePlayer(
+                  controller: _controller.youtubeController!,
+                  aspectRatio: 16 / 9,
                 ),
               ),
             ),
@@ -328,55 +334,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ];
   }
 
-  Widget _backButton(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20.r),
-        onTap: () => Get.back(),
-        child: Container(
-          padding: EdgeInsets.all(8.w),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.45),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-            size: 18.sp,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _miniTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.black.withValues(alpha: 0.65), Colors.transparent],
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.open_in_full_rounded, color: Colors.white, size: 12),
-          const Spacer(),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => Get.back(),
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.close_rounded, color: Colors.white, size: 15),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(
@@ -412,6 +369,133 @@ class _PlayerScreenState extends State<PlayerScreen> {
             },
             child: const Text('Giriş Yap'),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Overlay widget — tüm widget ağacının dışında, WebView'ın kesinlikle üzerinde
+class _OverlayButtons extends StatelessWidget {
+  const _OverlayButtons({
+    required this.isMini,
+    required this.bigH,
+    required this.miniW,
+    required this.miniH,
+    required this.miniPad,
+    required this.animDur,
+    required this.animCurve,
+    required this.onBack,
+    required this.onExpand,
+  });
+
+  final bool isMini;
+  final double bigH;
+  final double miniW;
+  final double miniH;
+  final double miniPad;
+  final Duration animDur;
+  final Curve animCurve;
+  final VoidCallback onBack;
+  final VoidCallback onExpand;
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final screenW = mq.size.width;
+    final screenH = mq.size.height;
+    final topPad = mq.padding.top;
+    final botPad = mq.padding.bottom;
+
+    final double targetLeft = isMini ? screenW - miniW - miniPad : 0;
+    final double targetTop = isMini
+        ? screenH - miniH - miniPad - botPad - 56
+        : topPad;
+    final double targetW = isMini ? miniW : screenW;
+
+    return IgnorePointer(
+      // Butonların dışındaki alanlara dokunuşu geçir
+      ignoring: false,
+      child: Stack(
+        children: [
+          if (!isMini)
+            // ── Büyük mod: geri butonu ──────────────────────────────────
+            AnimatedPositioned(
+              duration: animDur,
+              curve: animCurve,
+              left: targetLeft + 4,
+              top: targetTop + 8,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: onBack,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            // ── Mini mod: üst bar ───────────────────────────────────────
+            AnimatedPositioned(
+              duration: animDur,
+              curve: animCurve,
+              left: targetLeft,
+              top: targetTop,
+              width: targetW,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.65),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onExpand,
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.open_in_full_rounded,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onBack,
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: Colors.white,
+                          size: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
