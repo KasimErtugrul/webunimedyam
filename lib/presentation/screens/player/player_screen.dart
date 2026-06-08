@@ -12,6 +12,7 @@ import 'player_screen_widgets/expandable_description_widget.dart';
 import 'player_screen_widgets/tag_row_widget.dart';
 import 'player_screen_widgets/youtube_meta_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
+import 'player_screen_widgets/suggested_videos_section_widget.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -272,7 +273,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }),
 
       SizedBox(height: 20.h),
-      Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
+const SuggestedVideosSectionWidget(),   // ← YENİ
+SizedBox(height: 20.h),
+Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
       SizedBox(height: 16.h),
 
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
@@ -300,6 +303,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
           );
         }
+        
         if (_controller.comments.isEmpty) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 20.h),

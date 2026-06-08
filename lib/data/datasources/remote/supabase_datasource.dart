@@ -528,6 +528,17 @@ Future<void> completeOnboarding(String userId) async {
         offset: offset,
       );
 
+      // ─── Öneri Sistemi ────────────────────────────────────────────────────────
+Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
+  final data = await _client.rpc(
+    'get_suggested_videos',
+    params: {'current_video_id': videoId},
+  );
+  return (data as List)
+      .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+      .toList();
+}
+
   Future<List<Map<String, dynamic>>> getMostLikedVideos({
     int limit = 10,
     int offset = 0,
