@@ -49,15 +49,18 @@ class PlayerBinding extends Bindings {
       );
     }
 
-    Get.lazyPut(
-      () => PlayerController(
+    Get.put<PlayerController>(
+      PlayerController(
         favoritesRepository: Get.find(),
         commentRepository: Get.find(),
         engagementRepository: Get.find(),
         authRepository: Get.find(),
         videoRepository: Get.find(), // ← YENİ
       ),
-      fenix: true,
+
+      permanent: false,
+      tag:Get.parameters['videoId'] ?? '123', // Her video için benzersiz bir tag kullan
+      //fenix: true,
     );
   }
 }

@@ -159,7 +159,7 @@ class NotificationService {
       if (video == null) { log('[FCM] Video bulunamadı: $videoId'); return; }
       Get.offAllNamed(AppRoutes.home);
       await Future.delayed(const Duration(milliseconds: 300));
-      Get.toNamed(AppRoutes.player, arguments: video);
+      Get.toNamed(AppRoutes.player, arguments: video,parameters: {'videoId': video.videoId},);
       log('[FCM] → Player: ${video.title}');
     } catch (e) {
       log('[FCM] Player navigasyon hatası: $e');

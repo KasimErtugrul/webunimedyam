@@ -40,7 +40,11 @@ class VideoCardWidget extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
+            onTap: () => Get.toNamed(
+              AppRoutes.player,
+              arguments: video,
+              parameters: {'videoId': video.videoId},
+            ),
             splashColor: Theme.of(
               context,
             ).colorScheme.primary.withValues(alpha: 0.08),

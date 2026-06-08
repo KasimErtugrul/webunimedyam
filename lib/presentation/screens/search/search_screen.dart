@@ -163,7 +163,7 @@ class _SearchScreenState extends State<SearchScreen> {
             query: q,
             onTap: () {
               controller.submitQuery(q); // geçmişe ekle
-              Get.toNamed(AppRoutes.player, arguments: controller.results[i]);
+              Get.toNamed(AppRoutes.player, arguments: controller.results[i],parameters: {'videoId': controller.results[i].videoId},);
             },
           ),
         );

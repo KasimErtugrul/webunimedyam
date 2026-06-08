@@ -17,7 +17,11 @@ class SuggestedVideoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
+      onTap: () => Get.offNamed(
+        AppRoutes.player,
+        arguments: video,
+        parameters: {'videoId': video.videoId},
+      ),
       child: Container(
         width: 160.w,
         margin: EdgeInsets.only(right: 12.w),

@@ -44,7 +44,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = Get.find<PlayerController>();
+    _controller = Get.find<PlayerController>(tag:Get.parameters['videoId'] ?? '123');
     _commentController = TextEditingController();
     _scrollController = ScrollController()..addListener(_onScroll);
 

@@ -115,7 +115,7 @@ class VideoDetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () =>
-          Get.toNamed(AppRoutes.player, arguments: item.toVideoModel()),
+          Get.toNamed(AppRoutes.player, arguments: item.toVideoModel(),parameters: {'videoId': item.toVideoModel().videoId},),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 14.w, vertical: 5.h),
         padding: EdgeInsets.all(10.w),

@@ -13,7 +13,7 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<PlayerController>();
+    final controller = Get.find<PlayerController>(tag: Get.parameters['videoId'] ?? '123');
 
     return Obx(() {
       // Yükleniyorsa shimmer satırı

@@ -50,6 +50,9 @@ abstract class AppPages {
       name: AppRoutes.player,
       page: () => const PlayerScreen(),
       binding: PlayerBinding(),
+      parameters: {
+        'videoId': Get.parameters['videoId'] ?? '',
+      },
     ),
    /*  GetPage(
       name: AppRoutes.playlistDetail,

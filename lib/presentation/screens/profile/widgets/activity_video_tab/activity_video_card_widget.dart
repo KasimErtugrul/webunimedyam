@@ -18,7 +18,7 @@ class ActivityVideoCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.player, arguments: video),
+      onTap: () => Get.toNamed(AppRoutes.player, arguments: video,parameters: {'videoId': video.videoId},),
       child: Container(
         margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
