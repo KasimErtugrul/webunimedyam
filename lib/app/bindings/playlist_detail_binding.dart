@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+/* import 'package:get/get.dart';
 
 import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/playlist_detail_controller.dart';
@@ -18,3 +18,4 @@ class PlaylistDetailBinding extends Bindings {
     );
   }
 }
+ */

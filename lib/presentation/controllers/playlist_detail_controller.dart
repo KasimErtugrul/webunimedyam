@@ -1,4 +1,4 @@
-// lib/presentation/controllers/playlist_detail_controller.dart
+/* // lib/presentation/controllers/playlist_detail_controller.dart
 import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/video_repository.dart';
@@ -44,3 +44,4 @@ class PlaylistDetailController extends GetxController {
     }
   }
 }
+ */

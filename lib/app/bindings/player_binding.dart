@@ -43,21 +43,21 @@ class PlayerBinding extends Bindings {
     Get.lazyPut(() => CommentRepository(supabase: Get.find()), fenix: true);
 
     if (!Get.isRegistered<VideoRepository>()) {
-  Get.lazyPut(
-    () => VideoRepository(supabase: Get.find(), local: Get.find()),
-    fenix: true,
-  );
-}
+      Get.lazyPut(
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
 
-   Get.lazyPut(
-  () => PlayerController(
-    favoritesRepository: Get.find(),
-    commentRepository: Get.find(),
-    engagementRepository: Get.find(),
-    authRepository: Get.find(),
-    videoRepository: Get.find(),   // ← YENİ
-  ),
-  fenix: true,
-);
+    Get.lazyPut(
+      () => PlayerController(
+        favoritesRepository: Get.find(),
+        commentRepository: Get.find(),
+        engagementRepository: Get.find(),
+        authRepository: Get.find(),
+        videoRepository: Get.find(), // ← YENİ
+      ),
+      fenix: true,
+    );
   }
 }
