@@ -24,8 +24,11 @@ class VideoHorizontalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          Get.toNamed(AppRoutes.player, arguments: video.toVideoModel()),
+      onTap: () => Get.toNamed(
+        AppRoutes.player,
+        arguments: video.toVideoModel(),
+        parameters: {'videoId': video.toVideoModel().videoId},
+      ),
       child: Container(
         width: 160.w,
         height: 200.h,
