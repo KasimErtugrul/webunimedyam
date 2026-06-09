@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/university_stats_model.dart';
 import '../../models/video_model.dart';
@@ -435,12 +437,18 @@ class SupabaseDataSource {
 
   // ─── Etkileşim İstatistikleri ─────────────────────────────────────────────
   Future<Map<String, int>> getEngagementStats(String videoId) async {
+    log(
+      'supabase datasource getengagementstats fonksiyonu: getEngagementStats videoId: $videoId',
+    );
     final data = await _client
         .from('video_engagement_stats')
         .select()
         .eq('video_id', videoId)
         .maybeSingle();
 
+    log(
+      'supabase datasource getengagementstats fonksiyonu: getEngagementStats data: $data',
+    );
     if (data == null) {
       return {
         'app_view_count': 0,
@@ -578,16 +586,16 @@ class SupabaseDataSource {
     offset: offset,
   );
 
-      // ─── Öneri Sistemi ────────────────────────────────────────────────────────
-Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
-  final data = await _client.rpc(
-    'get_suggested_videos',
-    params: {'current_video_id': videoId},
-  );
-  return (data as List)
-      .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
-      .toList();
-}
+  // ─── Öneri Sistemi ────────────────────────────────────────────────────────
+  Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
+    final data = await _client.rpc(
+      'get_suggested_videos',
+      params: {'current_video_id': videoId},
+    );
+    return (data as List)
+        .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+        .toList();
+  }
 
   Future<List<Map<String, dynamic>>> getMostLikedVideos({
     int limit = 10,
