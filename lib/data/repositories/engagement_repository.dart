@@ -1,5 +1,8 @@
+// lib/data/repositories/engagement_repository.dart
+
 import 'dart:developer';
 import '../datasources/remote/supabase_datasource.dart';
+import '../models/video_viewer_model.dart';
 
 class EngagementRepository {
   final SupabaseDataSource _supabase;
@@ -8,7 +11,6 @@ class EngagementRepository {
       : _supabase = supabase;
 
   // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
-  // İnternet yoksa varsayılan değerler döner, uygulama çökmez.
 
   Future<Map<String, int>> getEngagementStats(String videoId) async {
     try {
@@ -30,13 +32,32 @@ class EngagementRepository {
       return await _supabase.isLiked(userId, videoId);
     } catch (e) {
       log('👍❌ [Engagement] Beğeni durumu okunamadı: $e');
-      return false; // Offline ise beğenilmemiş say
+      return false;
+    }
+  }
+
+  /// Videoyu kimlerin izlediğini sayfalı olarak getirir.
+  /// watch_history_visibility = 'private' olan kullanıcılar filtrelenir.
+  Future<({List<VideoViewerModel> viewers, int totalCount})> getVideoViewers(
+    String videoId, {
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    try {
+      final viewers = await _supabase.getVideoViewers(
+        videoId,
+        limit: limit,
+        offset: offset,
+      );
+      final total = viewers.isNotEmpty ? viewers.first.totalCount : 0;
+      return (viewers: viewers, totalCount: total);
+    } catch (e) {
+      log('👁️❌ [Engagement] İzleyenler yüklenemedi: $e');
+      return (viewers: <VideoViewerModel>[], totalCount: 0);
     }
   }
 
   // ─── YAZMA İŞLEMLERİ (Write) ──────────────────────────────────────────────
-  // BU METOTLARDA TRY-CATCH YOK!
-  // Hata olursa Exception fırlatır ki PlayerController yakalayıp Optimistic UI'ı geri alsın.
 
   Future<void> addLike(String userId, String videoId) async {
     log('👍☁️➕ [Engagement] Beğeni Supabase\'e ekleniyor');
@@ -48,8 +69,6 @@ class EngagementRepository {
     await _supabase.removeLike(userId, videoId);
   }
 
-  // Görüntülenme ve Paylaşım arka plan işlemleridir. 
-  // Optimistic UI gerektirmediği için hataları burada yutabiliriz (loglayıp geçeriz).
   Future<void> recordView(String userId, String videoId) async {
     try {
       await _supabase.recordView(userId, videoId);

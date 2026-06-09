@@ -1,19 +1,25 @@
+// lib/presentation/screens/player/player_screen_widgets/engagement_bar/stat_badge_widget.dart
+// DEĞİŞİKLİK: tappable parametresi eklendi — true ise hafif underline gösterir
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
-/// Sadece gösterim — izlenme & yorum sayısı
 class StatBadgeWidget extends StatelessWidget {
   final IconData icon;
   final int count;
   final bool loading;
+
+  /// true ise sayı metninin altına hafif underline çizer, tıklanabilir olduğunu hissettir
+  final bool tappable;
 
   const StatBadgeWidget({
     super.key,
     required this.icon,
     required this.count,
     required this.loading,
+    this.tappable = false,
   });
 
   String _fmt(int n) {
@@ -50,6 +56,10 @@ class StatBadgeWidget extends StatelessWidget {
                   style: TextStyle(
                     color: AppTheme.textSec(context),
                     fontSize: 12.sp,
+                    decoration: tappable
+                        ? TextDecoration.underline
+                        : TextDecoration.none,
+                    decorationColor: AppTheme.textSec(context),
                   ),
                 ),
               ),

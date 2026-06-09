@@ -1,11 +1,11 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Engagement bar — aksiyonlar + uygulama istatistikleri TEK SATIRDA
-// ═══════════════════════════════════════════════════════════════════════════
+// lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_bar_widget.dart
+// DEĞİŞİKLİK: İzlenme sayısı (StatBadgeWidget) artık tıklanabilir → VideoViewersScreen
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../../../app/routes/app_routes.dart';
 import '../../../../controllers/player_controller.dart';
 import 'engagement_action_widget.dart';
 import 'stat_badge_widget.dart';
@@ -63,18 +63,30 @@ class EngagementBarWidget extends StatelessWidget {
 
           const Spacer(),
 
-          // İzlenme (sadece gösterim, tıklanamaz)
+          // İzlenme — tıklanabilir
           Obx(
-            () => StatBadgeWidget(
-              icon: Icons.visibility_outlined,
-              count: controller.appViewCount.value,
-              loading: controller.isInitialStatsLoading.value,
+            () => GestureDetector(
+              onTap: controller.isInitialStatsLoading.value
+                  ? null
+                  : () => Get.toNamed(
+                        AppRoutes.videoViewers,
+                        arguments: {
+                          'videoId': controller.currentVideo.value?.videoId ?? '',
+                          'totalViewCount': controller.appViewCount.value,
+                        },
+                      ),
+              child: StatBadgeWidget(
+                icon: Icons.visibility_outlined,
+                count: controller.appViewCount.value,
+                loading: controller.isInitialStatsLoading.value,
+                tappable: true,
+              ),
             ),
           ),
 
           SizedBox(width: 10.w),
 
-          // Yorum sayısı
+          // Yorum sayısı (tıklanamaz)
           Obx(
             () => StatBadgeWidget(
               icon: Icons.chat_bubble_outline_rounded,

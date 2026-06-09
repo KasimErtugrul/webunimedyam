@@ -1,10 +1,12 @@
+// lib/app/routes/app_pages.dart
+
 import 'package:get/get.dart';
 import '../../presentation/screens/follow/followers_screen.dart';
 import '../../presentation/screens/notification/notification_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
-//import '../../presentation/screens/player/playlist_detail_screen.dart';
+import '../../presentation/screens/player/video_viewers_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
@@ -13,10 +15,9 @@ import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
-import '../../presentation/screens/university_detail/university_detail_screen.dart'; // ← YENİ
+import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../bindings/follow_binding.dart';
 import '../bindings/onboarding_bindings.dart';
-//import '../bindings/playlist_detail_binding.dart';
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
@@ -26,7 +27,7 @@ import '../bindings/settings_binding.dart';
 import '../bindings/search_binding.dart';
 import '../bindings/stats_binding.dart';
 import '../bindings/video_section_detail_binding.dart';
-import '../bindings/university_detail_binding.dart'; // ← YENİ
+import '../bindings/university_detail_binding.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -54,18 +55,12 @@ abstract class AppPages {
         'videoId': Get.parameters['videoId'] ?? '',
       },
     ),
-   /*  GetPage(
-      name: AppRoutes.playlistDetail,
-      page: () => const PlaylistDetailScreen(),
-      binding: PlaylistDetailBinding(), // ← DOĞRU
-    ), */
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
-      preventDuplicates: false, // Farklı kullanıcı profillerinin stack'te açılmasına izin ver
+      preventDuplicates: false,
     ),
-   
     GetPage(
       name: AppRoutes.settings,
       page: () => const SettingsScreen(),
@@ -97,21 +92,27 @@ abstract class AppPages {
       binding: VideoSectionDetailBinding(),
     ),
     GetPage(
-      // ← YENİ
       name: AppRoutes.universityDetail,
       page: () => const UniversityDetailScreen(),
       binding: UniversityDetailBinding(),
     ),
-
-     GetPage(
+    GetPage(
       name: AppRoutes.followers,
       page: () => const FollowersScreen(),
       binding: FollowBinding(),
     ),
-     GetPage(
+    GetPage(
       name: AppRoutes.notifications,
       page: () => const NotificationsScreen(),
-      //binding: NotificationsBinding(),
+    ),
+
+    // ── YENİ ──────────────────────────────────────────────────
+    GetPage(
+      name: AppRoutes.videoViewers,
+      page: () => const VideoViewersScreen(),
+      // VideoViewersController, screen'in initState'inde Get.put ile oluşturuluyor.
+      // EngagementRepository player binding üzerinden zaten kayıtlı olduğu için
+      // ayrı bir binding dosyasına gerek yok.
     ),
   ];
 }

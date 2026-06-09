@@ -7,6 +7,7 @@ import '../../models/university_model.dart';
 import '../../models/profile_model.dart';
 import '../../models/user_settings_model.dart';
 import '../../models/comment_model.dart';
+import '../../models/video_viewer_model.dart';
 
 class SupabaseDataSource {
   final _client = Supabase.instance.client;
@@ -608,7 +609,23 @@ class SupabaseDataSource {
     limit: limit,
     offset: offset,
   );
-
+Future<List<VideoViewerModel>> getVideoViewers(
+    String videoId, {
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final data = await _client.rpc(
+      'get_video_viewers',
+      params: {
+        'p_video_id': videoId,
+        'p_limit': limit,
+        'p_offset': offset,
+      },
+    );
+    return (data as List)
+        .map((e) => VideoViewerModel.fromMap(Map<String, dynamic>.from(e)))
+        .toList();
+  }
   Future<List<Map<String, dynamic>>> getMostFavoritedVideos({
     int limit = 10,
     int offset = 0,
