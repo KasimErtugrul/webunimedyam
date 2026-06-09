@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
-          title:                      'ÇOMÜ TV',
+          title:                      'Uni TV',
           debugShowCheckedModeBanner: false,
           theme:                      AppTheme.lightTheme,
           darkTheme:                  AppTheme.darkTheme,
