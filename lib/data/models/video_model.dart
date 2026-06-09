@@ -16,6 +16,13 @@ class VideoModel {
   final int? universityId;
   final String? universityName;
 
+  // Uygulama istatistikleri (video_engagement_stats view'inden)
+  final int appViewCount;
+  final int appLikeCount;
+  final int appFavoriteCount;
+  final int appShareCount;
+  final int appCommentCount;
+
   VideoModel({
     required this.videoId,
     required this.title,
@@ -32,6 +39,11 @@ class VideoModel {
     required this.publishedAt,
     this.universityId,
     this.universityName,
+    this.appViewCount = 0,
+    this.appLikeCount = 0,
+    this.appFavoriteCount = 0,
+    this.appShareCount = 0,
+    this.appCommentCount = 0,
   });
 
   // ─── Supabase ─────────────────────────────────────────────────────────────

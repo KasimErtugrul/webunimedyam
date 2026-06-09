@@ -69,7 +69,7 @@ class VideoEngagementModel {
   String get fallbackThumbnailUrl =>
       'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
 
-  /// Player'a geçmek için VideoModel'e dönüştür
+  /// Player'a geçmek için VideoModel'e dönüştür (uygulama istatistikleri dahil)
   VideoModel toVideoModel() => VideoModel(
     videoId: videoId,
     title: title,
@@ -85,6 +85,11 @@ class VideoEngagementModel {
     channelTitle: channelTitle,
     publishedAt: publishedAt,
     universityId: universityId,
+    appViewCount: appViewCount,
+    appLikeCount: appLikeCount,
+    appFavoriteCount: appFavoriteCount,
+    appShareCount: appShareCount,
+    appCommentCount: appCommentCount,
   );
 
   factory VideoEngagementModel.fromMap(Map<String, dynamic> map) {

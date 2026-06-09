@@ -380,68 +380,91 @@ class VideoCardWidget extends StatelessWidget {
 
   // ── İstatistikler (Sol) ve Zaman (Sağ) ────────────────────────────────────
   Widget _buildStatsAndTimeRow(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    // Uygulama verileri varsa onları kullan, yoksa YouTube verilerini göster
+    final hasAppData = video.appViewCount > 0 ||
+        video.appLikeCount > 0 ||
+        video.appFavoriteCount > 0 ||
+        video.appShareCount > 0 ||
+        video.appCommentCount > 0;
+
+    final viewCount =
+        hasAppData ? video.appViewCount : video.viewCount;
+    final likeCount =
+        hasAppData ? video.appLikeCount : video.likeCount;
+    final favCount = video.appFavoriteCount;
+    final commentCount =
+        hasAppData ? video.appCommentCount : video.commentCount;
+    final shareCount = video.appShareCount;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Görüntülenme
-        Icon(
-          Icons.visibility_outlined,
-          size: 17.sp,
-          color: AppTheme.textSec(context),
+        // Üst satır: görüntülenme · beğeni · favori
+        Row(
+          children: [
+            _statChip(context, Icons.visibility_outlined, viewCount),
+            SizedBox(width: 14.w),
+            _statChip(context, Icons.thumb_up_off_alt_rounded, likeCount),
+            SizedBox(width: 14.w),
+            _statChip(context, Icons.bookmark_outline_rounded, favCount),
+            const Spacer(),
+            Text(
+              timeago.format(video.publishedAt, locale: 'tr'),
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 12.sp,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 5.w),
+        SizedBox(height: 6.h),
+        // Alt satır: yorum · paylaşım
+        Row(
+          children: [
+            _statChip(context, Icons.mode_comment_outlined, commentCount),
+            SizedBox(width: 14.w),
+            _statChip(context, Icons.share_outlined, shareCount),
+            if (hasAppData) ...[
+              const Spacer(),
+              Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Text(
+                  'uygulama verisi',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _statChip(BuildContext context, IconData icon, int count) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15.sp, color: AppTheme.textSec(context)),
+        SizedBox(width: 4.w),
         Text(
-          _formatCount(video.viewCount),
+          _formatCount(count),
           style: TextStyle(
             color: AppTheme.textSec(context),
-            fontSize: 12.5.sp,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w500,
           ),
-        ),
-
-        SizedBox(width: 16.w),
-
-        // Beğeni
-        Icon(
-          Icons.thumb_up_off_alt_rounded,
-          size: 17.sp,
-          color: AppTheme.textSec(context),
-        ),
-        SizedBox(width: 5.w),
-        Text(
-          _formatCount(video.likeCount),
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: 12.5.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-
-        SizedBox(width: 16.w),
-
-        // Yorum
-        Icon(
-          Icons.mode_comment_outlined,
-          size: 17.sp,
-          color: AppTheme.textSec(context),
-        ),
-        SizedBox(width: 5.w),
-        Text(
-          _formatCount(video.commentCount),
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: 12.5.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-
-        // Boşluğu doldurup timeago'yu en sağa itiyoruz
-        const Spacer(),
-
-        // Zaman (Sağa yaslı)
-        Text(
-          timeago.format(video.publishedAt, locale: 'tr'),
-          style: TextStyle(color: AppTheme.textSec(context), fontSize: 12.sp),
         ),
       ],
     );

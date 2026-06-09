@@ -44,7 +44,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = Get.find<PlayerController>(tag:Get.parameters['videoId'] ?? '123');
+    _controller = Get.find<PlayerController>(
+      tag: Get.parameters['videoId'] ?? '123',
+    );
     _commentController = TextEditingController();
     _scrollController = ScrollController()..addListener(_onScroll);
 
@@ -230,17 +232,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
       SizedBox(height: 6.h),
 
       Obx(() {
-        if (_controller.currentVideo.value != null) {
-          return YoutubeMetaWidget(video: _controller.currentVideo.value!);
-        }
-        return const SizedBox.shrink();
-      }),
-
-      Obx(() {
         if (_controller.currentVideo.value?.universityName?.isNotEmpty ==
             true) {
           return Padding(
-            padding: EdgeInsets.only(top: 10.h),
+            padding: EdgeInsets.only(top: 4.h),
             child: UniversityRowWidget(
               universityName: _controller.currentVideo.value!.universityName!,
             ),
@@ -251,6 +246,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
       SizedBox(height: 14.h),
       EngagementBarWidget(controller: _controller),
+      SizedBox(height: 20.h),
+
+      // ── YouTube İstatistikleri Bölümü ────────────────────────────────────
+      Obx(() {
+        if (_controller.currentVideo.value != null) {
+          return YoutubeMetaWidget(video: _controller.currentVideo.value!);
+        }
+        return const SizedBox.shrink();
+      }),
+
       SizedBox(height: 16.h),
 
       Obx(() {
@@ -273,9 +278,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }),
 
       SizedBox(height: 20.h),
-const SuggestedVideosSectionWidget(),   // ← YENİ
-SizedBox(height: 20.h),
-Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
+      const SuggestedVideosSectionWidget(), // ← YENİ
+      SizedBox(height: 20.h),
+      Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
       SizedBox(height: 16.h),
 
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
@@ -303,7 +308,7 @@ Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
             ),
           );
         }
-        
+
         if (_controller.comments.isEmpty) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 20.h),
