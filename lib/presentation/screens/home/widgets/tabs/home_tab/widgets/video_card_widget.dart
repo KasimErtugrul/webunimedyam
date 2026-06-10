@@ -107,7 +107,7 @@ class VideoCardWidget extends StatelessWidget {
             ),
           ),
 
-          TextButton(
+          /*  TextButton(
             onPressed: () {},
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
@@ -120,7 +120,7 @@ class VideoCardWidget extends StatelessWidget {
               style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
             ),
           ),
-
+ */
           GestureDetector(
             onTap: () {},
             child: Padding(
