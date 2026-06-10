@@ -102,12 +102,25 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-                  child: Text(
-                    'Son Videolar',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22.sp,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Son Videolar',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22.sp,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        'En yeni videoları keşfedin',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textSec(context),
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
