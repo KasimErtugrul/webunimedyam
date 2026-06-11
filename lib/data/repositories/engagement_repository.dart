@@ -10,8 +10,6 @@ class EngagementRepository {
   EngagementRepository({required SupabaseDataSource supabase})
       : _supabase = supabase;
 
-  // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
-
   Future<Map<String, int>> getEngagementStats(String videoId) async {
     try {
       return await _supabase.getEngagementStats(videoId);
@@ -36,19 +34,13 @@ class EngagementRepository {
     }
   }
 
-  /// Videoyu kimlerin izlediğini sayfalı olarak getirir.
-  /// watch_history_visibility = 'private' olan kullanıcılar filtrelenir.
   Future<({List<VideoViewerModel> viewers, int totalCount})> getVideoViewers(
     String videoId, {
     int limit = 10,
     int offset = 0,
   }) async {
     try {
-      final viewers = await _supabase.getVideoViewers(
-        videoId,
-        limit: limit,
-        offset: offset,
-      );
+      final viewers = await _supabase.getVideoViewers(videoId, limit: limit, offset: offset);
       final total = viewers.isNotEmpty ? viewers.first.totalCount : 0;
       return (viewers: viewers, totalCount: total);
     } catch (e) {
@@ -56,8 +48,6 @@ class EngagementRepository {
       return (viewers: <VideoViewerModel>[], totalCount: 0);
     }
   }
-
-  // ─── YAZMA İŞLEMLERİ (Write) ──────────────────────────────────────────────
 
   Future<void> addLike(String userId, String videoId) async {
     log('👍☁️➕ [Engagement] Beğeni Supabase\'e ekleniyor');

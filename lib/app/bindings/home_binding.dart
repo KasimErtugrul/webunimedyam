@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
@@ -11,7 +12,6 @@ import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
-//import '../../presentation/controllers/settings_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -60,15 +60,23 @@ class HomeBinding extends Bindings {
       );
     }
 
+    // ← YENİ: EngagementRepository (like/share işlemleri için)
+    if (!Get.isRegistered<EngagementRepository>()) {
+      Get.lazyPut(
+        () => EngagementRepository(supabase: Get.find()),
+        fenix: true,
+      );
+    }
+
     // ── Controllers ────────────────────────────────────────────────────────
 
-    // DİKKAT: supabaseDataSource parametresi kaldırıldı, authRepository eklendi!
     Get.lazyPut(
       () => HomeController(
         videoRepository: Get.find(),
         favoritesRepository: Get.find(),
         universityStatsRepository: Get.find(),
-        authRepository: Get.find(), // YENİ EKLENDİ
+        authRepository: Get.find(),
+        engagementRepository: Get.find(), // ← YENİ
       ),
       fenix: true,
     );
@@ -88,7 +96,5 @@ class HomeBinding extends Bindings {
       () => FavoritesController(favoritesRepository: Get.find()),
       fenix: true,
     );
-
-    
   }
 }

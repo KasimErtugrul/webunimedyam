@@ -107,7 +107,7 @@ class VideoCardWidget extends StatelessWidget {
             ),
           ),
 
-          /*  TextButton(
+          TextButton(
             onPressed: () {},
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
@@ -120,7 +120,7 @@ class VideoCardWidget extends StatelessWidget {
               style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
             ),
           ),
- */
+
           GestureDetector(
             onTap: () {},
             child: Padding(
@@ -286,25 +286,31 @@ class VideoCardWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACTION ROW — Like (boş) · Yorum · Paylaş | Favori (toggleFavorite)
+  // ACTION ROW — Like · Yorum · Paylaş | Favori
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildActionRow(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Row(
         children: [
-          // Like butonu — onTap boş
-          _igActionBtn(
-            context: context,
-            icon: Icons.thumb_up_outlined,
-            color: AppTheme.textPri(context),
-            onTap: () {},
-            label: 'Beğen',
+          // ── Like butonu — reaktif ──────────────────────────────────────
+          Obx(
+            () => _igActionBtn(
+              context: context,
+              icon: controller.isLiked(video.videoId)
+                  ? Icons.thumb_up_rounded
+                  : Icons.thumb_up_outlined,
+              color: controller.isLiked(video.videoId)
+                  ? Theme.of(context).colorScheme.primary
+                  : AppTheme.textPri(context),
+              onTap: () => controller.toggleLike(video.videoId),
+              label: 'Beğen',
+            ),
           ),
 
           SizedBox(width: 4.w),
 
-          // Yorum
+          // ── Yorum — player'a yönlendir ────────────────────────────────
           _igActionBtn(
             context: context,
             icon: Icons.mode_comment_outlined,
@@ -319,18 +325,32 @@ class VideoCardWidget extends StatelessWidget {
 
           SizedBox(width: 4.w),
 
-          // Paylaş
-          _igActionBtn(
-            context: context,
-            icon: Icons.send_outlined,
-            color: AppTheme.textPri(context),
-            onTap: () {},
-            label: 'Paylaş',
+          // ── Paylaş — reaktif (yüklenirken spinner) ────────────────────
+          Obx(
+            () => controller.isShareLoading(video.videoId)
+                ? Padding(
+                    padding: EdgeInsets.all(8.w),
+                    child: SizedBox(
+                      width: 20.sp,
+                      height: 20.sp,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.textSec(context),
+                      ),
+                    ),
+                  )
+                : _igActionBtn(
+                    context: context,
+                    icon: Icons.send_outlined,
+                    color: AppTheme.textPri(context),
+                    onTap: () => controller.shareVideo(video),
+                    label: 'Paylaş',
+                  ),
           ),
 
           const Spacer(),
 
-          // Favori / Kaydet — toggleFavorite
+          // ── Favori / Kaydet ───────────────────────────────────────────
           Obx(
             () => _igActionBtn(
               context: context,
@@ -441,7 +461,7 @@ class VideoCardWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CONTENT — Başlık · Açıklama (zaman kaldırıldı, sadece header'da var)
+  // CONTENT — Başlık · Açıklama
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildContent(BuildContext context) {
     return Padding(

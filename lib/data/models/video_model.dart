@@ -46,6 +46,54 @@ class VideoModel {
     this.appCommentCount = 0,
   });
 
+  // ─── copyWith ─────────────────────────────────────────────────────────────
+
+  VideoModel copyWith({
+    String? videoId,
+    String? title,
+    String? description,
+    String? thumbnailUrl,
+    String? maxresThumbnailUrl,
+    String? duration,
+    int? viewCount,
+    int? likeCount,
+    int? commentCount,
+    List<String>? tags,
+    bool? isHd,
+    String? channelTitle,
+    DateTime? publishedAt,
+    int? universityId,
+    String? universityName,
+    int? appViewCount,
+    int? appLikeCount,
+    int? appFavoriteCount,
+    int? appShareCount,
+    int? appCommentCount,
+  }) {
+    return VideoModel(
+      videoId: videoId ?? this.videoId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      maxresThumbnailUrl: maxresThumbnailUrl ?? this.maxresThumbnailUrl,
+      duration: duration ?? this.duration,
+      viewCount: viewCount ?? this.viewCount,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      tags: tags ?? this.tags,
+      isHd: isHd ?? this.isHd,
+      channelTitle: channelTitle ?? this.channelTitle,
+      publishedAt: publishedAt ?? this.publishedAt,
+      universityId: universityId ?? this.universityId,
+      universityName: universityName ?? this.universityName,
+      appViewCount: appViewCount ?? this.appViewCount,
+      appLikeCount: appLikeCount ?? this.appLikeCount,
+      appFavoriteCount: appFavoriteCount ?? this.appFavoriteCount,
+      appShareCount: appShareCount ?? this.appShareCount,
+      appCommentCount: appCommentCount ?? this.appCommentCount,
+    );
+  }
+
   // ─── Supabase ─────────────────────────────────────────────────────────────
 
   factory VideoModel.fromSupabase(Map<String, dynamic> json) {

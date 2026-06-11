@@ -368,6 +368,17 @@ class SupabaseDataSource {
         .eq('video_id', videoId);
   }
 
+  /// Kullanıcının beğendiği tüm video ID'lerini bir sorguda getirir.
+  Future<Set<String>> getLikedVideoIds(String userId) async {
+    final data = await _client
+        .from('likes')
+        .select('video_id')
+        .eq('user_id', userId);
+    return (data as List<dynamic>)
+        .map((row) => row['video_id'] as String)
+        .toSet();
+  }
+
   // ─── Görüntüleme (content_views) ─────────────────────────────────────────
   Future<void> recordView(String userId, String videoId) async {
     await _client.from('content_views').upsert({

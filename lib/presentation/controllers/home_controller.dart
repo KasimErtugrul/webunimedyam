@@ -1,33 +1,36 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
+import '../../data/repositories/engagement_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
 
-// FavoritesController IMPORT EDİLMİYOR — bağımlılık yok.
-
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
   final FavoritesRepository favoritesRepository;
   final UniversityStatsRepository universityStatsRepository;
   final AuthRepository authRepository;
+  final EngagementRepository engagementRepository;
 
   HomeController({
     required this.videoRepository,
     required this.favoritesRepository,
     required this.universityStatsRepository,
     required this.authRepository,
+    required this.engagementRepository,
   });
 
-  // ─── Mevcut State ─────────────────────────────────────────────────────────
+  // ─── State ─────────────────────────────────────────────────────────────────
 
   final videos = <VideoModel>[].obs;
   final playlists = <PlaylistModel>[].obs;
@@ -45,8 +48,6 @@ class HomeController extends GetxController {
   final selectedIndex = 0.obs;
   final selectedUniversity = Rxn<UniversityModel>();
 
-  // ─── Üniversite Stats State — 8 Liste ────────────────────────────────────
-
   final statsMostWatched = <UniversityStatsModel>[].obs;
   final statsMostLiked = <UniversityStatsModel>[].obs;
   final statsPopularInApp = <UniversityStatsModel>[].obs;
@@ -58,8 +59,6 @@ class HomeController extends GetxController {
 
   final isStatsLoading = false.obs;
 
-  // ─── Video Seksiyonları State — 6 Liste ──────────────────────────────────
-
   final videosTrending = <VideoEngagementModel>[].obs;
   final videosMostWatched = <VideoEngagementModel>[].obs;
   final videosMostLiked = <VideoEngagementModel>[].obs;
@@ -69,15 +68,28 @@ class HomeController extends GetxController {
 
   final isVideoSectionsLoading = false.obs;
 
-  // ─── UI Bayrakları ────────────────────────────────────────────────────────
   final showAuthRequired = false.obs;
+
+  // ─── Like local cache ─────────────────────────────────────────────────────
+  // key: videoId → value: true/false
+  // Sadece kullanıcı dokunduğu videolar için tutulur.
+  // Uygulama başında hiçbir şey çekilmez; ilk dokunuşta Supabase'e bir kez
+  // sorulur, sonraki dokunuşlarda bu cache'ten bakılır.
+  final _likeCache = <String, bool>{};
+  final _likeCacheLoading = <String>{};  // DB sorgusu sürerken çift tık önleme
+  final _likeProcessing = <String>{};    // toggle işlemi sürerken önleme
+  final _shareProcessing = <String>{};
+
+  // Rx set: sadece widget'ların rebuild alması için
+  final _likedIds = <String>{}.obs;
+  final _likeLoadingIds = <String>{}.obs;
+  final _shareLoadingIds = <String>{}.obs;
 
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
 
   String? get _currentUserId => authRepository.currentUserId;
   bool get isLoggedIn => authRepository.isLoggedIn;
 
-  // Stream aboneliği için tutucu
   late final StreamSubscription<FavoriteChange> _favoriteSubscription;
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
@@ -85,12 +97,7 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Favori değişimlerini dinle
-    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((
-      event,
-    ) {
-      _onFavoriteChanged(event);
-    });
+    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen(_onFavoriteChanged);
   }
 
   @override
@@ -109,28 +116,19 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-  // ─── Favori değişimlerini işle ───────────────────────────────────────────
   void _onFavoriteChanged(FavoriteChange event) {
     if (event.isFavorite) {
-      if (!favoriteIds.contains(event.videoId)) {
-        favoriteIds.add(event.videoId);
-      }
-      // Eğer video objesi geldiyse, isteğe bağlı olarak videos listesinde güncelleme yapılabilir
-      // (PlayerController'dan gelen event'te video var, HomeController'dan gelen event'te yok)
+      if (!favoriteIds.contains(event.videoId)) favoriteIds.add(event.videoId);
     } else {
       favoriteIds.remove(event.videoId);
     }
-    log(
-      '[HomeController] Favori değişikliği algılandı: ${event.videoId} → ${event.isFavorite}',
-    );
   }
 
-  // ─── Üniversite Stats Yükleme ─────────────────────────────────────────────
+  // ─── Stats ────────────────────────────────────────────────────────────────
 
   Future<void> loadUniversityStats() async {
     try {
       isStatsLoading.value = true;
-      // OPTİMİZASYON: 8 ayrı çağrı → tek RPC bundle
       final bundle = await universityStatsRepository.getAllStats();
       statsMostWatched.value    = bundle['most_watched']        ?? [];
       statsMostLiked.value      = bundle['most_liked']          ?? [];
@@ -147,12 +145,9 @@ class HomeController extends GetxController {
     }
   }
 
-  // ─── Video Seksiyonları Yükleme ───────────────────────────────────────────
-
   Future<void> loadVideoSections() async {
     try {
       isVideoSectionsLoading.value = true;
-      // OPTİMİZASYON: 6 ayrı çağrı → tek RPC bundle
       final bundle = await videoRepository.getAllVideoSections();
       videosTrending.value       = bundle['trending']         ?? [];
       videosMostWatched.value    = bundle['most_watched']     ?? [];
@@ -167,26 +162,18 @@ class HomeController extends GetxController {
     }
   }
 
-  // ─── Üniversiteler ────────────────────────────────────────────────────────
-
   Future<void> loadUniversitiesAndPlaylists() async {
     try {
       isUniversitiesLoading.value = true;
       isPlaylistsLoading.value = true;
       playlistsError.value = '';
       final rows = await videoRepository.getUniversitiesAndPlaylists();
-      universities.value = rows
-          .map((r) => UniversityModel.fromSupabase(r))
-          .toList();
-      playlists.value = rows
-          .map(
-            (r) => PlaylistModel.fromUniversity(
-              r,
-              videoCount: (r['video_count'] as int?) ?? 0,
-              thumbnailUrl: r['thumbnail_url'] as String? ?? '',
-            ),
-          )
-          .toList();
+      universities.value = rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+      playlists.value = rows.map((r) => PlaylistModel.fromUniversity(
+        r,
+        videoCount: (r['video_count'] as int?) ?? 0,
+        thumbnailUrl: r['thumbnail_url'] as String? ?? '',
+      )).toList();
     } catch (e) {
       log('loadUniversitiesAndPlaylists error: $e');
       playlistsError.value = 'Üniversiteler yüklenemedi.';
@@ -201,18 +188,14 @@ class HomeController extends GetxController {
     await loadVideos();
   }
 
-  // ─── Videolar ─────────────────────────────────────────────────────────────
-
   Future<void> loadVideos() async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
       final uni = selectedUniversity.value;
-      if (uni != null) {
-        videos.value = await videoRepository.getVideosByUniversity(uni.id!);
-      } else {
-        videos.value = await videoRepository.getLatestVideosPerUniversity();
-      }
+      videos.value = uni != null
+          ? await videoRepository.getVideosByUniversity(uni.id!)
+          : await videoRepository.getLatestVideosPerUniversity();
     } catch (e) {
       errorMessage.value = 'Videolar yüklenemedi.';
     } finally {
@@ -234,11 +217,7 @@ class HomeController extends GetxController {
     }
   }
 
-  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
-
   Future<void> loadPlaylists() => loadUniversitiesAndPlaylists();
-
-  // ─── Favoriler – DÜZELTİLDI: SADECE KENDİ STATE'İNİ GÜNCELLER, BAŞKA CONTROLLER'LARA DOKUNMAZ ───
 
   Future<void> loadFavorites() async {
     try {
@@ -254,44 +233,133 @@ class HomeController extends GetxController {
 
   Future<void> toggleFavorite(String videoId) async {
     final userId = _currentUserId;
-    if (userId == null) {
-      showAuthRequired.value = true;
-      return;
-    }
+    if (userId == null) { showAuthRequired.value = true; return; }
 
     try {
       if (isFavorite(videoId)) {
-        // Favoriden çıkar
         await favoritesRepository.removeFavorite(userId, videoId);
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
-        // favoriteIds set'i stream event ile güncellenecek ( _onFavoriteChanged )
       } else {
-        // Favoriye ekle
         await favoritesRepository.addFavorite(userId, videoId);
         final video = videos.firstWhereOrNull((v) => v.videoId == videoId);
-        if (video != null) {
-          await favoritesRepository.saveFavoriteVideoLocally(video);
-        }
-        // favoriteIds set'i stream event ile güncellenecek
+        if (video != null) await favoritesRepository.saveFavoriteVideoLocally(video);
       }
-      // NOT: FavoritesController'a doğrudan erişim kaldırıldı.
     } catch (e) {
       log('toggleFavorite error: $e');
     }
   }
 
-  // ─── Navigasyon ──────────────────────────────────────────────────────────
+  // ─── Beğeni — on-demand cache yaklaşımı ──────────────────────────────────
+  //
+  // İlk dokunuşta:
+  //   1. Buton devre dışı (loading göster)
+  //   2. Supabase'e tek satır sorgu: "bu user bu videoyu beğenmiş mi?"
+  //   3. Sonuç cache'e yazılır
+  //   4. Toggle yapılır → optimistic update + Supabase write
+  //
+  // Sonraki dokunuşlarda:
+  //   Cache'te var → direkt toggle, DB sorgusu yok.
+  //
+  // Bellek: Kullanıcı kaç videoya dokunursa o kadar bool tutulur.
+  // 10.000 entry bile ~80KB → önemsiz.
 
-  void changeTab(int index) {
-    selectedIndex.value = index;
+  bool isLiked(String videoId) => _likedIds.contains(videoId);
+  bool isLikeLoading(String videoId) => _likeLoadingIds.contains(videoId);
+  bool isShareLoading(String videoId) => _shareLoadingIds.contains(videoId);
+
+  Future<void> toggleLike(String videoId) async {
+    final userId = _currentUserId;
+    if (userId == null) { showAuthRequired.value = true; return; }
+    if (_likeProcessing.contains(videoId)) return;
+    if (_likeCacheLoading.contains(videoId)) return;
+
+    _likeProcessing.add(videoId);
+    _likeLoadingIds.add(videoId);
+
+    try {
+      // Cache'te yoksa ilk kez dokunuluyor: DB'ye sor
+      if (!_likeCache.containsKey(videoId)) {
+        _likeCacheLoading.add(videoId);
+        try {
+          _likeCache[videoId] = await engagementRepository.isLiked(userId, videoId);
+        } finally {
+          _likeCacheLoading.remove(videoId);
+        }
+        // Cache dolduktan sonra Rx set'i güncelle (ilk render)
+        if (_likeCache[videoId]!) _likedIds.add(videoId);
+      }
+
+      final wasLiked = _likeCache[videoId]!;
+
+      // Optimistic update
+      _likeCache[videoId] = !wasLiked;
+      if (wasLiked) {
+        _likedIds.remove(videoId);
+      } else {
+        _likedIds.add(videoId);
+      }
+
+      // Supabase write
+      try {
+        if (wasLiked) {
+          await engagementRepository.removeLike(userId, videoId);
+        } else {
+          await engagementRepository.addLike(userId, videoId);
+        }
+      } catch (e) {
+        // Hata → geri al
+        _likeCache[videoId] = wasLiked;
+        if (wasLiked) {
+          _likedIds.add(videoId);
+        } else {
+          _likedIds.remove(videoId);
+        }
+        log('[HomeController] toggleLike write error: $e');
+      }
+    } finally {
+      _likeLoadingIds.remove(videoId);
+      _likeProcessing.remove(videoId);
+    }
   }
 
-  // ─── Yardımcılar ─────────────────────────────────────────────────────────
+  // ─── Paylaşım ─────────────────────────────────────────────────────────────
+
+  Future<void> shareVideo(VideoModel video) async {
+    if (_shareProcessing.contains(video.videoId)) return;
+    _shareProcessing.add(video.videoId);
+    _shareLoadingIds.add(video.videoId);
+
+    final videoUrl = 'https://www.youtube.com/watch?v=${video.videoId}';
+    final text = '${video.title}\n$videoUrl';
+
+    try {
+      await SharePlus.instance.share(ShareParams(text: text, subject: video.title));
+      final userId = _currentUserId;
+      if (userId != null) {
+        await engagementRepository.recordShare(userId, video.videoId);
+      }
+    } catch (e) {
+      log('[HomeController] shareVideo fallback to clipboard: $e');
+      await Clipboard.setData(ClipboardData(text: videoUrl));
+      Get.snackbar(
+        'Bağlantı Kopyalandı',
+        'Video bağlantısı panoya kopyalandı.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      _shareLoadingIds.remove(video.videoId);
+      _shareProcessing.remove(video.videoId);
+    }
+  }
+
+  // ─── Navigasyon ──────────────────────────────────────────────────────────
+
+  void changeTab(int index) => selectedIndex.value = index;
 
   String get appBarTitle {
     final uni = selectedUniversity.value;
     if (uni == null) return 'ÜniTV';
-    final name = uni.name ?? 'ÜniTV'; // ← null guard
+    final name = uni.name ?? 'ÜniTV';
     if (name.length > 20) return '${name.substring(0, 18)}…';
     return name;
   }
