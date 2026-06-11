@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../models/shorts_model.dart';
 import '../../models/university_stats_model.dart';
 import '../../models/video_model.dart';
 import '../../models/university_model.dart';
@@ -164,6 +165,14 @@ class SupabaseDataSource {
 
     return (data as List).map((e) => VideoModel.fromSupabase(e)).toList();
   }
+
+   Future<List<ShortsModel>> getShortsPerUniversity() async {
+    final data = await _client.rpc('get_shorts_per_university');
+    return (data as List)
+        .map((e) => ShortsModel.fromMap(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+ 
 
   Future<void> upsertVideos(List<VideoModel> videos) async {
     final data = videos.map((v) => v.toSupabase()).toList();

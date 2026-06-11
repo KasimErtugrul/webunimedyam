@@ -7,8 +7,12 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../data/repositories/shorts_repository.dart';
+import '../../../../../../data/datasources/remote/supabase_datasource.dart';
 import '../../../../../controllers/home_controller.dart';
+import '../../../../../controllers/shorts_controller.dart';
 
+import 'shorts/shorts_row_widget.dart';
 import 'widgets/video_card_widget.dart';
 
 class HomeTabWidget extends StatefulWidget {
@@ -26,18 +30,33 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   void initState() {
     super.initState();
 
+    // ShortsController: HomeBinding'e eklemek yerine burada lazy init.
+    // HomeBinding zaten SupabaseDataSource'u kayıtlı tutuyor.
+    if (!Get.isRegistered<ShortsRepository>()) {
+      Get.lazyPut(
+        () => ShortsRepository(supabase: Get.find<SupabaseDataSource>()),
+        fenix: true,
+      );
+    }
+    if (!Get.isRegistered<ShortsController>()) {
+      Get.put(
+        ShortsController(repository: Get.find<ShortsRepository>()),
+        permanent: false,
+      );
+    }
+
     // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
     _authWorker = ever(controller.showAuthRequired, (required) {
       if (required) {
         _showAuthDialog();
-        controller.showAuthRequired.value = false; // Bayrağı sıfırla
+        controller.showAuthRequired.value = false;
       }
     });
   }
 
   @override
   void dispose() {
-    _authWorker?.dispose(); // Memory leak'i önle
+    _authWorker?.dispose();
     super.dispose();
   }
 
@@ -52,10 +71,11 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             await controller.refreshVideos();
             await controller.loadPlaylists();
             await controller.loadUniversityStats();
+            await Get.find<ShortsController>().refresh();
           },
           child: CustomScrollView(
             slivers: [
-              // ── AppBar (statik — sadece başlık reaktif) ────────────
+              // ── AppBar ────────────────────────────────────────────────
               SliverAppBar(
                 floating: true,
                 snap: true,
@@ -98,7 +118,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 ],
               ),
 
-              // ── Video Listesi Başlığı (statik) ───────────────────────
+              // ── Shorts Satırı ─────────────────────────────────────────
+              const SliverToBoxAdapter(child: ShortsRowWidget()),
+
+              // ── Son Videolar Başlığı ───────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
@@ -125,10 +148,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 ),
               ),
 
-              // ── İçerik Alanı (tek Obx — sadece bu kısım rebuild olur) ──
+              // ── İçerik Alanı ──────────────────────────────────────────
               Obx(() => _buildContentSliver(context)),
 
-              // ── Alt Boşluk (statik) ──────────────────────────────────
+              // ── Alt Boşluk ────────────────────────────────────────────
               SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             ],
           ),
@@ -137,7 +160,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  // ── Reaktif İçerik Seçici ──────────────────────────────────────────────
   Widget _buildContentSliver(BuildContext context) {
     if (controller.isLoading.value) {
       return SliverToBoxAdapter(child: _buildVideoShimmer(context));
@@ -147,19 +169,21 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       return SliverToBoxAdapter(child: _buildErrorWidget(context));
     }
 
-    if (controller.videos.isEmpty) {
+    // Shorts zaten ayrı gösterildiği için normal listede sadece normal videolar
+    final nonShorts = controller.videos.where((v) => !v.isShorts).toList();
+
+    if (nonShorts.isEmpty) {
       return SliverToBoxAdapter(child: _buildEmptyWidget(context));
     }
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => VideoCardWidget(video: controller.videos[index]),
-        childCount: controller.videos.length,
+        (context, index) => VideoCardWidget(video: nonShorts[index]),
+        childCount: nonShorts.length,
       ),
     );
   }
 
-  // ── Hata Widget ────────────────────────────────────────────────────────
   Widget _buildErrorWidget(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(32.w),
@@ -186,7 +210,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  // ── Boş Liste Widget ───────────────────────────────────────────────────
   Widget _buildEmptyWidget(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(32.w),
@@ -199,7 +222,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  // ── Auth Dialog (UI Katmanında Yaşıyor) ────────────────────────────────
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(
@@ -240,7 +262,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  // ── Shimmer Yükleniyor ─────────────────────────────────────────────────
   Widget _buildVideoShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),

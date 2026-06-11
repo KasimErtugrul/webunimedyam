@@ -15,6 +15,7 @@ abstract class AppRoutes {
   static const universityDetail = '/university-detail';
   static const notifications = '/notifications';
   static const followers = '/followers';
+  static const shortsPlayer = '/shorts-player';
 
   /// Videoyu kimlerin izlediği sayfası
   /// Argüman: {'videoId': String, 'totalViewCount': int}

@@ -1,3 +1,5 @@
+// lib/data/models/video_model.dart
+
 class VideoModel {
   final String videoId;
   final String title;
@@ -10,9 +12,9 @@ class VideoModel {
   final int commentCount;
   final List<String> tags;
   final bool isHd;
+  final bool isShorts;
   final String channelTitle;
   final DateTime publishedAt;
-  // Yeni eklendi: üniversite bilgisi
   final int? universityId;
   final String? universityName;
 
@@ -35,6 +37,7 @@ class VideoModel {
     this.commentCount = 0,
     this.tags = const [],
     this.isHd = false,
+    this.isShorts = false,
     this.channelTitle = 'ÇOMÜ TV',
     required this.publishedAt,
     this.universityId,
@@ -60,6 +63,7 @@ class VideoModel {
     int? commentCount,
     List<String>? tags,
     bool? isHd,
+    bool? isShorts,
     String? channelTitle,
     DateTime? publishedAt,
     int? universityId,
@@ -82,6 +86,7 @@ class VideoModel {
       commentCount: commentCount ?? this.commentCount,
       tags: tags ?? this.tags,
       isHd: isHd ?? this.isHd,
+      isShorts: isShorts ?? this.isShorts,
       channelTitle: channelTitle ?? this.channelTitle,
       publishedAt: publishedAt ?? this.publishedAt,
       universityId: universityId ?? this.universityId,
@@ -111,6 +116,7 @@ class VideoModel {
           (json['tags'] as List<dynamic>?)?.map((t) => t.toString()).toList() ??
           [],
       isHd: json['is_hd'] ?? false,
+      isShorts: json['is_shorts'] ?? false,
       channelTitle: json['channel_title'] ?? 'ÇOMÜ TV',
       publishedAt:
           DateTime.tryParse(json['published_at'] ?? '') ?? DateTime.now(),
@@ -132,6 +138,7 @@ class VideoModel {
       'comment_count': commentCount,
       'tags': tags,
       'is_hd': isHd,
+      'is_shorts': isShorts,
       'channel_title': channelTitle,
       'published_at': publishedAt.toIso8601String(),
       'cached_at': DateTime.now().toIso8601String(),

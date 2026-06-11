@@ -16,6 +16,7 @@ import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
+import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../bindings/follow_binding.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/splash_binding.dart';
@@ -105,14 +106,17 @@ abstract class AppPages {
       name: AppRoutes.notifications,
       page: () => const NotificationsScreen(),
     ),
-
-    // ── YENİ ──────────────────────────────────────────────────
     GetPage(
       name: AppRoutes.videoViewers,
       page: () => const VideoViewersScreen(),
-      // VideoViewersController, screen'in initState'inde Get.put ile oluşturuluyor.
-      // EngagementRepository player binding üzerinden zaten kayıtlı olduğu için
-      // ayrı bir binding dosyasına gerek yok.
+    ),
+
+    // ── Shorts Oynatıcı ──────────────────────────────────────────────────
+    // Argüman: {'shorts': List<ShortsModel>, 'initialIndex': int}
+    GetPage(
+      name: AppRoutes.shortsPlayer,
+      page: () => const ShortsPlayerScreen(),
+      transition: Transition.downToUp,
     ),
   ];
 }
