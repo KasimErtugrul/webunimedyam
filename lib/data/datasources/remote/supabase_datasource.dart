@@ -79,7 +79,7 @@ class SupabaseDataSource {
         .from('universities')
         .select()
         .order('name', ascending: true)
-        .limit(limit); // FIX: Pagination
+        .limit(limit);
     return (data as List).map((e) => UniversityModel.fromSupabase(e)).toList();
   }
 
@@ -110,7 +110,6 @@ class SupabaseDataSource {
     return VideoModel.fromSupabase(row);
   }
 
-  // FIX: Tüm listelere limit ve offset eklendi.
   Future<List<VideoModel>> getCachedVideos({
     int limit = 20,
     int offset = 0,
@@ -119,7 +118,7 @@ class SupabaseDataSource {
         .from('videos_cache')
         .select('*, universities(name)')
         .order('published_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     return (data as List).map((e) {
       final row = Map<String, dynamic>.from(e);
@@ -141,7 +140,7 @@ class SupabaseDataSource {
         .select('*, universities(name)')
         .eq('university_id', universityId)
         .order('published_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     return (data as List).map((e) {
       final row = Map<String, dynamic>.from(e);
@@ -161,18 +160,19 @@ class SupabaseDataSource {
         .from('latest_videos_per_university')
         .select()
         .order('published_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     return (data as List).map((e) => VideoModel.fromSupabase(e)).toList();
   }
 
-   Future<List<ShortsModel>> getShortsPerUniversity() async {
+  /// Her üniversiteden en son 1 shorts videoyu çeker.
+  /// VOLATILE RPC — her seferinde taze veri, yayınlanma tarihine göre sıralı.
+  Future<List<ShortsModel>> getShortsPerUniversity() async {
     final data = await _client.rpc('get_shorts_per_university');
     return (data as List)
         .map((e) => ShortsModel.fromMap(Map<String, dynamic>.from(e)))
         .toList();
   }
- 
 
   Future<void> upsertVideos(List<VideoModel> videos) async {
     final data = videos.map((v) => v.toSupabase()).toList();
@@ -188,7 +188,7 @@ class SupabaseDataSource {
         .from('favorites')
         .select('video_id')
         .eq('user_id', userId)
-        .limit(limit); // FIX: Pagination
+        .limit(limit);
     return (data as List).map((e) => e['video_id'] as String).toList();
   }
 
@@ -202,7 +202,7 @@ class SupabaseDataSource {
         .select('video_id, created_at, videos_cache(*, universities(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     final List<VideoModel> videos = [];
     for (final row in (data as List)) {
@@ -244,7 +244,7 @@ class SupabaseDataSource {
         .select('*, profiles(username, avatar_url)')
         .eq('video_id', videoId)
         .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
     return (data as List).map((e) => CommentModel.fromSupabase(e)).toList();
   }
 
@@ -280,7 +280,7 @@ class SupabaseDataSource {
         .select('video_id, created_at, videos_cache(*, universities(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     final seen = <String>{};
     final List<VideoModel> videos = [];
@@ -300,22 +300,28 @@ class SupabaseDataSource {
     return videos;
   }
 
-  // ─── Oynatma Listeleri ────────────────────────────────────────────────────
+  // ─── Üniversiteler + İstatistikler ───────────────────────────────────────
+  //
+  // FIX: Daha önce mevcut olmayan 'universities_with_stats' view'ı çağrılıyordu.
+  // Bu view artık Supabase'de oluşturuldu.
+  // View; universities tablosundaki tüm kolonları + favorite_count + thumbnail_url içerir.
+
   Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount({
     int limit = 500,
   }) async {
     final data = await _client
-        .from('universities_with_stats')
+        .from('universities_with_stats') // ✅ View artık mevcut
         .select('*')
         .order('name', ascending: true)
-        .limit(limit); // FIX: Pagination
+        .limit(limit);
 
     return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
   Future<List<Map<String, dynamic>>> getUniversitiesWithStats({
     int limit = 500,
-  }) => getUniversitiesWithVideoCount(limit: limit);
+  }) =>
+      getUniversitiesWithVideoCount(limit: limit);
 
   // ─── Onboarding ──────────────────────────────────────────────────────────
   Future<bool> isOnboardingCompleted(String userId) async {
@@ -327,12 +333,10 @@ class SupabaseDataSource {
     return data?['completed'] ?? false;
   }
 
-  // lib/data/datasources/remote/supabase_datasource.dart
   Future<void> completeOnboarding(String userId) async {
     await _client.from('onboarding').upsert(
-      // ← update → upsert
       {
-        'user_id': userId, // ← id alanı eklendi
+        'user_id': userId,
         'completed': true,
         'completed_at': DateTime.now().toIso8601String(),
       },
@@ -377,7 +381,6 @@ class SupabaseDataSource {
         .eq('video_id', videoId);
   }
 
-  /// Kullanıcının beğendiği tüm video ID'lerini bir sorguda getirir.
   Future<Set<String>> getLikedVideoIds(String userId) async {
     final data = await _client
         .from('likes')
@@ -406,7 +409,7 @@ class SupabaseDataSource {
         .select('video_id, created_at, videos_cache(*, universities(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     final List<VideoModel> videos = [];
     for (final row in (data as List)) {
@@ -440,7 +443,7 @@ class SupabaseDataSource {
         .select('video_id, created_at, videos_cache(*, universities(name))')
         .eq('user_id', userId)
         .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     final List<VideoModel> videos = [];
     for (final row in (data as List)) {
@@ -498,18 +501,16 @@ class SupabaseDataSource {
   }
 
   // ─── Üniversite İstatistikleri ───────────────────────────────────────────
-  // FIX: String filter hack'i kaldırıldı. Tip güvenli parametreler eklendi.
   Future<List<UniversityStatsModel>> getUniversityStatsList({
     required String orderBy,
     int limit = 10,
     int offset = 0,
     String? filterColumn,
-    String? filterOperator, // 'gt', 'lt', 'eq', 'gte', 'lte', 'neq'
+    String? filterOperator,
     dynamic filterValue,
   }) async {
     var query = _client.from('university_stats').select();
 
-    // Tip güvenli filtreleme
     if (filterColumn != null && filterOperator != null && filterValue != null) {
       switch (filterOperator) {
         case 'gt':
@@ -535,7 +536,7 @@ class SupabaseDataSource {
 
     final data = await query
         .order(orderBy, ascending: false)
-        .range(offset, offset + limit - 1); // FIX: Pagination eklendi
+        .range(offset, offset + limit - 1);
 
     return (data as List)
         .map((e) => UniversityStatsModel.fromMap(Map<String, dynamic>.from(e)))
@@ -543,8 +544,6 @@ class SupabaseDataSource {
   }
 
   // ─── Video Engagement Stats ───────────────────────────────────────────────
-
-  /// FIX: String filter hack'i kaldırıldı. Tip güvenli filtreleme ve tam pagination eklendi.
   Future<List<Map<String, dynamic>>> getVideoEngagementList({
     required String orderBy,
     bool ascending = false,
@@ -556,7 +555,6 @@ class SupabaseDataSource {
   }) async {
     var query = _client.from('video_engagement_stats').select();
 
-    // Tip güvenli filtreleme
     if (filterColumn != null && filterOperator != null && filterValue != null) {
       switch (filterOperator) {
         case 'gt':
@@ -582,30 +580,30 @@ class SupabaseDataSource {
 
     final data = await query
         .order(orderBy, ascending: ascending)
-        .range(offset, offset + limit - 1); // FIX: Pagination
+        .range(offset, offset + limit - 1);
 
     return List<Map<String, dynamic>>.from(data);
   }
 
-  // Seksiyon bazlı wrapper metodlar (Eski hatalı string filter yerine tip güvenli hale getirildi)
-
   Future<List<Map<String, dynamic>>> getTrendingVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'engagement_score',
-    limit: limit,
-    offset: offset,
-  );
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'engagement_score',
+        limit: limit,
+        offset: offset,
+      );
 
   Future<List<Map<String, dynamic>>> getMostWatchedVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'yt_view_count',
-    limit: limit,
-    offset: offset,
-  );
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'yt_view_count',
+        limit: limit,
+        offset: offset,
+      );
 
   // ─── Öneri Sistemi ────────────────────────────────────────────────────────
   Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
@@ -621,15 +619,17 @@ class SupabaseDataSource {
   Future<List<Map<String, dynamic>>> getMostLikedVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'app_like_count',
-    filterColumn: 'app_like_count',
-    filterOperator: 'gt',
-    filterValue: 0,
-    limit: limit,
-    offset: offset,
-  );
-Future<List<VideoViewerModel>> getVideoViewers(
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'app_like_count',
+        filterColumn: 'app_like_count',
+        filterOperator: 'gt',
+        filterValue: 0,
+        limit: limit,
+        offset: offset,
+      );
+
+  Future<List<VideoViewerModel>> getVideoViewers(
     String videoId, {
     int limit = 10,
     int offset = 0,
@@ -646,45 +646,48 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .map((e) => VideoViewerModel.fromMap(Map<String, dynamic>.from(e)))
         .toList();
   }
+
   Future<List<Map<String, dynamic>>> getMostFavoritedVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'app_favorite_count',
-    filterColumn: 'app_favorite_count',
-    filterOperator: 'gt',
-    filterValue: 0,
-    limit: limit,
-    offset: offset,
-  );
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'app_favorite_count',
+        filterColumn: 'app_favorite_count',
+        filterOperator: 'gt',
+        filterValue: 0,
+        limit: limit,
+        offset: offset,
+      );
 
   Future<List<Map<String, dynamic>>> getMostCommentedVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'app_comment_count',
-    filterColumn: 'app_comment_count',
-    filterOperator: 'gt',
-    filterValue: 0,
-    limit: limit,
-    offset: offset,
-  );
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'app_comment_count',
+        filterColumn: 'app_comment_count',
+        filterOperator: 'gt',
+        filterValue: 0,
+        limit: limit,
+        offset: offset,
+      );
 
   Future<List<Map<String, dynamic>>> getNewAndUndiscoveredVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'published_at',
-    filterColumn: 'app_view_count',
-    filterOperator: 'eq',
-    filterValue: 0,
-    limit: limit,
-    offset: offset,
-  );
+  }) =>
+      getVideoEngagementList(
+        orderBy: 'published_at',
+        filterColumn: 'app_view_count',
+        filterOperator: 'eq',
+        filterValue: 0,
+        limit: limit,
+        offset: offset,
+      );
 
-  // ─── Üniversite Favorileri ────────────────────────────────────────────────────
+  // ─── Üniversite Favorileri ────────────────────────────────────────────────
 
-  /// Kullanıcının favori üniversite id'lerini getirir.
   Future<List<int>> getFavoriteUniversityIds(String userId) async {
     final data = await _client
         .from('university_favorites')
@@ -693,7 +696,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     return (data as List).map((e) => e['university_id'] as int).toList();
   }
 
-  /// Kullanıcının favori üniversitelerini tam model olarak getirir.
   Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
     final data = await _client
         .from('university_favorites')
@@ -712,7 +714,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     return universities;
   }
 
-  /// Üniversiteyi favorilere ekler.
   Future<void> addUniversityFavorite(String userId, int universityId) async {
     await _client.from('university_favorites').insert({
       'user_id': userId,
@@ -722,21 +723,18 @@ Future<List<VideoViewerModel>> getVideoViewers(
 
   // ─── Home RPC Bundle'ları ─────────────────────────────────────────────────
 
-  /// 8 ayrı university_stats çağrısını tek RPC'ye indirgir.
   Future<Map<String, dynamic>?> getHomeUniversityStats() async {
     final data = await _client.rpc('get_home_university_stats');
     if (data == null) return null;
     return Map<String, dynamic>.from(data as Map);
   }
 
-  /// 6 ayrı video_engagement_stats çağrısını tek RPC'ye indirgir.
   Future<Map<String, dynamic>?> getHomeVideoSections() async {
     final data = await _client.rpc('get_home_video_sections');
     if (data == null) return null;
     return Map<String, dynamic>.from(data as Map);
   }
 
-  /// Üniversiteyi favorilerden çıkarır.
   Future<void> removeUniversityFavorite(String userId, int universityId) async {
     await _client
         .from('university_favorites')
@@ -745,7 +743,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .eq('university_id', universityId);
   }
 
-  /// Tek bir üniversitenin favori durumunu kontrol eder.
   Future<bool> isUniversityFavorited(String userId, int universityId) async {
     final data = await _client
         .from('university_favorites')
@@ -758,11 +755,10 @@ Future<List<VideoViewerModel>> getVideoViewers(
 
   // ─── FCM Token Yönetimi ──────────────────────────────────────────────────
 
-  /// FCM token'ını Supabase'e upsert eder (ekle veya güncelle).
   Future<void> upsertFcmToken({
     required String userId,
     required String token,
-    required String platform, // 'android' | 'ios' | 'web'
+    required String platform,
   }) async {
     await _client.from('fcm_tokens').upsert({
       'user_id': userId,
@@ -772,7 +768,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     }, onConflict: 'user_id,token');
   }
 
-  /// Belirli bir token'ı siler (logout veya token yenileme).
   Future<void> deleteFcmToken({
     required String userId,
     required String token,
@@ -784,7 +779,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .eq('token', token);
   }
 
-  /// Kullanıcıya ait tüm FCM token'larını siler.
   Future<void> deleteAllFcmTokens(String userId) async {
     await _client.from('fcm_tokens').delete().eq('user_id', userId);
   }
@@ -800,8 +794,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
 
   // ─── Takip Sistemi ────────────────────────────────────────────────────────
 
-  /// Bir kullanıcıyı takip et (insert)
-  /// Hedef profil private ise status='pending', değilse 'accepted'
   Future<void> followUser({
     required String followerId,
     required String followingId,
@@ -814,7 +806,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     });
   }
 
-  /// Takibi bırak (delete)
   Future<void> unfollowUser({
     required String followerId,
     required String followingId,
@@ -826,8 +817,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .eq('following_id', followingId);
   }
 
-  /// Mevcut kullanıcının followingId'yi takip edip etmediğini döner.
-  /// null → takip yok, FollowModel → takip var (status: pending/accepted)
   Future<Map<String, dynamic>?> getFollowStatus({
     required String followerId,
     required String followingId,
@@ -840,7 +829,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .maybeSingle();
   }
 
-  /// Bir kullanıcının TAKİPÇİLERİNİ listeler (beni takip edenler)
   Future<List<Map<String, dynamic>>> getFollowers(
     String userId, {
     int limit = 50,
@@ -862,7 +850,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     return (data as List).cast<Map<String, dynamic>>();
   }
 
-  /// Bir kullanıcının TAKİP ETTİKLERİNİ listeler
   Future<List<Map<String, dynamic>>> getFollowing(
     String userId, {
     int limit = 50,
@@ -884,7 +871,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     return (data as List).cast<Map<String, dynamic>>();
   }
 
-  /// Kullanıcının takipçi ve takip edilen sayılarını döner
   Future<Map<String, dynamic>?> getFollowCounts(String userId) async {
     return await _client
         .from('user_follow_counts')
@@ -893,7 +879,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .maybeSingle();
   }
 
-  /// Bekleyen takip isteklerini döner (sadece kendi hesabı için)
   Future<List<Map<String, dynamic>>> getPendingFollowRequests(
     String userId, {
     int limit = 50,
@@ -914,7 +899,6 @@ Future<List<VideoViewerModel>> getVideoViewers(
     return (data as List).cast<Map<String, dynamic>>();
   }
 
-  /// Takip isteğini kabul et
   Future<void> acceptFollowRequest(String followId) async {
     await _client
         .from('user_follows')
@@ -922,12 +906,10 @@ Future<List<VideoViewerModel>> getVideoViewers(
         .eq('id', followId);
   }
 
-  /// Takip isteğini reddet (sil)
   Future<void> rejectFollowRequest(String followId) async {
     await _client.from('user_follows').delete().eq('id', followId);
   }
 
-  /// Verilen userId'nin profilini username ile birlikte çek
   Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
     return await _client
         .from('profiles')

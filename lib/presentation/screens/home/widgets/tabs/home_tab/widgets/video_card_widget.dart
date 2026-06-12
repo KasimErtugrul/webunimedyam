@@ -211,7 +211,7 @@ class VideoCardWidget extends StatelessWidget {
               ),
             ),
 
-            // Oynat ikonu
+            /*   // Oynat ikonu
             Center(
               child: Container(
                 width: 52.w,
@@ -227,7 +227,7 @@ class VideoCardWidget extends StatelessWidget {
                 ),
               ),
             ),
-
+ */
             // Sadece CANLI etiketi
             if (isLive)
               Positioned(

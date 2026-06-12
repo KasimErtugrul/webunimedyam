@@ -1,10 +1,15 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/shorts/shorts_row_widget.dart
+//
+// FIX: Shorts artık yayınlanma tarihine göre gösterilir (en yeni önce).
+// Her üniversitenin en son yüklediği short önce gelir.
+// Sonsuz döngüyü önlemek için cache kullanılmaz — her açılışta taze veri.
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../../../../../app/routes/app_routes.dart';
 import '../../../../../../../app/themes/app_theme.dart';
@@ -63,13 +68,24 @@ class ShortsRowWidget extends StatelessWidget {
                     color: AppTheme.textSec(context),
                   ),
                 ),
+                const Spacer(),
+                // Yenile butonu
+                GestureDetector(
+                  onTap: controller.refresh,
+                  child: Icon(
+                    Icons.refresh_rounded,
+                    size: 18.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                ),
+                SizedBox(width: 16.w),
               ],
             ),
           ),
 
           // ── Yatay Kaydırma Listesi ───────────────────────────────────
           SizedBox(
-            height: 108.h,
+            height: 118.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -107,7 +123,7 @@ class ShortsRowWidget extends StatelessWidget {
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: 130.h,
+        height: 140.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -154,6 +170,10 @@ class _ShortsThumbItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // timeago Türkçe locale desteği
+    timeago.setLocaleMessages('tr', timeago.TrMessages());
+    final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
+
     return GestureDetector(
       onTap: () {
         Get.toNamed(
@@ -252,12 +272,30 @@ class _ShortsThumbItem extends StatelessWidget {
               child: Text(
                 _shortName(shorts.universityName),
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 9.5.sp,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.textSec(context),
+                  height: 1.2,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 2.h),
+
+            // ── Yayınlanma tarihi (timeago) ───────────────────────────
+            SizedBox(
+              width: 72.w,
+              child: Text(
+                timeAgo,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 8.sp,
+                  color: AppTheme.textSec(context).withOpacity(0.6),
                   height: 1.2,
                 ),
               ),
@@ -270,7 +308,6 @@ class _ShortsThumbItem extends StatelessWidget {
 
   /// "Atatürk Üniversitesi" → "Atatürk Üni."
   String _shortName(String name) {
-    // "Üniversitesi" → "Üni." kısaltması
     return name
         .replaceAll('Üniversitesi', 'Üni.')
         .replaceAll('Teknik Üniversitesi', 'T.Ü.')

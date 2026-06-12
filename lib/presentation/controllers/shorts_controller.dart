@@ -1,4 +1,8 @@
 // lib/presentation/controllers/shorts_controller.dart
+//
+// FIX: Shorts listesi artık her uygulama açılışında Supabase'den taze çekilir.
+// get_shorts_per_university RPC'si VOLATILE olarak güncellendi (Supabase tarafı)
+// bu yüzden her çağrıda yayınlanma tarihine göre sıralı güncel veri gelir.
 
 import 'dart:developer';
 
@@ -16,6 +20,7 @@ class ShortsController extends GetxController {
   // ─── State ────────────────────────────────────────────────────────────────
   final shorts = <ShortsModel>[].obs;
   final isLoading = false.obs;
+  final errorMessage = ''.obs;
 
   // Oynatıcıda hangi index'teyiz
   final currentIndex = 0.obs;
@@ -30,17 +35,24 @@ class ShortsController extends GetxController {
 
   // ─── Veri ────────────────────────────────────────────────────────────────
 
+  /// Shorts listesini Supabase'den çeker.
+  /// FIX: Artık her çağrıda taze veri — yayınlanma tarihine göre sıralı gelir.
   Future<void> loadShorts() async {
     try {
       isLoading.value = true;
-      shorts.value = await _repository.getShortsPerUniversity();
+      errorMessage.value = '';
+      final result = await _repository.getShortsPerUniversity();
+      shorts.value = result;
+      log('[ShortsController] ${result.length} shorts yüklendi');
     } catch (e) {
       log('[ShortsController] loadShorts error: $e');
+      errorMessage.value = 'Shorts yüklenemedi.';
     } finally {
       isLoading.value = false;
     }
   }
 
+  /// Pull-to-refresh desteği.
   Future<void> refresh() => loadShorts();
 
   void setCurrentIndex(int index) => currentIndex.value = index;
