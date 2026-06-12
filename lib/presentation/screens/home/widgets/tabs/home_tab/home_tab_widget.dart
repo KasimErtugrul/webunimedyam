@@ -30,8 +30,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   void initState() {
     super.initState();
 
-    // ShortsController: HomeBinding'e eklemek yerine burada lazy init.
-    // HomeBinding zaten SupabaseDataSource'u kayıtlı tutuyor.
     if (!Get.isRegistered<ShortsRepository>()) {
       Get.lazyPut(
         () => ShortsRepository(supabase: Get.find<SupabaseDataSource>()),
@@ -45,7 +43,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       );
     }
 
-    // ── Controller'daki UI Bayraklarını Dinle ──────────────────────────────
     _authWorker = ever(controller.showAuthRequired, (required) {
       if (required) {
         _showAuthDialog();
@@ -65,96 +62,63 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
-        child: RefreshIndicator(
-          color: Theme.of(context).colorScheme.primary,
-          onRefresh: () async {
-            await controller.refreshVideos();
-            await controller.loadPlaylists();
-            await controller.loadUniversityStats();
-            await Get.find<ShortsController>().refresh();
-          },
-          child: CustomScrollView(
-            slivers: [
-              // ── AppBar ────────────────────────────────────────────────
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                backgroundColor: AppTheme.bg(context),
-                automaticallyImplyLeading: false,
-                title: Row(
-                  children: [
-                    Container(
-                      width: 32.w,
-                      height: 32.h,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        size: 20.sp,
+        child: Column(
+          children: [
+            // ── Shorts Satırı (sabit, AppBar gibi) ─────────────────────
+            const ShortsRowWidget(),
+
+            // ── Kaydırılabilir İçerik ───────────────────────────────────
+            Expanded(
+              child: RefreshIndicator(
+                color: Theme.of(context).colorScheme.primary,
+                onRefresh: () async {
+                  await controller.refreshVideos();
+                  await controller.loadPlaylists();
+                  await controller.loadUniversityStats();
+                  await Get.find<ShortsController>().refresh();
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    // ── Üst Boşluk ────────────────────────────────────
+                    SliverToBoxAdapter(child: SizedBox(height: 8.h)),
+
+                    // ── Son Videolar Başlığı ───────────────────────────
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Son Videolar',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22.sp,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              'En yeni videoları keşfedin',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppTheme.textSec(context),
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    Obx(() => Text(controller.appBarTitle)),
+
+                    // ── İçerik Alanı ──────────────────────────────────
+                    Obx(() => _buildContentSliver(context)),
+
+                    // ── Alt Boşluk ────────────────────────────────────
+                    SliverToBoxAdapter(child: SizedBox(height: 24.h)),
                   ],
                 ),
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.search_rounded, size: 24.sp),
-                    onPressed: () => Get.toNamed(AppRoutes.search),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.person_outline_rounded, size: 24.sp),
-                    onPressed: () {
-                      if (controller.isLoggedIn) {
-                        Get.toNamed(AppRoutes.profile);
-                      } else {
-                        Get.toNamed(AppRoutes.login);
-                      }
-                    },
-                  ),
-                ],
               ),
-
-              // ── Shorts Satırı ─────────────────────────────────────────
-              const SliverToBoxAdapter(child: ShortsRowWidget()),
-
-              // ── Son Videolar Başlığı ───────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Son Videolar',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22.sp,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        'En yeni videoları keşfedin',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textSec(context),
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── İçerik Alanı ──────────────────────────────────────────
-              Obx(() => _buildContentSliver(context)),
-
-              // ── Alt Boşluk ────────────────────────────────────────────
-              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -169,7 +133,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       return SliverToBoxAdapter(child: _buildErrorWidget(context));
     }
 
-    // Shorts zaten ayrı gösterildiği için normal listede sadece normal videolar
     final nonShorts = controller.videos.where((v) => !v.isShorts).toList();
 
     if (nonShorts.isEmpty) {

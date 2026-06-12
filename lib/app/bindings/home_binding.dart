@@ -2,14 +2,19 @@
 
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
+import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
+import '../../data/repositories/search_repository.dart';
+import '../../presentation/controllers/video_search_controller.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/follow_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
+import '../../presentation/controllers/follow_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
 
@@ -92,9 +97,57 @@ class HomeBinding extends Bindings {
       );
     }
 
+    // ── Profil ekranı artık IndexedStack içinde (5. tab), ProfileBinding
+    // hiç çalışmıyor. ProfileScreen kendi kullanıcısı için
+    // tag: currentUserId (veya 'anonymous') ile controller arıyor —
+    // bu yüzden burada tag'li kayıtları da oluşturuyoruz.
+    if (!Get.isRegistered<FollowRepository>()) {
+      Get.lazyPut(() => FollowRepository(supabase: Get.find()), fenix: true);
+    }
+
+    final supabase = Get.find<SupabaseDataSource>();
+    final currentUserId = supabase.currentUser?.id ?? 'anonymous';
+
+    if (!Get.isRegistered<ProfileController>(tag: currentUserId)) {
+      Get.lazyPut(
+        () => ProfileController(
+          authRepository: Get.find(),
+          favoritesRepository: Get.find(),
+          profileActivityRepository: Get.find(),
+        ),
+        tag: currentUserId,
+        fenix: true,
+      );
+    }
+
+    if (!Get.isRegistered<FollowController>(tag: currentUserId)) {
+      Get.lazyPut(
+        () => FollowController(followRepository: Get.find()),
+        tag: currentUserId,
+        fenix: true,
+      );
+    }
+
     Get.lazyPut(
       () => FavoritesController(favoritesRepository: Get.find()),
       fenix: true,
     );
+
+    // ── Search ─────────────────────────────────────────────────────────────
+    if (!Get.isRegistered<SearchHistoryDataSource>()) {
+      Get.lazyPut(() => SearchHistoryDataSource(), fenix: true);
+    }
+    if (!Get.isRegistered<SearchRepository>()) {
+      Get.lazyPut(() => SearchRepository(supabase: Get.find()), fenix: true);
+    }
+    if (!Get.isRegistered<VideoSearchController>()) {
+      Get.lazyPut(
+        () => VideoSearchController(
+          searchRepository: Get.find(),
+          historyDataSource: Get.find(),
+        ),
+        fenix: true,
+      );
+    }
   }
 }

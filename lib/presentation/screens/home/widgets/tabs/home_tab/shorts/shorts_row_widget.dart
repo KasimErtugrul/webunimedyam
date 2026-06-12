@@ -35,57 +35,9 @@ class ShortsRowWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Başlık ──────────────────────────────────────────────────────
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 3.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  child: Text(
-                    'SHORTS',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  'Üniversitelerden Kısa Videolar',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-                const Spacer(),
-                // Yenile butonu
-                GestureDetector(
-                  onTap: controller.refresh,
-                  child: Icon(
-                    Icons.refresh_rounded,
-                    size: 18.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-                SizedBox(width: 16.w),
-              ],
-            ),
-          ),
-
           // ── Yatay Kaydırma Listesi ───────────────────────────────────
           SizedBox(
-            height: 118.h,
+            height: 100.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -100,7 +52,7 @@ class ShortsRowWidget extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 16.h),
+          // SizedBox(height: 8.h),
 
           // ── Ayraç ────────────────────────────────────────────────────
           Padding(
@@ -112,7 +64,7 @@ class ShortsRowWidget extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 4.h),
+          //SizedBox(height: 4.h),
         ],
       );
     });
@@ -178,10 +130,7 @@ class _ShortsThumbItem extends StatelessWidget {
       onTap: () {
         Get.toNamed(
           AppRoutes.shortsPlayer,
-          arguments: {
-            'shorts': allShorts,
-            'initialIndex': initialIndex,
-          },
+          arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
         );
       },
       child: Padding(
@@ -203,10 +152,7 @@ class _ShortsThumbItem extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF1DB954),
-                          Color(0xFF0A84FF),
-                        ],
+                        colors: [Color(0xFF1DB954), Color(0xFF0A84FF)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
