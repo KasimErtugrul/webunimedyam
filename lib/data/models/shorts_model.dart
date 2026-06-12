@@ -3,6 +3,7 @@
 class ShortsModel {
   final String videoId;
   final String title;
+  final String description;
   final String thumbnailUrl;
   final String maxresThumbnailUrl;
   final String duration;
@@ -14,6 +15,7 @@ class ShortsModel {
   const ShortsModel({
     required this.videoId,
     required this.title,
+    this.description = '',
     required this.thumbnailUrl,
     this.maxresThumbnailUrl = '',
     this.duration = '',
@@ -30,6 +32,7 @@ class ShortsModel {
     return ShortsModel(
       videoId: map['video_id'] as String? ?? '',
       title: map['title'] as String? ?? '',
+      description: map['description'] as String? ?? '',
       thumbnailUrl: map['thumbnail_url'] as String? ?? '',
       maxresThumbnailUrl: map['maxres_thumbnail_url'] as String? ?? '',
       duration: map['duration'] as String? ?? '',
