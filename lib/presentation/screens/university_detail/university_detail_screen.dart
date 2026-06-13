@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:readmore/readmore.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../data/models/video_model.dart';
@@ -386,59 +386,6 @@ class _AboutTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Obx(() {
-              final isFav = controller.isFavorite.value;
-              final isLoading = controller.isFavoriteLoading.value;
-              return SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : controller.toggleFavorite,
-                  icon: isLoading
-                      ? SizedBox(
-                          width: 16.w,
-                          height: 16.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Icon(
-                          isFav
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_border_rounded,
-                          size: 18.sp,
-                        ),
-                  label: Text(
-                    isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isFav
-                        ? AppTheme.card(context)
-                        : AppTheme.primaryColor,
-                    foregroundColor: isFav
-                        ? AppTheme.primaryColor
-                        : Colors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(vertical: 13.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14.r),
-                      side: isFav
-                          ? BorderSide(
-                              color: AppTheme.primaryColor.withValues(
-                                alpha: 0.5,
-                              ),
-                            )
-                          : BorderSide.none,
-                    ),
-                  ),
-                ),
-              );
-            }),
-            SizedBox(height: 20.h),
             _SectionTitle(title: 'Açıklama'),
             SizedBox(height: 8.h),
             Container(
@@ -453,10 +400,14 @@ class _AboutTab extends StatelessWidget {
                       : Colors.black.withValues(alpha: 0.06),
                 ),
               ),
-              child: Text(
+              child: ReadMoreText(
                 (uni.description != null && uni.description!.isNotEmpty)
                     ? uni.description!
                     : 'Bu üniversite için açıklama bulunmuyor.',
+                trimMode: TrimMode.Line, // Satır sayısına göre kısalt
+                trimLines: 5, // Maksimum 5 satır göstersin
+                trimCollapsedText: ' Daha fazla',
+                trimExpandedText: ' Daha az',
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: AppTheme.textSec(context),
@@ -465,6 +416,16 @@ class _AboutTab extends StatelessWidget {
                       (uni.description != null && uni.description!.isNotEmpty)
                       ? FontStyle.normal
                       : FontStyle.italic,
+                ),
+                moreStyle: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryColor, // Tema rengiyle parlaması için
+                ),
+                lessStyle: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryColor, // Tema rengiyle parlaması için
                 ),
               ),
             ),
@@ -604,6 +565,8 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
       style: TextStyle(
         fontSize: 15.sp,
         fontWeight: FontWeight.w700,

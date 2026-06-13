@@ -17,6 +17,7 @@ import '../../presentation/controllers/favorites_controller.dart';
 import '../../presentation/controllers/follow_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
+import '../../presentation/controllers/university_sort_controller.dart'; // YENİ
 
 class HomeBinding extends Bindings {
   @override
@@ -65,7 +66,6 @@ class HomeBinding extends Bindings {
       );
     }
 
-    // ← YENİ: EngagementRepository (like/share işlemleri için)
     if (!Get.isRegistered<EngagementRepository>()) {
       Get.lazyPut(
         () => EngagementRepository(supabase: Get.find()),
@@ -81,10 +81,15 @@ class HomeBinding extends Bindings {
         favoritesRepository: Get.find(),
         universityStatsRepository: Get.find(),
         authRepository: Get.find(),
-        engagementRepository: Get.find(), // ← YENİ
+        engagementRepository: Get.find(),
       ),
       fenix: true,
     );
+
+    // ← YENİ: Üniversite Sıralama ve Filtreleme Controller'ı
+    if (!Get.isRegistered<UniversitySortController>()) {
+      Get.lazyPut(() => UniversitySortController(), fenix: true);
+    }
 
     if (!Get.isRegistered<ProfileController>()) {
       Get.lazyPut(
@@ -97,10 +102,6 @@ class HomeBinding extends Bindings {
       );
     }
 
-    // ── Profil ekranı artık IndexedStack içinde (5. tab), ProfileBinding
-    // hiç çalışmıyor. ProfileScreen kendi kullanıcısı için
-    // tag: currentUserId (veya 'anonymous') ile controller arıyor —
-    // bu yüzden burada tag'li kayıtları da oluşturuyoruz.
     if (!Get.isRegistered<FollowRepository>()) {
       Get.lazyPut(() => FollowRepository(supabase: Get.find()), fenix: true);
     }
