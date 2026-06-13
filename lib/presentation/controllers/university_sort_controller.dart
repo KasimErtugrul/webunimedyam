@@ -1,6 +1,6 @@
 // lib/presentation/controllers/university_sort_controller.dart
 
-import 'dart:async'; // ← YENİ: Timer için eklendi
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,59 +8,66 @@ import '../../../app/utils/university_sort_util.dart';
 import '../../../data/models/university_model.dart';
 
 class UniversitySortController extends GetxController {
-  final sortCriteria = SortCriteria.name.obs;
-  final sortDirection = SortDirection.ascending.obs;
-  final hasRadioFilter = false.obs;
-
+  // Çoklu sıralama listesi
+  final activeSorts = <SortOption>[].obs;
+  
   // Arama state'leri
   final searchQuery = ''.obs;
   final searchController = TextEditingController();
-
-  // ← YENİ: Debounce (gecikme) timer'ı
   Timer? _debounce;
 
-  void setCriteria(SortCriteria criteria) {
-    sortCriteria.value = criteria;
+  void addOrRemoveSort(SortCriteria criteria) {
+    final existingIndex = activeSorts.indexWhere((s) => s.criteria == criteria);
+    if (existingIndex != -1) {
+      activeSorts.removeAt(existingIndex);
+    } else {
+      activeSorts.add(SortOption(criteria: criteria, direction: SortDirection.descending));
+    }
   }
 
-  void setDirection(SortDirection direction) {
-    sortDirection.value = direction;
+  void toggleDirection(SortCriteria criteria) {
+    final index = activeSorts.indexWhere((s) => s.criteria == criteria);
+    if (index != -1) {
+      final current = activeSorts[index];
+      activeSorts[index] = SortOption(
+        criteria: current.criteria,
+        direction: current.direction == SortDirection.ascending
+            ? SortDirection.descending
+            : SortDirection.ascending,
+      );
+    }
   }
 
-  void toggleRadioFilter() {
-    hasRadioFilter.value = !hasRadioFilter.value;
+  void removeSort(SortCriteria criteria) {
+    activeSorts.removeWhere((s) => s.criteria == criteria);
   }
 
-  // ← GÜNCELLENDİ: Debounce mantığı eklendi
+  void clearSorts() {
+    activeSorts.clear();
+  }
+
   void updateSearchQuery(String query) {
-    // Eğer daha önce bekleyen bir timer varsa iptal et (kullanıcı hala yazıyor demektir)
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    // Kullanıcı yazmayı bıraktıktan 350ms sonra aramayı tetikle
     _debounce = Timer(const Duration(milliseconds: 350), () {
       searchQuery.value = query;
     });
   }
 
-  // ← GÜNCELLENDİ: Temizlerken timer'ı da iptal et
   void clearSearch() {
-    _debounce?.cancel(); // Bekleyen arama varsa hemen iptal et
+    _debounce?.cancel();
     searchController.clear();
     searchQuery.value = '';
   }
 
   void reset() {
-    sortCriteria.value = SortCriteria.name;
-    sortDirection.value = SortDirection.ascending;
-    hasRadioFilter.value = false;
-    clearSearch(); // Sıfırlarken aramayı da temizle
+    activeSorts.clear();
+    clearSearch();
   }
 
-  /// Ana veriyi alıp UI'a hazır hale getirir.
   List<UniversityModel> applySortAndFilter(List<UniversityModel> originalList) {
     var list = originalList;
 
-    // 1. Arama filtresi (Ad veya Şehir içeriyorsa)
+    // 1. Arama filtresi
     if (searchQuery.value.isNotEmpty) {
       final query = searchQuery.value.toLowerCase();
       list = list.where((u) {
@@ -70,20 +77,12 @@ class UniversitySortController extends GetxController {
       }).toList();
     }
 
-    // 2. Radyo filtresi
-    list = UniversitySortUtil.filterByRadio(list, hasRadioFilter.value);
-
-    // 3. Sıralama
-    list = UniversitySortUtil.sort(
-      list,
-      sortCriteria.value,
-      sortDirection.value,
-    );
+    // 2. Çoklu Sıralama
+    list = UniversitySortUtil.multiSort(list, activeSorts);
 
     return list;
   }
 
-  // ← YENİ: Controller ölürken timer'ı temizle (Memory leak önlemi)
   @override
   void onClose() {
     _debounce?.cancel();

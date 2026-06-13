@@ -25,8 +25,6 @@ class UniversitiesTabWidget extends StatelessWidget {
         child: Obx(() {
           final isLoading = homeController.isUniversitiesLoading.value;
           final originalUniversities = homeController.universities;
-
-          // Sıralama, filtreleme ve arama burada uygulanıyor
           final universities = sortController.applySortAndFilter(
             originalUniversities,
           );
@@ -109,8 +107,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                         ),
                       ),
                       child: TextField(
-                        controller: sortController.searchController, // ← YENİ
-                        onChanged: sortController.updateSearchQuery, // ← YENİ
+                        controller: sortController.searchController,
+                        onChanged: sortController.updateSearchQuery,
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: AppTheme.textPri(context),
@@ -124,7 +122,6 @@ class UniversitiesTabWidget extends StatelessWidget {
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // ← YENİ: Arama yapılıyorsa temizle butonu
                               Obx(
                                 () =>
                                     sortController.searchQuery.value.isNotEmpty
@@ -138,15 +135,10 @@ class UniversitiesTabWidget extends StatelessWidget {
                                       )
                                     : const SizedBox.shrink(),
                               ),
-
-                              /*   // Filtre/Sırala butonu
-                              IconButton(
+                              /*  IconButton(
                                 icon: Icon(
                                   Icons.tune_rounded,
-                                  color:
-                                      sortController.hasRadioFilter.value ||
-                                          sortController.sortCriteria.value !=
-                                              SortCriteria.name
+                                  color: sortController.activeSorts.isNotEmpty
                                       ? AppTheme.primaryColor
                                       : AppTheme.textSec(context),
                                   size: 22.sp,
@@ -170,6 +162,60 @@ class UniversitiesTabWidget extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // ── Aktif Sıralama Chip'leri ───────────────────────────────
+                Obx(() {
+                  if (sortController.activeSorts.isEmpty)
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+                      child: Wrap(
+                        spacing: 8.w,
+                        runSpacing: 6.h,
+                        children: sortController.activeSorts
+                            .map(
+                              (sort) => Chip(
+                                avatar: Icon(
+                                  sort.icon,
+                                  size: 14.sp,
+                                  color: AppTheme.primaryColor,
+                                ),
+                                label: Text(
+                                  sort.label,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
+                                deleteIcon: Icon(
+                                  Icons.close_rounded,
+                                  size: 16.sp,
+                                  color: AppTheme.primaryColor,
+                                ),
+                                onDeleted: () =>
+                                    sortController.removeSort(sort.criteria),
+                                backgroundColor: AppTheme.primaryColor
+                                    .withValues(alpha: 0.1),
+                                side: BorderSide.none,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.w,
+                                  vertical: 0,
+                                ),
+                                labelPadding: EdgeInsets.only(left: 2.w),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  );
+                }),
 
                 // ── İstatistik Satırı ────────────────────────────────────
                 if (!isLoading && universities.isNotEmpty)
@@ -243,7 +289,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                Icons.search_off_rounded, // ← Arama yok ikonu
+                                Icons.search_off_rounded,
                                 size: 40.sp,
                                 color: AppTheme.textSec(context),
                               ),
@@ -261,9 +307,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                             Text(
                               sortController.searchQuery.value.isNotEmpty
                                   ? '"${sortController.searchQuery.value}" için sonuç bulunamadı.'
-                                  : sortController.hasRadioFilter.value
-                                  ? 'Radyo kanalı olan üniversite bulunamadı.'
-                                  : 'Şu anda listelenecek üniversite\nmevcut değil.',
+                                  : 'Şu anda listelenecek üniversite mevcut değil.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14.sp,
@@ -278,24 +322,11 @@ class UniversitiesTabWidget extends StatelessWidget {
                                 onPressed:
                                     sortController.searchQuery.value.isNotEmpty
                                     ? sortController.clearSearch
-                                    : sortController.hasRadioFilter.value
-                                    ? () => sortController.toggleRadioFilter()
                                     : homeController
                                           .loadUniversitiesAndPlaylists,
-                                icon: Icon(
-                                  sortController.searchQuery.value.isNotEmpty
-                                      ? Icons.clear_rounded
-                                      : sortController.hasRadioFilter.value
-                                      ? Icons.filter_alt_off_rounded
-                                      : Icons.refresh_rounded,
-                                  size: 20.sp,
-                                ),
+                                icon: Icon(Icons.refresh_rounded, size: 20.sp),
                                 label: Text(
-                                  sortController.searchQuery.value.isNotEmpty
-                                      ? 'Aramayı Temizle'
-                                      : sortController.hasRadioFilter.value
-                                      ? 'Filtreyi Kaldır'
-                                      : 'Tekrar Dene',
+                                  'Tekrar Dene',
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
@@ -306,9 +337,6 @@ class UniversitiesTabWidget extends StatelessWidget {
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12.r),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 24.w,
                                   ),
                                 ),
                               ),
@@ -340,7 +368,7 @@ class UniversitiesTabWidget extends StatelessWidget {
     );
   }
 
-  // ── Sıralama ve Filtreleme BottomSheet ─────────────────────────────────
+  // ── Sıralama BottomSheet ──────────────────────────────────────────────
   void _showSortBottomSheet(BuildContext context) {
     final sortController = Get.find<UniversitySortController>();
 
@@ -377,7 +405,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'Sırala ve Filtrele',
+                      'Sıralama Kriterleri',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
@@ -386,9 +414,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                     ),
                     const Spacer(),
                     TextButton.icon(
-                      onPressed: () {
-                        sortController.reset();
-                      },
+                      onPressed: sortController.reset,
                       icon: Icon(Icons.refresh_rounded, size: 16.sp),
                       label: Text('Sıfırla', style: TextStyle(fontSize: 13.sp)),
                       style: TextButton.styleFrom(
@@ -398,102 +424,25 @@ class UniversitiesTabWidget extends StatelessWidget {
                   ],
                 ),
               ),
-
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Text(
+                  'Birden fazla kriter seçebilirsiniz. Seçim sırası önceliği belirler.',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                ),
+              ),
               Divider(height: 20.h, thickness: 1),
 
-              // Content
+              // ← BURADAKİ Obx KALDIRILDI
               Expanded(
-                child: Obx(
-                  () => ListView(
-                    padding: EdgeInsets.only(bottom: 24.h),
-                    children: [
-                      _SectionTitle(title: 'Sıralama Kriteri'),
-                      _CriteriaTile(
-                        title: 'İsim',
-                        icon: Icons.text_fields_rounded,
-                        selectedCriteria: SortCriteria.name,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () =>
-                            sortController.setCriteria(SortCriteria.name),
-                      ),
-                      _CriteriaTile(
-                        title: 'Şehir',
-                        icon: Icons.location_on_rounded,
-                        selectedCriteria: SortCriteria.city,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () =>
-                            sortController.setCriteria(SortCriteria.city),
-                      ),
-                      _CriteriaTile(
-                        title: 'Kuruluş Yılı',
-                        icon: Icons.calendar_today_rounded,
-                        selectedCriteria: SortCriteria.foundedYear,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () => sortController.setCriteria(
-                          SortCriteria.foundedYear,
-                        ),
-                      ),
-                      _CriteriaTile(
-                        title: 'Takipçi Sayısı',
-                        icon: Icons.people_rounded,
-                        selectedCriteria: SortCriteria.subscriberCount,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () => sortController.setCriteria(
-                          SortCriteria.subscriberCount,
-                        ),
-                      ),
-                      _CriteriaTile(
-                        title: 'Görüntülenme Sayısı',
-                        icon: Icons.visibility_rounded,
-                        selectedCriteria: SortCriteria.viewCount,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () =>
-                            sortController.setCriteria(SortCriteria.viewCount),
-                      ),
-                      _CriteriaTile(
-                        title: 'İçerik (Video) Sayısı',
-                        icon: Icons.play_circle_fill_rounded,
-                        selectedCriteria: SortCriteria.videoCount,
-                        groupValue: sortController.sortCriteria.value,
-                        onTap: () =>
-                            sortController.setCriteria(SortCriteria.videoCount),
-                      ),
-
-                      SizedBox(height: 10.h),
-                      _SectionTitle(title: 'Sıralama Yönü'),
-                      _DirectionChipRow(
-                        direction: sortController.sortDirection.value,
-                        onAscending: () => sortController.setDirection(
-                          SortDirection.ascending,
-                        ),
-                        onDescending: () => sortController.setDirection(
-                          SortDirection.descending,
-                        ),
-                      ),
-
-                      SizedBox(height: 10.h),
-                      _SectionTitle(title: 'Filtreler'),
-                      SwitchListTile(
-                        secondary: Icon(
-                          Icons.radio_rounded,
-                          color: sortController.hasRadioFilter.value
-                              ? AppTheme.primaryColor
-                              : AppTheme.textSec(context),
-                        ),
-                        title: Text(
-                          'Radyo Kanalı Olanlar',
-                          style: TextStyle(
-                            color: AppTheme.textPri(context),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                        activeColor: AppTheme.primaryColor,
-                        value: sortController.hasRadioFilter.value,
-                        onChanged: (val) => sortController.toggleRadioFilter(),
-                      ),
-                    ],
-                  ),
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: 24.h),
+                  children: SortCriteria.values
+                      .map((criteria) => _SortOptionTile(criteria: criteria))
+                      .toList(),
                 ),
               ),
             ],
@@ -504,119 +453,106 @@ class UniversitiesTabWidget extends StatelessWidget {
   }
 }
 
-// ── BottomSheet Yardımcı Widget'ları ────────────────────────────────────────
+// ── Sıralama Seçim Satırı ────────────────────────────────────────────────────
 
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle({required this.title});
+class _SortOptionTile extends StatelessWidget {
+  final SortCriteria criteria;
+  const _SortOptionTile({required this.criteria});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 4.h),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w700,
-          color: AppTheme.textSec(context),
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
+  String get _title {
+    switch (criteria) {
+      case SortCriteria.name:
+        return 'İsim';
+      case SortCriteria.city:
+        return 'Şehir';
+      case SortCriteria.foundedYear:
+        return 'Kuruluş Yılı';
+      case SortCriteria.subscriberCount:
+        return 'Takipçi Sayısı';
+      case SortCriteria.viewCount:
+        return 'Görüntülenme Sayısı';
+      case SortCriteria.videoCount:
+        return 'İçerik Sayısı';
+    }
   }
-}
 
-class _CriteriaTile extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final SortCriteria selectedCriteria;
-  final SortCriteria groupValue;
-  final VoidCallback onTap;
-
-  const _CriteriaTile({
-    required this.title,
-    required this.icon,
-    required this.selectedCriteria,
-    required this.groupValue,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = selectedCriteria == groupValue;
-    return ListTile(
-      dense: true,
-      leading: Icon(
-        icon,
-        size: 20.sp,
-        color: isSelected ? AppTheme.primaryColor : AppTheme.textSec(context),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? AppTheme.primaryColor : AppTheme.textPri(context),
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          fontSize: 14.sp,
-        ),
-      ),
-      trailing: Radio<SortCriteria>(
-        value: selectedCriteria,
-        groupValue: groupValue,
-        activeColor: AppTheme.primaryColor,
-        onChanged: (_) => onTap(),
-      ),
-      onTap: onTap,
-    );
+  IconData get _icon {
+    switch (criteria) {
+      case SortCriteria.name:
+        return Icons.text_fields_rounded;
+      case SortCriteria.city:
+        return Icons.location_on_rounded;
+      case SortCriteria.foundedYear:
+        return Icons.calendar_today_rounded;
+      case SortCriteria.subscriberCount:
+        return Icons.people_rounded;
+      case SortCriteria.viewCount:
+        return Icons.visibility_rounded;
+      case SortCriteria.videoCount:
+        return Icons.play_circle_fill_rounded;
+    }
   }
-}
-
-class _DirectionChipRow extends StatelessWidget {
-  final SortDirection direction;
-  final VoidCallback onAscending;
-  final VoidCallback onDescending;
-
-  const _DirectionChipRow({
-    required this.direction,
-    required this.onAscending,
-    required this.onDescending,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Row(
-        children: [
-          ChoiceChip(
-            label: Text('A-Z / Artan'),
-            selected: direction == SortDirection.ascending,
-            onSelected: (_) => onAscending(),
-            selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-            labelStyle: TextStyle(
-              color: direction == SortDirection.ascending
+    final sortController = Get.find<UniversitySortController>();
+
+    return Obx(() {
+      final isActive = sortController.activeSorts.any(
+        (s) => s.criteria == criteria,
+      );
+      final sortOption = sortController.activeSorts.firstWhereOrNull(
+        (s) => s.criteria == criteria,
+      );
+
+      // ← Material eklendi: Ink splash'in arka plan rengi altında kalmasını engeller
+      return Material(
+        color: Colors.transparent,
+        child: ListTile(
+          dense: true,
+          leading: Icon(
+            _icon,
+            size: 20.sp,
+            color: isActive ? AppTheme.primaryColor : AppTheme.textSec(context),
+          ),
+          title: Text(
+            _title,
+            style: TextStyle(
+              color: isActive
                   ? AppTheme.primaryColor
-                  : AppTheme.textSec(context),
-              fontWeight: FontWeight.w600,
-              fontSize: 13.sp,
+                  : AppTheme.textPri(context),
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 14.sp,
             ),
           ),
-          SizedBox(width: 10.w),
-          ChoiceChip(
-            label: Text('Z-A / Azalan'),
-            selected: direction == SortDirection.descending,
-            onSelected: (_) => onDescending(),
-            selectedColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-            labelStyle: TextStyle(
-              color: direction == SortDirection.descending
-                  ? AppTheme.primaryColor
-                  : AppTheme.textSec(context),
-              fontWeight: FontWeight.w600,
-              fontSize: 13.sp,
-            ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isActive) ...[
+                IconButton(
+                  icon: Icon(
+                    sortOption!.direction == SortDirection.ascending
+                        ? Icons.arrow_upward_rounded
+                        : Icons.arrow_downward_rounded,
+                    size: 20.sp,
+                    color: AppTheme.primaryColor,
+                  ),
+                  onPressed: () => sortController.toggleDirection(criteria),
+                ),
+                SizedBox(width: 4.w),
+              ],
+              Checkbox(
+                value: isActive,
+                onChanged: (val) => sortController.addOrRemoveSort(criteria),
+                activeColor: AppTheme.primaryColor,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+          onTap: () => sortController.addOrRemoveSort(criteria),
+        ),
+      );
+    });
   }
 }
