@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../../app/routes/app_routes.dart';
-import '../../../../../../app/themes/app_theme.dart';
-import '../../../../../../data/repositories/shorts_repository.dart';
-import '../../../../../../data/datasources/remote/supabase_datasource.dart';
-import '../../../../../controllers/home_controller.dart';
-import '../../../../../controllers/shorts_controller.dart';
+import '../../../../../app/routes/app_routes.dart';
+import '../../../../../app/themes/app_theme.dart';
+import '../../../../../data/repositories/shorts_repository.dart';
+import '../../../../../data/datasources/remote/supabase_datasource.dart';
+import '../../../../controllers/home_controller.dart';
+import '../../../../controllers/shorts_controller.dart';
 
 import 'shorts/shorts_row_widget.dart';
 import 'widgets/video_card_widget.dart';
@@ -25,6 +25,10 @@ class HomeTabWidget extends StatefulWidget {
 class _HomeTabWidgetState extends State<HomeTabWidget> {
   final controller = Get.find<HomeController>();
   Worker? _authWorker;
+
+  // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
+  // SliverAppBar'ın expandedHeight'ı bu değere göre hesaplanır.
+  double get _shortsAreaHeight => 4.h + 100.h + 1;
 
   @override
   void initState() {
@@ -62,63 +66,88 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
-        child: Column(
-          children: [
-            // ── Shorts Satırı (sabit, AppBar gibi) ─────────────────────
-            const ShortsRowWidget(),
-
-            // ── Kaydırılabilir İçerik ───────────────────────────────────
-            Expanded(
-              child: RefreshIndicator(
-                color: Theme.of(context).colorScheme.primary,
-                onRefresh: () async {
-                  await controller.refreshVideos();
-                  await controller.loadPlaylists();
-                  await controller.loadUniversityStats();
-                  await Get.find<ShortsController>().refresh();
-                },
-                child: CustomScrollView(
-                  slivers: [
-                    // ── Üst Boşluk ────────────────────────────────────
-                    SliverToBoxAdapter(child: SizedBox(height: 8.h)),
-
-                    // ── Son Videolar Başlığı ───────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Son Videolar',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22.sp,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              'En yeni videoları keşfedin',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSec(context),
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ],
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () async {
+            await controller.refreshVideos();
+            await controller.loadPlaylists();
+            await controller.loadUniversityStats();
+            await Get.find<ShortsController>().refresh();
+          },
+          child: CustomScrollView(
+            slivers: [
+              // ── Üst Bar — Logo + Shorts (sabit/scroll appbar) ────────
+              SliverAppBar(
+                pinned: false,
+                floating: true,
+                snap: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: AppTheme.bg(context),
+                automaticallyImplyLeading: false,
+                titleSpacing: 16.w,
+                toolbarHeight: kToolbarHeight,
+                expandedHeight: kToolbarHeight + _shortsAreaHeight,
+                title: Row(
+                  children: [
+                    Container(
+                      width: 30.w,
+                      height: 30.w,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 18.sp,
                       ),
                     ),
-
-                    // ── İçerik Alanı ──────────────────────────────────
-                    Obx(() => _buildContentSliver(context)),
-
-                    // ── Alt Boşluk ────────────────────────────────────
-                    SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'ÜniTV',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 22.sp,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
                   ],
                 ),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Padding(
+                    padding: EdgeInsets.only(top: kToolbarHeight),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 4.h),
+                        const ShortsRowWidget(),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              // ── Ayraç ─────────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 8.h,
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface(context).withValues(alpha: 0.35),
+                  ),
+                ),
+              ),
+
+              // ── İçerik Alanı ───────────────────────────────────────
+              Obx(() => _buildContentSliver(context)),
+
+              // ── Alt Boşluk ───────────────────────────────────────────
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+            ],
+          ),
         ),
       ),
     );

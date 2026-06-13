@@ -1,18 +1,36 @@
+// lib/presentation/screens/home/widgets/tabs/home_tab/widgets/video_card_widget.dart
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../../../../../app/routes/app_routes.dart';
-import '../../../../../../../app/themes/app_theme.dart';
-import '../../../../../../../data/models/video_model.dart';
-import '../../../../../../controllers/home_controller.dart';
+import '../../../../../../app/routes/app_routes.dart';
+import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../data/models/video_model.dart';
+import '../../../../../controllers/home_controller.dart';
 
-class VideoCardWidget extends StatelessWidget {
+class VideoCardWidget extends StatefulWidget {
   final VideoModel video;
 
   const VideoCardWidget({super.key, required this.video});
+
+  @override
+  State<VideoCardWidget> createState() => _VideoCardWidgetState();
+}
+
+class _VideoCardWidgetState extends State<VideoCardWidget> {
+  VideoModel get video => widget.video;
+
+  void _navigateToUniversityDetail(HomeController controller) {
+    final uni = controller.universities.firstWhereOrNull(
+      (u) => u.id == video.universityId,
+    );
+    if (uni != null) {
+      Get.toNamed(AppRoutes.universityDetail, arguments: uni);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +40,9 @@ class VideoCardWidget extends StatelessWidget {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 6.h),
       child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          border: Border(
-            top: BorderSide(
-              color: AppTheme.textSec(context).withValues(alpha: 0.10),
-              width: 0.5,
-            ),
-            bottom: BorderSide(
-              color: AppTheme.textSec(context).withValues(alpha: 0.10),
-              width: 0.5,
-            ),
-          ),
-        ),
+        decoration: BoxDecoration(color: AppTheme.card(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,6 +51,14 @@ class VideoCardWidget extends StatelessWidget {
             _buildActionRow(context, controller),
             _buildStats(context),
             _buildContent(context),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              child: Divider(
+                height: 1,
+                thickness: 0.6,
+                color: AppTheme.textSec(context).withValues(alpha: 0.08),
+              ),
+            ),
           ],
         ),
       ),
@@ -52,13 +66,14 @@ class VideoCardWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // HEADER — Avatar + Kanal Adı + Zaman + Menü
+  // HEADER — Sadece Üniversite Adı TextButton ile Tıklanabilir
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildHeader(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       child: Row(
         children: [
+          // GRADYAN LOGO ÇERÇEVESİ (Artık tıklanamaz, düz görsel)
           Container(
             padding: EdgeInsets.all(2.w),
             decoration: const BoxDecoration(
@@ -81,21 +96,33 @@ class VideoCardWidget extends StatelessWidget {
 
           SizedBox(width: 10.w),
 
+          // ÜNİVERSİTE ADI (TEXTBUTTON) VE ZAMAN ALANI
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  video.universityName ?? video.channelTitle,
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+                TextButton(
+                  onPressed: () => _navigateToUniversityDetail(controller),
+                  style: TextButton.styleFrom(
+                    padding:
+                        EdgeInsets.zero, // Etrafındaki boşlukları sıfırladık
+                    minimumSize:
+                        Size.zero, // Butonun ekstra büyük yer kaplamasını önler
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    alignment: Alignment.centerLeft,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  child: Text(
+                    video.universityName ?? video.channelTitle,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                SizedBox(height: 1.h),
+                SizedBox(height: 2.h),
                 Text(
                   timeago.format(video.publishedAt, locale: 'tr'),
                   style: TextStyle(
@@ -107,6 +134,7 @@ class VideoCardWidget extends StatelessWidget {
             ),
           ),
 
+          // TAKİP ET BUTONU
           TextButton(
             onPressed: () {},
             style: TextButton.styleFrom(
@@ -121,6 +149,7 @@ class VideoCardWidget extends StatelessWidget {
             ),
           ),
 
+          // ÜÇ NOKTA MENÜ
           GestureDetector(
             onTap: () {},
             child: Padding(
@@ -184,102 +213,93 @@ class VideoCardWidget extends StatelessWidget {
         arguments: video,
         parameters: {'videoId': video.videoId},
       ),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: video.bestThumbnail,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => Container(
-                color: AppTheme.surface(context),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                    strokeWidth: 2.w,
-                  ),
-                ),
-              ),
-              errorWidget: (_, _, _) => Container(
-                color: AppTheme.surface(context),
-                child: Icon(
-                  Icons.play_circle_outline_rounded,
-                  color: AppTheme.textSec(context),
-                  size: 48.sp,
-                ),
-              ),
-            ),
-
-            /*   // Oynat ikonu
-            Center(
-              child: Container(
-                width: 52.w,
-                height: 52.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withValues(alpha: 0.50),
-                ),
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 30.sp,
-                ),
-              ),
-            ),
- */
-            // Sadece CANLI etiketi
-            if (isLive)
-              Positioned(
-                top: 10.h,
-                left: 10.w,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE53935),
-                    borderRadius: BorderRadius.circular(5.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.circle, color: Colors.white, size: 7.sp),
-                      SizedBox(width: 4.w),
-                      Text(
-                        'CANLI',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14.r),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: video.bestThumbnail,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(
+                    color: AppTheme.surface(context),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                        strokeWidth: 2.w,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-
-            // Süre etiketi
-            if (!isLive)
-              Positioned(
-                bottom: 8.h,
-                right: 10.w,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.82),
-                    borderRadius: BorderRadius.circular(5.r),
-                  ),
-                  child: Text(
-                    video.formattedDuration,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
+                  errorWidget: (_, _, _) => Container(
+                    color: AppTheme.surface(context),
+                    child: Icon(
+                      Icons.play_circle_outline_rounded,
+                      color: AppTheme.textSec(context),
+                      size: 48.sp,
                     ),
                   ),
                 ),
-              ),
-          ],
+                if (isLive)
+                  Positioned(
+                    top: 10.h,
+                    left: 10.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE53935),
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, color: Colors.white, size: 7.sp),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'CANLI',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (!isLive)
+                  Positioned(
+                    bottom: 8.h,
+                    right: 10.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.82),
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                      child: Text(
+                        video.formattedDuration,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -293,7 +313,6 @@ class VideoCardWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Row(
         children: [
-          // ── Like butonu — reaktif ──────────────────────────────────────
           Obx(
             () => _igActionBtn(
               context: context,
@@ -307,10 +326,7 @@ class VideoCardWidget extends StatelessWidget {
               label: 'Beğen',
             ),
           ),
-
           SizedBox(width: 4.w),
-
-          // ── Yorum — player'a yönlendir ────────────────────────────────
           _igActionBtn(
             context: context,
             icon: Icons.mode_comment_outlined,
@@ -322,10 +338,7 @@ class VideoCardWidget extends StatelessWidget {
             ),
             label: 'Yorum',
           ),
-
           SizedBox(width: 4.w),
-
-          // ── Paylaş — reaktif (yüklenirken spinner) ────────────────────
           Obx(
             () => controller.isShareLoading(video.videoId)
                 ? Padding(
@@ -347,10 +360,7 @@ class VideoCardWidget extends StatelessWidget {
                     label: 'Paylaş',
                   ),
           ),
-
           const Spacer(),
-
-          // ── Favori / Kaydet ───────────────────────────────────────────
           Obx(
             () => _igActionBtn(
               context: context,
@@ -480,7 +490,6 @@ class VideoCardWidget extends StatelessWidget {
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-
           if (video.description.isNotEmpty) ...[
             SizedBox(height: 4.h),
             RichText(
@@ -511,7 +520,6 @@ class VideoCardWidget extends StatelessWidget {
     );
   }
 
-  // ── Sayı Formatlama ───────────────────────────────────────────────────────
   String _formatCount(int count) {
     if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
     if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)}B';

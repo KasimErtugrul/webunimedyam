@@ -1,35 +1,31 @@
-// lib/presentation/screens/home/widgets/tabs/channel_tab/channel_tab_widget.dart
+// lib/presentation/screens/home/widgets/tabs/video_tab/video_tab_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../controllers/home_controller.dart';
-import '../../home_tab/universities/university_sections_config.dart';
+import '../../../../../controllers/home_controller.dart';
+import '../../home_tab/videos/video_sections_config.dart';
 
-class ChannelTabWidget extends StatelessWidget {
+class VideoTabWidget extends StatelessWidget {
   final HomeController controller;
-  const ChannelTabWidget({super.key, required this.controller});
+  const VideoTabWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     // ── Rx Listeleri bir diziye alıyoruz ki index üzerinden eşleşebilsin ──
-    final statsRxLists = [
-      controller.statsMostWatched,
-      controller.statsMostLiked,
-      controller.statsPopularInApp,
-      controller.statsMostFavorited,
-      controller.statsActiveLast30,
-      controller.statsBiggestChannels,
-      controller.statsRichestArchive,
-      controller.statsNewlyDiscovered,
+    final videoRxLists = [
+      controller.videosTrending,
+      controller.videosMostWatched,
+      controller.videosMostLiked,
+      controller.videosMostFavorited,
+      controller.videosMostCommented,
+      controller.videosNewUndiscovered,
     ];
 
     return RefreshIndicator(
       color: Theme.of(context).colorScheme.primary,
-      onRefresh: () async {
-        await controller.loadUniversityStats();
-      },
+      onRefresh: controller.loadVideoSections,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -38,14 +34,17 @@ class ChannelTabWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // ── Her section için ayrı Obx ──────────────────────────
-                children: List.generate(statsRxLists.length, (index) {
+                // Sadece ilgili RxList değişirse o section rebuild olur.
+                children: List.generate(videoRxLists.length, (index) {
                   return Obx(() {
-                    final widgets = buildUniversitySections(
-                      configs: [uniSectionConfigs[index]],
-                      allItems: [statsRxLists[index].toList()],
-                      isLoading: controller.isStatsLoading.value,
+                    final widgets = buildVideoSections(
+                      configs: [videoSectionConfigs[index]],
+                      allVideoItems: [videoRxLists[index].toList()],
+                      isLoading: controller.isVideoSectionsLoading.value,
                     );
-
+                    
+                    // buildVideoSections List<Widget> döndürür.
+                    // Column içinde children doğrudan yayılmalıdır.
                     if (widgets.length == 1) return widgets.first;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

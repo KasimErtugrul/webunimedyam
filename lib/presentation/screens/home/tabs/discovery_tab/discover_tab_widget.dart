@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../app/themes/app_theme.dart';
-import '../../../../../controllers/home_controller.dart';
+import '../../../../../app/themes/app_theme.dart';
+import '../../../../controllers/home_controller.dart';
 
 import 'widgets/channel_tab_widget.dart';
 import 'widgets/video_tab_widget.dart';

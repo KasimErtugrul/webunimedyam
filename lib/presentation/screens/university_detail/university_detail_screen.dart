@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/university_detail_controller.dart';
-import '../home/widgets/tabs/home_tab/widgets/video_card_widget.dart';
+import '../home/tabs/home_tab/widgets/video_card_widget.dart';
 
 class UniversityDetailScreen extends StatelessWidget {
   const UniversityDetailScreen({super.key});

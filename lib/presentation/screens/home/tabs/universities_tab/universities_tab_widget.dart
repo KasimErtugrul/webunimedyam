@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../app/themes/app_theme.dart';
-import '../../../../../controllers/home_controller.dart';
+import '../../../../../app/themes/app_theme.dart';
+import '../../../../controllers/home_controller.dart';
 import 'widgets/university_card_shimmer_widget.dart';
 import 'widgets/university_list_card_widget.dart';
 

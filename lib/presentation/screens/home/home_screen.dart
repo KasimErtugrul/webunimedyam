@@ -8,9 +8,9 @@ import '../../controllers/home_controller.dart';
 
 import '../profile/profile_screen.dart';
 import '../search/search_screen.dart';
-import 'widgets/tabs/discovery_tab/discover_tab_widget.dart';
-import 'widgets/tabs/home_tab/home_tab_widget.dart';
-import 'widgets/tabs/universities_tab/universities_tab_widget.dart';
+import 'tabs/discovery_tab/discover_tab_widget.dart';
+import 'tabs/home_tab/home_tab_widget.dart';
+import 'tabs/universities_tab/universities_tab_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

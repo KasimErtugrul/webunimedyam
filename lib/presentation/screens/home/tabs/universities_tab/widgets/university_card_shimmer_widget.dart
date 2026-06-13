@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../../../app/themes/app_theme.dart';
+import '../../../../../../app/themes/app_theme.dart';
 
 class UniversityCardShimmerWidget extends StatelessWidget {
   const UniversityCardShimmerWidget({super.key});

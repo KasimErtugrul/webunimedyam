@@ -107,6 +107,9 @@ class SupabaseDataSource {
       row['university_name'] = row['universities']['name'];
     }
     row.remove('universities');
+    log(
+      'supabase datasource getvideobyid fonksiyonu: getVideoById videoId: $videoId, data: $data',
+    );
     return VideoModel.fromSupabase(row);
   }
 
@@ -119,7 +122,9 @@ class SupabaseDataSource {
         .select('*, universities(name)')
         .order('published_at', ascending: false)
         .range(offset, offset + limit - 1);
-
+    log(
+      'supabase datasource getcachedvideos fonksiyonu: getCachedVideos limit: $limit, offset: $offset, data length: ${(data as List).length}',
+    );
     return (data as List).map((e) {
       final row = Map<String, dynamic>.from(e);
       if (row['universities'] != null) {
@@ -148,6 +153,9 @@ class SupabaseDataSource {
         row['university_name'] = row['universities']['name'];
       }
       row.remove('universities');
+      log(
+        'supabase datasource getcachedvideosbyuniversity fonksiyonu: getCachedVideosByUniversity universityId: $universityId, limit: $limit, offset: $offset, data length: ${(data as List).length}',
+      );
       return VideoModel.fromSupabase(row);
     }).toList();
   }
@@ -320,8 +328,7 @@ class SupabaseDataSource {
 
   Future<List<Map<String, dynamic>>> getUniversitiesWithStats({
     int limit = 500,
-  }) =>
-      getUniversitiesWithVideoCount(limit: limit);
+  }) => getUniversitiesWithVideoCount(limit: limit);
 
   // ─── Onboarding ──────────────────────────────────────────────────────────
   Future<bool> isOnboardingCompleted(String userId) async {
@@ -334,14 +341,11 @@ class SupabaseDataSource {
   }
 
   Future<void> completeOnboarding(String userId) async {
-    await _client.from('onboarding').upsert(
-      {
-        'user_id': userId,
-        'completed': true,
-        'completed_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'user_id',
-    );
+    await _client.from('onboarding').upsert({
+      'user_id': userId,
+      'completed': true,
+      'completed_at': DateTime.now().toIso8601String(),
+    }, onConflict: 'user_id');
   }
 
   // ─── Arama ───────────────────────────────────────────────────────────────
@@ -581,29 +585,29 @@ class SupabaseDataSource {
     final data = await query
         .order(orderBy, ascending: ascending)
         .range(offset, offset + limit - 1);
-
+    log(
+      'supabase datasource getvideoengagementlist fonksiyonu: getVideoEngagementList orderBy: $orderBy, filterColumn: $filterColumn, filterOperator: $filterOperator, filterValue: $filterValue, data: $data',
+    );
     return List<Map<String, dynamic>>.from(data);
   }
 
   Future<List<Map<String, dynamic>>> getTrendingVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'engagement_score',
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'engagement_score',
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostWatchedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'yt_view_count',
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'yt_view_count',
+    limit: limit,
+    offset: offset,
+  );
 
   // ─── Öneri Sistemi ────────────────────────────────────────────────────────
   Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
@@ -619,15 +623,14 @@ class SupabaseDataSource {
   Future<List<Map<String, dynamic>>> getMostLikedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_like_count',
-        filterColumn: 'app_like_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_like_count',
+    filterColumn: 'app_like_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<VideoViewerModel>> getVideoViewers(
     String videoId, {
@@ -636,11 +639,7 @@ class SupabaseDataSource {
   }) async {
     final data = await _client.rpc(
       'get_video_viewers',
-      params: {
-        'p_video_id': videoId,
-        'p_limit': limit,
-        'p_offset': offset,
-      },
+      params: {'p_video_id': videoId, 'p_limit': limit, 'p_offset': offset},
     );
     return (data as List)
         .map((e) => VideoViewerModel.fromMap(Map<String, dynamic>.from(e)))
@@ -650,41 +649,38 @@ class SupabaseDataSource {
   Future<List<Map<String, dynamic>>> getMostFavoritedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_favorite_count',
-        filterColumn: 'app_favorite_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_favorite_count',
+    filterColumn: 'app_favorite_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getMostCommentedVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'app_comment_count',
-        filterColumn: 'app_comment_count',
-        filterOperator: 'gt',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'app_comment_count',
+    filterColumn: 'app_comment_count',
+    filterOperator: 'gt',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   Future<List<Map<String, dynamic>>> getNewAndUndiscoveredVideos({
     int limit = 10,
     int offset = 0,
-  }) =>
-      getVideoEngagementList(
-        orderBy: 'published_at',
-        filterColumn: 'app_view_count',
-        filterOperator: 'eq',
-        filterValue: 0,
-        limit: limit,
-        offset: offset,
-      );
+  }) => getVideoEngagementList(
+    orderBy: 'published_at',
+    filterColumn: 'app_view_count',
+    filterOperator: 'eq',
+    filterValue: 0,
+    limit: limit,
+    offset: offset,
+  );
 
   // ─── Üniversite Favorileri ────────────────────────────────────────────────
 

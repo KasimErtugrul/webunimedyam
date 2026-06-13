@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../../data/models/video_engagement_model.dart';
-import '../../../../../../../data/repositories/video_repository.dart';
+import '../../../../../../data/models/video_engagement_model.dart';
+import '../../../../../../data/repositories/video_repository.dart';
 import 'video_horizontal_section_widget.dart';
 
 // VideoSectionType enum video_repository.dart'tan re-export edilir;
 // bu dosyadan da erişilebilir.
-export '../../../../../../../data/repositories/video_repository.dart'
+export '../../../../../../data/repositories/video_repository.dart'
     show VideoSectionType;
 
 class VideoSectionConfig {

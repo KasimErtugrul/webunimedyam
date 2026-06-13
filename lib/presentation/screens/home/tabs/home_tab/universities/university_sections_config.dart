@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../../data/models/university_stats_model.dart';
+import '../../../../../../data/models/university_stats_model.dart';
 import 'university_horizontal_card_widget.dart';
 import 'university_horizontal_section_widget.dart';
 

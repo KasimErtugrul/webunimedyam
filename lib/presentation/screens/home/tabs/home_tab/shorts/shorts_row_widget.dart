@@ -11,10 +11,10 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../../../../../app/routes/app_routes.dart';
-import '../../../../../../../app/themes/app_theme.dart';
-import '../../../../../../../data/models/shorts_model.dart';
-import '../../../../../../controllers/shorts_controller.dart';
+import '../../../../../../app/routes/app_routes.dart';
+import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../data/models/shorts_model.dart';
+import '../../../../../controllers/shorts_controller.dart';
 
 class ShortsRowWidget extends StatelessWidget {
   const ShortsRowWidget({super.key});

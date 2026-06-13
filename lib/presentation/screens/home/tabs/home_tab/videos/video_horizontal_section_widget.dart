@@ -5,9 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../../../app/routes/app_routes.dart';
-import '../../../../../../../app/themes/app_theme.dart';
-import '../../../../../../../data/models/video_engagement_model.dart';
+import '../../../../../../app/routes/app_routes.dart';
+import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../data/models/video_engagement_model.dart';
 import 'video_horizontal_card_widget.dart';
 import 'video_sections_config.dart';
 
