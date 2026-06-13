@@ -79,6 +79,7 @@ class ProfileController extends GetxController {
       isLoading.value = true;
 
       if (isOwnProfile) {
+        log('profile controller getprofile tetiklendi');
         profile.value = await authRepository.getProfile();
       } else {
         final tid = targetUserId;

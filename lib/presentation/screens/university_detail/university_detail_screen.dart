@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/themes/app_theme.dart';
+import '../../../data/models/video_model.dart';
 import '../../controllers/university_detail_controller.dart';
 import '../home/tabs/home_tab/widgets/video_card_widget.dart';
 
@@ -19,7 +20,7 @@ class UniversityDetailScreen extends StatelessWidget {
     final controller = Get.find<UniversityDetailController>();
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
         body: NestedScrollView(
@@ -100,6 +101,7 @@ class UniversityDetailScreen extends StatelessWidget {
             children: [
               _AboutTab(controller: controller),
               _VideosTab(controller: controller),
+              _ShortsTab(controller: controller),
             ],
           ),
         ),
@@ -132,7 +134,7 @@ class _Header extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 60.h), // AppBar yüksekliği kadar boşluk
+            SizedBox(height: 60.h),
             // ── Logo ────────────────────────────────────────────────────────
             Container(
               width: 88.w,
@@ -252,7 +254,7 @@ class _Header extends StatelessWidget {
 
             SizedBox(height: 8.h),
 
-            // ── Favori Durum Göstergesi (isteğe bağlı küçük badge) ─────────
+            // ── Favori Durum Göstergesi ─────────────────────────────────────
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
@@ -288,7 +290,7 @@ class _Header extends StatelessWidget {
           ],
         ),
       );
-    }); // Obx
+    });
   }
 }
 
@@ -367,6 +369,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
         tabs: const [
           Tab(text: 'Hakkında'),
           Tab(text: 'Videolar'),
+          Tab(text: 'Shorts'),
         ],
       ),
     );
@@ -439,7 +442,9 @@ class _AboutTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14.r),
                       side: isFav
                           ? BorderSide(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.5,
+                              ),
                             )
                           : BorderSide.none,
                     ),
@@ -777,7 +782,7 @@ class _LinkButton extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Videolar Sekmesi
+// Videolar Sekmesi — Sadece isShorts == false olanlar
 // ════════════════════════════════════════════════════════════════════════════
 
 class _VideosTab extends StatelessWidget {
@@ -788,8 +793,8 @@ class _VideosTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final isLoading = controller.isLoading.value;
-      final videos = controller.videos;
       final error = controller.errorMessage.value;
+      final videoList = controller.videoOnly; // ← sadece normal videolar
 
       // ── Yükleniyor ───────────────────────────────────────────────────────
       if (isLoading) {
@@ -802,87 +807,18 @@ class _VideosTab extends StatelessWidget {
 
       // ── Hata ─────────────────────────────────────────────────────────────
       if (error.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: EdgeInsets.all(32.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  size: 48.sp,
-                  color: AppTheme.textSec(context),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  error,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 16.h),
-                ElevatedButton.icon(
-                  onPressed: controller.loadVideos,
-                  icon: Icon(Icons.refresh_rounded, size: 18.sp),
-                  label: Text('Tekrar Dene', style: TextStyle(fontSize: 13.sp)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return _ErrorView(
+          error: error,
+          onRetry: controller.loadVideos,
         );
       }
 
       // ── Boş ──────────────────────────────────────────────────────────────
-      if (videos.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: EdgeInsets.all(40.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 72.w,
-                  height: 72.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.card(context),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.videocam_off_rounded,
-                    size: 36.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Henüz video yok',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPri(context),
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  'Bu üniversiteye ait video bulunamadı.',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
+      if (videoList.isEmpty) {
+        return _EmptyView(
+          icon: Icons.videocam_off_rounded,
+          title: 'Henüz video yok',
+          subtitle: 'Bu üniversiteye ait video bulunamadı.',
         );
       }
 
@@ -893,15 +829,356 @@ class _VideosTab extends StatelessWidget {
         onRefresh: controller.loadVideos,
         child: ListView.builder(
           padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-          itemCount: videos.length,
-          itemBuilder: (_, i) => VideoCardWidget(video: videos[i]),
+          itemCount: videoList.length,
+          itemBuilder: (_, i) => VideoCardWidget(video: videoList[i]),
         ),
       );
     });
   }
 }
 
-/// Shimmer yükleniyor kartı
+// ════════════════════════════════════════════════════════════════════════════
+// Shorts Sekmesi — Sadece isShorts == true olanlar (Grid Layout)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _ShortsTab extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _ShortsTab({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isLoading = controller.isLoading.value;
+      final error = controller.errorMessage.value;
+      final shortsList = controller.shortsOnly; // ← sadece shorts
+
+      // ── Yükleniyor ───────────────────────────────────────────────────────
+      if (isLoading) {
+        return GridView.builder(
+          padding: EdgeInsets.all(12.w),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.w,
+            mainAxisSpacing: 10.h,
+            childAspectRatio: 0.62,
+          ),
+          itemCount: 6,
+          itemBuilder: (_, __) => const _ShortsShimmer(),
+        );
+      }
+
+      // ── Hata ─────────────────────────────────────────────────────────────
+      if (error.isNotEmpty) {
+        return _ErrorView(
+          error: error,
+          onRetry: controller.loadVideos,
+        );
+      }
+
+      // ── Boş ──────────────────────────────────────────────────────────────
+      if (shortsList.isEmpty) {
+        return _EmptyView(
+          icon: Icons.movie_filter_outlined,
+          title: 'Henüz Shorts yok',
+          subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
+        );
+      }
+
+      // ── Shorts Grid ──────────────────────────────────────────────────────
+      return RefreshIndicator(
+        color: AppTheme.primaryColor,
+        backgroundColor: AppTheme.card(context),
+        onRefresh: controller.loadVideos,
+        child: GridView.builder(
+          padding: EdgeInsets.all(12.w),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.w,
+            mainAxisSpacing: 10.h,
+            childAspectRatio: 0.62,
+          ),
+          itemCount: shortsList.length,
+          itemBuilder: (_, i) => _ShortsGridCard(video: shortsList[i]),
+        ),
+      );
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Shorts Grid Kartı
+// ════════════════════════════════════════════════════════════════════════════
+
+class _ShortsGridCard extends StatelessWidget {
+  final VideoModel video;
+  const _ShortsGridCard({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.card(context),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: AppTheme.isDark(context)
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.06),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Thumbnail ─────────────────────────────────────────────────────
+          Expanded(
+            flex: 5,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: video.bestThumbnail,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(
+                    color: AppTheme.isDark(context)
+                        ? const Color(0xFF2A2A2A)
+                        : const Color(0xFFE8E8E8),
+                  ),
+                  errorWidget: (_, __, ___) => Container(
+                    color: AppTheme.isDark(context)
+                        ? const Color(0xFF2A2A2A)
+                        : const Color(0xFFE8E8E8),
+                    child: Icon(
+                      Icons.play_circle_outline_rounded,
+                      color: AppTheme.textSec(context),
+                      size: 32.sp,
+                    ),
+                  ),
+                ),
+
+                // ── Shorts Rozeti ────────────────────────────────────────────
+                Positioned(
+                  top: 6.w,
+                  left: 6.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF0000),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.play_circle_fill_rounded,
+                          size: 10.sp,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'SHORTS',
+                          style: TextStyle(
+                            fontSize: 8.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Süre ─────────────────────────────────────────────────────
+                if (video.formattedDuration.isNotEmpty)
+                  Positioned(
+                    bottom: 6.w,
+                    right: 6.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 5.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.75),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        video.formattedDuration,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // ── Bilgi Alanı ──────────────────────────────────────────────────
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    video.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPri(context),
+                      height: 1.25,
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.visibility_rounded,
+                        size: 11.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                      SizedBox(width: 3.w),
+                      Text(
+                        video.formattedViewCount,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: AppTheme.textSec(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Paylaşılan Yardımcı Widget'lar
+// ════════════════════════════════════════════════════════════════════════════
+
+class _ErrorView extends StatelessWidget {
+  final String error;
+  final VoidCallback onRetry;
+
+  const _ErrorView({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: 48.sp,
+              color: AppTheme.textSec(context),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              error,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppTheme.textSec(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16.h),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: Icon(Icons.refresh_rounded, size: 18.sp),
+              label: Text('Tekrar Dene', style: TextStyle(fontSize: 13.sp)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyView extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _EmptyView({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(40.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72.w,
+              height: 72.w,
+              decoration: BoxDecoration(
+                color: AppTheme.card(context),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 36.sp,
+                color: AppTheme.textSec(context),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPri(context),
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: AppTheme.textSec(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Shimmer Yükleniyor Widget'ları
+// ════════════════════════════════════════════════════════════════════════════
+
 class _VideoShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -920,6 +1197,28 @@ class _VideoShimmer extends StatelessWidget {
             color: AppTheme.card(context),
             borderRadius: BorderRadius.circular(16.r),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ShortsShimmer extends StatelessWidget {
+  const _ShortsShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppTheme.isDark(context)
+          ? const Color(0xFF2A2A2A)
+          : const Color(0xFFE0E0E0),
+      highlightColor: AppTheme.isDark(context)
+          ? const Color(0xFF3A3A3A)
+          : const Color(0xFFF5F5F5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(14.r),
         ),
       ),
     );

@@ -14,8 +14,8 @@ class AuthRepository {
   AuthRepository({
     required SupabaseDataSource supabase,
     required LocalDataSource local,
-  })  : _supabase = supabase,
-        _local = local;
+  }) : _supabase = supabase,
+       _local = local;
 
   bool get isLoggedIn => _supabase.currentUser != null;
   String? get currentUserId => _supabase.currentUser?.id;
@@ -105,6 +105,7 @@ class AuthRepository {
     try {
       log('👤☁️ [Auth] Profil Supabase\'den çekiliyor → $userId');
       final profile = await _supabase.getProfile(userId);
+      log('auth repository getprofile tetiklendi');
       log(
         '${profile != null ? '✅' : '❌'} [Auth] Profil ${profile != null ? 'geldi: ${profile.username}' : 'bulunamadı'}',
       );
@@ -115,7 +116,7 @@ class AuthRepository {
     }
   }
 
-   /// Başkasının profilini ID ile çek (public profil bilgisi).
+  /// Başkasının profilini ID ile çek (public profil bilgisi).
   Future<ProfileModel?> getProfileById(String userId) async {
     try {
       log('👤☁️ [Auth] Profil çekiliyor (by ID) → $userId');
@@ -158,7 +159,9 @@ class AuthRepository {
 
   Future<bool> isOnboardingCompleted() async {
     if (await _local.isOnboardingCompleted()) {
-      log('🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor');
+      log(
+        '🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor',
+      );
       return true;
     }
 

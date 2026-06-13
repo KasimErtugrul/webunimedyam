@@ -55,6 +55,7 @@ class SettingsController extends GetxService {
     try {
       isLoading.value = true;
       settings.value  = await authRepository.getUserSettings();
+      log('settings controller profile tetiklendi');
       final p = await authRepository.getProfile();
       if (p != null) profileVisibility.value = p.profileVisibility;
     } catch (e) {

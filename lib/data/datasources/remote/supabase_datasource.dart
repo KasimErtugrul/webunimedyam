@@ -45,6 +45,7 @@ class SupabaseDataSource {
         .eq('id', userId)
         .maybeSingle();
     if (data == null) return null;
+    log('SupabaseDataSource getProfile tetiklendi');
     return ProfileModel.fromSupabase(data);
   }
 
@@ -709,7 +710,6 @@ class SupabaseDataSource {
     }
     return universities;
   }
-
 
   Future<void> addUniversityFavorite(String userId, int universityId) async {
     await _client.from('university_favorites').insert({

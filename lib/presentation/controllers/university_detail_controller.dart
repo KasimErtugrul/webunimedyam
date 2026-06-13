@@ -31,6 +31,16 @@ class UniversityDetailController extends GetxController {
 
   late final StreamSubscription<UniversityFavoriteChange> _favSub;
 
+  // ─── Filtrelenmiş listeler ──────────────────────────────────────────────────
+
+  /// Sadece normal videolar (isShorts == false)
+  List<VideoModel> get videoOnly =>
+      videos.where((v) => !v.isShorts).toList();
+
+  /// Sadece shorts videolar (isShorts == true)
+  List<VideoModel> get shortsOnly =>
+      videos.where((v) => v.isShorts).toList();
+
   @override
   void onInit() {
     super.onInit();
@@ -125,8 +135,7 @@ class UniversityDetailController extends GetxController {
 
     try {
       if (isFavorite.value) {
-        await universityFavoritesRepository.removeFavorite(
-            userId, uni!.id!);
+        await universityFavoritesRepository.removeFavorite(userId, uni!.id!);
         isFavorite.value = false;
         Get.snackbar(
           'Favorilerden Çıkarıldı',
