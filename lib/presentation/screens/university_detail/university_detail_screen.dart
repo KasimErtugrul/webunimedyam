@@ -8,27 +8,85 @@ import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:readmore/readmore.dart';
+
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../data/models/video_model.dart';
 import '../../controllers/university_detail_controller.dart';
 import '../home/tabs/home_tab/widgets/video_card_widget.dart';
 
-class UniversityDetailScreen extends StatelessWidget {
+// ← StatefulWidget'e çevrildi
+class UniversityDetailScreen extends StatefulWidget {
   const UniversityDetailScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<UniversityDetailController>();
+  State<UniversityDetailScreen> createState() => _UniversityDetailScreenState();
+}
 
+class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
+  late final UniversityDetailController controller;
+  final ScrollController _scrollController = ScrollController();
+
+  // Başlık opacity'sini tutacağımız değişken
+  double _titleOpacity = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<UniversityDetailController>();
+    _scrollController.addListener(_updateTitleOpacity);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateTitleOpacity);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Kaydırma miktarına göre opacity'yi hesaplayan metot
+  void _updateTitleOpacity() {
+    if (!_scrollController.hasClients) return;
+
+    final double offset = _scrollController.offset;
+    // expandedHeight (240) - pinned toolbar height (56)
+    final double maxScroll = 240.h - kToolbarHeight;
+
+    // Kaydırma %40'a ulaştığında yazı belirmeye başlasın, %100'de tamamen keskinleşsin
+    final double fadeStart = maxScroll * 0.99;
+    final double fadeEnd = maxScroll;
+
+    double newOpacity;
+    if (offset <= fadeStart) {
+      newOpacity = 0.0;
+    } else if (offset >= fadeEnd) {
+      newOpacity = 1.0;
+    } else {
+      newOpacity = ((offset - fadeStart) / (fadeEnd - fadeStart)).clamp(
+        0.0,
+        1.0,
+      );
+    }
+
+    // Sadece değişmişse setState çağıralım (performans)
+    if (newOpacity != _titleOpacity) {
+      setState(() {
+        _titleOpacity = newOpacity;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
         body: NestedScrollView(
+          controller: _scrollController, // ← ScrollController eklendi
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              expandedHeight: 300.h,
+              expandedHeight: 240.h,
               pinned: true,
               floating: false,
               backgroundColor: AppTheme.bg(context),
@@ -40,6 +98,63 @@ class UniversityDetailScreen extends StatelessWidget {
                   size: 22.sp,
                 ),
                 onPressed: () => Get.back(),
+              ),
+              // ── Collapsed Title: Yumuşak Geçişli Logo + Ad ──────────
+              title: Opacity(
+                // AnimatedOpacity yerine direkt Opacity (anlık hesaplama)
+                opacity: _titleOpacity,
+                child: Obx(() {
+                  final uni = controller.university.value;
+                  if (uni == null) return const SizedBox.shrink();
+                  final hasLogo =
+                      uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (hasLogo)
+                        Padding(
+                          padding: EdgeInsets.only(right: 10.w),
+                          child: ClipOval(
+                            child: Container(
+                              width: 30.w,
+                              height: 30.w,
+                              color: Colors.white,
+                              child: CachedNetworkImage(
+                                imageUrl: uni.logoUrl!,
+                                fit: BoxFit.contain,
+                                errorWidget: (_, __, ___) => Icon(
+                                  Icons.school_rounded,
+                                  size: 18.sp,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: Icon(
+                            Icons.school_rounded,
+                            size: 22.sp,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      Flexible(
+                        child: Text(
+                          uni.name ?? '',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPri(context),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ),
               actions: [
                 Obx(() {
@@ -109,7 +224,7 @@ class UniversityDetailScreen extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Header
+// Header — Yeniden Tasarlanmış (Gradient + Glow)
 // ════════════════════════════════════════════════════════════════════════════
 
 class _Header extends StatelessWidget {
@@ -127,65 +242,100 @@ class _Header extends StatelessWidget {
         );
       }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+
       return Container(
-        color: AppTheme.bg(context),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryColor.withValues(alpha: 0.06),
+              AppTheme.bg(context).withValues(alpha: 0.95),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: const [0.0, 0.7],
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 60.h),
+            SizedBox(height: 56.h),
+
+            // ── Logo: Glow Efektli Daire ──────────────────────────────
             Container(
-              width: 88.w,
-              height: 88.w,
-              padding: EdgeInsets.all(10.w),
+              width: 100.w,
+              height: 100.w,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
                   colors: [
-                    AppTheme.primaryColor.withValues(alpha: 0.15),
-                    AppTheme.secondaryColor.withValues(alpha: 0.08),
+                    AppTheme.primaryColor.withValues(alpha: 0.1),
+                    Colors.transparent,
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(22.r),
-                border: Border.all(
-                  color: AppTheme.isDark(context)
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.06),
+                  radius: 0.6,
                 ),
               ),
-              child: hasLogo
-                  ? CachedNetworkImage(
-                      imageUrl: uni.logoUrl!,
-                      fit: BoxFit.contain,
-                      placeholder: (_, __) => Center(
-                        child: SizedBox(
-                          width: 24.w,
-                          height: 24.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.w,
-                            color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      errorWidget: (_, __, ___) => Icon(
-                        Icons.school_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 36.sp,
-                      ),
-                    )
-                  : Icon(
-                      Icons.school_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 36.sp,
+              child: Center(
+                child: Container(
+                  width: 78.w,
+                  height: 78.w,
+                  padding: EdgeInsets.all(6.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.card(context),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.18),
+                      width: 2,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                        blurRadius: 24.r,
+                        spreadRadius: 2.r,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: hasLogo
+                        ? CachedNetworkImage(
+                            imageUrl: uni.logoUrl!,
+                            fit: BoxFit.contain,
+                            placeholder: (_, __) => Center(
+                              child: SizedBox(
+                                width: 22.w,
+                                height: 22.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.w,
+                                  color: AppTheme.primaryColor.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Icon(
+                              Icons.school_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 32.sp,
+                            ),
+                          )
+                        : Icon(
+                            Icons.school_rounded,
+                            color: AppTheme.primaryColor,
+                            size: 32.sp,
+                          ),
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 12.h),
+
+            SizedBox(height: 14.h),
+
+            // ── Üniversite Adı ───────────────────────────────────────
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.symmetric(horizontal: 32.w),
               child: Text(
                 uni.name ?? '',
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 19.sp,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPri(context),
                   height: 1.3,
@@ -195,8 +345,10 @@ class _Header extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+
+            // ── Şehir ────────────────────────────────────────────────
             if (uni.city != null) ...[
-              SizedBox(height: 4.h),
+              SizedBox(height: 6.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -216,32 +368,10 @@ class _Header extends StatelessWidget {
                 ],
               ),
             ],
-            SizedBox(height: 14.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _StatChip(
-                  icon: Icons.people_rounded,
-                  label: controller.formattedSubscriberCount,
-                  tooltip: 'Abone',
-                ),
-                SizedBox(width: 8.w),
-                _StatChip(
-                  icon: Icons.visibility_rounded,
-                  label: controller.formattedViewCount,
-                  tooltip: 'İzlenme',
-                ),
-                if (uni.videoCount != null) ...[
-                  SizedBox(width: 8.w),
-                  _StatChip(
-                    icon: Icons.play_circle_rounded,
-                    label: '${uni.videoCount}',
-                    tooltip: 'Video',
-                  ),
-                ],
-              ],
-            ),
-            SizedBox(height: 8.h),
+
+            SizedBox(height: 10.h),
+
+            // ── Favori Rozeti ────────────────────────────────────────
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
@@ -278,47 +408,6 @@ class _Header extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String tooltip;
-
-  const _StatChip({
-    required this.icon,
-    required this.label,
-    required this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13.sp, color: AppTheme.primaryColor),
-            SizedBox(width: 4.w),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -378,14 +467,65 @@ class _AboutTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final uni = controller.university.value;
-      if (uni == null) {
-        return const Center(child: CircularProgressIndicator());
-      }
+      if (uni == null) return const Center(child: CircularProgressIndicator());
       return SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 32.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Obx(() {
+              final isFav = controller.isFavorite.value;
+              final isLoading = controller.isFavoriteLoading.value;
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: isLoading ? null : controller.toggleFavorite,
+                  icon: isLoading
+                      ? SizedBox(
+                          width: 16.w,
+                          height: 16.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          isFav
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          size: 18.sp,
+                        ),
+                  label: Text(
+                    isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isFav
+                        ? AppTheme.card(context)
+                        : AppTheme.primaryColor,
+                    foregroundColor: isFav
+                        ? AppTheme.primaryColor
+                        : Colors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(vertical: 13.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                      side: isFav
+                          ? BorderSide(
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.5,
+                              ),
+                            )
+                          : BorderSide.none,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            SizedBox(height: 20.h),
             _SectionTitle(title: 'Açıklama'),
             SizedBox(height: 8.h),
             Container(
@@ -404,8 +544,8 @@ class _AboutTab extends StatelessWidget {
                 (uni.description != null && uni.description!.isNotEmpty)
                     ? uni.description!
                     : 'Bu üniversite için açıklama bulunmuyor.',
-                trimMode: TrimMode.Line, // Satır sayısına göre kısalt
-                trimLines: 5, // Maksimum 5 satır göstersin
+                trimMode: TrimMode.Line,
+                trimLines: 5,
                 trimCollapsedText: ' Daha fazla',
                 trimExpandedText: ' Daha az',
                 style: TextStyle(
@@ -420,12 +560,12 @@ class _AboutTab extends StatelessWidget {
                 moreStyle: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryColor, // Tema rengiyle parlaması için
+                  color: AppTheme.primaryColor,
                 ),
                 lessStyle: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryColor, // Tema rengiyle parlaması için
+                  color: AppTheme.primaryColor,
                 ),
               ),
             ),
@@ -560,7 +700,6 @@ class _AboutTab extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
   const _SectionTitle({required this.title});
-
   @override
   Widget build(BuildContext context) {
     return Text(
@@ -582,7 +721,6 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final bool isFirst;
   final bool isLast;
-
   const _InfoRow({
     required this.icon,
     required this.label,
@@ -590,7 +728,6 @@ class _InfoRow extends StatelessWidget {
     this.isFirst = false,
     this.isLast = false,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -656,24 +793,20 @@ class _LinkButton extends StatelessWidget {
   final String label;
   final String url;
   final Color? color;
-
   const _LinkButton({
     required this.icon,
     required this.label,
     required this.url,
     this.color,
   });
-
   @override
   Widget build(BuildContext context) {
     final iconColor = color ?? AppTheme.primaryColor;
-
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
+        if (await canLaunchUrl(uri))
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
       },
       borderRadius: BorderRadius.circular(14.r),
       child: Container(
@@ -722,40 +855,32 @@ class _LinkButton extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Videolar Sekmesi — isShorts == false
+// Videolar Sekmesi
 // ════════════════════════════════════════════════════════════════════════════
 
 class _VideosTab extends StatelessWidget {
   final UniversityDetailController controller;
   const _VideosTab({required this.controller});
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
-
-      if (isLoading) {
+      if (isLoading)
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: 6,
           itemBuilder: (_, __) => _VideoShimmer(),
         );
-      }
-
-      if (error.isNotEmpty) {
+      if (error.isNotEmpty)
         return _ErrorView(error: error, onRetry: controller.loadVideos);
-      }
-
-      if (videoList.isEmpty) {
+      if (videoList.isEmpty)
         return const _EmptyView(
           icon: Icons.videocam_off_rounded,
           title: 'Henüz video yok',
           subtitle: 'Bu üniversiteye ait video bulunamadı.',
         );
-      }
-
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -771,40 +896,32 @@ class _VideosTab extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Shorts Sekmesi — isShorts == true (ListTile + Açıklama + Tarih)
+// Shorts Sekmesi
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ShortsTab extends StatelessWidget {
   final UniversityDetailController controller;
   const _ShortsTab({required this.controller});
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
-
-      if (isLoading) {
+      if (isLoading)
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: 6,
           itemBuilder: (_, __) => const _ShortsListShimmer(),
         );
-      }
-
-      if (error.isNotEmpty) {
+      if (error.isNotEmpty)
         return _ErrorView(error: error, onRetry: controller.loadVideos);
-      }
-
-      if (shortsList.isEmpty) {
+      if (shortsList.isEmpty)
         return const _EmptyView(
           icon: Icons.movie_filter_outlined,
           title: 'Henüz Shorts yok',
           subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
         );
-      }
-
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -830,16 +947,10 @@ class _ShortsTab extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// Shorts Liste Kartı — Thumbnail sol | Başlık + Açıklama + Meta sağ
-// ════════════════════════════════════════════════════════════════════════════
-
 class _ShortsListCard extends StatelessWidget {
   final VideoModel video;
   final VoidCallback onTap;
-
   const _ShortsListCard({required this.video, required this.onTap});
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -856,19 +967,14 @@ class _ShortsListCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Sol: Dikey Thumbnail ──────────────────────────────────
                 _buildThumbnail(context),
-
                 SizedBox(width: 12.w),
-
-                // ── Sağ: Başlık + Açıklama + Meta ───────────────────────
                 Expanded(
                   child: SizedBox(
-                    height: 100.h, // Thumbnail ile aynı yükseklik
+                    height: 100.h,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Shorts rozeti + süre
                         Row(
                           children: [
                             _ShortsBadge(),
@@ -878,10 +984,7 @@ class _ShortsListCard extends StatelessWidget {
                             ],
                           ],
                         ),
-
                         SizedBox(height: 6.h),
-
-                        // Başlık
                         Text(
                           video.title,
                           maxLines: 2,
@@ -893,10 +996,7 @@ class _ShortsListCard extends StatelessWidget {
                             height: 1.3,
                           ),
                         ),
-
                         SizedBox(height: 4.h),
-
-                        // Açıklama
                         if (video.description.isNotEmpty)
                           Text(
                             video.description,
@@ -908,13 +1008,9 @@ class _ShortsListCard extends StatelessWidget {
                               height: 1.3,
                             ),
                           ),
-
                         const Spacer(),
-
-                        // Meta: izlenme + tarih
                         Row(
                           children: [
-                            // İzlenme
                             Icon(
                               Icons.visibility_rounded,
                               size: 12.sp,
@@ -928,10 +1024,7 @@ class _ShortsListCard extends StatelessWidget {
                                 color: AppTheme.textSec(context),
                               ),
                             ),
-
                             SizedBox(width: 10.w),
-
-                            // Tarih
                             Icon(
                               Icons.schedule_rounded,
                               size: 11.sp,
@@ -987,7 +1080,6 @@ class _ShortsListCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Play ikonu
             Center(
               child: Container(
                 width: 28.w,
@@ -1009,8 +1101,6 @@ class _ShortsListCard extends StatelessWidget {
     );
   }
 }
-
-// ─── Shorts Rozeti ────────────────────────────────────────────────────────────
 
 class _ShortsBadge extends StatelessWidget {
   @override
@@ -1045,12 +1135,9 @@ class _ShortsBadge extends StatelessWidget {
   }
 }
 
-// ─── Süre Çipi ───────────────────────────────────────────────────────────────
-
 class _DurationChip extends StatelessWidget {
   final String duration;
   const _DurationChip({required this.duration});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1074,15 +1161,13 @@ class _DurationChip extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Paylaşılan Yardımcı Widget'lar
+// Yardımcı Widget'lar
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ErrorView extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;
-
   const _ErrorView({required this.error, required this.onRetry});
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1129,13 +1214,11 @@ class _EmptyView extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-
   const _EmptyView({
     required this.icon,
     required this.title,
     required this.subtitle,
   });
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1204,7 +1287,6 @@ class _VideoShimmer extends StatelessWidget {
 
 class _ShortsListShimmer extends StatelessWidget {
   const _ShortsListShimmer();
-
   @override
   Widget build(BuildContext context) {
     return Padding(
