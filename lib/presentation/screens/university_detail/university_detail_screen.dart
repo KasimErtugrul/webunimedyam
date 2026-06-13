@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/routes/app_routes.dart';
@@ -418,8 +419,9 @@ class _AboutTab extends StatelessWidget {
                     backgroundColor: isFav
                         ? AppTheme.card(context)
                         : AppTheme.primaryColor,
-                    foregroundColor:
-                        isFav ? AppTheme.primaryColor : Colors.white,
+                    foregroundColor: isFav
+                        ? AppTheme.primaryColor
+                        : Colors.white,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(vertical: 13.h),
                     shape: RoundedRectangleBorder(
@@ -461,8 +463,8 @@ class _AboutTab extends StatelessWidget {
                   height: 1.6,
                   fontStyle:
                       (uni.description != null && uni.description!.isNotEmpty)
-                          ? FontStyle.normal
-                          : FontStyle.italic,
+                      ? FontStyle.normal
+                      : FontStyle.italic,
                 ),
               ),
             ),
@@ -490,8 +492,7 @@ class _AboutTab extends StatelessWidget {
                   _InfoRow(
                     icon: Icons.calendar_today_rounded,
                     label: 'Kuruluş Yılı',
-                    value:
-                        uni.foundedYear != null ? '${uni.foundedYear}' : '—',
+                    value: uni.foundedYear != null ? '${uni.foundedYear}' : '—',
                   ),
                   _InfoRow(
                     icon: Icons.play_circle_rounded,
@@ -807,7 +808,7 @@ class _VideosTab extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Shorts Sekmesi — isShorts == true (Grid + Tıklanabilir)
+// Shorts Sekmesi — isShorts == true (ListTile + Açıklama + Tarih)
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ShortsTab extends StatelessWidget {
@@ -822,16 +823,10 @@ class _ShortsTab extends StatelessWidget {
       final shortsList = controller.shortsOnly;
 
       if (isLoading) {
-        return GridView.builder(
-          padding: EdgeInsets.all(12.w),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10.w,
-            mainAxisSpacing: 10.h,
-            childAspectRatio: 0.62,
-          ),
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: 6,
-          itemBuilder: (_, __) => const _ShortsShimmer(),
+          itemBuilder: (_, __) => const _ShortsListShimmer(),
         );
       }
 
@@ -851,16 +846,11 @@ class _ShortsTab extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: GridView.builder(
-          padding: EdgeInsets.all(12.w),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10.w,
-            mainAxisSpacing: 10.h,
-            childAspectRatio: 0.62,
-          ),
+        child: ListView.separated(
+          padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
           itemCount: shortsList.length,
-          itemBuilder: (_, i) => _ShortsGridCard(
+          separatorBuilder: (_, __) => SizedBox(height: 8.h),
+          itemBuilder: (_, i) => _ShortsListCard(
             video: shortsList[i],
             onTap: () => _openShortsPlayer(shortsList, i),
           ),
@@ -869,198 +859,251 @@ class _ShortsTab extends StatelessWidget {
     });
   }
 
-  /// Tıklanan short'tan başlayarak tüm shorts listesini player'a gönder
   void _openShortsPlayer(List<VideoModel> shorts, int initialIndex) {
     Get.toNamed(
       AppRoutes.simpleShortsPlayer,
-      arguments: {
-        'shorts': shorts,
-        'initialIndex': initialIndex,
-      },
+      arguments: {'shorts': shorts, 'initialIndex': initialIndex},
     );
   }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Shorts Grid Kartı — Tıklanabilir
+// Shorts Liste Kartı — Thumbnail sol | Başlık + Açıklama + Meta sağ
 // ════════════════════════════════════════════════════════════════════════════
 
-class _ShortsGridCard extends StatelessWidget {
+class _ShortsListCard extends StatelessWidget {
   final VideoModel video;
   final VoidCallback onTap;
 
-  const _ShortsGridCard({
-    required this.video,
-    required this.onTap,
-  });
+  const _ShortsListCard({required this.video, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(
-            color: AppTheme.isDark(context)
-                ? Colors.white.withValues(alpha: 0.06)
-                : Colors.black.withValues(alpha: 0.06),
-          ),
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 14.w),
+      child: Material(
+        color: AppTheme.card(context),
+        borderRadius: BorderRadius.circular(14.r),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Thumbnail ─────────────────────────────────────────────────
-            Expanded(
-              flex: 5,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: video.bestThumbnail,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
-                      color: AppTheme.isDark(context)
-                          ? const Color(0xFF2A2A2A)
-                          : const Color(0xFFE8E8E8),
-                    ),
-                    errorWidget: (_, __, ___) => Container(
-                      color: AppTheme.isDark(context)
-                          ? const Color(0xFF2A2A2A)
-                          : const Color(0xFFE8E8E8),
-                      child: Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: 32.sp,
-                      ),
-                    ),
-                  ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14.r),
+          child: Container(
+            padding: EdgeInsets.all(10.w),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Sol: Dikey Thumbnail ──────────────────────────────────
+                _buildThumbnail(context),
 
-                  // ── Shorts Rozeti ──────────────────────────────────────
-                  Positioned(
-                    top: 6.w,
-                    left: 6.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF0000),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.play_circle_fill_rounded,
-                            size: 10.sp,
-                            color: Colors.white,
+                SizedBox(width: 12.w),
+
+                // ── Sağ: Başlık + Açıklama + Meta ───────────────────────
+                Expanded(
+                  child: SizedBox(
+                    height: 100.h, // Thumbnail ile aynı yükseklik
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Shorts rozeti + süre
+                        Row(
+                          children: [
+                            _ShortsBadge(),
+                            if (video.formattedDuration.isNotEmpty) ...[
+                              SizedBox(width: 6.w),
+                              _DurationChip(duration: video.formattedDuration),
+                            ],
+                          ],
+                        ),
+
+                        SizedBox(height: 6.h),
+
+                        // Başlık
+                        Text(
+                          video.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPri(context),
+                            height: 1.3,
                           ),
-                          SizedBox(width: 2.w),
+                        ),
+
+                        SizedBox(height: 4.h),
+
+                        // Açıklama
+                        if (video.description.isNotEmpty)
                           Text(
-                            'SHORTS',
+                            video.description,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
+                              fontSize: 11.sp,
+                              color: AppTheme.textSec(context),
+                              height: 1.3,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
 
-                  // ── Süre ───────────────────────────────────────────────
-                  if (video.formattedDuration.isNotEmpty)
-                    Positioned(
-                      bottom: 6.w,
-                      right: 6.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.75),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          video.formattedDuration,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+                        const Spacer(),
 
-                  // ── Oynat ikonu (hover/press hissi) ────────────────────
-                  Center(
-                    child: Container(
-                      width: 36.w,
-                      height: 36.w,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 22.sp,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                        // Meta: izlenme + tarih
+                        Row(
+                          children: [
+                            // İzlenme
+                            Icon(
+                              Icons.visibility_rounded,
+                              size: 12.sp,
+                              color: AppTheme.textSec(context),
+                            ),
+                            SizedBox(width: 3.w),
+                            Text(
+                              video.formattedViewCount,
+                              style: TextStyle(
+                                fontSize: 10.5.sp,
+                                color: AppTheme.textSec(context),
+                              ),
+                            ),
 
-            // ── Bilgi Alanı ──────────────────────────────────────────────
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      video.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPri(context),
-                        height: 1.25,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.visibility_rounded,
-                          size: 11.sp,
-                          color: AppTheme.textSec(context),
-                        ),
-                        SizedBox(width: 3.w),
-                        Text(
-                          video.formattedViewCount,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: AppTheme.textSec(context),
-                          ),
+                            SizedBox(width: 10.w),
+
+                            // Tarih
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 11.sp,
+                              color: AppTheme.textSec(context),
+                            ),
+                            SizedBox(width: 3.w),
+                            Text(
+                              timeago.format(video.publishedAt, locale: 'tr'),
+                              style: TextStyle(
+                                fontSize: 10.5.sp,
+                                color: AppTheme.textSec(context),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThumbnail(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.r),
+      child: SizedBox(
+        width: 68.w,
+        height: 100.h,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: video.bestThumbnail,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Container(
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
+                child: Icon(
+                  Icons.play_circle_outline_rounded,
+                  color: AppTheme.textSec(context),
+                  size: 24.sp,
+                ),
+              ),
+            ),
+            // Play ikonu
+            Center(
+              child: Container(
+                width: 28.w,
+                height: 28.w,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.play_arrow_rounded,
+                  color: Colors.white,
+                  size: 18.sp,
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Shorts Rozeti ────────────────────────────────────────────────────────────
+
+class _ShortsBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFF0000),
+        borderRadius: BorderRadius.circular(4.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.play_circle_fill_rounded,
+            size: 10.sp,
+            color: Colors.white,
+          ),
+          SizedBox(width: 2.w),
+          Text(
+            'SHORTS',
+            style: TextStyle(
+              fontSize: 8.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Süre Çipi ───────────────────────────────────────────────────────────────
+
+class _DurationChip extends StatelessWidget {
+  final String duration;
+  const _DurationChip({required this.duration});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        color: AppTheme.isDark(context)
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.black.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(4.r),
+      ),
+      child: Text(
+        duration,
+        style: TextStyle(
+          fontSize: 9.sp,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textSec(context),
         ),
       ),
     );
@@ -1145,11 +1188,7 @@ class _EmptyView extends StatelessWidget {
                 color: AppTheme.card(context),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 36.sp,
-                color: AppTheme.textSec(context),
-              ),
+              child: Icon(icon, size: 36.sp, color: AppTheme.textSec(context)),
             ),
             SizedBox(height: 16.h),
             Text(
@@ -1200,22 +1239,26 @@ class _VideoShimmer extends StatelessWidget {
   }
 }
 
-class _ShortsShimmer extends StatelessWidget {
-  const _ShortsShimmer();
+class _ShortsListShimmer extends StatelessWidget {
+  const _ShortsListShimmer();
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.isDark(context)
-          ? const Color(0xFF2A2A2A)
-          : const Color(0xFFE0E0E0),
-      highlightColor: AppTheme.isDark(context)
-          ? const Color(0xFF3A3A3A)
-          : const Color(0xFFF5F5F5),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(14.r),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 14.w),
+      child: Shimmer.fromColors(
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
+        child: Container(
+          height: 120.h,
+          decoration: BoxDecoration(
+            color: AppTheme.card(context),
+            borderRadius: BorderRadius.circular(14.r),
+          ),
         ),
       ),
     );
