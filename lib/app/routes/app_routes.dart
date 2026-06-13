@@ -17,6 +17,10 @@ abstract class AppRoutes {
   static const followers = '/followers';
   static const shortsPlayer = '/shorts-player';
 
+  /// Basit Shorts oynatıcı (üniversite bilgisi olmadan)
+  /// Argüman: {'shorts': List<VideoModel>, 'initialIndex': int}
+  static const simpleShortsPlayer = '/simple-shorts-player';
+
   /// Videoyu kimlerin izlediği sayfası
   /// Argüman: {'videoId': String, 'totalViewCount': int}
   static const videoViewers = '/video-viewers';

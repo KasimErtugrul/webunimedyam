@@ -17,6 +17,7 @@ import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
+import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
 import '../bindings/follow_binding.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/splash_binding.dart';
@@ -111,11 +112,19 @@ abstract class AppPages {
       page: () => const VideoViewersScreen(),
     ),
 
-    // ── Shorts Oynatıcı ──────────────────────────────────────────────────
+    // ── Üniversiteli Shorts Oynatıcı ──────────────────────────────────────
     // Argüman: {'shorts': List<ShortsModel>, 'initialIndex': int}
     GetPage(
       name: AppRoutes.shortsPlayer,
       page: () => const ShortsPlayerScreen(),
+      transition: Transition.downToUp,
+    ),
+
+    // ── Basit Shorts Oynatıcı (üniversite bilgisi yok) ────────────────────
+    // Argüman: {'shorts': List<VideoModel>, 'initialIndex': int}
+    GetPage(
+      name: AppRoutes.simpleShortsPlayer,
+      page: () => const SimpleShortsPlayerScreen(),
       transition: Transition.downToUp,
     ),
   ];

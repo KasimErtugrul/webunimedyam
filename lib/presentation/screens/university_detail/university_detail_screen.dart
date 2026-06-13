@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../data/models/video_model.dart';
 import '../../controllers/university_detail_controller.dart';
@@ -25,7 +26,6 @@ class UniversityDetailScreen extends StatelessWidget {
         backgroundColor: AppTheme.bg(context),
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            // ── SliverAppBar ──────────────────────────────────────────────
             SliverAppBar(
               expandedHeight: 300.h,
               pinned: true,
@@ -40,7 +40,6 @@ class UniversityDetailScreen extends StatelessWidget {
                 ),
                 onPressed: () => Get.back(),
               ),
-              // ── Favoriye Al Butonu ──────────────────────────────────────
               actions: [
                 Obx(() {
                   final isFav = controller.isFavorite.value;
@@ -90,8 +89,6 @@ class UniversityDetailScreen extends StatelessWidget {
                 background: _Header(controller: controller),
               ),
             ),
-
-            // ── TabBar ────────────────────────────────────────────────────
             SliverPersistentHeader(
               pinned: true,
               delegate: _TabBarDelegate(context: context),
@@ -111,7 +108,7 @@ class UniversityDetailScreen extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Header (SliverAppBar arka plan içeriği)
+// Header
 // ════════════════════════════════════════════════════════════════════════════
 
 class _Header extends StatelessWidget {
@@ -135,7 +132,6 @@ class _Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 60.h),
-            // ── Logo ────────────────────────────────────────────────────────
             Container(
               width: 88.w,
               height: 88.w,
@@ -182,10 +178,7 @@ class _Header extends StatelessWidget {
                       size: 36.sp,
                     ),
             ),
-
             SizedBox(height: 12.h),
-
-            // ── Üniversite Adı ───────────────────────────────────────────────
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
@@ -201,7 +194,6 @@ class _Header extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-
             if (uni.city != null) ...[
               SizedBox(height: 4.h),
               Row(
@@ -223,10 +215,7 @@ class _Header extends StatelessWidget {
                 ],
               ),
             ],
-
             SizedBox(height: 14.h),
-
-            // ── İstatistik Çipleri ────────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -251,10 +240,7 @@ class _Header extends StatelessWidget {
                 ],
               ],
             ),
-
             SizedBox(height: 8.h),
-
-            // ── Favori Durum Göstergesi ─────────────────────────────────────
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
@@ -336,7 +322,7 @@ class _StatChip extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// TabBar Delegate (pinned)
+// TabBar Delegate
 // ════════════════════════════════════════════════════════════════════════════
 
 class _TabBarDelegate extends SliverPersistentHeaderDelegate {
@@ -399,7 +385,6 @@ class _AboutTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Favoriye Al CTA Butonu ──────────────────────────────────────
             Obx(() {
               final isFav = controller.isFavorite.value;
               final isLoading = controller.isFavoriteLoading.value;
@@ -433,9 +418,8 @@ class _AboutTab extends StatelessWidget {
                     backgroundColor: isFav
                         ? AppTheme.card(context)
                         : AppTheme.primaryColor,
-                    foregroundColor: isFav
-                        ? AppTheme.primaryColor
-                        : Colors.white,
+                    foregroundColor:
+                        isFav ? AppTheme.primaryColor : Colors.white,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(vertical: 13.h),
                     shape: RoundedRectangleBorder(
@@ -453,8 +437,6 @@ class _AboutTab extends StatelessWidget {
               );
             }),
             SizedBox(height: 20.h),
-
-            // ── Açıklama ─────────────────────────────────────────────────────
             _SectionTitle(title: 'Açıklama'),
             SizedBox(height: 8.h),
             Container(
@@ -479,14 +461,12 @@ class _AboutTab extends StatelessWidget {
                   height: 1.6,
                   fontStyle:
                       (uni.description != null && uni.description!.isNotEmpty)
-                      ? FontStyle.normal
-                      : FontStyle.italic,
+                          ? FontStyle.normal
+                          : FontStyle.italic,
                 ),
               ),
             ),
             SizedBox(height: 20.h),
-
-            // ── Genel Bilgiler ───────────────────────────────────────────────
             _SectionTitle(title: 'Genel Bilgiler'),
             SizedBox(height: 8.h),
             Container(
@@ -510,7 +490,8 @@ class _AboutTab extends StatelessWidget {
                   _InfoRow(
                     icon: Icons.calendar_today_rounded,
                     label: 'Kuruluş Yılı',
-                    value: uni.foundedYear != null ? '${uni.foundedYear}' : '—',
+                    value:
+                        uni.foundedYear != null ? '${uni.foundedYear}' : '—',
                   ),
                   _InfoRow(
                     icon: Icons.play_circle_rounded,
@@ -535,10 +516,7 @@ class _AboutTab extends StatelessWidget {
                 ],
               ),
             ),
-
             SizedBox(height: 20.h),
-
-            // ── Bağlantılar ──────────────────────────────────────────────────
             if (uni.websiteUrl != null || uni.customUrl != null) ...[
               _SectionTitle(title: 'Bağlantılar'),
               SizedBox(height: 8.h),
@@ -568,8 +546,6 @@ class _AboutTab extends StatelessWidget {
               ],
               SizedBox(height: 20.h),
             ],
-
-            // ── YouTube Kanal Bilgisi ─────────────────────────────────────────
             if (uni.channelId != null) ...[
               _SectionTitle(title: 'YouTube Kanalı'),
               SizedBox(height: 8.h),
@@ -782,7 +758,7 @@ class _LinkButton extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Videolar Sekmesi — Sadece isShorts == false olanlar
+// Videolar Sekmesi — isShorts == false
 // ════════════════════════════════════════════════════════════════════════════
 
 class _VideosTab extends StatelessWidget {
@@ -794,9 +770,8 @@ class _VideosTab extends StatelessWidget {
     return Obx(() {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
-      final videoList = controller.videoOnly; // ← sadece normal videolar
+      final videoList = controller.videoOnly;
 
-      // ── Yükleniyor ───────────────────────────────────────────────────────
       if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -805,24 +780,18 @@ class _VideosTab extends StatelessWidget {
         );
       }
 
-      // ── Hata ─────────────────────────────────────────────────────────────
       if (error.isNotEmpty) {
-        return _ErrorView(
-          error: error,
-          onRetry: controller.loadVideos,
-        );
+        return _ErrorView(error: error, onRetry: controller.loadVideos);
       }
 
-      // ── Boş ──────────────────────────────────────────────────────────────
       if (videoList.isEmpty) {
-        return _EmptyView(
+        return const _EmptyView(
           icon: Icons.videocam_off_rounded,
           title: 'Henüz video yok',
           subtitle: 'Bu üniversiteye ait video bulunamadı.',
         );
       }
 
-      // ── Video Listesi ─────────────────────────────────────────────────────
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -838,7 +807,7 @@ class _VideosTab extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Shorts Sekmesi — Sadece isShorts == true olanlar (Grid Layout)
+// Shorts Sekmesi — isShorts == true (Grid + Tıklanabilir)
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ShortsTab extends StatelessWidget {
@@ -850,9 +819,8 @@ class _ShortsTab extends StatelessWidget {
     return Obx(() {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
-      final shortsList = controller.shortsOnly; // ← sadece shorts
+      final shortsList = controller.shortsOnly;
 
-      // ── Yükleniyor ───────────────────────────────────────────────────────
       if (isLoading) {
         return GridView.builder(
           padding: EdgeInsets.all(12.w),
@@ -867,24 +835,18 @@ class _ShortsTab extends StatelessWidget {
         );
       }
 
-      // ── Hata ─────────────────────────────────────────────────────────────
       if (error.isNotEmpty) {
-        return _ErrorView(
-          error: error,
-          onRetry: controller.loadVideos,
-        );
+        return _ErrorView(error: error, onRetry: controller.loadVideos);
       }
 
-      // ── Boş ──────────────────────────────────────────────────────────────
       if (shortsList.isEmpty) {
-        return _EmptyView(
+        return const _EmptyView(
           icon: Icons.movie_filter_outlined,
           title: 'Henüz Shorts yok',
           subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
         );
       }
 
-      // ── Shorts Grid ──────────────────────────────────────────────────────
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -898,169 +860,208 @@ class _ShortsTab extends StatelessWidget {
             childAspectRatio: 0.62,
           ),
           itemCount: shortsList.length,
-          itemBuilder: (_, i) => _ShortsGridCard(video: shortsList[i]),
+          itemBuilder: (_, i) => _ShortsGridCard(
+            video: shortsList[i],
+            onTap: () => _openShortsPlayer(shortsList, i),
+          ),
         ),
       );
     });
   }
+
+  /// Tıklanan short'tan başlayarak tüm shorts listesini player'a gönder
+  void _openShortsPlayer(List<VideoModel> shorts, int initialIndex) {
+    Get.toNamed(
+      AppRoutes.simpleShortsPlayer,
+      arguments: {
+        'shorts': shorts,
+        'initialIndex': initialIndex,
+      },
+    );
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Shorts Grid Kartı
+// Shorts Grid Kartı — Tıklanabilir
 // ════════════════════════════════════════════════════════════════════════════
 
 class _ShortsGridCard extends StatelessWidget {
   final VideoModel video;
-  const _ShortsGridCard({required this.video});
+  final VoidCallback onTap;
+
+  const _ShortsGridCard({
+    required this.video,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: AppTheme.isDark(context)
-              ? Colors.white.withValues(alpha: 0.06)
-              : Colors.black.withValues(alpha: 0.06),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: AppTheme.isDark(context)
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Thumbnail ─────────────────────────────────────────────────────
-          Expanded(
-            flex: 5,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: video.bestThumbnail,
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    color: AppTheme.isDark(context)
-                        ? const Color(0xFF2A2A2A)
-                        : const Color(0xFFE8E8E8),
-                  ),
-                  errorWidget: (_, __, ___) => Container(
-                    color: AppTheme.isDark(context)
-                        ? const Color(0xFF2A2A2A)
-                        : const Color(0xFFE8E8E8),
-                    child: Icon(
-                      Icons.play_circle_outline_rounded,
-                      color: AppTheme.textSec(context),
-                      size: 32.sp,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Thumbnail ─────────────────────────────────────────────────
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: video.bestThumbnail,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                      color: AppTheme.isDark(context)
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFE8E8E8),
+                    ),
+                    errorWidget: (_, __, ___) => Container(
+                      color: AppTheme.isDark(context)
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFE8E8E8),
+                      child: Icon(
+                        Icons.play_circle_outline_rounded,
+                        color: AppTheme.textSec(context),
+                        size: 32.sp,
+                      ),
                     ),
                   ),
-                ),
 
-                // ── Shorts Rozeti ────────────────────────────────────────────
-                Positioned(
-                  top: 6.w,
-                  left: 6.w,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.w,
-                      vertical: 2.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF0000),
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.play_circle_fill_rounded,
-                          size: 10.sp,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 2.w),
-                        Text(
-                          'SHORTS',
-                          style: TextStyle(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Süre ─────────────────────────────────────────────────────
-                if (video.formattedDuration.isNotEmpty)
+                  // ── Shorts Rozeti ──────────────────────────────────────
                   Positioned(
-                    bottom: 6.w,
-                    right: 6.w,
+                    top: 6.w,
+                    left: 6.w,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 5.w,
+                        horizontal: 6.w,
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.75),
+                        color: const Color(0xFFFF0000),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
-                      child: Text(
-                        video.formattedDuration,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.play_circle_fill_rounded,
+                            size: 10.sp,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 2.w),
+                          Text(
+                            'SHORTS',
+                            style: TextStyle(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
 
-          // ── Bilgi Alanı ──────────────────────────────────────────────────
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPri(context),
-                      height: 1.25,
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.visibility_rounded,
-                        size: 11.sp,
-                        color: AppTheme.textSec(context),
-                      ),
-                      SizedBox(width: 3.w),
-                      Text(
-                        video.formattedViewCount,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: AppTheme.textSec(context),
+                  // ── Süre ───────────────────────────────────────────────
+                  if (video.formattedDuration.isNotEmpty)
+                    Positioned(
+                      bottom: 6.w,
+                      right: 6.w,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.75),
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                        child: Text(
+                          video.formattedDuration,
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ],
+                    ),
+
+                  // ── Oynat ikonu (hover/press hissi) ────────────────────
+                  Center(
+                    child: Container(
+                      width: 36.w,
+                      height: 36.w,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 22.sp,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // ── Bilgi Alanı ──────────────────────────────────────────────
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPri(context),
+                        height: 1.25,
+                      ),
+                    ),
+                    SizedBox(height: 3.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.visibility_rounded,
+                          size: 11.sp,
+                          color: AppTheme.textSec(context),
+                        ),
+                        SizedBox(width: 3.w),
+                        Text(
+                          video.formattedViewCount,
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1174,10 +1175,6 @@ class _EmptyView extends StatelessWidget {
     );
   }
 }
-
-// ════════════════════════════════════════════════════════════════════════════
-// Shimmer Yükleniyor Widget'ları
-// ════════════════════════════════════════════════════════════════════════════
 
 class _VideoShimmer extends StatelessWidget {
   @override
