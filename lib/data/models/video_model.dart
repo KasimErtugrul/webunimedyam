@@ -174,4 +174,9 @@ class VideoModel {
 
   String get bestThumbnail =>
       maxresThumbnailUrl.isNotEmpty ? maxresThumbnailUrl : thumbnailUrl;
+
+  @override
+  String toString() {
+    return 'VideoModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, viewCount=$viewCount, likeCount=$likeCount, commentCount=$commentCount, tags=$tags, isHd=$isHd, isShorts=$isShorts, channelTitle=$channelTitle, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount}';
+  }
 }

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
-/// Tıklanabilir aksiyon butonu — ikon + sayı
+/// Tıklanabilir aksiyon butonu — ikon + sayı (MD3 Tinted ve Animasyonlu)
 class EngagementActionWidget extends StatelessWidget {
   final IconData icon;
   final int count;
@@ -29,30 +29,53 @@ class EngagementActionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Aktifse ana renk, değilse ikincil metin rengi
     final color = active
         ? Theme.of(context).colorScheme.primary
         : AppTheme.textSec(context);
+
+    // Aktifse hafif primary renkli arka plan, değilse tam şeffaf
+    final bgColor = active
+        ? Theme.of(context).colorScheme.primary.withOpacity(0.12)
+        : Colors.transparent;
+
     return InkWell(
       onTap: loading ? null : onTap,
-      borderRadius: BorderRadius.circular(8.r),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+      borderRadius: BorderRadius.circular(20.r),
+      splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (loading)
               SizedBox(
-                width: 18.w,
-                height: 18.h,
+                width: 20.sp, // İkon boyutuyla aynı
+                height: 20.sp,
                 child: CircularProgressIndicator(
-                  strokeWidth: 1.8.w,
+                  strokeWidth: 2.0.w,
                   color: color,
                 ),
               )
             else
-              Icon(icon, color: color, size: 20.sp),
+              AnimatedScale(
+                scale: active
+                    ? 1.15
+                    : 1.0, // Aktif olunca hafif büyüme (Pop efekti)
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutBack, // Hafif sıçramalı animasyon
+                child: Icon(icon, color: color, size: 20.sp),
+              ),
+
             if (_fmt(count).isNotEmpty) ...[
-              SizedBox(width: 5.w),
+              SizedBox(width: 6.w),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, anim) =>
@@ -63,7 +86,8 @@ class EngagementActionWidget extends StatelessWidget {
                   style: TextStyle(
                     color: color,
                     fontSize: 13.sp,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                    height: 1.0, // Dikey hizalamayı sabit tutar
                   ),
                 ),
               ),

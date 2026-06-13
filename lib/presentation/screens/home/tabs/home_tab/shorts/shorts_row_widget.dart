@@ -37,7 +37,7 @@ class ShortsRowWidget extends StatelessWidget {
         children: [
           // ── Yatay Kaydırma Listesi ───────────────────────────────────
           SizedBox(
-            height: 100.h,
+            height: 110.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -54,7 +54,7 @@ class ShortsRowWidget extends StatelessWidget {
 
           // SizedBox(height: 8.h),
 
-          // ── Ayraç ────────────────────────────────────────────────────
+          /*  // ── Ayraç ────────────────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Divider(
@@ -62,7 +62,7 @@ class ShortsRowWidget extends StatelessWidget {
               thickness: 1,
               height: 1,
             ),
-          ),
+          ), */
 
           //SizedBox(height: 4.h),
         ],

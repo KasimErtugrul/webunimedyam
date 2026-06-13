@@ -62,6 +62,7 @@ class PlayerController extends GetxController {
   void onInit() {
     super.onInit();
     currentVideo.value = Get.arguments as VideoModel?;
+    log('PlayerController initialized with video: ${currentVideo.value}');
     if (currentVideo.value != null) {
       _initPlayer().then((_) {
         isPlayerReady.value = true;
@@ -150,19 +151,19 @@ class PlayerController extends GetxController {
   }
 
   // ─── Önerilen Videolar ───────────────────────────────────────────────────
-Future<void> loadSuggestedVideos() async {
-  if (currentVideo.value == null) return;
-  try {
-    isSuggestedLoading.value = true;
-    suggestedVideos.value = await videoRepository.getSuggestedVideos(
-      currentVideo.value!.videoId,
-    );
-  } catch (e) {
-    log('[PlayerController] loadSuggestedVideos error: $e');
-  } finally {
-    isSuggestedLoading.value = false;
+  Future<void> loadSuggestedVideos() async {
+    if (currentVideo.value == null) return;
+    try {
+      isSuggestedLoading.value = true;
+      suggestedVideos.value = await videoRepository.getSuggestedVideos(
+        currentVideo.value!.videoId,
+      );
+    } catch (e) {
+      log('[PlayerController] loadSuggestedVideos error: $e');
+    } finally {
+      isSuggestedLoading.value = false;
+    }
   }
-}
 
   // ─── Beğeni ──────────────────────────────────────────────────────────────
 

@@ -710,6 +710,7 @@ class SupabaseDataSource {
     return universities;
   }
 
+
   Future<void> addUniversityFavorite(String userId, int universityId) async {
     await _client.from('university_favorites').insert({
       'user_id': userId,

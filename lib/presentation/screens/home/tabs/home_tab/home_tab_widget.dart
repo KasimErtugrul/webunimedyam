@@ -28,7 +28,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
   // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
   // SliverAppBar'ın expandedHeight'ı bu değere göre hesaplanır.
-  double get _shortsAreaHeight => 4.h + 100.h + 1;
+  double get _shortsAreaHeight => 10.h + 100.h + 1;
 
   @override
   void initState() {
@@ -121,17 +121,12 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 flexibleSpace: FlexibleSpaceBar(
                   background: Padding(
                     padding: EdgeInsets.only(top: kToolbarHeight),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 4.h),
-                        const ShortsRowWidget(),
-                      ],
-                    ),
+                    child: const ShortsRowWidget(),
                   ),
                 ),
               ),
 
-              // ── Ayraç ─────────────────────────────────────────────────
+              /* // ── Ayraç ─────────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Container(
                   height: 8.h,
@@ -139,7 +134,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     color: AppTheme.surface(context).withValues(alpha: 0.35),
                   ),
                 ),
-              ),
+              ), */
 
               // ── İçerik Alanı ───────────────────────────────────────
               Obx(() => _buildContentSliver(context)),

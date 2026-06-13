@@ -1,11 +1,11 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_bar_widget.dart
-// DEĞİŞİKLİK: İzlenme sayısı (StatBadgeWidget) artık tıklanabilir → VideoViewersScreen
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
+import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/player_controller.dart';
 import 'engagement_action_widget.dart';
 import 'stat_badge_widget.dart';
@@ -17,10 +17,11 @@ class EngagementBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Beğen
+          // ─── Etkileşim Butonları ─────────────────────────────────
           Obx(
             () => EngagementActionWidget(
               icon: controller.isLiked.value
@@ -33,9 +34,8 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 4.w),
+          SizedBox(width: 6.w),
 
-          // Paylaş
           Obx(
             () => EngagementActionWidget(
               icon: Icons.share_outlined,
@@ -46,9 +46,8 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 4.w),
+          SizedBox(width: 6.w),
 
-          // Favori
           Obx(
             () => EngagementActionWidget(
               icon: controller.isFavorite.value
@@ -61,30 +60,48 @@ class EngagementBarWidget extends StatelessWidget {
             ),
           ),
 
+          // ─── Ayırıcı ────────────────────────────────────────────
           const Spacer(),
 
-          // İzlenme — tıklanabilir
+          // Sol taraf eylem, sağ taraf bilgi olduğunu ayırıcı ile vurgula
+          Container(
+            width: 1.w,
+            height: 16.h,
+            margin: EdgeInsets.symmetric(horizontal: 8.w),
+            color: AppTheme.textSec(context).withOpacity(0.15),
+          ),
+
+          // ─── Bilgi Rozetleri ─────────────────────────────────────
+
+          // İzlenme — tıklanabilir (InkWell ile ripple efekti)
           Obx(
-            () => GestureDetector(
-              onTap: controller.isInitialStatsLoading.value
-                  ? null
-                  : () => Get.toNamed(
+            () => Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: controller.isInitialStatsLoading.value
+                    ? null
+                    : () => Get.toNamed(
                         AppRoutes.videoViewers,
                         arguments: {
-                          'videoId': controller.currentVideo.value?.videoId ?? '',
+                          'videoId':
+                              controller.currentVideo.value?.videoId ?? '',
                           'totalViewCount': controller.appViewCount.value,
                         },
                       ),
-              child: StatBadgeWidget(
-                icon: Icons.visibility_outlined,
-                count: controller.appViewCount.value,
-                loading: controller.isInitialStatsLoading.value,
-                tappable: true,
+                borderRadius: BorderRadius.circular(
+                  16.r,
+                ), // StatBadge şekline uygun ripple
+                child: StatBadgeWidget(
+                  icon: Icons.visibility_outlined,
+                  count: controller.appViewCount.value,
+                  loading: controller.isInitialStatsLoading.value,
+                  tappable: true,
+                ),
               ),
             ),
           ),
 
-          SizedBox(width: 10.w),
+          SizedBox(width: 8.w),
 
           // Yorum sayısı (tıklanamaz)
           Obx(
@@ -94,6 +111,8 @@ class EngagementBarWidget extends StatelessWidget {
               loading: controller.isInitialStatsLoading.value,
             ),
           ),
+
+          SizedBox(width: 4.w), // Sağ kenar için nefes alanı
         ],
       ),
     );
