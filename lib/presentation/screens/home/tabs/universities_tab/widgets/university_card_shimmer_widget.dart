@@ -1,6 +1,7 @@
-// ── Shimmer kartı ────────────────────────────────────────────────────────────
+// lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/university_card_shimmer_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -10,51 +11,101 @@ class UniversityCardShimmerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.surface(context),
-      highlightColor: AppTheme.card(context),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10.h),
+      child: Shimmer.fromColors(
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
         child: Container(
-          height: 88,
-          decoration: BoxDecoration(
-            color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 12.h),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Logo placeholder (daire)
               Container(
-                width: 60,
-                height: 60,
+                width: 62.w,
+                height: 62.w,
                 decoration: BoxDecoration(
-                  color: AppTheme.surface(context),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppTheme.card(context),
+                  shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 14),
+
+              SizedBox(width: 14.w),
+
+              // Metin placeholder'ları
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 14, color: AppTheme.surface(context)),
-                    const SizedBox(height: 8),
+                    // İsim
                     Container(
-                      height: 11,
-                      width: 90,
-                      color: AppTheme.surface(context),
+                      height: 14.h,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppTheme.card(context),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    // Şehir + yıl
+                    Container(
+                      height: 10.h,
+                      width: 120.w,
+                      decoration: BoxDecoration(
+                        color: AppTheme.card(context),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    // Stat chip'ler
+                    Row(
+                      children: [
+                        Container(
+                          height: 18.h,
+                          width: 55.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.card(context),
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        Container(
+                          height: 18.h,
+                          width: 55.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.card(context),
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        Container(
+                          height: 18.h,
+                          width: 45.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.card(context),
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+
+              SizedBox(width: 8.w),
+
+              // Ok placeholder
               Container(
-                width: 44,
-                height: 44,
+                width: 32.w,
+                height: 32.w,
                 decoration: BoxDecoration(
-                  color: AppTheme.surface(context),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppTheme.card(context),
+                  shape: BoxShape.circle,
                 ),
               ),
             ],
