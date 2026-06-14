@@ -18,6 +18,7 @@ import '../../presentation/controllers/follow_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
 import '../../presentation/controllers/university_sort_controller.dart'; // YENİ
+import '../../data/repositories/university_favorites_repository.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -34,6 +35,13 @@ class HomeBinding extends Bindings {
     if (!Get.isRegistered<AuthRepository>()) {
       Get.lazyPut(
         () => AuthRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
+
+    if (!Get.isRegistered<UniversityFavoritesRepository>()) {
+      Get.lazyPut(
+        () => UniversityFavoritesRepository(supabase: Get.find()),
         fenix: true,
       );
     }
@@ -82,6 +90,7 @@ class HomeBinding extends Bindings {
         universityStatsRepository: Get.find(),
         authRepository: Get.find(),
         engagementRepository: Get.find(),
+        universityFavoritesRepository: Get.find(), // ← ekle
       ),
       fenix: true,
     );

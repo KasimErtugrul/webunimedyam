@@ -135,19 +135,38 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           ),
 
           // TAKİP ET BUTONU
-          TextButton(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              foregroundColor: Theme.of(context).colorScheme.primary,
-            ),
-            child: Text(
-              'Takip Et',
-              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
-            ),
-          ),
+          Obx(() {
+            final isFav = controller.favoriteUniversityIds.contains(
+              video.universityId,
+            );
+            return TextButton(
+              onPressed: () {
+                final uni = controller.universities.firstWhereOrNull(
+                  (u) => u.id == video.universityId,
+                );
+                if (uni != null) controller.toggleUniversityFavorite(uni);
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                foregroundColor: Theme.of(context).colorScheme.primary,
+              ),
+              child: isFav
+                  ? Icon(
+                      Icons.check_rounded,
+                      size: 18.sp,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : Text(
+                      'Takip Et',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            );
+          }),
 
           // ÜÇ NOKTA MENÜ
           GestureDetector(
