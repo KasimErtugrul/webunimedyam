@@ -1,4 +1,4 @@
-// lib/presentation/screens/home/widgets/tabs/home_tab/widgets/video_card_widget.dart
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +35,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
-    final isLive = video.formattedDuration.isEmpty;
+    final isLive = video.isLiveBroadcast;
+    final isUpcoming = video.isUpcoming;
+    log('video card widget videomodel $video');
 
     timeago.setLocaleMessages('tr', timeago.TrMessages());
 
@@ -47,7 +49,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, controller),
-            _buildThumbnail(context, isLive),
+            _buildThumbnail(context, isLive, isUpcoming),
             _buildActionRow(context, controller),
             _buildContent(context),
             Padding(
@@ -222,13 +224,29 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   // ═══════════════════════════════════════════════════════════════════════════
   // THUMBNAIL
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildThumbnail(BuildContext context, bool isLive) {
+  Widget _buildThumbnail(BuildContext context, bool isLive, bool isUpcoming) {
     return GestureDetector(
-      onTap: () => Get.toNamed(
-        AppRoutes.player,
-        arguments: video,
-        parameters: {'videoId': video.videoId},
-      ),
+      onTap: isUpcoming
+          ? () => showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Yakında Yayında'),
+                content: const Text(
+                  'Bu yayın henüz başlamadı. Başladığında buradan izleyebilirsiniz.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Tamam'),
+                  ),
+                ],
+              ),
+            )
+          : () => Get.toNamed(
+              AppRoutes.player,
+              arguments: video,
+              parameters: {'videoId': video.videoId},
+            ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w),
         child: ClipRRect(
@@ -263,32 +281,13 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   Positioned(
                     top: 10.h,
                     left: 10.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE53935),
-                        borderRadius: BorderRadius.circular(5.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.circle, color: Colors.white, size: 7.sp),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'CANLI',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: _liveBadge('CANLI', const Color(0xFFE53935)),
+                  ),
+                if (isUpcoming)
+                  Positioned(
+                    top: 10.h,
+                    left: 10.w,
+                    child: _liveBadge('YAKINDA', const Color(0xFF5C6BC0)),
                   ),
                 if (!isLive)
                   Positioned(
@@ -371,7 +370,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
           // ── Yorum ──
           Obx(() {
-            final hasCommented = controller.commentedVideoIds.contains(video.videoId);
+            final hasCommented = controller.commentedVideoIds.contains(
+              video.videoId,
+            );
             return _igActionBtn(
               context: context,
               icon: hasCommented
@@ -392,7 +393,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
           // ── Paylaş ──
           Obx(() {
-            final isLoading = controller.shareLoadingVideoIds.contains(video.videoId);
+            final isLoading = controller.shareLoadingVideoIds.contains(
+              video.videoId,
+            );
             final hasShared = controller.sharedVideoIds.contains(video.videoId);
             if (isLoading) {
               return Padding(
@@ -535,5 +538,31 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
     if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)}B';
     return count.toString();
+  }
+
+  Widget _liveBadge(String label, Color color) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(5.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.circle, color: Colors.white, size: 7.sp),
+          SizedBox(width: 4.w),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,5 +1,3 @@
-// lib/data/models/video_model.dart
-
 class VideoModel {
   final String videoId;
   final String title;
@@ -17,6 +15,7 @@ class VideoModel {
   final DateTime publishedAt;
   final int? universityId;
   final String? universityName;
+  final String liveBroadcastContent;
 
   // Uygulama istatistikleri (video_engagement_stats view'inden)
   final int appViewCount;
@@ -40,6 +39,7 @@ class VideoModel {
     this.isShorts = false,
     this.channelTitle = 'ÇOMÜ TV',
     required this.publishedAt,
+    this.liveBroadcastContent = '',
     this.universityId,
     this.universityName,
     this.appViewCount = 0,
@@ -73,6 +73,7 @@ class VideoModel {
     int? appFavoriteCount,
     int? appShareCount,
     int? appCommentCount,
+    String? liveBroadcastContent,
   }) {
     return VideoModel(
       videoId: videoId ?? this.videoId,
@@ -96,6 +97,7 @@ class VideoModel {
       appFavoriteCount: appFavoriteCount ?? this.appFavoriteCount,
       appShareCount: appShareCount ?? this.appShareCount,
       appCommentCount: appCommentCount ?? this.appCommentCount,
+      liveBroadcastContent: liveBroadcastContent ?? this.liveBroadcastContent,
     );
   }
 
@@ -128,34 +130,35 @@ class VideoModel {
       appFavoriteCount: (json['app_favorite_count'] as num?)?.toInt() ?? 0,
       appShareCount: (json['app_share_count'] as num?)?.toInt() ?? 0,
       appCommentCount: (json['app_comment_count'] as num?)?.toInt() ?? 0,
+      liveBroadcastContent: json['live_broadcast_content'] ?? '',
     );
   }
 
   Map<String, dynamic> toSupabase() {
     return {
-       'video_id': videoId,
-    'title': title,
-    'description': description,
-    'thumbnail_url': thumbnailUrl,
-    'maxres_thumbnail_url': maxresThumbnailUrl,
-    'duration': duration,
-    'view_count': viewCount,
-    'like_count': likeCount,
-    'comment_count': commentCount,
-    'tags': tags,
-    'is_hd': isHd,
-    'is_shorts': isShorts,
-    'channel_title': channelTitle,
-    'published_at': publishedAt.toIso8601String(),
-    'cached_at': DateTime.now().toIso8601String(),
-    if (universityId != null) 'university_id': universityId,
-    if (universityName != null) 'university_name': universityName,
-    // ── Bunları ekle ──
-    'app_view_count': appViewCount,
-    'app_like_count': appLikeCount,
-    'app_favorite_count': appFavoriteCount,
-    'app_share_count': appShareCount,
-    'app_comment_count': appCommentCount,
+      'video_id': videoId,
+      'title': title,
+      'description': description,
+      'thumbnail_url': thumbnailUrl,
+      'maxres_thumbnail_url': maxresThumbnailUrl,
+      'duration': duration,
+      'view_count': viewCount,
+      'like_count': likeCount,
+      'comment_count': commentCount,
+      'tags': tags,
+      'is_hd': isHd,
+      'is_shorts': isShorts,
+      'channel_title': channelTitle,
+      'published_at': publishedAt.toIso8601String(),
+      'cached_at': DateTime.now().toIso8601String(),
+      'live_broadcast_content': liveBroadcastContent, // ← BU SATIRI EKLE
+      if (universityId != null) 'university_id': universityId,
+      if (universityName != null) 'university_name': universityName,
+      'app_view_count': appViewCount,
+      'app_like_count': appLikeCount,
+      'app_favorite_count': appFavoriteCount,
+      'app_share_count': appShareCount,
+      'app_comment_count': appCommentCount,
     };
   }
 
@@ -175,6 +178,9 @@ class VideoModel {
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
+  bool get isLiveBroadcast => liveBroadcastContent == 'live';
+  bool get isUpcoming => liveBroadcastContent == 'upcoming';
+
   String get formattedViewCount {
     if (viewCount >= 1000000) {
       return '${(viewCount / 1000000).toStringAsFixed(1)}M görüntülenme';
@@ -189,6 +195,6 @@ class VideoModel {
 
   @override
   String toString() {
-    return 'VideoModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, viewCount=$viewCount, likeCount=$likeCount, commentCount=$commentCount, tags=$tags, isHd=$isHd, isShorts=$isShorts, channelTitle=$channelTitle, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount}';
+    return 'VideoModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, viewCount=$viewCount, likeCount=$likeCount, commentCount=$commentCount, tags=$tags, isHd=$isHd, isShorts=$isShorts, channelTitle=$channelTitle, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount, liveBroadcastContent=$liveBroadcastContent}';
   }
 }

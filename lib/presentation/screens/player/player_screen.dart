@@ -17,15 +17,7 @@ import 'player_screen_widgets/youtube_meta_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
 import 'player_screen_widgets/suggested_videos_section_widget.dart';
 
-/// Bu ekran, video oynatıcısını ve ilgili bilgileri gösterir. YouTube API'si ile etkileşim kurar,
-/// yorumları yönetir ve kullanıcı etkileşimlerini işler.
-/// VideoModel'den gelen verileri kullanarak video bilgilerini, istatistikleri ve yorumları gösterir.
-/// Ayrıca, video oynatıcısı için özel bir mini mod ve geri butonu içeren bir overlay kullanır.
-/// VideoModel'den gelen verilerle video başlığı, açıklaması, etiketler ve üniversite bilgisi gibi detayları gösterir.
-/// VideoModel'den gelen verilerle video süresi, görüntülenme sayısı gibi istatistikleri gösterir.
-/// VideoModel'den gelen verilerle video küçük resmi ve kanal adı gibi bilgileri gösterir.
-/// VideoModel'den gelen verilerle video yayınlanma tarihini gösterir.
-/// VideoModel'den gelen verilerle video üniversite bilgilerini gösterir (varsa).
+
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
 
