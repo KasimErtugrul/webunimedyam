@@ -19,9 +19,9 @@ class SettingsController extends GetxService {
     required SupabaseDataSource supabase,
   }) : _supabase = supabase;
 
-  final settings        = Rxn<UserSettingsModel>();
-  final isLoading       = false.obs;
-  final errorMessage    = RxnString();
+  final settings = Rxn<UserSettingsModel>();
+  final isLoading = false.obs;
+  final errorMessage = RxnString();
   final profileVisibility = VisibilityOption.public.obs;
 
   Timer? _settingsDebounce;
@@ -54,15 +54,28 @@ class SettingsController extends GetxService {
   Future<void> loadSettings() async {
     try {
       isLoading.value = true;
-      settings.value  = await authRepository.getUserSettings();
-      log('settings controller profile tetiklendi');
-      final p = await authRepository.getProfile();
-      if (p != null) profileVisibility.value = p.profileVisibility;
+      settings.value = await authRepository.getUserSettings();
+      // profil çekme — ProfileController'dan gelecek
+      _syncProfileVisibilityFromController();
     } catch (e) {
       log('loadSettings error: $e');
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void _syncProfileVisibilityFromController() {
+    // ProfileController şu an kayıtlıysa direkt al
+    if (Get.isRegistered<ProfileController>()) {
+      final p = Get.find<ProfileController>().profile.value;
+      if (p != null) {
+        profileVisibility.value = p.profileVisibility;
+        return;
+      }
+    }
+    // Kayıtlı değilse — profil sayfası açıldığında ProfileController
+    // changeProfileVisibility() üzerinden zaten senkronize ediyor (mevcut kod var)
+    // Ekstra bir şey yapmaya gerek yok
   }
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
@@ -74,7 +87,9 @@ class SettingsController extends GetxService {
     await authRepository.saveThemeLocally(theme);
     final mode = theme == 'dark'
         ? ThemeMode.dark
-        : theme == 'light' ? ThemeMode.light : ThemeMode.system;
+        : theme == 'light'
+        ? ThemeMode.light
+        : ThemeMode.system;
     Get.changeThemeMode(mode);
   }
 
@@ -103,7 +118,9 @@ class SettingsController extends GetxService {
   Future<void> toggleNotifications() async {
     final c = settings.value;
     if (c == null) return;
-    await _updateSettings(c.copyWith(notificationsEnabled: !c.notificationsEnabled));
+    await _updateSettings(
+      c.copyWith(notificationsEnabled: !c.notificationsEnabled),
+    );
   }
 
   Future<void> toggleNotifyNewVideos() async {
@@ -115,13 +132,17 @@ class SettingsController extends GetxService {
   Future<void> toggleNotifyCommentReplies() async {
     final c = settings.value;
     if (c == null) return;
-    await _updateSettings(c.copyWith(notifyCommentReplies: !c.notifyCommentReplies));
+    await _updateSettings(
+      c.copyWith(notifyCommentReplies: !c.notifyCommentReplies),
+    );
   }
 
   Future<void> toggleNotifyFollowRequests() async {
     final c = settings.value;
     if (c == null) return;
-    await _updateSettings(c.copyWith(notifyFollowRequests: !c.notifyFollowRequests));
+    await _updateSettings(
+      c.copyWith(notifyFollowRequests: !c.notifyFollowRequests),
+    );
   }
 
   // ─── Gizlilik — Eski (geriye uyumluluk) ───────────────────────────────────
@@ -135,7 +156,9 @@ class SettingsController extends GetxService {
   Future<void> toggleFavoritesPublic() async {
     final c = settings.value;
     if (c == null) return;
-    await _updateSettings(c.copyWith(showFavoritesPublic: !c.showFavoritesPublic));
+    await _updateSettings(
+      c.copyWith(showFavoritesPublic: !c.showFavoritesPublic),
+    );
   }
 
   // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
@@ -144,7 +167,7 @@ class SettingsController extends GetxService {
   /// Tavan düştüğünde tavanı aşan aktiviteler otomatik indirilir.
   /// Tavan yükseldiğinde aktivitelere dokunulmaz (kullanıcı kendi seçer).
   Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
-    final userId  = _supabase.currentUser?.id;
+    final userId = _supabase.currentUser?.id;
     final current = settings.value;
     if (userId == null || current == null) return;
 
@@ -166,10 +189,11 @@ class SettingsController extends GetxService {
       // 3) ProfileController varsa senkronize et
       if (Get.isRegistered<ProfileController>()) {
         final profileCtrl = Get.find<ProfileController>();
-        final existing    = profileCtrl.profile.value;
+        final existing = profileCtrl.profile.value;
         if (existing != null) {
-          profileCtrl.profile.value =
-              existing.copyWith(profileVisibility: newVisibility);
+          profileCtrl.profile.value = existing.copyWith(
+            profileVisibility: newVisibility,
+          );
         }
       }
     } catch (e) {
@@ -188,17 +212,17 @@ class SettingsController extends GetxService {
     final c = _clamp(current.commentsVisibility);
 
     if (w == current.watchHistoryVisibility &&
-        l == current.likesVisibility        &&
-        f == current.favoritesVisibility    &&
+        l == current.likesVisibility &&
+        f == current.favoritesVisibility &&
         c == current.commentsVisibility) {
       return null;
     }
 
     return current.copyWith(
       watchHistoryVisibility: w,
-      likesVisibility:        l,
-      favoritesVisibility:    f,
-      commentsVisibility:     c,
+      likesVisibility: l,
+      favoritesVisibility: f,
+      commentsVisibility: c,
     );
   }
 

@@ -67,6 +67,28 @@ class EngagementRepository {
     }
   }
 
+  Future<Set<String>> getLikedVideoIds(String userId) async {
+    return await _supabase.getLikedVideoIds(userId);
+  }
+
+  Future<Set<String>> getSharedVideoIds(String userId) async {
+    try {
+      return await _supabase.getSharedVideoIds(userId);
+    } catch (e) {
+      log("🔗❌ [Engagement] Paylaşılan ID'ler yüklenemedi: $e");
+      return {};
+    }
+  }
+
+  Future<Set<String>> getCommentedVideoIds(String userId) async {
+    try {
+      return await _supabase.getCommentedVideoIds(userId);
+    } catch (e) {
+      log("💬❌ [Engagement] Yorumlanan ID'ler yüklenemedi: $e");
+      return {};
+    }
+  }
+
   Future<void> recordShare(String userId, String videoId) async {
     try {
       await _supabase.recordShare(userId, videoId);

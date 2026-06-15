@@ -38,6 +38,8 @@ class HomeController extends GetxController {
   final videos = <VideoModel>[].obs;
   final playlists = <PlaylistModel>[].obs;
   final favoriteIds = <String>[].obs;
+  final _sharedIds = <String>[].obs;
+  final _commentedIds = <String>[].obs;
   final favoriteUniversityIds = <int>{}.obs;
   final universities = <UniversityModel>[].obs;
 
@@ -79,9 +81,9 @@ class HomeController extends GetxController {
   final _likeProcessing = <String>{};
   final _shareProcessing = <String>{};
 
-  final _likedIds = <String>{}.obs;
-  final _likeLoadingIds = <String>{}.obs;
-  final _shareLoadingIds = <String>{}.obs;
+  final _likedIds = <String>[].obs;
+  final _likeLoadingIds = <String>[].obs;
+  final _shareLoadingIds = <String>[].obs;
 
   // ─── Yardımcılar ─────────────────────────────────────────────────────────
 
@@ -90,6 +92,15 @@ class HomeController extends GetxController {
 
   late final StreamSubscription<FavoriteChange> _favoriteSubscription;
   late final StreamSubscription<UniversityFavoriteChange> _uniFavSubscription;
+
+  int get likedIdsCount => _likedIds.length;
+
+  // Obx'nin RxList'i dogrudan izleyebilmesi icin public getter'lar
+  RxList<String> get likedVideoIds => _likedIds;
+  RxList<String> get likeLoadingVideoIds => _likeLoadingIds;
+  RxList<String> get shareLoadingVideoIds => _shareLoadingIds;
+  RxList<String> get sharedVideoIds => _sharedIds;
+  RxList<String> get commentedVideoIds => _commentedIds;
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -115,6 +126,9 @@ class HomeController extends GetxController {
     loadUniversitiesAndPlaylists();
     loadVideos();
     loadFavorites();
+    loadLikedVideoIds();
+    loadSharedVideoIds();
+    loadCommentedVideoIds();
     loadUniversityStats();
     loadVideoSections();
   }
@@ -197,6 +211,46 @@ class HomeController extends GetxController {
     } finally {
       isUniversitiesLoading.value = false;
       isPlaylistsLoading.value = false;
+    }
+  }
+
+ Future<void> loadLikedVideoIds() async {
+  final userId = _currentUserId;
+  if (userId == null) return;
+  try {
+    final ids = await engagementRepository.getLikedVideoIds(userId);
+   log('home controller ids: $ids');
+    _likedIds.assignAll(ids); // assignAll hem clear hem addAll yapar ve Obx'i tetikler
+    for (final id in ids) {
+      _likeCache[id] = true;
+    }
+    log('❤️ [Home] ${ids.length} beğenilen video yüklendi');
+  } catch (e) {
+    log('loadLikedVideoIds error: $e');
+  }
+}
+
+  Future<void> loadSharedVideoIds() async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    try {
+      final ids = await engagementRepository.getSharedVideoIds(userId);
+      _sharedIds.assignAll(ids);
+      log('🔗 [Home] ${ids.length} paylaşılan video yüklendi');
+    } catch (e) {
+      log('loadSharedVideoIds error: $e');
+    }
+  }
+
+  Future<void> loadCommentedVideoIds() async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    try {
+      final ids = await engagementRepository.getCommentedVideoIds(userId);
+      _commentedIds.assignAll(ids);
+      log('💬 [Home] ${ids.length} yorumlanan video yüklendi');
+    } catch (e) {
+      log('loadCommentedVideoIds error: $e');
     }
   }
 
@@ -392,6 +446,7 @@ class HomeController extends GetxController {
       final userId = _currentUserId;
       if (userId != null) {
         await engagementRepository.recordShare(userId, video.videoId);
+        if (!_sharedIds.contains(video.videoId)) _sharedIds.add(video.videoId);
       }
     } catch (e) {
       log('[HomeController] shareVideo fallback to clipboard: $e');

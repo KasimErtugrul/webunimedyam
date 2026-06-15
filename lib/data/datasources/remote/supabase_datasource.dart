@@ -390,9 +390,40 @@ class SupabaseDataSource {
     final data = await _client
         .from('likes')
         .select('video_id')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .not('video_id', 'is', null); // DB seviyesinde null satırları ele
+    log(
+      'SupabaseDataSource getLikedVideoIds: userId: $userId, count: ${(data as List).length}',
+    );
+
     return (data as List<dynamic>)
-        .map((row) => row['video_id'] as String)
+        .map((row) => row['video_id'] as String?)
+        .whereType<String>() // Dart seviyesinde ikinci güvenlik katmanı
+        .toSet();
+  }
+
+  Future<Set<String>> getSharedVideoIds(String userId) async {
+    final data = await _client
+        .from('shared')
+        .select('video_id')
+        .eq('user_id', userId)
+        .not('video_id', 'is', null);
+    return (data as List<dynamic>)
+        .map((row) => row['video_id'] as String?)
+        .whereType<String>()
+        .toSet();
+  }
+
+  Future<Set<String>> getCommentedVideoIds(String userId) async {
+    final data = await _client
+        .from('comments')
+        .select('video_id')
+        .eq('user_id', userId)
+        .not('video_id', 'is', null);
+    // Bir kullanıcının aynı videoya birden fazla yorumu olabilir, distinct al
+    return (data as List<dynamic>)
+        .map((row) => row['video_id'] as String?)
+        .whereType<String>()
         .toSet();
   }
 

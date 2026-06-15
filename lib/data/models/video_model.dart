@@ -122,28 +122,40 @@ class VideoModel {
           DateTime.tryParse(json['published_at'] ?? '') ?? DateTime.now(),
       universityId: json['university_id'] as int?,
       universityName: json['university_name'] as String?,
+      // ── Bunları ekle ──
+      appViewCount: (json['app_view_count'] as num?)?.toInt() ?? 0,
+      appLikeCount: (json['app_like_count'] as num?)?.toInt() ?? 0,
+      appFavoriteCount: (json['app_favorite_count'] as num?)?.toInt() ?? 0,
+      appShareCount: (json['app_share_count'] as num?)?.toInt() ?? 0,
+      appCommentCount: (json['app_comment_count'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toSupabase() {
     return {
-      'video_id': videoId,
-      'title': title,
-      'description': description,
-      'thumbnail_url': thumbnailUrl,
-      'maxres_thumbnail_url': maxresThumbnailUrl,
-      'duration': duration,
-      'view_count': viewCount,
-      'like_count': likeCount,
-      'comment_count': commentCount,
-      'tags': tags,
-      'is_hd': isHd,
-      'is_shorts': isShorts,
-      'channel_title': channelTitle,
-      'published_at': publishedAt.toIso8601String(),
-      'cached_at': DateTime.now().toIso8601String(),
-      if (universityId != null) 'university_id': universityId,
-      if (universityName != null) 'university_name': universityName,
+       'video_id': videoId,
+    'title': title,
+    'description': description,
+    'thumbnail_url': thumbnailUrl,
+    'maxres_thumbnail_url': maxresThumbnailUrl,
+    'duration': duration,
+    'view_count': viewCount,
+    'like_count': likeCount,
+    'comment_count': commentCount,
+    'tags': tags,
+    'is_hd': isHd,
+    'is_shorts': isShorts,
+    'channel_title': channelTitle,
+    'published_at': publishedAt.toIso8601String(),
+    'cached_at': DateTime.now().toIso8601String(),
+    if (universityId != null) 'university_id': universityId,
+    if (universityName != null) 'university_name': universityName,
+    // ── Bunları ekle ──
+    'app_view_count': appViewCount,
+    'app_like_count': appLikeCount,
+    'app_favorite_count': appFavoriteCount,
+    'app_share_count': appShareCount,
+    'app_comment_count': appCommentCount,
     };
   }
 

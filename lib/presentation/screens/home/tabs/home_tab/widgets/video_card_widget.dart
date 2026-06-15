@@ -49,7 +49,6 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             _buildHeader(context, controller),
             _buildThumbnail(context, isLive),
             _buildActionRow(context, controller),
-            _buildStats(context),
             _buildContent(context),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 14.w),
@@ -104,10 +103,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 TextButton(
                   onPressed: () => _navigateToUniversityDetail(controller),
                   style: TextButton.styleFrom(
-                    padding:
-                        EdgeInsets.zero, // Etrafındaki boşlukları sıfırladık
-                    minimumSize:
-                        Size.zero, // Butonun ekstra büyük yer kaplamasını önler
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     alignment: Alignment.centerLeft,
                   ),
@@ -325,74 +322,123 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ACTION ROW — Like · Yorum · Paylaş | Favori
+  // ACTION ROW — Görüntülenme · Beğeni · Yorum · Paylaş | Favori
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildActionRow(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Row(
         children: [
-          Obx(
-            () => _igActionBtn(
+          // ── Görüntülenme (buton yok) ──
+          Padding(
+            padding: EdgeInsets.all(8.w),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.visibility_outlined,
+                  size: 20.sp,
+                  color: AppTheme.textSec(context),
+                ),
+                SizedBox(width: 3.w),
+                Text(
+                  _formatCount(video.appViewCount),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Beğeni ──
+          Obx(() {
+            // likedVideoIds (RxList) doğrudan okunuyor — GetX bu sayede
+            // assignAll / add / remove çağrılarında Obx'i yeniden build eder.
+            final liked = controller.likedVideoIds.contains(video.videoId);
+            return _igActionBtn(
               context: context,
-              icon: controller.isLiked(video.videoId)
-                  ? Icons.thumb_up_rounded
-                  : Icons.thumb_up_outlined,
-              color: controller.isLiked(video.videoId)
+              icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
+              color: liked
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
+              count: liked ? video.appLikeCount + 1 : video.appLikeCount,
+              isActive: liked,
               onTap: () => controller.toggleLike(video.videoId),
-              label: 'Beğen',
-            ),
-          ),
-          SizedBox(width: 4.w),
-          _igActionBtn(
-            context: context,
-            icon: Icons.mode_comment_outlined,
-            color: AppTheme.textPri(context),
-            onTap: () => Get.toNamed(
-              AppRoutes.player,
-              arguments: video,
-              parameters: {'videoId': video.videoId},
-            ),
-            label: 'Yorum',
-          ),
-          SizedBox(width: 4.w),
-          Obx(
-            () => controller.isShareLoading(video.videoId)
-                ? Padding(
-                    padding: EdgeInsets.all(8.w),
-                    child: SizedBox(
-                      width: 20.sp,
-                      height: 20.sp,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppTheme.textSec(context),
-                      ),
-                    ),
-                  )
-                : _igActionBtn(
-                    context: context,
-                    icon: Icons.send_outlined,
-                    color: AppTheme.textPri(context),
-                    onTap: () => controller.shareVideo(video),
-                    label: 'Paylaş',
-                  ),
-          ),
-          const Spacer(),
-          Obx(
-            () => _igActionBtn(
+            );
+          }),
+
+          // ── Yorum ──
+          Obx(() {
+            final hasCommented = controller.commentedVideoIds.contains(video.videoId);
+            return _igActionBtn(
               context: context,
-              icon: controller.isFavorite(video.videoId)
+              icon: hasCommented
+                  ? Icons.mode_comment_rounded
+                  : Icons.mode_comment_outlined,
+              color: hasCommented
+                  ? Theme.of(context).colorScheme.primary
+                  : AppTheme.textPri(context),
+              count: video.appCommentCount,
+              isActive: hasCommented,
+              onTap: () => Get.toNamed(
+                AppRoutes.player,
+                arguments: video,
+                parameters: {'videoId': video.videoId},
+              ),
+            );
+          }),
+
+          // ── Paylaş ──
+          Obx(() {
+            final isLoading = controller.shareLoadingVideoIds.contains(video.videoId);
+            final hasShared = controller.sharedVideoIds.contains(video.videoId);
+            if (isLoading) {
+              return Padding(
+                padding: EdgeInsets.all(8.w),
+                child: SizedBox(
+                  width: 20.sp,
+                  height: 20.sp,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.textSec(context),
+                  ),
+                ),
+              );
+            }
+            return _igActionBtn(
+              context: context,
+              icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
+              color: hasShared
+                  ? Theme.of(context).colorScheme.primary
+                  : AppTheme.textPri(context),
+              count: video.appShareCount,
+              isActive: hasShared,
+              onTap: () => controller.shareVideo(video),
+            );
+          }),
+
+          const Spacer(),
+
+          // ── Favori ──
+          Obx(() {
+            final isFav = controller.favoriteIds.contains(video.videoId);
+            return _igActionBtn(
+              context: context,
+              icon: isFav
                   ? Icons.bookmark_rounded
                   : Icons.bookmark_outline_rounded,
-              color: controller.isFavorite(video.videoId)
+              color: isFav
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
+              count: isFav
+                  ? video.appFavoriteCount + 1
+                  : video.appFavoriteCount,
+              isActive: isFav,
               onTap: () => controller.toggleFavorite(video.videoId),
-              label: 'Kaydet',
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -403,7 +449,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
-    required String label,
+    int count = 0,
+    bool isActive = false,
   }) {
     return Material(
       color: Colors.transparent,
@@ -412,80 +459,25 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.all(8.w),
-          child: Icon(icon, color: color, size: 24.sp, semanticLabel: label),
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // STATS
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildStats(BuildContext context) {
-    final hasAppData =
-        video.appViewCount > 0 ||
-        video.appLikeCount > 0 ||
-        video.appFavoriteCount > 0 ||
-        video.appShareCount > 0 ||
-        video.appCommentCount > 0;
-
-    final viewCount = hasAppData ? video.appViewCount : video.viewCount;
-    final likeCount = hasAppData ? video.appLikeCount : video.likeCount;
-    final commentCount = hasAppData
-        ? video.appCommentCount
-        : video.commentCount;
-    final shareCount = video.appShareCount;
-    final favCount = video.appFavoriteCount;
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 4.h),
-      child: Wrap(
-        spacing: 14.w,
-        runSpacing: 4.h,
-        children: [
-          _statChip(context, Icons.visibility_outlined, viewCount),
-          _statChip(context, Icons.thumb_up_off_alt_rounded, likeCount),
-          _statChip(context, Icons.bookmark_outline_rounded, favCount),
-          _statChip(context, Icons.mode_comment_outlined, commentCount),
-          _statChip(context, Icons.send_outlined, shareCount),
-          if (hasAppData)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(5.r),
-              ),
-              child: Text(
-                'uygulama verisi',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w600,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 22.sp),
+              if (count > 0) ...[
+                SizedBox(width: 3.w),
+                Text(
+                  _formatCount(count),
+                  style: TextStyle(
+                    color: isActive ? color : AppTheme.textSec(context),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statChip(BuildContext context, IconData icon, int count) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14.sp, color: AppTheme.textSec(context)),
-        SizedBox(width: 3.w),
-        Text(
-          _formatCount(count),
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w500,
+              ],
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 

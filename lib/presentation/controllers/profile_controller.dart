@@ -9,6 +9,7 @@ import '../../data/models/profile_model.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../data/models/video_model.dart';
 import 'follow_controller.dart';
+import 'settings_controller.dart';
 
 class ProfileController extends GetxController {
   final AuthRepository authRepository;
@@ -91,6 +92,13 @@ class ProfileController extends GetxController {
       log('loadProfile error: $e');
     } finally {
       isLoading.value = false;
+    }
+
+    // Profil yüklenince SettingsController'ı senkronize et
+    final p = profile.value;
+    if (p != null && Get.isRegistered<SettingsController>()) {
+      Get.find<SettingsController>().profileVisibility.value =
+          p.profileVisibility;
     }
 
     _loadAllActivities();
