@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/player_controller.dart';
 import 'player_screen_widgets/comment_header_widget.dart';
@@ -229,6 +230,26 @@ class _PlayerScreenState extends State<PlayerScreen> {
   List<Widget> _buildContentItems(BuildContext context) {
     log('Building content items for video: ${_controller.currentVideo.value}');
     return [
+      // ── Yayınlanma Tarihi ─────────────────────────────────────────────
+      Obx(() {
+        final v = _controller.currentVideo.value;
+        if (v == null) return const SizedBox.shrink();
+        final d = v.publishedAt;
+        final tarih =
+            '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+        return Padding(
+          padding: EdgeInsets.only(bottom: 4.h),
+          child: Text(
+            tarih,
+            style: TextStyle(
+              color: AppTheme.textSec(context).withValues(alpha: 0.6),
+              fontSize: 11.sp,
+            ),
+          ),
+        );
+      }),
+
+      // ── Başlık ────────────────────────────────────────────────────────
       Obx(
         () => Text(
           _controller.currentVideo.value?.title ?? '',
@@ -243,6 +264,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
       SizedBox(height: 6.h),
 
+      // ── Üniversite Satırı ─────────────────────────────────────────────
       Obx(() {
         if (_controller.currentVideo.value?.universityName?.isNotEmpty ==
             true) {
@@ -250,6 +272,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
             padding: EdgeInsets.only(top: 4.h),
             child: UniversityRowWidget(
               universityName: _controller.currentVideo.value!.universityName!,
+              onTap: _controller.currentVideo.value!.universityId != null
+                  ? () => Get.toNamed(
+                      AppRoutes.universityDetail,
+                      arguments: _controller.currentVideo.value!.universityId,
+                    )
+                  : null,
             ),
           );
         }
@@ -260,6 +288,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
       EngagementBarWidget(controller: _controller),
       SizedBox(height: 20.h),
 
+      // ── Açıklama ──────────────────────────────────────────────────────
+      Obx(() {
+        if (_controller.currentVideo.value?.description.isNotEmpty == true) {
+          return ExpandableDescriptionWidget(
+            text: _controller.currentVideo.value!.description,
+          );
+        }
+        return const SizedBox.shrink();
+      }),
+
+      SizedBox(height: 12.h),
+
       // ── YouTube İstatistikleri Bölümü ────────────────────────────────────
       Obx(() {
         if (_controller.currentVideo.value != null) {
@@ -269,15 +309,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }),
 
       SizedBox(height: 16.h),
-
-      Obx(() {
-        if (_controller.currentVideo.value?.description.isNotEmpty == true) {
-          return ExpandableDescriptionWidget(
-            text: _controller.currentVideo.value!.description,
-          );
-        }
-        return const SizedBox.shrink();
-      }),
 
       Obx(() {
         if (_controller.currentVideo.value?.tags.isNotEmpty == true) {

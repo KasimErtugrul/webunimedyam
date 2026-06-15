@@ -29,8 +29,6 @@ class UniversityRowWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildLogo(context),
-            SizedBox(width: 10.w),
             Expanded(
               child: Text(
                 universityName,
@@ -53,38 +51,6 @@ class UniversityRowWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildLogo(BuildContext context) {
-    final hasLogo = logoUrl != null && logoUrl!.isNotEmpty;
-    return Container(
-      width: 36.w,
-      height: 36.h,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9.r),
-        color: AppTheme.surface(context),
-        border: Border.all(
-          color: AppTheme.surface(context),
-          width: 1.5.w,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: hasLogo
-          ? Image.network(
-              logoUrl!,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => _fallbackIcon(context),
-            )
-          : _fallbackIcon(context),
-    );
-  }
-
-  Widget _fallbackIcon(BuildContext context) {
-    return Icon(
-      Icons.account_balance_rounded,
-      size: 18.sp,
-      color: AppTheme.textSec(context),
     );
   }
 }
