@@ -6,9 +6,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/models/profile_model.dart';
-import '../../data/models/user_settings_model.dart';
 import '../../data/models/video_model.dart';
-import 'follow_controller.dart';
 import 'settings_controller.dart';
 
 class ProfileController extends GetxController {
@@ -53,6 +51,12 @@ class ProfileController extends GetxController {
     return args?['userId'] as String?;
   }
 
+  @override
+  onInit() {
+    super.onInit();
+    loadProfile();
+  }
+
   /// Kendi profilimiz mi görüntülüyoruz?
   bool get isOwnProfile {
     final target = targetUserId;
@@ -61,7 +65,7 @@ class ProfileController extends GetxController {
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
-  @override
+  /* @override
   void onReady() {
     super.onReady();
     final tag = targetUserId ?? (_currentUserId ?? 'anonymous');
@@ -71,7 +75,7 @@ class ProfileController extends GetxController {
         Get.find<FollowController>(tag: tag).initForProfile(targetId);
       }
     });
-  }
+  } */
 
   // ─── Profil Yükleme ──────────────────────────────────────────────────────
 
@@ -217,7 +221,7 @@ class ProfileController extends GetxController {
 
   bool get isLoggedIn => authRepository.isLoggedIn;
 
-  bool canViewTab(VisibilityOption visibility) {
+  /*  bool canViewTab(VisibilityOption visibility) {
     if (isOwnProfile) return true;
     if (visibility == VisibilityOption.public) return true;
 
@@ -231,7 +235,7 @@ class ProfileController extends GetxController {
 
     if (visibility == VisibilityOption.friends && isFollowing) return true;
     return false;
-  }
+  } */
 
   Future<void> refreshProfile() async => loadProfile();
 }

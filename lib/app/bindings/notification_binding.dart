@@ -1,4 +1,4 @@
-// lib/app/bindings/follow_binding.dart
+// lib/app/bindings/notification_binding.dart
 
 import 'package:get/get.dart';
 
@@ -7,10 +7,9 @@ import '../../presentation/controllers/notification_controller.dart';
 class NotificationBinding extends Bindings {
   @override
   void dependencies() {
-  
     if (!Get.isRegistered<NotificationsController>()) {
       Get.lazyPut(
-        () => NotificationsController(followRepository: Get.find()),
+        () => NotificationsController(),
         fenix: true,
       );
     }

@@ -176,7 +176,7 @@ class SettingsController extends GetxService {
 
     try {
       // 1) profiles tablosunu güncelle
-      await _supabase.updateProfileVisibility(userId, newVisibility.value);
+      //   await _supabase.updateProfileVisibility(userId, newVisibility.value);
       log('⚙️✅ [Settings] profileVisibility → ${newVisibility.value}');
 
       // 2) Tavan düştüyse taşan aktiviteleri indir

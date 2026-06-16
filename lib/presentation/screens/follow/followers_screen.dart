@@ -1,4 +1,4 @@
-// lib/presentation/screens/follow/followers_screen.dart
+/* // lib/presentation/screens/follow/followers_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -184,3 +184,4 @@ class _FollowList extends StatelessWidget {
     });
   }
 }
+ */

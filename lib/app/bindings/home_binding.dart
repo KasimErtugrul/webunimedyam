@@ -1,5 +1,3 @@
-// lib/app/bindings/home_binding.dart
-
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
@@ -9,12 +7,10 @@ import '../../presentation/controllers/video_search_controller.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
-import '../../data/repositories/follow_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
-import '../../presentation/controllers/follow_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
 import '../../presentation/controllers/university_sort_controller.dart'; // YENİ
@@ -111,10 +107,6 @@ class HomeBinding extends Bindings {
       );
     }
 
-    if (!Get.isRegistered<FollowRepository>()) {
-      Get.lazyPut(() => FollowRepository(supabase: Get.find()), fenix: true);
-    }
-
     final supabase = Get.find<SupabaseDataSource>();
     final currentUserId = supabase.currentUser?.id ?? 'anonymous';
 
@@ -125,14 +117,6 @@ class HomeBinding extends Bindings {
           favoritesRepository: Get.find(),
           profileActivityRepository: Get.find(),
         ),
-        tag: currentUserId,
-        fenix: true,
-      );
-    }
-
-    if (!Get.isRegistered<FollowController>(tag: currentUserId)) {
-      Get.lazyPut(
-        () => FollowController(followRepository: Get.find()),
         tag: currentUserId,
         fenix: true,
       );

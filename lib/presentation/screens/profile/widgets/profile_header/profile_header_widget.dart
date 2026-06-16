@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/profile_controller.dart';
-import '../../../follow/widgets/follow_button_widget.dart';
 import 'stat_chip_widget.dart';
 import 'stat_divider_widget.dart';
 
@@ -19,8 +18,8 @@ class ProfileHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final profile     = controller.profile.value;
-      final isOwnProfile = controller.isOwnProfile;
-
+/*       final isOwnProfile = controller.isOwnProfile;
+ */
       return Container(
         color: AppTheme.bg(context),
         padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 12.h),
@@ -57,13 +56,13 @@ class ProfileHeaderWidget extends StatelessWidget {
               ),
             ],
 
-            // ── Takipçi / Takip sayıları ──────────────────────────────────
+           /*  // ── Takipçi / Takip sayıları ──────────────────────────────────
             if (profile != null) ...[
               SizedBox(height: 12.h),
               FollowCountsWidget(userId: profile.id),
             ],
 
-            SizedBox(height: 16.h),
+            SizedBox(height: 16.h), */
 
             // ── İstatistik chipleri ──────────────────────────────────────────
             Obx(
@@ -98,10 +97,10 @@ class ProfileHeaderWidget extends StatelessWidget {
             ),
 
             // ── Takip butonu (başkasının profili) ────────────────────────────
-            if (!isOwnProfile && profile != null) ...[
+          /*   if (!isOwnProfile && profile != null) ...[
               SizedBox(height: 16.h),
               FollowButtonWidget(targetProfile: profile),
-            ],
+            ], */
           ],
         ),
       );

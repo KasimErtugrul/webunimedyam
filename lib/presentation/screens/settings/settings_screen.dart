@@ -138,7 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
-              SwitchListTile(
+             /*  SwitchListTile(
                 value: s?.notifyFollowRequests ?? true,
                 onChanged: (_) => _controller.toggleNotifyFollowRequests(),
                 secondary: Icon(Icons.person_add_outlined,
@@ -149,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-              ),
+              ), */
             ],
 
             // ═══ GİZLİLİK ═══════════════════════════════════════

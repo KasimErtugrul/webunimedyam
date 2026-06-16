@@ -1,4 +1,4 @@
-// lib/app/bindings/follow_binding.dart
+/* // lib/app/bindings/follow_binding.dart
 
 import 'package:get/get.dart';
 import '../../data/datasources/local/local_datasource.dart';
@@ -35,4 +35,4 @@ class FollowBinding extends Bindings {
       );
     }
   }
-}
+} */

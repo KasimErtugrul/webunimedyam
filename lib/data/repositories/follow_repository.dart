@@ -1,4 +1,4 @@
-// lib/data/repositories/follow_repository.dart
+/* // lib/data/repositories/follow_repository.dart
 //
 // DÜZELTMELER & EKLENTİLER:
 //  1. followUserById(): hedef profilin visibility'sine bakarak requireApproval
@@ -244,4 +244,4 @@ class ProfileWithFollowStatus {
   /// Profil aktivite verilerine erişilebilir mi?
   /// Public profiller her zaman, friends profiller sadece takipçilere açık.
   bool get canViewActivity => isPublic || isFollowing;
-}
+} */

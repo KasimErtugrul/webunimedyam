@@ -1,11 +1,9 @@
-
+/* 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
-import '../../../data/models/follow_model.dart';
-import '../../controllers/notification_controller.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -15,14 +13,13 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  late final NotificationsController _ctrl;
   Worker? _errorWorker;
   Worker? _successWorker;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = Get.find<NotificationsController>();
+   /*  _ctrl = Get.find<NotificationsController>();
 
     _errorWorker = ever(_ctrl.errorMessage, (msg) {
       if (msg != null && mounted) {
@@ -43,7 +40,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             duration: const Duration(seconds: 2));
         _ctrl.successMessage.value = null;
       }
-    });
+    }); */
   }
 
   @override
@@ -58,22 +55,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Bildirimler', style: TextStyle(fontSize: 20.sp)),
-        actions: [
+       /*  actions: [
           IconButton(
             icon: Icon(Icons.refresh_outlined, size: 22.sp),
             tooltip: 'Yenile',
             onPressed: _ctrl.loadPendingRequests,
           ),
-        ],
+        ], */
       ),
       body: Obx(() {
-        if (_ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (_ctrl.pendingRequests.isEmpty) {
-          return _EmptyState();
-        }
+       
 
         return RefreshIndicator(
           onRefresh: _ctrl.loadPendingRequests,
@@ -136,7 +127,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
 // ─── Takip İsteği Tile ────────────────────────────────────────────────────────
 
-class _FollowRequestTile extends StatelessWidget {
+/* class _FollowRequestTile extends StatelessWidget {
   final FollowModel request;
   final VoidCallback onAccept;
   final VoidCallback onReject;
@@ -290,7 +281,7 @@ class _FollowRequestTile extends StatelessWidget {
     if (diff.inDays    < 7)  return '${diff.inDays} gün önce';
     return '${dt.day}.${dt.month}.${dt.year}';
   }
-}
+} */
 
 // ─── Boş Durum ────────────────────────────────────────────────────────────────
 
@@ -325,3 +316,4 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
+ */

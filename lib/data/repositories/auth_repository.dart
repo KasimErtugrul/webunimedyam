@@ -97,6 +97,8 @@ class AuthRepository {
 
   Future<ProfileModel?> getProfile() async {
     final userId = currentUserId;
+    log('⚠️ [Auth] getProfile: kullanıcı giriş yapmış');
+
     if (userId == null) {
       log('⚠️ [Auth] getProfile: kullanıcı giriş yapmamış');
       return null;

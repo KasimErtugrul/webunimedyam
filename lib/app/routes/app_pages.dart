@@ -1,8 +1,4 @@
-// lib/app/routes/app_pages.dart
-
 import 'package:get/get.dart';
-import '../../presentation/screens/follow/followers_screen.dart';
-import '../../presentation/screens/notification/notification_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
@@ -18,7 +14,6 @@ import '../../presentation/screens/video_section_detail/video_section_detail_scr
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
-import '../bindings/follow_binding.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
@@ -98,15 +93,10 @@ abstract class AppPages {
       page: () => const UniversityDetailScreen(),
       binding: UniversityDetailBinding(),
     ),
-    GetPage(
-      name: AppRoutes.followers,
-      page: () => const FollowersScreen(),
-      binding: FollowBinding(),
-    ),
-    GetPage(
+   /*  GetPage(
       name: AppRoutes.notifications,
       page: () => const NotificationsScreen(),
-    ),
+    ), */
     GetPage(
       name: AppRoutes.videoViewers,
       page: () => const VideoViewersScreen(),

@@ -1,4 +1,4 @@
-// lib/presentation/controllers/follow_controller.dart
+/* // lib/presentation/controllers/follow_controller.dart
 
 import 'dart:developer';
 import 'package:get/get.dart';
@@ -201,3 +201,4 @@ class FollowController extends GetxController {
         f.status == FollowStatus.pending;
   }
 }
+ */

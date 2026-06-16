@@ -1,4 +1,4 @@
-// lib/presentation/screens/follow/widgets/follow_button_widget.dart
+/* // lib/presentation/screens/follow/widgets/follow_button_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -236,3 +236,4 @@ class _CountChip extends StatelessWidget {
     );
   }
 }
+ */

@@ -1,13 +1,9 @@
-import 'dart:developer';
 import 'package:get/get.dart';
-import '../../data/repositories/follow_repository.dart';
-import '../../data/models/follow_model.dart';
 
 class NotificationsController extends GetxController {
-  final FollowRepository followRepository;
 
-  NotificationsController({required this.followRepository});
-
+  NotificationsController();
+/* 
   final pendingRequests = <FollowModel>[].obs;
   final isLoading       = false.obs;
   final errorMessage    = RxnString();
@@ -60,5 +56,5 @@ class NotificationsController extends GetxController {
       log('rejectRequest error: $e');
       errorMessage.value = 'İstek reddedilemedi.';
     }
-  }
+  } */
 }

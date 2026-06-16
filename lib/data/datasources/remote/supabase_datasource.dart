@@ -39,14 +39,19 @@ class SupabaseDataSource {
 
   // Profil
   Future<ProfileModel?> getProfile(String userId) async {
-    final data = await _client
-        .from('profiles')
-        .select()
-        .eq('id', userId)
-        .maybeSingle();
-    if (data == null) return null;
-    log('SupabaseDataSource getProfile tetiklendi');
-    return ProfileModel.fromSupabase(data);
+    try {
+      final data = await _client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+      if (data == null) return null;
+      log('SupabaseDataSource getProfile tetiklendi');
+      return ProfileModel.fromSupabase(data);
+    } catch (e,stackTrace) {
+      log('SupabaseDataSource getProfile error: $e \n$stackTrace');
+      return null;
+    }
   }
 
   Future<void> updateProfile(ProfileModel profile) async {
@@ -813,14 +818,14 @@ class SupabaseDataSource {
 
   // ─── Profil Görünürlüğü ───────────────────────────────────────────────────
 
-  Future<void> updateProfileVisibility(String userId, String visibility) async {
+  /*  Future<void> updateProfileVisibility(String userId, String visibility) async {
     await _client
         .from('profiles')
         .update({'profile_visibility': visibility})
         .eq('id', userId);
-  }
+  } */
 
-  // ─── Takip Sistemi ────────────────────────────────────────────────────────
+  /* // ─── Takip Sistemi ────────────────────────────────────────────────────────
 
   Future<void> followUser({
     required String followerId,
@@ -936,14 +941,12 @@ class SupabaseDataSource {
 
   Future<void> rejectFollowRequest(String followId) async {
     await _client.from('user_follows').delete().eq('id', followId);
-  }
+  } */
 
   Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
     return await _client
         .from('profiles')
-        .select(
-          'id, username, full_name, avatar_url, profile_visibility, created_at',
-        )
+        .select('id, username, full_name, avatar_url, created_at')
         .eq('id', userId)
         .maybeSingle();
   }

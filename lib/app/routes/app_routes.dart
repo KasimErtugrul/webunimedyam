@@ -14,7 +14,6 @@ abstract class AppRoutes {
   static const videoSectionDetail = '/video-section-detail';
   static const universityDetail = '/university-detail';
   static const notifications = '/notifications';
-  static const followers = '/followers';
   static const shortsPlayer = '/shorts-player';
 
   /// Basit Shorts oynatıcı (üniversite bilgisi olmadan)
