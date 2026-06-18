@@ -10,6 +10,8 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
+import '../../data/datasources/remote/supabase_datasource.dart';
+import 'profile_controller.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
@@ -123,17 +125,23 @@ class HomeController extends GetxController {
             favoriteUniversityIds.remove(event.universityId);
           }
         });
+
+    // Profil sekmesine (index 4) ilk geçişte aktiviteleri yükle
+    ever(selectedIndex, (index) {
+      if (index != 4) return;
+      final supabase = Get.find<SupabaseDataSource>();
+      final tag = supabase.currentUser?.id ?? 'anonymous';
+      if (!Get.isRegistered<ProfileController>(tag: tag)) return;
+      Get.find<ProfileController>(tag: tag).loadAllActivities();
+    });
   }
 
   @override
   void onReady() {
     super.onReady();
     loadUniversitiesAndPlaylists();
-    loadVideos();
+    loadVideos().then((_) => loadLikedVideoIds());
     loadFavorites();
-    loadLikedVideoIds();
-    loadSharedVideoIds();
-    loadCommentedVideoIds();
     loadUniversityStats();
     loadVideoSections();
   }

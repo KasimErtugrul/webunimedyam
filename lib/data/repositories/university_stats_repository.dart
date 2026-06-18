@@ -9,7 +9,9 @@ import '../datasources/remote/supabase_datasource.dart';
 import '../models/university_stats_model.dart';
 
 /// TTL: 30 dakika.
-/// Artık 8 ayrı çağrı yerine tek RPC çağrısı yapılıyor (get_home_university_stats).
+/// Tek RPC çağrısı (get_home_university_stats) — artkı university_stats_mat
+/// materialized view üzerinden çalışıyor; okümaları bloklamaz, pg_cron ile saatlik yenilenir.
+/// ‘newly_discovered’ eşiği dinamik (%20 yüzdelik dilimi) — hardcoded 50 yok.
 /// Bireysel getList() metodları offline fallback veya nadir kullanımlar için korundu.
 class UniversityStatsRepository {
   final SupabaseDataSource _supabase;

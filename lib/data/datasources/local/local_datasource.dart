@@ -268,4 +268,77 @@ class LocalDataSource {
     );
     await Future.wait(keys.map((k) => prefs.remove(k)));
   }
+
+  // ─── Profil Cache (TTL: 30 dk) ───────────────────────────────────────────
+
+  static const _profileKey = 'cached_profile';
+  static const _profileTimeKey = 'cached_profile_time';
+  static const _profileTtlMinutes = 30;
+
+  Future<Map<String, dynamic>?> getCachedProfile() async {
+    final prefs = await _p;
+    final timeStr = prefs.getString(_profileTimeKey);
+    if (timeStr == null) return null;
+    final cacheTime = DateTime.tryParse(timeStr);
+    if (cacheTime == null) return null;
+    final expired =
+        DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
+        _profileTtlMinutes;
+    if (expired) return null;
+    final s = prefs.getString(_profileKey);
+    if (s == null) return null;
+    return Map<String, dynamic>.from(json.decode(s) as Map);
+  }
+
+  Future<void> cacheProfile(Map<String, dynamic> profile) async {
+    final prefs = await _p;
+    await prefs.setString(_profileKey, json.encode(profile));
+    await prefs.setString(_profileTimeKey, DateTime.now().toUtc().toIso8601String());
+  }
+
+  Future<void> clearProfile() async {
+    final prefs = await _p;
+    await prefs.remove(_profileKey);
+    await prefs.remove(_profileTimeKey);
+  }
+
+  // ─── Üniversite Cache (TTL: 30 dk) ───────────────────────────────────────
+
+  static const _universityKey = 'cached_universities';
+  static const _universityTimeKey = 'cached_universities_time';
+  static const _universityTtlMinutes = 30;
+
+  Future<bool> isUniversityCacheValid() async {
+    final prefs = await _p;
+    final timeStr = prefs.getString(_universityTimeKey);
+    if (timeStr == null) return false;
+    final cacheTime = DateTime.tryParse(timeStr);
+    if (cacheTime == null) return false;
+    return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+        _universityTtlMinutes;
+  }
+
+  Future<List<Map<String, dynamic>>> getCachedUniversities() async {
+    final prefs = await _p;
+    final s = prefs.getString(_universityKey);
+    if (s == null) return [];
+    try {
+      final list = json.decode(s) as List;
+      return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> cacheUniversities(List<Map<String, dynamic>> universities) async {
+    final prefs = await _p;
+    await prefs.setString(_universityKey, json.encode(universities));
+    await prefs.setString(_universityTimeKey, DateTime.now().toUtc().toIso8601String());
+  }
+
+  Future<void> clearUniversities() async {
+    final prefs = await _p;
+    await prefs.remove(_universityKey);
+    await prefs.remove(_universityTimeKey);
+  }
 }

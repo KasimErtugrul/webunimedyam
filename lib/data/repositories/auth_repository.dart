@@ -57,6 +57,8 @@ class AuthRepository {
       _local.clearCache(),
       _local.clearUserStats(),
       _local.clearVideoSectionCache(),
+      _local.clearProfile(),
+      _local.clearUniversities(),
     ]);
     await _supabase.signOut();
     log('✅ [Auth] Çıkış tamamlandı, tüm cache temizlendi');
@@ -97,20 +99,25 @@ class AuthRepository {
 
   Future<ProfileModel?> getProfile() async {
     final userId = currentUserId;
-    log('⚠️ [Auth] getProfile: kullanıcı giriş yapmış');
-
     if (userId == null) {
       log('⚠️ [Auth] getProfile: kullanıcı giriş yapmamış');
       return null;
     }
 
+    // Önce local cache'e bak
+    final cachedMap = await _local.getCachedProfile();
+    if (cachedMap != null) {
+      log('👤💾 [Auth] Profil LOCAL\'den geldi');
+      return ProfileModel.fromSupabase(cachedMap);
+    }
+
     try {
       log('👤☁️ [Auth] Profil Supabase\'den çekiliyor → $userId');
       final profile = await _supabase.getProfile(userId);
-      log('auth repository getprofile tetiklendi');
-      log(
-        '${profile != null ? '✅' : '❌'} [Auth] Profil ${profile != null ? 'geldi: ${profile.username}' : 'bulunamadı'}',
-      );
+      if (profile != null) {
+        await _local.cacheProfile(profile.toSupabase());
+        log('👤💾 [Auth] Profil local cache\'e yazıldı');
+      }
       return profile;
     } catch (e) {
       log('👤❌ [Auth] Profil çekilemedi (offline?): $e');

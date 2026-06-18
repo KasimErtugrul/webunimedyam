@@ -632,7 +632,7 @@ class SupabaseDataSource {
     int limit = 10,
     int offset = 0,
   }) => getVideoEngagementList(
-    orderBy: 'engagement_score',
+    orderBy: 'trending_score',   // zaman ağırlıklı skor
     limit: limit,
     offset: offset,
   );
@@ -707,17 +707,44 @@ class SupabaseDataSource {
     offset: offset,
   );
 
+  /// Keseßilmemiş videolar (app_view_count = 0).
+  /// offset == 0 ise rastgele örnekleme yap (her refresh’te farklı videolar).
+  /// offset > 0 ise detay sayfası sayfalaması çin deterministik sıra.
   Future<List<Map<String, dynamic>>> getNewAndUndiscoveredVideos({
     int limit = 10,
     int offset = 0,
-  }) => getVideoEngagementList(
-    orderBy: 'published_at',
-    filterColumn: 'app_view_count',
-    filterOperator: 'eq',
-    filterValue: 0,
-    limit: limit,
-    offset: offset,
-  );
+  }) async {
+    if (offset > 0) {
+      return getVideoEngagementList(
+        orderBy: 'published_at',
+        filterColumn: 'app_view_count',
+        filterOperator: 'eq',
+        filterValue: 0,
+        limit: limit,
+        offset: offset,
+      );
+    }
+    // Ana ekran: rastgele örnekleme — get_new_undiscovered_videos RPC
+    try {
+      final data = await _client.rpc(
+        'get_new_undiscovered_videos',
+        params: {'p_limit': limit},
+      );
+      return List<Map<String, dynamic>>.from(
+        (data as List).map((e) => Map<String, dynamic>.from(e as Map)),
+      );
+    } catch (e) {
+      // Fallback: published_at siralaması
+      return getVideoEngagementList(
+        orderBy: 'published_at',
+        filterColumn: 'app_view_count',
+        filterOperator: 'eq',
+        filterValue: 0,
+        limit: limit,
+        offset: 0,
+      );
+    }
+  }
 
   // ─── Üniversite Favorileri ────────────────────────────────────────────────
 

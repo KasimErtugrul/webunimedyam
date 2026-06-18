@@ -42,11 +42,19 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       );
     }
     if (!Get.isRegistered<ShortsController>()) {
-      Get.put(
-        ShortsController(repository: Get.find<ShortsRepository>()),
-        permanent: false,
+      Get.lazyPut(
+        () => ShortsController(repository: Get.find<ShortsRepository>()),
+        fenix: true,
       );
     }
+
+    // IndexedStack tüm tab'ları aynı anda build eder, bu yüzden
+    // ilk frame render olduktan sonra shorts yükle — ekran görünürken başlasın.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<ShortsController>()) {
+        Get.find<ShortsController>().loadShorts();
+      }
+    });
 
     _scrollController.addListener(_onScroll);
 

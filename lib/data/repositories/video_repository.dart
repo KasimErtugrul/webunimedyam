@@ -49,14 +49,29 @@ class VideoRepository {
   /// Tek sorguda hem UniversityModel hem PlaylistModel verisi döner.
   /// FIX: Eklendi! İnternet yoksa uygulama çökmemeli, boş liste dönmeli.
   Future<List<Map<String, dynamic>>> getUniversitiesAndPlaylists() async {
+    // Önce local cache kontrolü
+    if (await _local.isUniversityCacheValid()) {
+      final cached = await _local.getCachedUniversities();
+      if (cached.isNotEmpty) {
+        log('🏛️💾 [Video] Üniversiteler LOCAL cache\'den geldi → \${cached.length} kayıt');
+        return cached;
+      }
+    }
+
     try {
-      log('🏛️☁️ [Video] Üniversiteler + playlist verisi TEK sorguda Supabase\'den çekiliyor...');
+      log('🏛️☁️ [Video] Üniversiteler Supabase\'den çekiliyor...');
       final rows = await _supabase.getUniversitiesWithStats();
-      log('🏛️✅ [Video] ${rows.length} üniversite geldi (remote, tek istek)');
+      log('🏛️✅ [Video] \${rows.length} üniversite geldi → local cache\'e yazıldı');
+      await _local.cacheUniversities(rows);
       return rows;
     } catch (e) {
       log('🏛️❌ [Video] Üniversiteler yüklenemedi (offline?): $e');
-      return []; // Uygulama çökmesin, boş liste dönsün
+      final stale = await _local.getCachedUniversities();
+      if (stale.isNotEmpty) {
+        log('🏛️💾 [Video] Stale university cache döndürüldü');
+        return stale;
+      }
+      return [];
     }
   }
 
@@ -249,13 +264,32 @@ Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
   }
 
   Map<String, List<VideoEngagementModel>> _bundleToSectionMap(Map<String, dynamic> data) {
+    final trending      = _parseSection(data['trending']);
+    final mostWatched   = _parseSection(data['most_watched']);
+    final mostLiked     = _parseSection(data['most_liked']);
+    final mostFavorited = _parseSection(data['most_favorited']);
+    final mostCommented = _parseSection(data['most_commented']);
+    final newUndiscovered = _parseSection(data['new_undiscovered']);
+
+    // Section'lar arası tekrarı önle:
+    // ��nce eklenen section'lar öncelikli — her video yalnızca bir kez görünü r.
+    final seen = <String>{};
+
+    List<VideoEngagementModel> dedup(List<VideoEngagementModel> list) {
+      final result = <VideoEngagementModel>[];
+      for (final v in list) {
+        if (seen.add(v.videoId)) result.add(v);
+      }
+      return result;
+    }
+
     return {
-      'trending':        _parseSection(data['trending']),
-      'most_watched':    _parseSection(data['most_watched']),
-      'most_liked':      _parseSection(data['most_liked']),
-      'most_favorited':  _parseSection(data['most_favorited']),
-      'most_commented':  _parseSection(data['most_commented']),
-      'new_undiscovered':_parseSection(data['new_undiscovered']),
+      'trending':         dedup(trending),
+      'most_watched':     dedup(mostWatched),
+      'most_liked':       dedup(mostLiked),
+      'most_favorited':   dedup(mostFavorited),
+      'most_commented':   dedup(mostCommented),
+      'new_undiscovered': dedup(newUndiscovered),
     };
   }
 
@@ -326,6 +360,7 @@ Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
 
       switch (sectionType) {
         case VideoSectionType.trending:
+          // getTrendingVideos artık trending_score (zaman ağırlıklı) kullanıyor
           data = await _supabase.getTrendingVideos(
               limit: limit, offset: offset);
         case VideoSectionType.mostWatched:

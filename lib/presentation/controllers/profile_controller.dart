@@ -39,6 +39,7 @@ class ProfileController extends GetxController {
   final errorMessage = RxnString();
 
   final selectedTabIndex = 0.obs;
+  final activitiesLoaded = false.obs;
 
   // ─── Kimlik ───────────────────────────────────────────────────────────────
 
@@ -104,16 +105,13 @@ class ProfileController extends GetxController {
       Get.find<SettingsController>().profileVisibility.value =
           p.profileVisibility;
     }
-
-    _loadAllActivities();
   }
 
-  Future<void> _loadAllActivities() async {
+  Future<void> loadAllActivities() async {
+    if (activitiesLoaded.value) return;
+    activitiesLoaded.value = true;
     final userId = isOwnProfile ? _currentUserId : targetUserId;
     if (userId == null) return;
-
-    // Her iki durumda da aynı metodları çağır.
-    // RLS zaten izin kontrolünü yapıyor — izin yoksa boş döner.
     await Future.wait([
       loadFavorites(userId),
       loadViewedVideos(userId),
@@ -237,5 +235,9 @@ class ProfileController extends GetxController {
     return false;
   } */
 
-  Future<void> refreshProfile() async => loadProfile();
+  Future<void> refreshProfile() async {
+    activitiesLoaded.value = false;
+    await loadProfile();
+    await loadAllActivities();
+  }
 }
