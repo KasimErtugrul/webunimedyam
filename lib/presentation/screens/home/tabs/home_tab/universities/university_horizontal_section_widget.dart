@@ -10,6 +10,7 @@ import 'university_horizontal_card_widget.dart';
 
 class UniversityHorizontalSection extends StatelessWidget {
   final String title;
+  final String description;
   final List<UniversityStatsModel> items;
   final bool isLoading;
 
@@ -31,6 +32,7 @@ class UniversityHorizontalSection extends StatelessWidget {
   const UniversityHorizontalSection({
     super.key,
     required this.title,
+    required this.description,
     required this.items,
     required this.isLoading,
     required this.imageUrlBuilder,
@@ -39,6 +41,45 @@ class UniversityHorizontalSection extends StatelessWidget {
     this.showLogoLarge = false,
     this.onSeeAll,
   });
+
+  void _showInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPri(context),
+          ),
+        ),
+        content: Text(
+          description,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppTheme.textSec(context),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Anladım',
+              style: TextStyle(
+                color: AppTheme.primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +90,30 @@ class UniversityHorizontalSection extends StatelessWidget {
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 0, 8.w, 10.h),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
+              // Başlık metni
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+              ),
+              // ℹ️ Bilgi butonu
+              IconButton(
+                onPressed: () => _showInfoDialog(context),
+                icon: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18.sp,
+                  color: AppTheme.textSec(context),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                constraints: const BoxConstraints(),
+                splashRadius: 20,
+                tooltip: 'Bu liste hakkında',
               ),
               if (onSeeAll != null)
                 TextButton(

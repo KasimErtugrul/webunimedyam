@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_sections_config.dart
 //
-// 8 liste için merkezi config: başlık, imageUrlBuilder, statLabelBuilder, ikon.
-// home_tab_widget.dart içinden import edilir.
+// 8 liste için merkezi config: başlık, imageUrlBuilder, statLabelBuilder, ikon, açıklama.
 
 import 'package:flutter/material.dart';
 
@@ -15,12 +14,15 @@ class UniSectionConfig {
   final String Function(UniversityStatsModel) statLabelBuilder;
   final IconData statIcon;
   final bool showLogoLarge;
+  /// Başlık yanındaki ℹ️ butonuna basınca gösterilecek açıklama
+  final String description;
 
   const UniSectionConfig({
     required this.title,
     required this.imageUrlBuilder,
     required this.statLabelBuilder,
     required this.statIcon,
+    required this.description,
     this.showLogoLarge = false,
   });
 }
@@ -32,6 +34,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.mostViewedThumbnail,
     statLabelBuilder: (s) => '${formatStatNumber(s.totalYtViews)} izlenme',
     statIcon: Icons.play_circle_outline_rounded,
+    description:
+        'YouTube\'daki tüm videolarının toplam izlenme sayısına göre '
+        'sıralanan kanallar. En fazla izlenen içeriklere sahip '
+        'üniversiteler bu listede üstte yer alır.',
   ),
   // 2. En Çok Beğenilen
   UniSectionConfig(
@@ -39,6 +45,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.mostViewedThumbnail,
     statLabelBuilder: (s) => '${formatStatNumber(s.totalYtLikes)} beğeni',
     statIcon: Icons.thumb_up_outlined,
+    description:
+        'YouTube\'daki videolarının toplam beğeni sayısına göre '
+        'sıralanan kanallar. İzleyicilerin en çok beğeni bıraktığı '
+        'içeriklere sahip üniversiteler üstte görünür.',
   ),
   // 3. Uygulamada Popüler
   UniSectionConfig(
@@ -46,6 +56,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.appTopVideoThumbnail,
     statLabelBuilder: (s) => '${formatStatNumber(s.appTotalViews)} izl.',
     statIcon: Icons.trending_up_rounded,
+    description:
+        'Bu uygulama içinde en fazla izlenme alan kanallar. '
+        'Kullanıcıların uygulama üzerinden izlediği videolara '
+        'göre hesaplanır; YouTube istatistiklerinden bağımsızdır.',
   ),
   // 4. En Çok Favorilenen
   UniSectionConfig(
@@ -53,6 +67,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.appTopVideoThumbnail,
     statLabelBuilder: (s) => '${formatStatNumber(s.appTotalFavorites)} favori',
     statIcon: Icons.star_outline_rounded,
+    description:
+        'Kullanıcıların en fazla favorilere eklediği kanallar. '
+        'Favori sayısı, bu kanala ait videoların uygulama içinde '
+        'kaç kez favorilere eklendiğinin toplamından oluşur.',
   ),
   // 5. Son 30 Günde Aktif
   UniSectionConfig(
@@ -60,6 +78,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.latestVideoThumbnail,
     statLabelBuilder: (s) => '${s.videosLast30Days} video',
     statIcon: Icons.calendar_today_outlined,
+    description:
+        'Son 30 gün içinde en fazla yeni video yayınlayan kanallar. '
+        'Güncel ve aktif içerik üreten üniversiteleri keşfetmek için '
+        'idealdir. Sıralama, son 30 gündeki video sayısına göre yapılır.',
   ),
   // 6. En Büyük Kanallar
   UniSectionConfig(
@@ -68,6 +90,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
     statLabelBuilder: (s) => '${formatStatNumber(s.subscriberCount)} abone',
     statIcon: Icons.people_outline_rounded,
     showLogoLarge: true,
+    description:
+        'YouTube\'daki abone sayısına göre sıralanan en büyük '
+        'üniversite kanalları. En geniş izleyici kitlesine sahip '
+        'kanalları bu listede bulabilirsin.',
   ),
   // 7. En Zengin Arşiv
   UniSectionConfig(
@@ -75,6 +101,11 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.mostViewedThumbnail,
     statLabelBuilder: (s) => formatDuration(s.totalDurationSec),
     statIcon: Icons.access_time_rounded,
+    description:
+        'Toplam video süresi en uzun olan kanallar. Saatlerce, hatta '
+        'günlerce izlenebilecek içeriklere sahip üniversiteler '
+        'bu listede yer alır. Sıralama, tüm videoların toplam '
+        'süresine göre yapılır.',
   ),
   // 8. Yeni Keşfedilen
   UniSectionConfig(
@@ -82,11 +113,15 @@ final List<UniSectionConfig> uniSectionConfigs = [
     imageUrlBuilder: (s) => s.latestVideoThumbnail,
     statLabelBuilder: (s) => '${formatStatNumber(s.appTotalViewers)} izleyici',
     statIcon: Icons.explore_outlined,
+    description:
+        'Uygulamada henüz az tanınan, yeni keşfedilen kanallar. '
+        'Az sayıda izleyiciye sahip olmakla birlikte kaliteli '
+        'içerik üreten üniversiteleri öne çıkarır. '
+        'Gizli kalmış kanalları ilk sen keşfet!',
   ),
 ];
 
 /// Controller'daki 8 RxList ile config'i eşleştirir.
-/// Her eleman: (config, items, isLoading)
 List<_SectionBundle> buildSectionBundles({
   required List<UniSectionConfig> configs,
   required List<List<UniversityStatsModel>> allItems,
@@ -125,6 +160,7 @@ List<Widget> buildUniversitySections({
     widgets.add(
       UniversityHorizontalSection(
         title: cfg.title,
+        description: cfg.description,
         items: allItems[i],
         isLoading: isLoading,
         imageUrlBuilder: cfg.imageUrlBuilder,

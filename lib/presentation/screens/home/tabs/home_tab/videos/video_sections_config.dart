@@ -16,12 +16,15 @@ class VideoSectionConfig {
   final VideoSectionType type;
   final String Function(VideoEngagementModel) statLabelBuilder;
   final IconData statIcon;
+  /// Başlık yanındaki ℹ️ butonuna basınca gösterilecek açıklama
+  final String description;
 
   const VideoSectionConfig({
     required this.title,
     required this.type,
     required this.statLabelBuilder,
     required this.statIcon,
+    required this.description,
   });
 }
 
@@ -57,6 +60,11 @@ final List<VideoSectionConfig> videoSectionConfigs = [
     type: VideoSectionType.trending,
     statLabelBuilder: (v) => '${v.engagementScore} puan',
     statIcon: Icons.trending_up_rounded,
+    description:
+        'Uygulama içi etkileşim puanına göre sıralanan videolar. '
+        'İzlenme, beğeni, yorum ve favori sayıları birleştirilerek '
+        'hesaplanan bir "engagement score" kullanılır. '
+        'En yüksek puana sahip videolar bu listede yer alır.',
   ),
   VideoSectionConfig(
     title: '👁️ En Çok İzlenenler',
@@ -64,30 +72,53 @@ final List<VideoSectionConfig> videoSectionConfigs = [
     statLabelBuilder: (v) =>
         '${formatVideoStatNumber(v.ytViewCount)} izlenme',
     statIcon: Icons.play_circle_outline_rounded,
+    description:
+        'YouTube üzerindeki toplam izlenme sayısına göre sıralanan '
+        'videolar. En fazla izlenen videolar üstte yer alır. '
+        'Bu veri YouTube\'un resmi istatistiklerinden alınır.',
   ),
   VideoSectionConfig(
     title: '❤️ En Beğenilen Videolar',
     type: VideoSectionType.mostLiked,
     statLabelBuilder: (v) => '${v.appLikeCount} beğeni',
     statIcon: Icons.favorite_outline_rounded,
+    description:
+        'Uygulama içinde en çok beğeni alan videolar. '
+        'Beğeni sayısı, kullanıcıların video detay sayfasında '
+        'kalp ikonuna dokunmasıyla oluşur. '
+        'Bu liste yalnızca uygulama içi beğenileri yansıtır.',
   ),
   VideoSectionConfig(
     title: '⭐ En Favorilenler',
     type: VideoSectionType.mostFavorited,
     statLabelBuilder: (v) => '${v.appFavoriteCount} favori',
     statIcon: Icons.star_outline_rounded,
+    description:
+        'Uygulama içinde en çok favorilere eklenen videolar. '
+        'Kullanıcılar bir videoyu yıldız simgesiyle favorilerine ekleyebilir; '
+        'bu liste en fazla favorileme sayısına sahip videoları gösterir.',
   ),
   VideoSectionConfig(
     title: '💬 En Çok Yorumlananlar',
     type: VideoSectionType.mostCommented,
     statLabelBuilder: (v) => '${v.appCommentCount} yorum',
     statIcon: Icons.chat_bubble_outline_rounded,
+    description:
+        'Uygulama içinde en fazla yorum yapılan videolar. '
+        'Yorumlar, kullanıcıların video sayfasında bıraktığı '
+        'uygulama içi mesajlardır. YouTube yorumlarından bağımsızdır. '
+        'En aktif tartışmaları bu listede bulabilirsin.',
   ),
   VideoSectionConfig(
     title: '🆕 Yeni & Keşfedilmemiş',
     type: VideoSectionType.newUndiscovered,
     statLabelBuilder: (v) => _timeAgo(v.publishedAt),
     statIcon: Icons.explore_outlined,
+    description:
+        'Son dönemde yayınlanan ve henüz çok fazla etkileşim almamış '
+        'videolar. Az izlenme ve etkileşim sayısına sahip, '
+        'üzerine az yorum yapılmış "gizli kalmış" içerikler buradadır. '
+        'Keşfetmeyi sevenler için!',
   ),
 ];
 

@@ -23,6 +23,45 @@ class VideoHorizontalSection extends StatelessWidget {
     required this.isLoading,
   });
 
+  void _showInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          config.title,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPri(context),
+          ),
+        ),
+        content: Text(
+          config.description,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppTheme.textSec(context),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Anladım',
+              style: TextStyle(
+                color: AppTheme.primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Yüklenme bitmişse ve boşsa hiç yer kaplamaz
@@ -35,15 +74,30 @@ class VideoHorizontalSection extends StatelessWidget {
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 0, 8.w, 10.h),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                config.title,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
+              // Başlık metni
+              Expanded(
+                child: Text(
+                  config.title,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+              ),
+              // ℹ️ Bilgi butonu
+              IconButton(
+                onPressed: () => _showInfoDialog(context),
+                icon: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18.sp,
+                  color: AppTheme.textSec(context),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                constraints: const BoxConstraints(),
+                splashRadius: 20,
+                tooltip: 'Bu liste hakkında',
               ),
               // "Tümünü Gör" her zaman gösterilir
               TextButton(
