@@ -24,6 +24,7 @@ class HomeTabWidget extends StatefulWidget {
 
 class _HomeTabWidgetState extends State<HomeTabWidget> {
   final controller = Get.find<HomeController>();
+  final ScrollController _scrollController = ScrollController();
   Worker? _authWorker;
 
   // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
@@ -47,6 +48,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       );
     }
 
+    _scrollController.addListener(_onScroll);
+
     _authWorker = ever(controller.showAuthRequired, (required) {
       if (required) {
         _showAuthDialog();
@@ -55,8 +58,17 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     });
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 400) {
+      controller.loadMoreVideos();
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _authWorker?.dispose();
     super.dispose();
   }
@@ -75,6 +87,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             await Get.find<ShortsController>().refresh();
           },
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // ── Üst Bar — Logo + Shorts (sabit/scroll appbar) ────────
               SliverAppBar(
@@ -163,10 +176,22 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       return SliverToBoxAdapter(child: _buildEmptyWidget(context));
     }
 
+    final showLoader = controller.hasMoreVideos.value;
+    
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => VideoCardWidget(video: nonShorts[index]),
-        childCount: nonShorts.length,
+        (context, index) {
+          if (index >= nonShorts.length) {
+            return controller.isLoadingMore.value
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : const SizedBox.shrink();
+          }
+          return VideoCardWidget(video: nonShorts[index]);
+        },
+        childCount: nonShorts.length + (showLoader ? 1 : 0),
       ),
     );
   }

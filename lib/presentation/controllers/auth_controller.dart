@@ -1,7 +1,4 @@
-// lib/presentation/controllers/auth_controller.dart
-
 import 'dart:developer';
-
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
@@ -14,13 +11,14 @@ class AuthController extends GetxController {
 
   AuthController({required this.authRepository});
 
-  final isLoading    = false.obs;
+  final isLoading = false.obs;
   final errorMessage = ''.obs;
 
   // ─── Sign In ──────────────────────────────────────────────────────────────
+  /// Kullanıcı giriş yapmamıza yardımcı olur.
   Future<void> signIn({required String email, required String password}) async {
     try {
-      isLoading.value    = true;
+      isLoading.value = true;
       errorMessage.value = '';
 
       await authRepository.signIn(email: email, password: password);
@@ -38,17 +36,18 @@ class AuthController extends GetxController {
   }
 
   // ─── Sign Up ──────────────────────────────────────────────────────────────
+  /// Yeni bir kullanıcı kaydetmeyi sağlar.
   Future<void> signUp({
     required String email,
     required String password,
     required String username,
   }) async {
     try {
-      isLoading.value    = true;
+      isLoading.value = true;
       errorMessage.value = '';
 
       await authRepository.signUp(
-        email:    email,
+        email: email,
         password: password,
         username: username,
       );
@@ -66,6 +65,7 @@ class AuthController extends GetxController {
   }
 
   // ─── Sign Out ─────────────────────────────────────────────────────────────
+  /// Kullanıcıdan oturumunu kapatır.
   Future<void> signOut() async {
     try {
       isLoading.value = true;

@@ -35,6 +35,11 @@ class HomeController extends GetxController {
 
   // ─── State ─────────────────────────────────────────────────────────────────
 
+  static const _pageSize = 10;
+  final currentPage = 0.obs;
+  final hasMoreVideos = true.obs;
+  final isLoadingMore = false.obs;
+
   final videos = <VideoModel>[].obs;
   final playlists = <PlaylistModel>[].obs;
   final favoriteIds = <String>[].obs;
@@ -273,13 +278,35 @@ class HomeController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       final uni = selectedUniversity.value;
-      videos.value = uni != null
-          ? await videoRepository.getVideosByUniversity(uni.id!)
-          : await videoRepository.getLatestVideosPerUniversity();
+
+      if (uni != null) {
+        videos.value = await videoRepository.getVideosByUniversity(uni.id!);
+      } else {
+        videos.value = await videoRepository.getLatestVideosPerUniversity(page: 0);
+        currentPage.value = 0;
+        hasMoreVideos.value = true;
+      }
     } catch (e) {
       errorMessage.value = 'Videolar yüklenemedi.';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> loadMoreVideos() async {
+    if (isLoadingMore.value || !hasMoreVideos.value) return;
+    if (selectedUniversity.value != null) return; // şimdilik sadece ana feed
+    try {
+      isLoadingMore.value = true;
+      final nextPage = currentPage.value + 1;
+      final newVideos = await videoRepository.getLatestVideosPerUniversity(page: nextPage);
+      videos.addAll(newVideos);
+      currentPage.value = nextPage;
+      hasMoreVideos.value = newVideos.length == _pageSize;
+    } catch (e) {
+      log('loadMoreVideos error: $e');
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 

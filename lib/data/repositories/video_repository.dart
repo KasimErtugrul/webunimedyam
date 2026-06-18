@@ -61,7 +61,23 @@ class VideoRepository {
   }
 
   // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
-  Future<List<VideoModel>> getLatestVideosPerUniversity() async {
+  Future<List<VideoModel>> getLatestVideosPerUniversity({int page = 0, int pageSize = 10}) async {
+    final offset = page * pageSize;
+
+    // Sayfalama isteği (page > 0): Cache kontrolünü atla, direkt remote'a git.
+    if (page > 0) {
+      try {
+        log('🎬☁️ [Video] Sayfa $page Supabase\'den çekiliyor (limit: $pageSize, offset: $offset)...');
+        final videos = await _supabase.getLatestVideoPerUniversity(limit: pageSize, offset: offset);
+        log('🎬✅ [Video] Sayfa $page → ${videos.length} video geldi (remote)');
+        return videos;
+      } catch (e) {
+        log('🎬❌ [Video] Sayfa $page yüklenemedi: $e → boş liste döndürülüyor');
+        return []; // Cache sadece 1. sayfayı tuttuğu için, hata durumunda boş liste döner.
+      }
+    }
+
+    // İlk Sayfa (page == 0): Mevcut cache-first davranışı koru.
     if (await _local.isCacheValid()) {
       final cached = await _local.getCachedVideos();
       if (cached.isNotEmpty) {
@@ -71,8 +87,9 @@ class VideoRepository {
     }
 
     try {
-      log('🎬☁️ [Video] Cache geçersiz, Supabase\'den çekiliyor...');
-      final videos = await _supabase.getLatestVideoPerUniversity();
+      log('🎬☁️ [Video] Cache geçersiz, Supabase\'den çekiliyor (limit: $pageSize, offset: 0)...');
+      // Cache geçersizse pageSize parametresini kullan, varsayılan 500'e güvenme.
+      final videos = await _supabase.getLatestVideoPerUniversity(limit: pageSize, offset: 0);
       log('🎬✅ [Video] ${videos.length} video geldi → local cache\'e yazıldı (remote)');
       await _local.cacheVideos(videos);
       return videos;
@@ -106,6 +123,7 @@ class VideoRepository {
     await _local.clearCache();
     await _local.clearVideoSectionCache();
     log('🔄☁️ [Video] Veriler Supabase\'den yenileniyor...');
+    // Varsayılan parametreler (page=0) ile çağırır, ilk sayfayı yeniler.
     return await getLatestVideosPerUniversity();
   }
 
