@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../data/models/university_model.dart';
+import 'turkish_alphabet_sort_util.dart';
 
 enum SortCriteria {
   name,
@@ -85,7 +86,7 @@ class UniversitySortUtil {
   static int _compare(UniversityModel a, UniversityModel b, SortCriteria criteria) {
     switch (criteria) {
       case SortCriteria.name:
-        return (a.name ?? '').toLowerCase().compareTo((b.name ?? '').toLowerCase());
+        return turkishAlphabetCompare(a.name ?? '', b.name ?? '');
       case SortCriteria.city:
         return (a.city ?? '').toLowerCase().compareTo((b.city ?? '').toLowerCase());
       case SortCriteria.foundedYear:

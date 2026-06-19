@@ -27,15 +27,15 @@ class UniversityCardShimmerWidget extends StatelessWidget {
             children: [
               // Logo placeholder (daire)
               Container(
-                width: 62.w,
-                height: 62.w,
+                width: 48.w,
+                height: 48.w,
                 decoration: BoxDecoration(
                   color: AppTheme.card(context),
                   shape: BoxShape.circle,
                 ),
               ),
 
-              SizedBox(width: 14.w),
+              SizedBox(width: 12.w),
 
               // Metin placeholder'ları
               Expanded(
