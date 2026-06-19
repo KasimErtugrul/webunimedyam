@@ -10,6 +10,7 @@ import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../data/models/video_model.dart';
 import '../../../../../controllers/home_controller.dart';
+import '../../../../player/player_screen_widgets/comment_input_widget.dart';
 
 class VideoCardWidget extends StatefulWidget {
   final VideoModel video;
@@ -30,6 +31,253 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     if (uni != null) {
       Get.toNamed(AppRoutes.universityDetail, arguments: uni);
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ÜÇ NOKTA MENÜSÜ
+  // ═══════════════════════════════════════════════════════════════════════════
+  void _showVideoOptionsSheet(BuildContext context, HomeController controller) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.card(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 10.h),
+              Container(
+                width: 36.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: AppTheme.textSec(context).withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+              SizedBox(height: 8.h),
+
+              // ── Hızlı Yorum Gönder ──
+              _optionTile(
+                context: context,
+                icon: Icons.bolt_rounded,
+                iconColor: Theme.of(context).colorScheme.primary,
+                label: 'Hızlı Yorum Gönder',
+                subtitle: 'Videoyu açmadan yorum yap',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _showQuickCommentSheet(context, controller);
+                },
+              ),
+
+              // ── Yorumları Gör (Videoya Git) ──
+              _optionTile(
+                context: context,
+                icon: Icons.mode_comment_outlined,
+                label: 'Tüm Yorumları Gör',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  Get.toNamed(
+                    AppRoutes.player,
+                    arguments: video,
+                    parameters: {'videoId': video.videoId},
+                  );
+                },
+              ),
+
+              // ── Favori ──
+              Obx(() {
+                final isFav = controller.favoriteIds.contains(video.videoId);
+                return _optionTile(
+                  context: context,
+                  icon: isFav
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_outline_rounded,
+                  label: isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    controller.toggleFavorite(video.videoId);
+                  },
+                );
+              }),
+
+              // ── Paylaş ──
+              _optionTile(
+                context: context,
+                icon: Icons.send_outlined,
+                label: 'Paylaş',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  controller.shareVideo(video);
+                },
+              ),
+              SizedBox(height: 6.h),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _optionTile({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? iconColor,
+    String? subtitle,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 22.sp,
+              color: iconColor ?? AppTheme.textPri(context),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: AppTheme.textSec(context),
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HIZLI YORUM COMPOSER — videoya girmeden anında yorum gönderme
+  // ═══════════════════════════════════════════════════════════════════════════
+  void _showQuickCommentSheet(BuildContext context, HomeController controller) {
+   // final textController = TextEditingController();
+
+    showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppTheme.card(context),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+    ),
+    builder: (sheetContext) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Başlık kısmı aynı kalıyor ──
+                Row(
+                  children: [
+                    Icon(
+                      Icons.bolt_rounded,
+                      size: 18.sp,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    SizedBox(width: 6.w),
+                    Expanded(
+                      child: Text(
+                        video.universityName ?? video.channelTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(sheetContext),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 20.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  video.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 12.sp,
+                  ),
+                ),
+                SizedBox(height: 14.h),
+
+                // ── Güncellenmiş CommentInputWidget kullanımı ──
+                Obx(() {
+                  final isSending = controller.quickCommentSendingIds
+                      .contains(video.videoId);
+                  return AbsorbPointer(
+                    absorbing: isSending,
+                    child: Opacity(
+                      opacity: isSending ? 0.5 : 1,
+                      child: CommentInputWidget(
+                        // ✅ ARTIK CONTROLLER GEÇMİYORUZ
+                        onSend: (String text) async {  // ✅ TEXT PARAMETRE OLARAK GELİYOR
+                          final ok = await controller.sendQuickComment(
+                            video,
+                            text,
+                          );
+                          if (ok) {
+                            // ❌ SIL: textController.clear();
+                            if (sheetContext.mounted) {
+                              Navigator.pop(sheetContext);
+                            }
+                            Get.snackbar(
+                              'Gönderildi 🎉',
+                              'Yorumun videoya eklendi.',
+                              snackPosition: SnackPosition.BOTTOM,
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
   }
 
   @override
@@ -169,7 +417,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
           // ÜÇ NOKTA MENÜ
           GestureDetector(
-            onTap: () {},
+            onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
               padding: EdgeInsets.only(left: 4.w),
               child: Icon(
@@ -373,6 +621,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final hasCommented = controller.commentedVideoIds.contains(
               video.videoId,
             );
+            final extra = controller.extraCommentCountFor(video.videoId);
             return _igActionBtn(
               context: context,
               icon: hasCommented
@@ -381,7 +630,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               color: hasCommented
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
-              count: video.appCommentCount,
+              count: video.appCommentCount + extra,
               isActive: hasCommented,
               onTap: () => Get.toNamed(
                 AppRoutes.player,

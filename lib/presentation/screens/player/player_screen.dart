@@ -17,7 +17,6 @@ import 'player_screen_widgets/youtube_meta_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
 import 'player_screen_widgets/suggested_videos_section_widget.dart';
 
-
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
 
@@ -27,7 +26,7 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   late final PlayerController _controller;
-  late final TextEditingController _commentController;
+  // ❌ SILINDI: late final TextEditingController _commentController;
   late final ScrollController _scrollController;
 
   Worker? _authWorker;
@@ -51,7 +50,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     _controller = Get.find<PlayerController>(
       tag: Get.parameters['videoId'] ?? '123',
     );
-    _commentController = TextEditingController();
+    // ❌ SILINDI: _commentController = TextEditingController();
     _scrollController = ScrollController()..addListener(_onScroll);
 
     _authWorker = ever(_controller.showAuthRequired, (v) {
@@ -118,7 +117,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void dispose() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    _commentController.dispose();
+    // ❌ SILINDI: _commentController.dispose();
     _scrollController.dispose();
     _authWorker?.dispose();
     _snackbarWorker?.dispose();
@@ -313,7 +312,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       }),
 
       SizedBox(height: 20.h),
-      const SuggestedVideosSectionWidget(), // ← YENİ
+      const SuggestedVideosSectionWidget(),
       SizedBox(height: 20.h),
       Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
       SizedBox(height: 16.h),
@@ -321,11 +320,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
       SizedBox(height: 12.h),
 
+      // ✅ GÜNCELLENMİŞ KULLANIM
       CommentInputWidget(
-        textController: _commentController,
-        onSend: () {
-          _controller.addComment(_commentController.text);
-          _commentController.clear();
+        onSend: (String text) {
+          _controller.addComment(text);
+          // ❌ SILINDI: _commentController.clear();
+          // Widget kendi controller'ını temizliyor
         },
       ),
 
@@ -458,7 +458,6 @@ class _OverlayButtons extends StatelessWidget {
     final double targetW = isMini ? miniW : screenW;
 
     return IgnorePointer(
-      // Butonların dışındaki alanlara dokunuşu geçir
       ignoring: false,
       child: Stack(
         children: [

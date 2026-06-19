@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// Yorum giriş alanı
+// Yorum giriş alanı - KENDİ CONTROLLER'INI YÖNETİR
 // ═══════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -8,13 +8,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/themes/app_theme.dart';
 
 class CommentInputWidget extends StatefulWidget {
-  final TextEditingController textController;
-  final VoidCallback onSend;
+  final void Function(String text) onSend;  // ← String parametre eklendi
+  final FocusNode? focusNode;
 
   const CommentInputWidget({
     super.key,
-    required this.textController,
     required this.onSend,
+    this.focusNode,
   });
 
   @override
@@ -22,22 +22,34 @@ class CommentInputWidget extends StatefulWidget {
 }
 
 class _CommentInputWidgetState extends State<CommentInputWidget> {
+  // ✅ KENDİ CONTROLLER'INI OLUŞTURUYOR - DIŞARIDAN GELEN DEĞİL
+  late final TextEditingController _textController;
   bool _hasText = false;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    widget.textController.addListener(_updateTextState);
+    _textController = TextEditingController();
+    _textController.addListener(_updateTextState);
+    
+    // İsteğe bağlı otomatik odaklanma
+    widget.focusNode?.requestFocus();
   }
 
   @override
   void dispose() {
-    widget.textController.removeListener(_updateTextState);
+    _isDisposed = true;  // ✅ ÖNCE BAYRAĞI KALDIR
+    _textController.removeListener(_updateTextState);  // ✅ SONRA LISTENER'I KALDIR
+    _textController.dispose();  // ✅ EN SON DISPOSE ET
     super.dispose();
   }
 
   void _updateTextState() {
-    final hasText = widget.textController.text.trim().isNotEmpty;
+    // ✅ DISPOSE EDİLDİKTEN SONRA setState ÇAĞRILMASINI ÖNLE
+    if (_isDisposed) return;
+    
+    final hasText = _textController.text.trim().isNotEmpty;
     if (hasText != _hasText) {
       setState(() {
         _hasText = hasText;
@@ -47,7 +59,7 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
 
   void _handleSend() {
     if (_hasText) {
-      widget.onSend();
+      widget.onSend(_textController.text.trim());  // ✅ TEXT'İ PARAMETRE OLARAK GÖNDER
     }
   }
 
@@ -57,12 +69,11 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: AppTheme.surface(context),
-        borderRadius: BorderRadius.circular(28.r), // Yuvarlak "pill" görünümü
+        borderRadius: BorderRadius.circular(28.r),
         border: Border.all(
-          color: AppTheme.textSec(context).withOpacity(0.1), // İnce dış çerçeve
+          color: AppTheme.textSec(context).withOpacity(0.1),
         ),
         boxShadow: [
-          // Hafif bir alt gölge ile alanı ön plana çıkar
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
@@ -77,7 +88,8 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
           // ─── Metin Giriş Alanı ──────────────────────────────────
           Expanded(
             child: TextField(
-              controller: widget.textController,
+              controller: _textController,  // ✅ KENDİ CONTROLLER'INI KULLAN
+              focusNode: widget.focusNode,
               style: TextStyle(
                 color: AppTheme.textPri(context),
                 fontSize: 14.sp,
@@ -88,14 +100,14 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
                   color: AppTheme.textSec(context),
                   fontSize: 14.sp,
                 ),
-                border: InputBorder.none, // Dış çerçeveyi container yönetiyor
+                border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(vertical: 10.h),
                 isDense: true,
               ),
               textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _handleSend(), // Klavyeden gönderme
+              onSubmitted: (_) => _handleSend(),
             ),
           ),
 
@@ -106,12 +118,12 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
             child: Material(
               color: _hasText
                   ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textSec(context).withOpacity(0.2), // Pasif hali
+                  : AppTheme.textSec(context).withOpacity(0.2),
               borderRadius: BorderRadius.circular(20.r),
               child: InkWell(
                 onTap: _handleSend,
                 borderRadius: BorderRadius.circular(20.r),
-                splashColor: Colors.white.withOpacity(0.2), // Ripple efekti
+                splashColor: Colors.white.withOpacity(0.2),
                 child: Padding(
                   padding: EdgeInsets.all(8.w),
                   child: Icon(

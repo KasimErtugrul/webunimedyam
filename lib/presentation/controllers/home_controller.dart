@@ -10,6 +10,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
+import '../../data/repositories/comment_repository.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import 'profile_controller.dart';
 import '../../data/models/video_model.dart';
@@ -25,6 +26,7 @@ class HomeController extends GetxController {
   final AuthRepository authRepository;
   final EngagementRepository engagementRepository;
   final UniversityFavoritesRepository universityFavoritesRepository;
+  final CommentRepository commentRepository;
 
   HomeController({
     required this.videoRepository,
@@ -33,6 +35,7 @@ class HomeController extends GetxController {
     required this.authRepository,
     required this.engagementRepository,
     required this.universityFavoritesRepository,
+    required this.commentRepository,
   });
 
   // ─── State ─────────────────────────────────────────────────────────────────
@@ -108,6 +111,17 @@ class HomeController extends GetxController {
   RxList<String> get shareLoadingVideoIds => _shareLoadingIds;
   RxList<String> get sharedVideoIds => _sharedIds;
   RxList<String> get commentedVideoIds => _commentedIds;
+
+  // ─── Hızlı Yorum (video'ya girmeden, üç nokta menüsünden) ─────────────────
+  // Sunucudan gelen appCommentCount anlık olarak güncellenmediği için,
+  // bu oturumda gönderilen hızlı yorumları videoId -> adet şeklinde tutuyoruz.
+  final _quickCommentBumps = <String, int>{}.obs;
+  final _quickCommentSendingIds = <String>{}.obs;
+
+  RxMap<String, int> get quickCommentBumps => _quickCommentBumps;
+  RxSet<String> get quickCommentSendingIds => _quickCommentSendingIds;
+
+  int extraCommentCountFor(String videoId) => _quickCommentBumps[videoId] ?? 0;
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -494,6 +508,47 @@ class HomeController extends GetxController {
     } finally {
       _shareLoadingIds.remove(video.videoId);
       _shareProcessing.remove(video.videoId);
+    }
+  }
+
+  // ─── Hızlı Yorum Gönder (Üç Nokta Menüsü) ─────────────────────────────────
+  // Kullanıcı videoya/player ekranına girmeden, kart üzerindeki "⋯" menüsünden
+  // doğrudan yorum gönderebilir. Aynı comment_repository'i kullanır, böylece
+  // player ekranındaki yorum listesiyle veri kaynağı ortak kalır.
+  Future<bool> sendQuickComment(VideoModel video, String content) async {
+    final trimmed = content.trim();
+    if (trimmed.isEmpty) return false;
+
+    final userId = _currentUserId;
+    if (userId == null) {
+      showAuthRequired.value = true;
+      return false;
+    }
+
+    if (_quickCommentSendingIds.contains(video.videoId)) return false;
+    _quickCommentSendingIds.add(video.videoId);
+    try {
+      await commentRepository.addComment(
+        userId: userId,
+        videoId: video.videoId,
+        content: trimmed,
+      );
+      _quickCommentBumps[video.videoId] =
+          (_quickCommentBumps[video.videoId] ?? 0) + 1;
+      if (!_commentedIds.contains(video.videoId)) {
+        _commentedIds.add(video.videoId);
+      }
+      return true;
+    } catch (e) {
+      log('[HomeController] sendQuickComment error: $e');
+      Get.snackbar(
+        'Gönderilemedi',
+        'Yorumun gönderilemedi, lütfen tekrar dene.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      _quickCommentSendingIds.remove(video.videoId);
     }
   }
 
