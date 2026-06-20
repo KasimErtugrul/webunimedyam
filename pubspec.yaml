@@ -42,6 +42,7 @@ dependencies:
   youtube_shorts: ^4.0.2
   readmore: ^3.0.0
   alphabet_scroll_view: ^0.3.2
+  radio_player: ^2.3.1
 
 dev_dependencies:
   flutter_test:

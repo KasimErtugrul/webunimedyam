@@ -1,9 +1,11 @@
 // lib/presentation/screens/university_detail/university_detail_screen.dart
 
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:radio_player/radio_player.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
@@ -15,7 +17,86 @@ import '../../../data/models/video_model.dart';
 import '../../controllers/university_detail_controller.dart';
 import '../home/tabs/home_tab/widgets/video_card_widget.dart';
 
-// ← StatefulWidget'e çevrildi
+// ════════════════════════════════════════════════════════════════════════════
+// BUSINESS LOGIC: Radyo Akışını Yöneten GetX Controller
+// ════════════════════════════════════════════════════════════════════════════
+
+class UniversityRadioController extends GetxController {
+  // Durum değişkenleri (Reaktif)
+  final Rx<PlaybackState> playbackState = PlaybackState.unknown.obs;
+  final Rx<Metadata?> metadata = Rx<Metadata?>(null);
+  final Rx<String?> currentPlayingUrl = Rx<String?>(null);
+  final Rx<String?> currentPlayingName = Rx<String?>(null);
+  final Rx<String?> currentPlayingLogo = Rx<String?>(null);
+
+  // Stream Subscriptions
+  StreamSubscription? _playbackStateSub;
+  StreamSubscription? _metadataSub;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _playbackStateSub = RadioPlayer.playbackStateStream.listen((state) {
+      playbackState.value = state;
+    });
+
+    _metadataSub = RadioPlayer.metadataStream.listen((meta) {
+      metadata.value = meta;
+    });
+  }
+
+  void togglePlayPause({
+    required String url,
+    required String name,
+    String? logoUrl,
+  }) {
+    if (currentPlayingUrl.value == url) {
+      if (playbackState.value == PlaybackState.playing) {
+        RadioPlayer.pause();
+      } else {
+        RadioPlayer.play();
+      }
+    } else {
+      currentPlayingUrl.value = url;
+      currentPlayingName.value = name;
+      currentPlayingLogo.value = logoUrl;
+      metadata.value = null;
+
+      RadioPlayer.setStation(
+        title: name,
+        url: url,
+        logoNetworkUrl: logoUrl,
+        parseStreamMetadata: true,
+      );
+      RadioPlayer.play();
+    }
+  }
+
+  void stopRadio() {
+    RadioPlayer.reset();
+    currentPlayingUrl.value = null;
+    currentPlayingName.value = null;
+    currentPlayingLogo.value = null;
+    metadata.value = null;
+    playbackState.value = PlaybackState.unknown;
+  }
+
+  bool get isPlaying => playbackState.value == PlaybackState.playing;
+  bool get isBuffering => playbackState.value == PlaybackState.buffering;
+  bool get isRadioActive => currentPlayingUrl.value != null;
+
+  @override
+  void onClose() {
+    _playbackStateSub?.cancel();
+    _metadataSub?.cancel();
+    super.onClose();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ANA SAYFA: UniversityDetailScreen
+// ════════════════════════════════════════════════════════════════════════════
+
 class UniversityDetailScreen extends StatefulWidget {
   const UniversityDetailScreen({super.key});
 
@@ -25,34 +106,44 @@ class UniversityDetailScreen extends StatefulWidget {
 
 class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   late final UniversityDetailController controller;
-  final ScrollController _scrollController = ScrollController();
+  late final UniversityRadioController radioController;
 
-  // Başlık opacity'sini tutacağımız değişken
+  // Sayfa ömrünü bu sayfaya özel bağlamak için benzersiz bir tag oluşturuyoruz
+  late final String _radioTag;
+  final ScrollController _scrollController = ScrollController();
   double _titleOpacity = 0.0;
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<UniversityDetailController>();
+
+    // Her detay sayfası örneği için kendine özel bir controller oluştur (permanent: true KALDIRILDI)
+    _radioTag = 'uni_radio_${identityHashCode(this)}';
+    radioController = Get.put(UniversityRadioController(), tag: _radioTag);
+
     _scrollController.addListener(_updateTitleOpacity);
   }
 
   @override
   void dispose() {
+    // 1. Radyo yayını tamamen durdur ve arka plan bildirimini kaldır
+    radioController.stopRadio();
+
+    // 2. Controller'ı GetX belleğinden sil ve dispose et
+    Get.delete<UniversityRadioController>(tag: _radioTag);
+
+    // 3. Scroll controller'ı temizle
     _scrollController.removeListener(_updateTitleOpacity);
     _scrollController.dispose();
+
     super.dispose();
   }
 
-  // Kaydırma miktarına göre opacity'yi hesaplayan metot
   void _updateTitleOpacity() {
     if (!_scrollController.hasClients) return;
-
     final double offset = _scrollController.offset;
-    // expandedHeight (240) - pinned toolbar height (56)
     final double maxScroll = 240.h - kToolbarHeight;
-
-    // Kaydırma %40'a ulaştığında yazı belirmeye başlasın, %100'de tamamen keskinleşsin
     final double fadeStart = maxScroll * 0.99;
     final double fadeEnd = maxScroll;
 
@@ -68,11 +159,8 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
       );
     }
 
-    // Sadece değişmişse setState çağıralım (performans)
     if (newOpacity != _titleOpacity) {
-      setState(() {
-        _titleOpacity = newOpacity;
-      });
+      setState(() => _titleOpacity = newOpacity);
     }
   }
 
@@ -82,144 +170,295 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
       length: 3,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
-        body: NestedScrollView(
-          controller: _scrollController, // ← ScrollController eklendi
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverAppBar(
-              expandedHeight: 240.h,
-              pinned: true,
-              floating: false,
-              backgroundColor: AppTheme.bg(context),
-              scrolledUnderElevation: 0,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: AppTheme.textPri(context),
-                  size: 22.sp,
-                ),
-                onPressed: () => Get.back(),
-              ),
-              // ── Collapsed Title: Yumuşak Geçişli Logo + Ad ──────────
-              title: Opacity(
-                // AnimatedOpacity yerine direkt Opacity (anlık hesaplama)
-                opacity: _titleOpacity,
-                child: Obx(() {
-                  final uni = controller.university.value;
-                  if (uni == null) return const SizedBox.shrink();
-                  final hasLogo =
-                      uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (hasLogo)
-                        Padding(
-                          padding: EdgeInsets.only(right: 10.w),
-                          child: ClipOval(
-                            child: Container(
-                              width: 30.w,
-                              height: 30.w,
-                              color: Colors.white,
-                              child: CachedNetworkImage(
-                                imageUrl: uni.logoUrl!,
-                                fit: BoxFit.contain,
-                                errorWidget: (_, __, ___) => Icon(
-                                  Icons.school_rounded,
-                                  size: 18.sp,
-                                  color: AppTheme.primaryColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        Padding(
-                          padding: EdgeInsets.only(right: 8.w),
-                          child: Icon(
-                            Icons.school_rounded,
-                            size: 22.sp,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      Flexible(
-                        child: Text(
-                          uni.name ?? '',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPri(context),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  SliverAppBar(
+                    expandedHeight: 240.h,
+                    pinned: true,
+                    floating: false,
+                    backgroundColor: AppTheme.bg(context),
+                    scrolledUnderElevation: 0,
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: AppTheme.textPri(context),
+                        size: 22.sp,
                       ),
-                    ],
-                  );
-                }),
-              ),
-              actions: [
-                Obx(() {
-                  final isFav = controller.isFavorite.value;
-                  final isLoading = controller.isFavoriteLoading.value;
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8.w),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 44.w,
-                            height: 44.w,
-                            child: Center(
-                              child: SizedBox(
-                                width: 20.w,
-                                height: 20.w,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                      onPressed: () => Get.back(),
+                    ),
+                    title: Opacity(
+                      opacity: _titleOpacity,
+                      child: Obx(() {
+                        final uni = controller.university.value;
+                        if (uni == null) return const SizedBox.shrink();
+                        final hasLogo =
+                            uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (hasLogo)
+                              Padding(
+                                padding: EdgeInsets.only(right: 10.w),
+                                child: ClipOval(
+                                  child: Container(
+                                    width: 30.w,
+                                    height: 30.w,
+                                    color: Colors.white,
+                                    child: CachedNetworkImage(
+                                      imageUrl: uni.logoUrl!,
+                                      fit: BoxFit.contain,
+                                      errorWidget: (_, __, ___) => Icon(
+                                        Icons.school_rounded,
+                                        size: 18.sp,
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.w),
+                                child: Icon(
+                                  Icons.school_rounded,
+                                  size: 22.sp,
                                   color: AppTheme.primaryColor,
                                 ),
                               ),
-                            ),
-                          )
-                        : IconButton(
-                            tooltip: isFav
-                                ? 'Favorilerden çıkar'
-                                : 'Favorilere ekle',
-                            icon: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 250),
-                              transitionBuilder: (child, anim) =>
-                                  ScaleTransition(scale: anim, child: child),
-                              child: Icon(
-                                isFav
-                                    ? Icons.bookmark_rounded
-                                    : Icons.bookmark_border_rounded,
-                                key: ValueKey(isFav),
-                                color: isFav
-                                    ? AppTheme.primaryColor
-                                    : AppTheme.textPri(context),
-                                size: 26.sp,
+                            Flexible(
+                              child: Text(
+                                uni.name ?? '',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textPri(context),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
-                            onPressed: controller.toggleFavorite,
-                          ),
-                  );
-                }),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                background: _Header(controller: controller),
+                          ],
+                        );
+                      }),
+                    ),
+                    actions: [
+                      Obx(() {
+                        final isFav = controller.isFavorite.value;
+                        final isLoading = controller.isFavoriteLoading.value;
+                        return Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: isLoading
+                              ? SizedBox(
+                                  width: 44.w,
+                                  height: 44.w,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20.w,
+                                      height: 20.w,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : IconButton(
+                                  tooltip: isFav
+                                      ? 'Favorilerden çıkar'
+                                      : 'Favorilere ekle',
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 250),
+                                    transitionBuilder: (child, anim) =>
+                                        ScaleTransition(
+                                          scale: anim,
+                                          child: child,
+                                        ),
+                                    child: Icon(
+                                      isFav
+                                          ? Icons.bookmark_rounded
+                                          : Icons.bookmark_border_rounded,
+                                      key: ValueKey(isFav),
+                                      color: isFav
+                                          ? AppTheme.primaryColor
+                                          : AppTheme.textPri(context),
+                                      size: 26.sp,
+                                    ),
+                                  ),
+                                  onPressed: controller.toggleFavorite,
+                                ),
+                        );
+                      }),
+                    ],
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: _Header(controller: controller),
+                    ),
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _TabBarDelegate(context: context),
+                  ),
+                ],
+                body: TabBarView(
+                  children: [
+                    _AboutTab(
+                      controller: controller,
+                      radioController: radioController,
+                    ),
+                    _VideosTab(controller: controller),
+                    _ShortsTab(controller: controller),
+                  ],
+                ),
               ),
             ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _TabBarDelegate(context: context),
-            ),
+            _RadioMiniPlayer(radioController: radioController),
           ],
-          body: TabBarView(
-            children: [
-              _AboutTab(controller: controller),
-              _VideosTab(controller: controller),
-              _ShortsTab(controller: controller),
-            ],
-          ),
         ),
       ),
     );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// YENİ WIDGET: Radyo Mini Player (Ekran En Altında)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _RadioMiniPlayer extends StatelessWidget {
+  final UniversityRadioController radioController;
+  const _RadioMiniPlayer({required this.radioController});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (!radioController.isRadioActive) return const SizedBox.shrink();
+
+      final meta = radioController.metadata.value;
+      final titleText =
+          meta?.title ?? radioController.currentPlayingName.value ?? 'Yayın';
+      final artistText = meta?.artist ?? 'Canlı Yayın';
+
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.isDark(context)
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: Offset(0, -2.h),
+            ),
+          ],
+          border: Border(
+            top: BorderSide(
+              color: AppTheme.primaryColor.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            child: Row(
+              children: [
+                Container(
+                  width: 42.w,
+                  height: 42.w,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.r),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: radioController.currentPlayingLogo.value != null
+                      ? CachedNetworkImage(
+                          imageUrl: radioController.currentPlayingLogo.value!,
+                          fit: BoxFit.cover,
+                        )
+                      : Icon(
+                          Icons.radio_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 24.sp,
+                        ),
+                ),
+                SizedBox(width: 12.w),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        titleText,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPri(context),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        artistText,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: AppTheme.textSec(context),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (radioController.isBuffering)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: SizedBox(
+                      width: 20.w,
+                      height: 20.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  )
+                else ...[
+                  IconButton(
+                    icon: Icon(
+                      radioController.isPlaying
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_filled,
+                      color: AppTheme.primaryColor,
+                      size: 36.sp,
+                    ),
+                    onPressed: () {
+                      radioController.togglePlayPause(
+                        url: radioController.currentPlayingUrl.value!,
+                        name: radioController.currentPlayingName.value!,
+                        logoUrl: radioController.currentPlayingLogo.value,
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.stop_circle_outlined,
+                      color: AppTheme.textSec(context),
+                      size: 28.sp,
+                    ),
+                    onPressed: radioController.stopRadio,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -235,12 +474,11 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final uni = controller.university.value;
-      if (uni == null) {
+      if (uni == null)
         return Container(
           color: Colors.transparent,
           child: const Center(child: CircularProgressIndicator()),
         );
-      }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
 
       return Container(
@@ -259,8 +497,6 @@ class _Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 56.h),
-
-            // ── Logo: Glow Efektli Daire ──────────────────────────────
             Container(
               width: 100.w,
               height: 100.w,
@@ -326,10 +562,7 @@ class _Header extends StatelessWidget {
                 ),
               ),
             ),
-
             SizedBox(height: 14.h),
-
-            // ── Üniversite Adı ───────────────────────────────────────
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.w),
               child: Text(
@@ -345,8 +578,6 @@ class _Header extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-
-            // ── Şehir ────────────────────────────────────────────────
             if (uni.city != null) ...[
               SizedBox(height: 6.h),
               Row(
@@ -368,10 +599,7 @@ class _Header extends StatelessWidget {
                 ],
               ),
             ],
-
             SizedBox(height: 10.h),
-
-            // ── Favori Rozeti ────────────────────────────────────────
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
@@ -456,12 +684,13 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Hakkında Sekmesi
+// Hakkında Sekmesi (Radyo Kartı Entegrasyonu Yapıldı)
 // ════════════════════════════════════════════════════════════════════════════
 
 class _AboutTab extends StatelessWidget {
   final UniversityDetailController controller;
-  const _AboutTab({required this.controller});
+  final UniversityRadioController radioController;
+  const _AboutTab({required this.controller, required this.radioController});
 
   @override
   Widget build(BuildContext context) {
@@ -619,7 +848,10 @@ class _AboutTab extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-            if (uni.websiteUrl != null || uni.customUrl != null) ...[
+
+            if (uni.websiteUrl != null ||
+                uni.customUrl != null ||
+                (uni.radioLink != null && uni.radioLink!.isNotEmpty)) ...[
               _SectionTitle(title: 'Bağlantılar'),
               SizedBox(height: 8.h),
               if (uni.websiteUrl != null && uni.websiteUrl!.isNotEmpty)
@@ -637,17 +869,17 @@ class _AboutTab extends StatelessWidget {
                   color: const Color(0xFFFF0000),
                 ),
               ],
+
               if (uni.radioLink != null && uni.radioLink!.isNotEmpty) ...[
                 SizedBox(height: 8.h),
-                _LinkButton(
-                  icon: Icons.radio_rounded,
-                  label: 'Üniversite Radyosu',
-                  url: uni.radioLink!,
-                  color: const Color(0xFF8B5CF6),
+                _RadioInlineCard(
+                  university: uni,
+                  radioController: radioController,
                 ),
               ],
               SizedBox(height: 20.h),
             ],
+
             if (uni.channelId != null) ...[
               _SectionTitle(title: 'YouTube Kanalı'),
               SizedBox(height: 8.h),
@@ -694,6 +926,196 @@ class _AboutTab extends StatelessWidget {
     } catch (_) {
       return isoDate;
     }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// YENİ WIDGET: Inline Radyo Kartı (Hakkında Sekmesinde)
+// ════════════════════════════════════════════════════════════════════════════
+
+class _RadioInlineCard extends StatelessWidget {
+  final dynamic university; // UniversityModel
+  final UniversityRadioController radioController;
+
+  const _RadioInlineCard({
+    required this.university,
+    required this.radioController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final bool isThisPlaying =
+          radioController.currentPlayingUrl.value == university.radioLink;
+      final bool buffering = isThisPlaying && radioController.isBuffering;
+      final bool playing = isThisPlaying && radioController.isPlaying;
+
+      return Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isThisPlaying
+                ? [
+                    const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                    AppTheme.card(context),
+                  ]
+                : [AppTheme.card(context), AppTheme.card(context)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: isThisPlaying
+                ? const Color(0xFF8B5CF6).withValues(alpha: 0.4)
+                : AppTheme.isDark(context)
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46.w,
+              height: 46.w,
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (playing || buffering)
+                    _RadioWaveAnimation(isActive: playing),
+                  Icon(
+                    buffering
+                        ? Icons.hdr_weak_rounded
+                        : (playing
+                              ? Icons.equalizer_rounded
+                              : Icons.radio_rounded),
+                    color: const Color(0xFF8B5CF6),
+                    size: 22.sp,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 14.w),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Üniversite Radyosu',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPri(context),
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    isThisPlaying
+                        ? (playing
+                              ? 'Canlı Yayın Dinleniyor...'
+                              : (buffering
+                                    ? 'Yayına Bağlanılıyor...'
+                                    : 'Yayın Duraklatıldı'))
+                        : 'Canlı yayını dinlemek için tıklayın',
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      color: isThisPlaying
+                          ? const Color(0xFF8B5CF6)
+                          : AppTheme.textSec(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24.r),
+                onTap: () {
+                  radioController.togglePlayPause(
+                    url: university.radioLink,
+                    name: university.name,
+                    logoUrl: university.logoUrl,
+                  );
+                },
+                child: Container(
+                  width: 44.w,
+                  height: 44.w,
+                  decoration: BoxDecoration(
+                    color: isThisPlaying
+                        ? const Color(0xFF8B5CF6)
+                        : const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                    boxShadow: isThisPlaying
+                        ? [
+                            BoxShadow(
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: Offset(0, 4.h),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: buffering
+                      ? SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Icon(
+                          playing
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          color: isThisPlaying
+                              ? Colors.white
+                              : const Color(0xFF8B5CF6),
+                          size: 24.sp,
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+/// Radyo çalarken arka planda oluşan dalga animasyonu
+class _RadioWaveAnimation extends StatelessWidget {
+  final bool isActive;
+  const _RadioWaveAnimation({required this.isActive});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12.r),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(3, (index) {
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 400 + (index * 150)),
+            width: 3.w,
+            height: isActive ? (20.h + (index % 2 == 0 ? 10.h : 0)) : 6.h,
+            margin: EdgeInsets.symmetric(horizontal: 1.5.w),
+            decoration: BoxDecoration(
+              color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          );
+        }),
+      ),
+    );
   }
 }
 
