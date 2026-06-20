@@ -57,15 +57,25 @@ class LocalDataSource {
     if (cacheTime == null) return false;
 
     final nowUtc = DateTime.now().toUtc();
+    final cacheUtc = cacheTime.toUtc();
+    final ageMinutes = nowUtc.difference(cacheUtc).inMinutes;
 
     final minuteOfDay = nowUtc.hour * 60 + nowUtc.minute;
     const cronStart = 8 * 60;
     const cronEnd = 22 * 60 + 45;
-    if (minuteOfDay < cronStart || minuteOfDay > cronEnd) return true;
 
-    //final nowUtc = DateTime.now().toUtc();
-    final cacheUtc = cacheTime.toUtc();
-    return nowUtc.difference(cacheUtc).inMinutes < 15;
+    // YouTube senkronizasyon cron'u sadece 08:00-22:45 UTC arası çalışıyor,
+    // bu yüzden video metadata'sı (başlık, thumbnail vb.) bu pencere
+    // dışında değişmez ve cache'i sık sık yenilemeye gerek yok.
+    // FIX: appViewCount/appLikeCount gibi UYGULAMA İÇİ istatistikler ise
+    // günün her saatinde değişebilir (kullanıcılar gece de video izleyebilir),
+    // bu yüzden pencere dışında da cache SÜRESİZ değil, sadece daha gevşek
+    // (60 dk) bir TTL ile geçerli sayılır.
+    if (minuteOfDay < cronStart || minuteOfDay > cronEnd) {
+      return ageMinutes < 60;
+    }
+
+    return ageMinutes < 15;
   }
 
   Future<void> clearCache() async {

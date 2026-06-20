@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
+import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/models/profile_model.dart';
+import '../../data/models/university_model.dart';
 import '../../data/models/video_model.dart';
 import 'settings_controller.dart';
 
@@ -13,11 +15,13 @@ class ProfileController extends GetxController {
   final AuthRepository authRepository;
   final FavoritesRepository favoritesRepository;
   final ProfileActivityRepository profileActivityRepository;
+  final UniversityFavoritesRepository universityFavoritesRepository;
 
   ProfileController({
     required this.authRepository,
     required this.favoritesRepository,
     required this.profileActivityRepository,
+    required this.universityFavoritesRepository,
   });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
@@ -34,6 +38,10 @@ class ProfileController extends GetxController {
   final isViewedLoading = false.obs;
   final isCommentedLoading = false.obs;
   final isSharedLoading = false.obs;
+  final isUniversitiesLoading = false.obs;
+
+  // ─── Takip Edilen Üniversiteler ───────────────────────────────────────────
+  final followedUniversities = <UniversityModel>[].obs;
 
   final successMessage = RxnString();
   final errorMessage = RxnString();
@@ -117,6 +125,7 @@ class ProfileController extends GetxController {
       loadViewedVideos(userId),
       loadCommentedVideos(userId),
       loadSharedVideos(userId),
+      loadFollowedUniversities(userId),
     ]);
   }
 
@@ -178,6 +187,20 @@ class ProfileController extends GetxController {
       log('loadSharedVideos error: $e');
     } finally {
       isSharedLoading.value = false;
+    }
+  }
+
+  Future<void> loadFollowedUniversities([String? uid]) async {
+    final userId = uid ?? _currentUserId;
+    if (userId == null) return;
+    try {
+      isUniversitiesLoading.value = true;
+      followedUniversities.value =
+          await universityFavoritesRepository.getFavoriteUniversities(userId);
+    } catch (e) {
+      log('loadFollowedUniversities error: $e');
+    } finally {
+      isUniversitiesLoading.value = false;
     }
   }
 

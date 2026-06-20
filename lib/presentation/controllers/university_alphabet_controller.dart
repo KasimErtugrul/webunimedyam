@@ -25,6 +25,7 @@ class UniversityAlphabetController extends GetxController {
   /// Listede bulunan benzersiz harfler, sırasıyla.
   final availableLetters = <String>[].obs;
 
+  // ignore: unused_field
   List<UniversityModel> _universities = [];
   double _itemExtent = 1;
 

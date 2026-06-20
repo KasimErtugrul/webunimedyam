@@ -11,11 +11,17 @@ class ShortsRepository {
   ShortsRepository({required SupabaseDataSource supabase})
       : _supabase = supabase;
 
-  /// Her üniversiteden en son 1 shorts videoyu çeker.
-  Future<List<ShortsModel>> getShortsPerUniversity() async {
+  /// Sayfalama destekli: her çağrıda [limit] adet, [offset]'ten itibaren.
+  Future<List<ShortsModel>> getShortsPerUniversity({
+    int limit = 10,
+    int offset = 0,
+  }) async {
     try {
-      log('🎬📱 [Shorts] Shorts listesi RPC\'den çekiliyor...');
-      final shorts = await _supabase.getShortsPerUniversity();
+      log('🎬📱 [Shorts] Shorts listesi RPC\'den çekiliyor (limit=$limit, offset=$offset)...');
+      final shorts = await _supabase.getShortsPerUniversity(
+        limit: limit,
+        offset: offset,
+      );
       log('🎬✅ [Shorts] ${shorts.length} üniversiteden shorts geldi');
       return shorts;
     } catch (e) {

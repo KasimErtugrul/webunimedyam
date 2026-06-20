@@ -16,8 +16,37 @@ import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../data/models/shorts_model.dart';
 import '../../../../../controllers/shorts_controller.dart';
 
-class ShortsRowWidget extends StatelessWidget {
+class ShortsRowWidget extends StatefulWidget {
   const ShortsRowWidget({super.key});
+
+  @override
+  State<ShortsRowWidget> createState() => _ShortsRowWidgetState();
+}
+
+class _ShortsRowWidgetState extends State<ShortsRowWidget> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    // Sona ~200px kala bir sonraki 10'luk sayfayı önceden yükle.
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      Get.find<ShortsController>().loadMoreShorts();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +68,18 @@ class ShortsRowWidget extends StatelessWidget {
           SizedBox(
             height: 110.h,
             child: ListView.builder(
+              controller: _scrollController,
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
-              itemCount: controller.shorts.length,
+              // hasMore true ise sona bir loading item ekleniyor.
+              itemCount:
+                  controller.shorts.length + (controller.hasMore.value ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index >= controller.shorts.length) {
+                  return _LoadMoreIndicator(
+                    isLoading: controller.isLoadingMore.value,
+                  );
+                }
                 return _ShortsThumbItem(
                   shorts: controller.shorts[index],
                   initialIndex: index,
@@ -102,6 +139,32 @@ class ShortsRowWidget extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── Sayfalama Yükleniyor Göstergesi ──────────────────────────────────────
+
+class _LoadMoreIndicator extends StatelessWidget {
+  final bool isLoading;
+  const _LoadMoreIndicator({required this.isLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48.w,
+      child: Center(
+        child: isLoading
+            ? SizedBox(
+                width: 22.w,
+                height: 22.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.primaryColor,
+                ),
+              )
+            : const SizedBox.shrink(),
       ),
     );
   }

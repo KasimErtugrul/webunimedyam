@@ -17,10 +17,17 @@ class ShortsController extends GetxController {
   ShortsController({required ShortsRepository repository})
       : _repository = repository;
 
+  // ─── Sayfalama Ayarları ───────────────────────────────────────────────────
+  static const int pageSize = 10;
+
   // ─── State ────────────────────────────────────────────────────────────────
   final shorts = <ShortsModel>[].obs;
   final isLoading = false.obs;
+  final isLoadingMore = false.obs;
+  final hasMore = true.obs;
   final errorMessage = ''.obs;
+
+  int _offset = 0;
 
   // Oynatıcıda hangi index'teyiz
   final currentIndex = 0.obs;
@@ -36,20 +43,59 @@ class ShortsController extends GetxController {
 
   // ─── Veri ────────────────────────────────────────────────────────────────
 
-  /// Shorts listesini Supabase'den çeker.
-  /// FIX: Artık her çağrıda taze veri — yayınlanma tarihine göre sıralı gelir.
+  /// Shorts listesinin ilk sayfasını ([pageSize] adet) Supabase'den çeker.
+  /// Mevcut listeyi sıfırlar.
   Future<void> loadShorts() async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      final result = await _repository.getShortsPerUniversity();
+      _offset = 0;
+      hasMore.value = true;
+
+      final result = await _repository.getShortsPerUniversity(
+        limit: pageSize,
+        offset: _offset,
+      );
       shorts.value = result;
-      log('[ShortsController] ${result.length} shorts yüklendi');
+      _offset = result.length;
+      hasMore.value = result.length == pageSize;
+      log('[ShortsController] ${result.length} shorts yüklendi (sayfa 1)');
     } catch (e) {
       log('[ShortsController] loadShorts error: $e');
       errorMessage.value = 'Shorts yüklenemedi.';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Yatay listede sona yaklaşıldığında bir sonraki [pageSize] adet shorts'u
+  /// mevcut listenin sonuna ekler.
+  Future<void> loadMoreShorts() async {
+    if (isLoadingMore.value || isLoading.value || !hasMore.value) return;
+
+    try {
+      isLoadingMore.value = true;
+      final result = await _repository.getShortsPerUniversity(
+        limit: pageSize,
+        offset: _offset,
+      );
+
+      if (result.isEmpty) {
+        hasMore.value = false;
+        return;
+      }
+
+      shorts.addAll(result);
+      _offset += result.length;
+      hasMore.value = result.length == pageSize;
+      log(
+        '[ShortsController] +${result.length} shorts yüklendi '
+        '(toplam: ${shorts.length}, offset: $_offset)',
+      );
+    } catch (e) {
+      log('[ShortsController] loadMoreShorts error: $e');
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 

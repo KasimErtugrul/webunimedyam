@@ -143,11 +143,21 @@ class PlayerController extends GetxController {
 
   // ─── Görüntüleme ─────────────────────────────────────────────────────────
 
+  // FIX: appViewCount eskiden sadece _loadEngagementStats() ile sunucudan
+  // okunuyordu. Diğer tüm sayaçlar (beğeni, favori, paylaşım, yorum) optimistic
+  // güncelleniyordu ama bu unutulmuştu — bu yüzden kullanıcı videoyu izlediğinde
+  // kendi izlemesini anında görmüyordu. recordView başarılıysa ve bu kullanıcı
+  // için yeni bir kayıt oluştuysa sayaç hemen +1 artar.
   Future<void> _recordView() async {
     if (currentVideo.value == null) return;
     final userId = currentUserId;
     if (userId == null) return;
-    await engagementRepository.recordView(userId, currentVideo.value!.videoId);
+    try {
+      await engagementRepository.recordView(userId, currentVideo.value!.videoId);
+      appViewCount.value += 1;
+    } catch (e) {
+      log('[PlayerController] _recordView error: $e');
+    }
   }
 
   // ─── Önerilen Videolar ───────────────────────────────────────────────────

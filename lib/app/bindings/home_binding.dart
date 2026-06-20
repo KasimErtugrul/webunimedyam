@@ -79,10 +79,7 @@ class HomeBinding extends Bindings {
     }
 
     if (!Get.isRegistered<CommentRepository>()) {
-      Get.lazyPut(
-        () => CommentRepository(supabase: Get.find()),
-        fenix: true,
-      );
+      Get.lazyPut(() => CommentRepository(supabase: Get.find()), fenix: true);
     }
 
     // ── Controllers ────────────────────────────────────────────────────────
@@ -111,6 +108,7 @@ class HomeBinding extends Bindings {
           authRepository: Get.find(),
           favoritesRepository: Get.find(),
           profileActivityRepository: Get.find(),
+          universityFavoritesRepository: Get.find(),
         ),
         fenix: true,
       );
@@ -125,6 +123,8 @@ class HomeBinding extends Bindings {
           authRepository: Get.find(),
           favoritesRepository: Get.find(),
           profileActivityRepository: Get.find(),
+                 universityFavoritesRepository: Get.find(),
+
         ),
         tag: currentUserId,
         fenix: true,

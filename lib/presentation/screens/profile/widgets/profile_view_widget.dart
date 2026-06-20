@@ -8,6 +8,7 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../controllers/profile_controller.dart';
 import 'activity_video_tab/video_activity_tab_widget.dart';
+import 'followed_universities_tab/followed_universities_tab_widget.dart';
 import 'profile_header/profile_header_widget.dart';
 
 class ProfileViewWidget extends StatelessWidget {
@@ -17,7 +18,7 @@ class ProfileViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -98,6 +99,10 @@ class ProfileViewWidget extends StatelessWidget {
                         icon: Icon(Icons.share_rounded, size: 18.sp),
                         text: 'Paylaşılan',
                       ),
+                      Tab(
+                        icon: Icon(Icons.account_balance_rounded, size: 18.sp),
+                        text: 'Üniversiteler',
+                      ),
                     ],
                   ),
                 ),
@@ -153,6 +158,12 @@ class ProfileViewWidget extends StatelessWidget {
                     ? 'Paylaştığın videolar burada görünür'
                     : 'Bu kullanıcının paylaşımları gizli olabilir',
                 onRefresh: () => controller.loadSharedVideos(),
+              ),
+              FollowedUniversitiesTabWidget(
+                universities: controller.followedUniversities,
+                isLoading: controller.isUniversitiesLoading,
+                isOwnProfile: controller.isOwnProfile,
+                onRefresh: () => controller.loadFollowedUniversities(),
               ),
             ],
           ),

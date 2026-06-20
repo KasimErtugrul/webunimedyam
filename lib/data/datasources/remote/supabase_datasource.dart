@@ -48,7 +48,7 @@ class SupabaseDataSource {
       if (data == null) return null;
       log('SupabaseDataSource getProfile tetiklendi');
       return ProfileModel.fromSupabase(data);
-    } catch (e,stackTrace) {
+    } catch (e, stackTrace) {
       log('SupabaseDataSource getProfile error: $e \n$stackTrace');
       return null;
     }
@@ -102,21 +102,16 @@ class SupabaseDataSource {
 
   Future<VideoModel?> getVideoById(String videoId) async {
     final data = await _client
-        .from('videos_cache')
-        .select('*, universities(name)')
+        .from('videos_cache_with_engagement')
+        .select()
         .eq('video_id', videoId)
         .maybeSingle();
 
     if (data == null) return null;
-    final row = Map<String, dynamic>.from(data);
-    if (row['universities'] != null) {
-      row['university_name'] = row['universities']['name'];
-    }
-    row.remove('universities');
     log(
       'supabase datasource getvideobyid fonksiyonu: getVideoById videoId: $videoId, data: $data',
     );
-    return VideoModel.fromSupabase(row);
+    return VideoModel.fromSupabase(Map<String, dynamic>.from(data));
   }
 
   Future<List<VideoModel>> getCachedVideos({
@@ -141,29 +136,29 @@ class SupabaseDataSource {
     }).toList();
   }
 
+  /// FIX: `videos_cache` tablosunda app_view_count/app_like_count vb. kolonlar
+  /// yok — bu yüzden üniversite detay sayfasındaki videolar her zaman 0
+  /// görünüyordu. Artık `videos_cache_with_engagement` view'inden okunuyor
+  /// (video_engagement_stats matview'i ile JOIN'lenmiş, university_name dahil).
   Future<List<VideoModel>> getCachedVideosByUniversity(
     int universityId, {
     int limit = 20,
     int offset = 0,
   }) async {
     final data = await _client
-        .from('videos_cache')
-        .select('*, universities(name)')
+        .from('videos_cache_with_engagement')
+        .select()
         .eq('university_id', universityId)
         .order('published_at', ascending: false)
         .range(offset, offset + limit - 1);
 
-    return (data as List).map((e) {
-      final row = Map<String, dynamic>.from(e);
-      if (row['universities'] != null) {
-        row['university_name'] = row['universities']['name'];
-      }
-      row.remove('universities');
-      log(
-        'supabase datasource getcachedvideosbyuniversity fonksiyonu: getCachedVideosByUniversity universityId: $universityId, limit: $limit, offset: $offset, data length: ${(data as List).length}',
-      );
-      return VideoModel.fromSupabase(row);
-    }).toList();
+    log(
+      'supabase datasource getcachedvideosbyuniversity fonksiyonu: getCachedVideosByUniversity universityId: $universityId, limit: $limit, offset: $offset, data length: ${(data as List).length}',
+    );
+
+    return (data)
+        .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
   Future<List<VideoModel>> getLatestVideoPerUniversity({
@@ -180,9 +175,17 @@ class SupabaseDataSource {
   }
 
   /// Her üniversiteden en son 1 shorts videoyu çeker.
-  /// VOLATILE RPC — her seferinde taze veri, yayınlanma tarihine göre sıralı.
-  Future<List<ShortsModel>> getShortsPerUniversity() async {
-    final data = await _client.rpc('get_shorts_per_university');
+  /// Sayfalama destekli: her çağrıda [limit] adet, [offset]'ten itibaren gelir.
+  /// Sıralama deterministiktir (published_at DESC, video_id ASC) — sayfalar
+  /// arasında tekrar/atlama olmaz.
+  Future<List<ShortsModel>> getShortsPerUniversity({
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final data = await _client.rpc(
+      'get_shorts_per_university',
+      params: {'p_limit': limit, 'p_offset': offset},
+    );
     return (data as List)
         .map((e) => ShortsModel.fromMap(Map<String, dynamic>.from(e)))
         .toList();
@@ -229,7 +232,7 @@ class SupabaseDataSource {
       map.remove('universities');
       videos.add(VideoModel.fromSupabase(map));
     }
-    return videos;
+    return _attachEngagement(videos);
   }
 
   Future<void> addFavorite(String userId, String videoId) async {
@@ -463,7 +466,7 @@ class SupabaseDataSource {
       map.remove('universities');
       videos.add(VideoModel.fromSupabase(map));
     }
-    return videos;
+    return _attachEngagement(videos);
   }
 
   // ─── Paylaşım (shared) ───────────────────────────────────────────────────
@@ -497,16 +500,62 @@ class SupabaseDataSource {
       map.remove('universities');
       videos.add(VideoModel.fromSupabase(map));
     }
-    return videos;
+    return _attachEngagement(videos);
+  }
+
+  // FIX: favorites/content_views/shared tabloları 'videos_cache' tablosuna
+  // FK ile bağlı olduğu için PostgREST embed'i doğrudan 'videos_cache'
+  // tablosundan yapılıyor — ama bu tabloda app_view_count/app_like_count vb.
+  // kolonlar YOK. Bu yüzden Profil sayfasındaki Favorilerim/İzlediklerim/
+  // Paylaştıklarım sekmelerinde görüntülenme & beğeni sayısı her zaman 0
+  // görünüyordu. Burada video_id'leri tek seferde 'video_engagement_live'
+  // (canlı, anlık hesaplanan view) üzerinden çekip eşleştiriyoruz.
+  Future<List<VideoModel>> _attachEngagement(List<VideoModel> videos) async {
+    if (videos.isEmpty) return videos;
+    final ids = videos.map((v) => v.videoId).toSet().toList();
+    try {
+      final stats = await _client
+          .from('video_engagement_live')
+          .select(
+            'video_id, app_view_count, app_like_count, app_favorite_count, app_share_count, app_comment_count',
+          )
+          .inFilter('video_id', ids);
+
+      final statsMap = <String, Map<String, dynamic>>{
+        for (final row in (stats as List))
+          row['video_id'] as String: Map<String, dynamic>.from(row),
+      };
+
+      return videos.map((v) {
+        final s = statsMap[v.videoId];
+        if (s == null) return v;
+        return v.copyWith(
+          appViewCount: (s['app_view_count'] as num?)?.toInt() ?? 0,
+          appLikeCount: (s['app_like_count'] as num?)?.toInt() ?? 0,
+          appFavoriteCount: (s['app_favorite_count'] as num?)?.toInt() ?? 0,
+          appShareCount: (s['app_share_count'] as num?)?.toInt() ?? 0,
+          appCommentCount: (s['app_comment_count'] as num?)?.toInt() ?? 0,
+        );
+      }).toList();
+    } catch (e) {
+      log('SupabaseDataSource _attachEngagement error: $e');
+      return videos; // Hata olursa en azından temel video verisi gösterilir.
+    }
   }
 
   // ─── Etkileşim İstatistikleri ─────────────────────────────────────────────
+  // FIX: Eskiden 'video_engagement_stats' (MATERIALIZED VIEW) okunuyordu;
+  // bu view sadece pg_cron ile 10 dakikada bir yenileniyordu. Bir kullanıcı
+  // videoyu izleyip hemen istatistiklere bakınca (recordView -> hemen ardından
+  // getEngagementStats) her zaman GÜNCELLENMEMİŞ (genelde 0) veri görüyordu.
+  // 'video_engagement_live' her sorguda anlık hesaplanan normal bir VIEW'dir,
+  // bu yüzden gecikme olmaz.
   Future<Map<String, int>> getEngagementStats(String videoId) async {
     log(
       'supabase datasource getengagementstats fonksiyonu: getEngagementStats videoId: $videoId',
     );
     final data = await _client
-        .from('video_engagement_stats')
+        .from('video_engagement_live')
         .select()
         .eq('video_id', videoId)
         .maybeSingle();
@@ -550,7 +599,7 @@ class SupabaseDataSource {
     String? filterOperator,
     dynamic filterValue,
   }) async {
-    var query = _client.from('university_stats').select();
+    var query = _client.from('university_stats_mat').select();
 
     if (filterColumn != null && filterOperator != null && filterValue != null) {
       switch (filterOperator) {
@@ -632,7 +681,7 @@ class SupabaseDataSource {
     int limit = 10,
     int offset = 0,
   }) => getVideoEngagementList(
-    orderBy: 'trending_score',   // zaman ağırlıklı skor
+    orderBy: 'trending_score', // zaman ağırlıklı skor
     limit: limit,
     offset: offset,
   );
