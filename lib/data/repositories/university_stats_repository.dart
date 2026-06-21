@@ -11,7 +11,7 @@ import '../models/university_stats_model.dart';
 /// TTL: 30 dakika.
 /// Tek RPC çağrısı (get_home_university_stats) — artık university_leaderboard_mat
 /// materialized view üzerinden çalışıyor; okümaları bloklamaz, pg_cron ile saatlik yenilenir.
-/// ‘newly_discovered’ eşiği dinamik (%20 yüzdelik dilimi) — hardcoded 50 yok.
+/// 'newly_discovered' eşiği dinamik (%20 yüzdelik dilimi) — hardcoded 50 yok.
 /// Bireysel getList() metodları offline fallback veya nadir kullanımlar için korundu.
 class UniversityStatsRepository {
   final SupabaseDataSource _supabase;
@@ -21,41 +21,80 @@ class UniversityStatsRepository {
   static const _bundleTimeKey = 'uni_stats_bundle_time';
 
   UniversityStatsRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   // ─── Bundle Cache ────────────────────────────────────────────────────────
 
   Future<bool> _isBundleCacheValid() async {
-    final prefs = await SharedPreferences.getInstance();
-    final timeStr = prefs.getString(_bundleTimeKey);
-    if (timeStr == null) return false;
-    final cacheTime = DateTime.tryParse(timeStr);
-    if (cacheTime == null) return false;
-    return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes < _ttlMinutes;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timeStr = prefs.getString(_bundleTimeKey);
+      if (timeStr == null) return false;
+      final cacheTime = DateTime.tryParse(timeStr);
+      if (cacheTime == null) return false;
+      return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+          _ttlMinutes;
+    } catch (e, stacktrace) {
+      log(
+        'Bundle cache geçerlilik kontrolü yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>?> _getBundleFromCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_bundleCacheKey);
-    if (jsonStr == null) return null;
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_bundleCacheKey);
+      if (jsonStr == null) return null;
       return Map<String, dynamic>.from(json.decode(jsonStr) as Map);
-    } catch (_) {
+    } catch (e, stacktrace) {
+      log(
+        'Bundle cache\'den veri okunurken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
   }
 
   Future<void> _saveBundleToCache(Map<String, dynamic> data) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_bundleCacheKey, json.encode(data));
-    await prefs.setString(_bundleTimeKey, DateTime.now().toUtc().toIso8601String());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_bundleCacheKey, json.encode(data));
+      await prefs.setString(
+        _bundleTimeKey,
+        DateTime.now().toUtc().toIso8601String(),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Bundle cache\'e veri yazılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   List<UniversityStatsModel> _parseList(dynamic raw) {
     if (raw == null) return [];
-    return (raw as List)
-        .map((e) => UniversityStatsModel.fromMap(Map<String, dynamic>.from(e as Map)))
-        .toList();
+    try {
+      return (raw as List)
+          .map(
+            (e) => UniversityStatsModel.fromMap(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
+          .toList();
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite istatistik listesi parse edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return [];
+    }
   }
 
   // ─── Ana Bundle Metodu ───────────────────────────────────────────────────
@@ -64,49 +103,76 @@ class UniversityStatsRepository {
   /// Cache geçerliyse Supabase'e gitmez.
   Future<Map<String, List<UniversityStatsModel>>> getAllStats() async {
     // 1. Cache kontrolü
-    if (await _isBundleCacheValid()) {
-      final cached = await _getBundleFromCache();
-      if (cached != null) {
-        log('🏛️💾 [UniStats] Bundle LOCAL cache\'den geldi');
-        return _bundleToMap(cached);
+    try {
+      if (await _isBundleCacheValid()) {
+        final cached = await _getBundleFromCache();
+        if (cached != null) {
+          return _bundleToMap(cached);
+        }
       }
+    } catch (e, stacktrace) {
+      log(
+        'Bundle cache kontrolü yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
 
     // 2. RPC ile tek çağrı
     try {
-      log('🏛️☁️ [UniStats] Bundle RPC çağrısı → get_home_university_stats');
       final data = await _supabase.getHomeUniversityStats();
       if (data != null) {
-        log('🏛️✅ [UniStats] Bundle geldi, cache\'e yazıldı');
         await _saveBundleToCache(data);
         return _bundleToMap(data);
       }
-    } catch (e) {
-      log('🏛️❌ [UniStats] RPC hatası: $e → stale cache deneniyor');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite istatistikleri RPC ile getirilirken hata oluştu: $e → stale cache deneniyor',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
 
     // 3. Stale cache fallback
-    final stale = await _getBundleFromCache();
-    if (stale != null) {
-      log('🏛️💾 [UniStats] Stale bundle cache döndürüldü');
-      return _bundleToMap(stale);
+    try {
+      final stale = await _getBundleFromCache();
+      if (stale != null) {
+        return _bundleToMap(stale);
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Stale cache okunurken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
 
-    log('🏛️❌ [UniStats] Stale cache de yok → boş map');
+    log('Üniversite istatistikleri için cache bulunamadı → boş map dönülüyor');
     return _emptyBundle();
   }
 
-  Map<String, List<UniversityStatsModel>> _bundleToMap(Map<String, dynamic> data) {
-    return {
-      'most_watched':       _parseList(data['most_watched']),
-      'most_liked':         _parseList(data['most_liked']),
-      'popular_in_app':     _parseList(data['popular_in_app']),
-      'most_favorited':     _parseList(data['most_favorited']),
-      'most_active_last_30':_parseList(data['most_active_last_30']),
-      'biggest_channels':   _parseList(data['biggest_channels']),
-      'richest_archive':    _parseList(data['richest_archive']),
-      'newly_discovered':   _parseList(data['newly_discovered']),
-    };
+  Map<String, List<UniversityStatsModel>> _bundleToMap(
+    Map<String, dynamic> data,
+  ) {
+    try {
+      return {
+        'most_watched': _parseList(data['most_watched']),
+        'most_liked': _parseList(data['most_liked']),
+        'popular_in_app': _parseList(data['popular_in_app']),
+        'most_favorited': _parseList(data['most_favorited']),
+        'most_active_last_30': _parseList(data['most_active_last_30']),
+        'biggest_channels': _parseList(data['biggest_channels']),
+        'richest_archive': _parseList(data['richest_archive']),
+        'newly_discovered': _parseList(data['newly_discovered']),
+      };
+    } catch (e, stacktrace) {
+      log(
+        'Bundle verisi dönüştürülürken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return _emptyBundle();
+    }
   }
 
   Map<String, List<UniversityStatsModel>> _emptyBundle() => {
@@ -129,39 +195,76 @@ class UniversityStatsRepository {
       'uni_stats_time_${orderBy}_${filterColumn ?? 'nofilter'}';
 
   Future<bool> _isCacheValid(String orderBy, {String? filterColumn}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final timeStr = prefs.getString(_cacheTimeKey(orderBy, filterColumn: filterColumn));
-    if (timeStr == null) return false;
-    final cacheTime = DateTime.tryParse(timeStr);
-    if (cacheTime == null) return false;
-    return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes < _ttlMinutes;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timeStr = prefs.getString(
+        _cacheTimeKey(orderBy, filterColumn: filterColumn),
+      );
+      if (timeStr == null) return false;
+      final cacheTime = DateTime.tryParse(timeStr);
+      if (cacheTime == null) return false;
+      return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+          _ttlMinutes;
+    } catch (e, stacktrace) {
+      log(
+        'Cache geçerlilik kontrolü yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return false;
+    }
   }
 
-  Future<List<UniversityStatsModel>?> _getFromCache(String orderBy, {String? filterColumn}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_cacheKey(orderBy, filterColumn: filterColumn));
-    if (jsonStr == null) return null;
+  Future<List<UniversityStatsModel>?> _getFromCache(
+    String orderBy, {
+    String? filterColumn,
+  }) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(
+        _cacheKey(orderBy, filterColumn: filterColumn),
+      );
+      if (jsonStr == null) return null;
       final list = json.decode(jsonStr) as List;
       return list
-          .map((e) => UniversityStatsModel.fromMap(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => UniversityStatsModel.fromMap(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
           .toList();
-    } catch (_) {
+    } catch (e, stacktrace) {
+      log(
+        'Cache\'den veri okunurken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
   }
 
-  Future<void> _saveToCache(String orderBy, List<UniversityStatsModel> data,
-      {String? filterColumn}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _cacheKey(orderBy, filterColumn: filterColumn),
-      json.encode(data.map((e) => e.toMap()).toList()),
-    );
-    await prefs.setString(
-      _cacheTimeKey(orderBy, filterColumn: filterColumn),
-      DateTime.now().toUtc().toIso8601String(),
-    );
+  Future<void> _saveToCache(
+    String orderBy,
+    List<UniversityStatsModel> data, {
+    String? filterColumn,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _cacheKey(orderBy, filterColumn: filterColumn),
+        json.encode(data.map((e) => e.toMap()).toList()),
+      );
+      await prefs.setString(
+        _cacheTimeKey(orderBy, filterColumn: filterColumn),
+        DateTime.now().toUtc().toIso8601String(),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Cache\'e veri yazılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<List<UniversityStatsModel>> getList({
@@ -171,10 +274,19 @@ class UniversityStatsRepository {
     String? filterOperator,
     dynamic filterValue,
   }) async {
-    if (await _isCacheValid(orderBy, filterColumn: filterColumn)) {
-      final cached = await _getFromCache(orderBy, filterColumn: filterColumn);
-      if (cached != null && cached.isNotEmpty) return cached;
+    try {
+      if (await _isCacheValid(orderBy, filterColumn: filterColumn)) {
+        final cached = await _getFromCache(orderBy, filterColumn: filterColumn);
+        if (cached != null && cached.isNotEmpty) return cached;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Cache kontrolü yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
+
     try {
       final data = await _supabase.getUniversityStatsList(
         orderBy: orderBy,
@@ -185,7 +297,12 @@ class UniversityStatsRepository {
       );
       await _saveToCache(orderBy, data, filterColumn: filterColumn);
       return data;
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite istatistik listesi getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       final stale = await _getFromCache(orderBy, filterColumn: filterColumn);
       return stale ?? [];
     }
@@ -212,11 +329,10 @@ class UniversityStatsRepository {
   Future<List<UniversityStatsModel>> getRichestArchive() =>
       getList(orderBy: 'total_duration_sec');
 
-  Future<List<UniversityStatsModel>> getNewlyDiscovered() =>
-      getList(
-        orderBy: 'app_total_viewers',
-        filterColumn: 'app_total_views',
-        filterOperator: 'lt',
-        filterValue: 50,
-      );
+  Future<List<UniversityStatsModel>> getNewlyDiscovered() => getList(
+    orderBy: 'app_total_viewers',
+    filterColumn: 'app_total_views',
+    filterOperator: 'lt',
+    filterValue: 50,
+  );
 }

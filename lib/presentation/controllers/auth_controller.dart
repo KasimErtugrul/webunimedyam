@@ -27,8 +27,8 @@ class AuthController extends GetxController {
       await NotificationService.instance.onUserLogin();
 
       Get.offAllNamed(AppRoutes.home);
-    } catch (e, st) {
-      log('Sign in error: $e', stackTrace: st);
+    } catch (e, stacktrace) {
+      log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Giriş başarısız. Email ve şifrenizi kontrol edin.';
     } finally {
       isLoading.value = false;
@@ -56,8 +56,8 @@ class AuthController extends GetxController {
       await NotificationService.instance.onUserLogin();
 
       Get.offAllNamed(AppRoutes.home);
-    } catch (e, st) {
-      log('Sign up error: $e', stackTrace: st);
+    } catch (e, stacktrace) {
+      log('Kayıt olunurken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Kayıt başarısız. Bilgilerinizi kontrol edin.';
     } finally {
       isLoading.value = false;
@@ -84,8 +84,8 @@ class AuthController extends GetxController {
       }
 
       Get.offAllNamed(AppRoutes.home);
-    } catch (e, st) {
-      log('Sign out error: $e', stackTrace: st);
+    } catch (e, stacktrace) {
+      log('Çıkış yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     } finally {
       isLoading.value = false;

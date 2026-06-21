@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -285,7 +284,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     final controller = Get.find<HomeController>();
     final isLive = video.isLiveBroadcast;
     final isUpcoming = video.isUpcoming;
-    log('video card widget videomodel $video');
+   
 
     timeago.setLocaleMessages('tr', timeago.TrMessages());
 

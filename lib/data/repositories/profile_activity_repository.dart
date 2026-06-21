@@ -13,13 +13,17 @@ class ProfileActivityRepository {
   final SupabaseDataSource _supabase;
 
   ProfileActivityRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   Future<List<VideoModel>> getUserViewedVideos(String userId) async {
     try {
       return await _supabase.getUserViewedVideos(userId);
-    } catch (e) {
-      log('👁️❌ [ProfileActivity] İzlenen videolar yüklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcının izlediği videolar getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return [];
     }
   }
@@ -27,8 +31,12 @@ class ProfileActivityRepository {
   Future<List<VideoModel>> getUserCommentedVideos(String userId) async {
     try {
       return await _supabase.getUserCommentedVideos(userId);
-    } catch (e) {
-      log('💬❌ [ProfileActivity] Yorumlanan videolar yüklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcının yorum yaptığı videolar getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return [];
     }
   }
@@ -36,8 +44,12 @@ class ProfileActivityRepository {
   Future<List<VideoModel>> getUserSharedVideos(String userId) async {
     try {
       return await _supabase.getUserSharedVideos(userId);
-    } catch (e) {
-      log('🔗❌ [ProfileActivity] Paylaşılan videolar yüklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcının paylaştığı videolar getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return [];
     }
   }

@@ -25,13 +25,17 @@ class EngagementRepository {
   final SupabaseDataSource _supabase;
 
   EngagementRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   Future<Map<String, int>> getEngagementStats(String videoId) async {
     try {
       return await _supabase.getEngagementStats(videoId);
-    } catch (e) {
-      log('📊❌ [Engagement] İstatistikler yüklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Video etkileşim istatistikleri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return {
         'app_view_count': 0,
         'app_like_count': 0,
@@ -45,8 +49,12 @@ class EngagementRepository {
   Future<bool> isLiked(String userId, String videoId) async {
     try {
       return await _supabase.isLiked(userId, videoId);
-    } catch (e) {
-      log('👍❌ [Engagement] Beğeni durumu okunamadı: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Beğeni durumu kontrol edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }
@@ -64,8 +72,12 @@ class EngagementRepository {
       );
       final total = viewers.isNotEmpty ? viewers.first.totalCount : 0;
       return (viewers: viewers, totalCount: total);
-    } catch (e) {
-      log('👁️❌ [Engagement] İzleyenler yüklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Video izleyicileri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return (viewers: <VideoViewerModel>[], totalCount: 0);
     }
   }
@@ -76,11 +88,13 @@ class EngagementRepository {
   /// tutarlı davranış için repository katmanında da logla.
   Future<void> addLike(String userId, String videoId) async {
     try {
-      log('👍☁️➕ [Engagement] Beğeni Supabase\'e ekleniyor → $videoId');
       await _supabase.addLike(userId, videoId);
-      log('👍✅ [Engagement] Beğeni eklendi');
-    } catch (e) {
-      log('👍❌ [Engagement] Beğeni eklenemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Beğeni eklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow; // Controller'ların rollback yapabilmesi için yeniden fırlat
     }
   }
@@ -88,11 +102,13 @@ class EngagementRepository {
   /// BUG FIX: try/catch + log eklendi.
   Future<void> removeLike(String userId, String videoId) async {
     try {
-      log('👍☁️🗑️ [Engagement] Beğeni Supabase\'den siliniyor → $videoId');
       await _supabase.removeLike(userId, videoId);
-      log('👍✅ [Engagement] Beğeni silindi');
-    } catch (e) {
-      log('👍❌ [Engagement] Beğeni silinemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Beğeni silinirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow; // Controller'ların rollback yapabilmesi için yeniden fırlat
     }
   }
@@ -111,12 +127,14 @@ class EngagementRepository {
   /// (gereksiz round-trip).
   Future<Set<String>> getLikedVideoIds(String userId) async {
     try {
-      log('👍☁️ [Engagement] Beğenilen video ID\'leri çekiliyor → $userId');
       final ids = await _supabase.getLikedVideoIds(userId);
-      log('👍✅ [Engagement] ${ids.length} beğenilen video ID geldi');
       return ids;
-    } catch (e) {
-      log('👍❌ [Engagement] Beğenilen ID\'ler çekilemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Beğenilen video ID\'leri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return {}; // Boş set dön; controller gracefully devam eder
     }
   }
@@ -124,8 +142,12 @@ class EngagementRepository {
   Future<Set<String>> getSharedVideoIds(String userId) async {
     try {
       return await _supabase.getSharedVideoIds(userId);
-    } catch (e) {
-      log("🔗❌ [Engagement] Paylaşılan ID'ler yüklenemedi: $e");
+    } catch (e, stacktrace) {
+      log(
+        'Paylaşılan video ID\'leri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return {};
     }
   }
@@ -133,8 +155,12 @@ class EngagementRepository {
   Future<Set<String>> getCommentedVideoIds(String userId) async {
     try {
       return await _supabase.getCommentedVideoIds(userId);
-    } catch (e) {
-      log("💬❌ [Engagement] Yorumlanan ID'ler yüklenemedi: $e");
+    } catch (e, stacktrace) {
+      log(
+        'Yorum yapılan video ID\'leri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return {};
     }
   }
@@ -142,8 +168,12 @@ class EngagementRepository {
   Future<bool> recordView(String userId, String videoId) async {
     try {
       return await _supabase.recordView(userId, videoId);
-    } catch (e) {
-      log('👁️❌ [Engagement] Görüntülenme kaydedilemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Görüntülenme kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }
@@ -151,8 +181,12 @@ class EngagementRepository {
   Future<void> recordShare(String userId, String videoId) async {
     try {
       await _supabase.recordShare(userId, videoId);
-    } catch (e) {
-      log('🔗❌ [Engagement] Paylaşım kaydedilemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Paylaşım kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 }

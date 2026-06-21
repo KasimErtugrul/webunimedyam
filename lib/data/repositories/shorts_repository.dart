@@ -9,7 +9,7 @@ class ShortsRepository {
   final SupabaseDataSource _supabase;
 
   ShortsRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   /// Sayfalama destekli: her çağrıda [limit] adet, [offset]'ten itibaren.
   Future<List<ShortsModel>> getShortsPerUniversity({
@@ -17,15 +17,17 @@ class ShortsRepository {
     int offset = 0,
   }) async {
     try {
-      log('🎬📱 [Shorts] Shorts listesi RPC\'den çekiliyor (limit=$limit, offset=$offset)...');
       final shorts = await _supabase.getShortsPerUniversity(
         limit: limit,
         offset: offset,
       );
-      log('🎬✅ [Shorts] ${shorts.length} üniversiteden shorts geldi');
       return shorts;
-    } catch (e) {
-      log('🎬❌ [Shorts] getShortsPerUniversity hata: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite short videoları getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return [];
     }
   }

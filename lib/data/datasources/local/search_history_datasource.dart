@@ -5,30 +5,46 @@ class SearchHistoryDataSource {
   static const _maxItems = 15;
 
   Future<List<String>> getHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_key) ?? [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getStringList(_key) ?? [];
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<void> addQuery(String query) async {
-    final q = query.trim();
-    if (q.isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    final history = prefs.getStringList(_key) ?? [];
-    history.remove(q); // varsa eski konumdan kaldır
-    history.insert(0, q); // başa ekle
-    if (history.length > _maxItems) history.removeLast();
-    await prefs.setStringList(_key, history);
+    try {
+      final q = query.trim();
+      if (q.isEmpty) return;
+      final prefs = await SharedPreferences.getInstance();
+      final history = prefs.getStringList(_key) ?? [];
+      history.remove(q); // varsa eski konumdan kaldır
+      history.insert(0, q); // başa ekle
+      if (history.length > _maxItems) history.removeLast();
+      await prefs.setStringList(_key, history);
+    } catch (e) {
+      // Sessizce devam et
+    }
   }
 
   Future<void> removeQuery(String query) async {
-    final prefs = await SharedPreferences.getInstance();
-    final history = prefs.getStringList(_key) ?? [];
-    history.remove(query);
-    await prefs.setStringList(_key, history);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final history = prefs.getStringList(_key) ?? [];
+      history.remove(query);
+      await prefs.setStringList(_key, history);
+    } catch (e) {
+      // Sessizce devam et
+    }
   }
 
   Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_key);
+    } catch (e) {
+      // Sessizce devam et
+    }
   }
 }

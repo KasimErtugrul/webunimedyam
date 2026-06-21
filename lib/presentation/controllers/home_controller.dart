@@ -189,8 +189,12 @@ class HomeController extends GetxController {
       statsBiggestChannels.value = bundle['biggest_channels'] ?? [];
       statsRichestArchive.value = bundle['richest_archive'] ?? [];
       statsNewlyDiscovered.value = bundle['newly_discovered'] ?? [];
-    } catch (e) {
-      log('loadUniversityStats error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite istatistikleri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isStatsLoading.value = false;
     }
@@ -206,8 +210,12 @@ class HomeController extends GetxController {
       videosMostFavorited.value = bundle['most_favorited'] ?? [];
       videosMostCommented.value = bundle['most_commented'] ?? [];
       videosNewUndiscovered.value = bundle['new_undiscovered'] ?? [];
-    } catch (e) {
-      log('loadVideoSections error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Video bölümleri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isVideoSectionsLoading.value = false;
     }
@@ -232,8 +240,12 @@ class HomeController extends GetxController {
           )
           .toList();
       await _loadFavoriteUniversityIds();
-    } catch (e) {
-      log('loadUniversitiesAndPlaylists error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversiteler ve oynatma listeleri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       playlistsError.value = 'Üniversiteler yüklenemedi.';
     } finally {
       isUniversitiesLoading.value = false;
@@ -241,21 +253,25 @@ class HomeController extends GetxController {
     }
   }
 
- Future<void> loadLikedVideoIds() async {
-  final userId = _currentUserId;
-  if (userId == null) return;
-  try {
-    final ids = await engagementRepository.getLikedVideoIds(userId);
-   log('home controller ids: $ids');
-    _likedIds.assignAll(ids); // assignAll hem clear hem addAll yapar ve Obx'i tetikler
-    for (final id in ids) {
-      _likeCache[id] = true;
+  Future<void> loadLikedVideoIds() async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    try {
+      final ids = await engagementRepository.getLikedVideoIds(userId);
+      _likedIds.assignAll(
+        ids,
+      ); // assignAll hem clear hem addAll yapar ve Obx'i tetikler
+      for (final id in ids) {
+        _likeCache[id] = true;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Beğenilen video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
-    log('❤️ [Home] ${ids.length} beğenilen video yüklendi');
-  } catch (e) {
-    log('loadLikedVideoIds error: $e');
   }
-}
 
   Future<void> loadSharedVideoIds() async {
     final userId = _currentUserId;
@@ -263,9 +279,12 @@ class HomeController extends GetxController {
     try {
       final ids = await engagementRepository.getSharedVideoIds(userId);
       _sharedIds.assignAll(ids);
-      log('🔗 [Home] ${ids.length} paylaşılan video yüklendi');
-    } catch (e) {
-      log('loadSharedVideoIds error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Paylaşılan video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -275,24 +294,43 @@ class HomeController extends GetxController {
     try {
       final ids = await engagementRepository.getCommentedVideoIds(userId);
       _commentedIds.assignAll(ids);
-      log('💬 [Home] ${ids.length} yorumlanan video yüklendi');
-    } catch (e) {
-      log('loadCommentedVideoIds error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Yorum yapılan video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
   Future<void> _loadFavoriteUniversityIds() async {
-    final userId = _currentUserId;
-    if (userId == null) return;
-    final ids = await universityFavoritesRepository.getFavoriteUniversityIds(
-      userId,
-    );
-    favoriteUniversityIds.assignAll(ids.toSet());
+    try {
+      final userId = _currentUserId;
+      if (userId == null) return;
+      final ids = await universityFavoritesRepository.getFavoriteUniversityIds(
+        userId,
+      );
+      favoriteUniversityIds.assignAll(ids.toSet());
+    } catch (e, stacktrace) {
+      log(
+        'Favori üniversite ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> selectUniversity(UniversityModel? university) async {
-    selectedUniversity.value = university;
-    await loadVideos();
+    try {
+      selectedUniversity.value = university;
+      await loadVideos();
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite seçilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> loadVideos() async {
@@ -304,11 +342,18 @@ class HomeController extends GetxController {
       if (uni != null) {
         videos.value = await videoRepository.getVideosByUniversity(uni.id!);
       } else {
-        videos.value = await videoRepository.getLatestVideosPerUniversity(page: 0);
+        videos.value = await videoRepository.getLatestVideosPerUniversity(
+          page: 0,
+        );
         currentPage.value = 0;
         hasMoreVideos.value = true;
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log(
+        'Videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Videolar yüklenemedi.';
     } finally {
       isLoading.value = false;
@@ -321,12 +366,18 @@ class HomeController extends GetxController {
     try {
       isLoadingMore.value = true;
       final nextPage = currentPage.value + 1;
-      final newVideos = await videoRepository.getLatestVideosPerUniversity(page: nextPage);
+      final newVideos = await videoRepository.getLatestVideosPerUniversity(
+        page: nextPage,
+      );
       videos.addAll(newVideos);
       currentPage.value = nextPage;
       hasMoreVideos.value = newVideos.length == _pageSize;
-    } catch (e) {
-      log('loadMoreVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Daha fazla video yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isLoadingMore.value = false;
     }
@@ -339,7 +390,12 @@ class HomeController extends GetxController {
       await videoRepository.refreshVideos();
       await loadVideos();
       await loadVideoSections();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      log(
+        'Videolar yenilenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Videolar yenilenemedi.';
     } finally {
       isLoading.value = false;
@@ -353,8 +409,12 @@ class HomeController extends GetxController {
       final userId = _currentUserId;
       if (userId == null) return;
       favoriteIds.value = await favoritesRepository.getFavoriteVideoIds(userId);
-    } catch (e) {
-      log('loadFavorites error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favoriler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -378,8 +438,12 @@ class HomeController extends GetxController {
           await favoritesRepository.saveFavoriteVideoLocally(video);
         }
       }
-    } catch (e) {
-      log('toggleFavorite error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favori durumu değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -390,19 +454,15 @@ class HomeController extends GetxController {
 
   Future<void> toggleUniversityFavorite(UniversityModel university) async {
     final userId = _currentUserId;
-    log(
-      '🔵 toggleUniversityFavorite called — userId: $userId, uni: ${university.id}',
-    );
- 
+
     if (userId == null) {
       showAuthRequired.value = true;
-      log('🔴 userId null, showAuthRequired set');
       return;
     }
- 
+
     final id = university.id!;
     final bool success;
- 
+
     if (favoriteUniversityIds.contains(id)) {
       success = await universityFavoritesRepository.removeFavorite(userId, id);
     } else {
@@ -412,10 +472,9 @@ class HomeController extends GetxController {
         university: university,
       );
     }
- 
+
     if (!success) {
       // Repository zaten log'ladı; burada UI'ya geribildirim ver
-      log('🔴 toggleUniversityFavorite başarısız — $id');
       // İsteğe göre snackbar eklenebilir:
       // Get.snackbar('Hata', 'İşlem gerçekleştirilemedi.', snackPosition: SnackPosition.BOTTOM);
     }
@@ -468,14 +527,18 @@ class HomeController extends GetxController {
         } else {
           await engagementRepository.addLike(userId, videoId);
         }
-      } catch (e) {
+      } catch (e, stacktrace) {
         _likeCache[videoId] = wasLiked;
         if (wasLiked) {
           _likedIds.add(videoId);
         } else {
           _likedIds.remove(videoId);
         }
-        log('[HomeController] toggleLike write error: $e');
+        log(
+          'Beğeni toggle yazma işlemi sırasında hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
       }
     } finally {
       _likeLoadingIds.remove(videoId);
@@ -502,8 +565,12 @@ class HomeController extends GetxController {
         await engagementRepository.recordShare(userId, video.videoId);
         if (!_sharedIds.contains(video.videoId)) _sharedIds.add(video.videoId);
       }
-    } catch (e) {
-      log('[HomeController] shareVideo fallback to clipboard: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Video paylaşılırken hata oluştu, panoya kopyalanıyor: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       await Clipboard.setData(ClipboardData(text: videoUrl));
       Get.snackbar(
         'Bağlantı Kopyalandı',
@@ -544,8 +611,12 @@ class HomeController extends GetxController {
         _commentedIds.add(video.videoId);
       }
       return true;
-    } catch (e) {
-      log('[HomeController] sendQuickComment error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Hızlı yorum gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       Get.snackbar(
         'Gönderilemedi',
         'Yorumun gönderilemedi, lütfen tekrar dene.',

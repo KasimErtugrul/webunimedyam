@@ -15,7 +15,7 @@ class ShortsController extends GetxController {
   final ShortsRepository _repository;
 
   ShortsController({required ShortsRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   // ─── Sayfalama Ayarları ───────────────────────────────────────────────────
   static const int pageSize = 10;
@@ -59,9 +59,12 @@ class ShortsController extends GetxController {
       shorts.value = result;
       _offset = result.length;
       hasMore.value = result.length == pageSize;
-      log('[ShortsController] ${result.length} shorts yüklendi (sayfa 1)');
-    } catch (e) {
-      log('[ShortsController] loadShorts error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Shorts yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Shorts yüklenemedi.';
     } finally {
       isLoading.value = false;
@@ -88,12 +91,12 @@ class ShortsController extends GetxController {
       shorts.addAll(result);
       _offset += result.length;
       hasMore.value = result.length == pageSize;
+    } catch (e, stacktrace) {
       log(
-        '[ShortsController] +${result.length} shorts yüklendi '
-        '(toplam: ${shorts.length}, offset: $_offset)',
+        'Daha fazla shorts yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
       );
-    } catch (e) {
-      log('[ShortsController] loadMoreShorts error: $e');
     } finally {
       isLoadingMore.value = false;
     }

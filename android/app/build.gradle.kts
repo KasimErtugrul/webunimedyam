@@ -1,7 +1,7 @@
 import java.util.Properties
 import java.io.FileInputStream
 
-// 1. Kotlin standartlarında properties yükleme yöntemi
+// Keystore ayarlarını yükleme
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -10,7 +10,7 @@ if (keystorePropertiesFile.exists()) {
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    // id("kotlin-android") // <-- Kaldırıldı: Built-in Kotlin yapısı için artık gerekli değil
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
 }
@@ -25,9 +25,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    // kotlinOptions { ... } bloğu kaldırıldı
 
     defaultConfig {
         applicationId = "com.developfly.unitv"
@@ -37,12 +35,10 @@ android {
         versionName = flutter.versionName
     }
 
-    // build.gradle.kts içindeki ilgili bölümü bu şekilde güncelleyin:
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
-            // rootProject yerine project yazarak dosyanın app/ klasöründe olduğunu belirttik
             storeFile = keystoreProperties.getProperty("storeFile")?.let { project.file(it) }
             storePassword = keystoreProperties.getProperty("storePassword")
         }
@@ -50,27 +46,28 @@ android {
 
     buildTypes {
         release {
-            // 3. Oluşturduğumuz release imzasını buraya bağlıyoruz
             signingConfig = signingConfigs.getByName("release")
-
             isMinifyEnabled = true
-        isShrinkResources = true
-        proguardFiles(
-            getDefaultProguardFile("proguard-android-optimize.txt"),
-            "proguard-rules.pro"
-        )
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
 
-dependencies {
-  // Import the Firebase BoM
-  implementation(platform("com.google.firebase:firebase-bom:34.14.0"))
-    implementation("com.google.firebase:firebase-messaging")
+// Yeni Built-in Kotlin yapılandırması
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
 
-  // TODO: Add the dependencies for Firebase products you want to use
-  // When using the BoM, don't specify versions in Firebase dependencies
-  // https://firebase.google.com/docs/android/setup#available-libraries
+dependencies {
+    // Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.14.0"))
+    implementation("com.google.firebase:firebase-messaging")
 }
 
 flutter {

@@ -50,19 +50,37 @@ class UniversityDetailController extends GetxController {
     // Favori değişimlerini stream'den dinle — optimistic update buradan geliyor.
     // BUG FIX: isFavorite manuel set edilmiyor; stream tek kaynak.
     _favSub = universityFavoritesRepository.onFavoriteChanged.listen((event) {
-      if (event.universityId == university.value?.id) {
-        isFavorite.value = event.isFavorite;
+      try {
+        if (event.universityId == university.value?.id) {
+          isFavorite.value = event.isFavorite;
+        }
+      } catch (e, stacktrace) {
+        log(
+          'Favori değişikliği işlenirken hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
       }
     });
 
-    final args = Get.arguments;
-    if (args is UniversityModel) {
-      university.value = args;
-      _loadFavoriteStatus();
-      loadVideos();
-    } else if (args is int) {
-      _loadUniversityById(args);
-    } else {
+    try {
+      final args = Get.arguments;
+      if (args is UniversityModel) {
+        university.value = args;
+        _loadFavoriteStatus();
+        loadVideos();
+      } else if (args is int) {
+        _loadUniversityById(args);
+      } else {
+        errorMessage.value = 'Üniversite bilgisi alınamadı.';
+        isLoading.value = false;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'UniversityDetail başlatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Üniversite bilgisi alınamadı.';
       isLoading.value = false;
     }
@@ -70,7 +88,15 @@ class UniversityDetailController extends GetxController {
 
   @override
   void onClose() {
-    _favSub.cancel();
+    try {
+      _favSub.cancel();
+    } catch (e, stacktrace) {
+      log(
+        'Favori aboneliği iptal edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
     super.onClose();
   }
 
@@ -83,8 +109,12 @@ class UniversityDetailController extends GetxController {
       university.value = await videoRepository.getUniversityById(id);
       await _loadFavoriteStatus();
       await loadVideos();
-    } catch (e) {
-      log('UniversityDetail _loadUniversityById error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite ID ile yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Üniversite bilgileri yüklenemedi.';
       isLoading.value = false;
     }
@@ -97,8 +127,12 @@ class UniversityDetailController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       videos.value = await videoRepository.getVideosByUniversity(id);
-    } catch (e) {
-      log('UniversityDetail loadVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite videoları yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Videolar yüklenemedi.';
     } finally {
       isLoading.value = false;
@@ -106,14 +140,18 @@ class UniversityDetailController extends GetxController {
   }
 
   Future<void> _loadFavoriteStatus() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    final uniId = university.value?.id;
-    if (userId == null || uniId == null) return;
     try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      final uniId = university.value?.id;
+      if (userId == null || uniId == null) return;
       isFavorite.value = await universityFavoritesRepository
           .isUniversityFavorited(userId, uniId);
-    } catch (e) {
-      log('UniversityDetail _loadFavoriteStatus error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favori durumu yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -124,94 +162,124 @@ class UniversityDetailController extends GetxController {
   /// isFavorite optimistic olarak repository event stream'inden geliyor;
   /// burada manuel set yok — stream tek kaynak of truth.
   Future<void> toggleFavorite() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    final uni = university.value;
-    if (userId == null || uni?.id == null) {
-      Get.snackbar(
-        'Giriş Gerekli',
-        'Favorilere eklemek için giriş yapmalısınız.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    if (isFavoriteLoading.value) return;
-    isFavoriteLoading.value = true;
-
     try {
-      bool success;
-      if (isFavorite.value) {
-        success = await universityFavoritesRepository.removeFavorite(
-          userId,
-          uni!.id!,
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      final uni = university.value;
+      if (userId == null || uni?.id == null) {
+        Get.snackbar(
+          'Giriş Gerekli',
+          'Favorilere eklemek için giriş yapmalısınız.',
+          snackPosition: SnackPosition.BOTTOM,
         );
-        if (success) {
-          Get.snackbar(
-            'Favorilerden Çıkarıldı',
-            '${uni.name} favorilerden çıkarıldı.',
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
-        } else {
-          Get.snackbar(
-            'Hata',
-            'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
-      } else {
-        success = await universityFavoritesRepository.addFavorite(
-          userId,
-          uni!.id!,
-          university: uni,
-        );
-        if (success) {
-          Get.snackbar(
-            'Favorilere Eklendi',
-            '${uni.name} favorilerinize eklendi.',
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
-        } else {
-          Get.snackbar(
-            'Hata',
-            'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
+        return;
       }
-    } catch (e) {
-      // Repository artık throw etmiyor ama savunmacı olalım
-      log('UniversityDetail toggleFavorite unexpected error: $e');
-      Get.snackbar(
-        'Hata',
-        'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
-        snackPosition: SnackPosition.BOTTOM,
+
+      if (isFavoriteLoading.value) return;
+      isFavoriteLoading.value = true;
+
+      try {
+        bool success;
+        if (isFavorite.value) {
+          success = await universityFavoritesRepository.removeFavorite(
+            userId,
+            uni!.id!,
+          );
+          if (success) {
+            Get.snackbar(
+              'Favorilerden Çıkarıldı',
+              '${uni.name} favorilerden çıkarıldı.',
+              snackPosition: SnackPosition.BOTTOM,
+              duration: const Duration(seconds: 2),
+            );
+          } else {
+            Get.snackbar(
+              'Hata',
+              'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        } else {
+          success = await universityFavoritesRepository.addFavorite(
+            userId,
+            uni!.id!,
+            university: uni,
+          );
+          if (success) {
+            Get.snackbar(
+              'Favorilere Eklendi',
+              '${uni.name} favorilerinize eklendi.',
+              snackPosition: SnackPosition.BOTTOM,
+              duration: const Duration(seconds: 2),
+            );
+          } else {
+            Get.snackbar(
+              'Hata',
+              'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        }
+      } catch (e, stacktrace) {
+        // Repository artık throw etmiyor ama savunmacı olalım
+        log(
+          'Favori toggle işlemi sırasında beklenmeyen hata: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
+        Get.snackbar(
+          'Hata',
+          'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } finally {
+        isFavoriteLoading.value = false;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Favori toggle işlemi sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
       );
-    } finally {
-      isFavoriteLoading.value = false;
     }
   }
 
   // ─── Yardımcı Formatlar ────────────────────────────────────────────────────
 
   String get formattedSubscriberCount {
-    final count = university.value?.subscriberCount ?? 0;
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    } else if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(0)}K';
+    try {
+      final count = university.value?.subscriberCount ?? 0;
+      if (count >= 1000000) {
+        return '${(count / 1000000).toStringAsFixed(1)}M';
+      } else if (count >= 1000) {
+        return '${(count / 1000).toStringAsFixed(0)}K';
+      }
+      return count.toString();
+    } catch (e, stacktrace) {
+      log(
+        'Abone sayısı formatlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return '0';
     }
-    return count.toString();
   }
 
   String get formattedViewCount {
-    final count = university.value?.viewCount ?? 0;
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    } else if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(0)}K';
+    try {
+      final count = university.value?.viewCount ?? 0;
+      if (count >= 1000000) {
+        return '${(count / 1000000).toStringAsFixed(1)}M';
+      } else if (count >= 1000) {
+        return '${(count / 1000).toStringAsFixed(0)}K';
+      }
+      return count.toString();
+    } catch (e, stacktrace) {
+      log(
+        'Görüntülenme sayısı formatlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return '0';
     }
-    return count.toString();
   }
 }

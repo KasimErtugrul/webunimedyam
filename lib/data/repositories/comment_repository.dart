@@ -6,46 +6,61 @@ class CommentRepository {
   final SupabaseDataSource _supabase;
 
   CommentRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
   // İnternet yoksa uygulama çökmemeli, boş liste dönmeli. UI "Yorum yok" gösterir.
-  
+
   Future<List<CommentModel>> getComments(String videoId) async {
     try {
-      log('💬☁️ [Yorum] Video yorumları Supabase\'den çekiliyor → $videoId');
       final comments = await _supabase.getComments(videoId);
-      log('💬✅ [Yorum] ${comments.length} yorum geldi');
       return comments;
-    } catch (e) {
-      log('💬❌ [Yorum] Yorumlar yüklenemedi (offline?): $e');
+    } catch (e, stacktrace) {
+      log(
+        'Yorumlar getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return []; // Hata yutma değil, offline güvenliği. UI çökmez, boş liste döner.
     }
   }
 
   // ─── YAZMA İŞLEMLERİ (Write) ──────────────────────────────────────────────
-  // Bu metotlarda try-catch YOK. Eğer yorum eklenemezse/silenemezse Controller 
+  // Bu metotlarda try-catch YOK. Eğer yorum eklenemezse/silenemezse Controller
   // bunu yakalayıp kullanıcıya "Yorum eklenemedi" snackback'ini göstermelidir.
-  
+
   Future<void> addComment({
     required String userId,
     required String videoId,
     required String content,
   }) async {
-    log('💬➕☁️ [Yorum] Yeni yorum ekleniyor → video: $videoId');
-    await _supabase.addComment(userId, videoId, content);
-    log('💬✅ [Yorum] Yorum eklendi');
+    try {
+      await _supabase.addComment(userId, videoId, content);
+    } catch (e, stacktrace) {
+      log('Yorum eklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
   }
 
   Future<void> deleteComment(String commentId) async {
-    log('💬🗑️☁️ [Yorum] Yorum siliniyor → $commentId');
-    await _supabase.deleteComment(commentId);
-    log('💬✅ [Yorum] Yorum silindi');
+    try {
+      await _supabase.deleteComment(commentId);
+    } catch (e, stacktrace) {
+      log('Yorum silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
   }
 
   Future<void> updateComment(String commentId, String content) async {
-    log('💬✏️☁️ [Yorum] Yorum güncelleniyor → $commentId');
-    await _supabase.updateComment(commentId, content);
-    log('💬✅ [Yorum] Yorum güncellendi');
+    try {
+      await _supabase.updateComment(commentId, content);
+    } catch (e, stacktrace) {
+      log(
+        'Yorum güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
   }
 }

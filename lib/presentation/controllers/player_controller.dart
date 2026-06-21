@@ -62,7 +62,7 @@ class PlayerController extends GetxController {
   void onInit() {
     super.onInit();
     currentVideo.value = Get.arguments as VideoModel?;
-    log('PlayerController initialized with video: ${currentVideo.value}');
+
     if (currentVideo.value != null) {
       _initPlayer().then((_) {
         isPlayerReady.value = true;
@@ -74,50 +74,83 @@ class PlayerController extends GetxController {
   }
 
   Future<void> _loadInitialState() async {
-    final userId = currentUserId;
-    if (userId != null) {
-      _resolveIsFavoriteFromCache(); // DÜZELTİLDI: HomeController kullanmıyor
-    }
+    try {
+      final userId = currentUserId;
+      if (userId != null) {
+        _resolveIsFavoriteFromCache(); // DÜZELTİLDI: HomeController kullanmıyor
+      }
 
-    // DÜZELTME: _recordView() önce bitmeli ki Supabase'deki materialized view
-    // refresh triggerı ateşlensin. Ardından stats yüklenirse view sayısı doğru gelir.
-    // checkLike() ise DB'yi okur, view ile yarışmaz → paralel çalışabilir.
-    if (userId != null) {
-      await Future.wait([_recordView(), checkLike()]);
+      // DÜZELTME: _recordView() önce bitmeli ki Supabase'deki materialized view
+      // refresh triggerı ateşlensin. Ardından stats yüklenirse view sayısı doğru gelir.
+      // checkLike() ise DB'yi okur, view ile yarışmaz → paralel çalışabilir.
+      if (userId != null) {
+        await Future.wait([_recordView(), checkLike()]);
+      }
+      await _loadEngagementStats(showInitialLoader: true);
+    } catch (e, stacktrace) {
+      log(
+        'Player başlangıç durumu yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
-    await _loadEngagementStats(showInitialLoader: true);
   }
 
   // DÜZELTİLDİ: HomeController'a bağımlılık yok, doğrudan repository'den kontrol
   void _resolveIsFavoriteFromCache() {
-    if (currentVideo.value == null) return;
-    final videoId = currentVideo.value!.videoId;
+    try {
+      if (currentVideo.value == null) return;
+      final videoId = currentVideo.value!.videoId;
 
-    favoritesRepository.getFavoriteVideos().then((locals) {
-      isFavorite.value = locals.any((v) => v.videoId == videoId);
-    });
+      favoritesRepository
+          .getFavoriteVideos()
+          .then((locals) {
+            isFavorite.value = locals.any((v) => v.videoId == videoId);
+          })
+          .catchError((e, stacktrace) {
+            log(
+              'Favori durumu cache\'den kontrol edilirken hata oluştu: $e',
+              error: e,
+              stackTrace: stacktrace,
+            );
+          });
+    } catch (e, stacktrace) {
+      log(
+        'Favori durumu çözümlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // lib/presentation/controllers/player_controller.dart — _initPlayer düzeltmesi
   Future<void> _initPlayer() async {
-    // authRepository.getUserSettings() kaldırıldı
-    final autoplay =
-        Get.find<SettingsController>().settings.value?.autoplay ?? true;
+    try {
+      // authRepository.getUserSettings() kaldırıldı
+      final autoplay =
+          Get.find<SettingsController>().settings.value?.autoplay ?? true;
 
-    youtubeController = YoutubePlayerController.fromVideoId(
-      videoId: currentVideo.value!.videoId,
-      autoPlay: autoplay,
-      params: const YoutubePlayerParams(
-        showFullscreenButton: false,
-        showControls: true,
-        strictRelatedVideos: true,
-        enableCaption: true,
-        captionLanguage: 'tur',
-        playsInline: true,
-        loop: false,
-        mute: false,
-      ),
-    );
+      youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: currentVideo.value!.videoId,
+        autoPlay: autoplay,
+        params: const YoutubePlayerParams(
+          showFullscreenButton: false,
+          showControls: true,
+          strictRelatedVideos: true,
+          enableCaption: true,
+          captionLanguage: 'tur',
+          playsInline: true,
+          loop: false,
+          mute: false,
+        ),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Player başlatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Stats ───────────────────────────────────────────────────────────────
@@ -134,8 +167,12 @@ class PlayerController extends GetxController {
       appFavoriteCount.value = stats['app_favorite_count'] ?? 0;
       appShareCount.value = stats['app_share_count'] ?? 0;
       appCommentCount.value = stats['app_comment_count'] ?? 0;
-    } catch (e) {
-      log('[PlayerController] _loadEngagementStats error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Etkileşim istatistikleri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       if (showInitialLoader) isInitialStatsLoading.value = false;
     }
@@ -162,8 +199,12 @@ class PlayerController extends GetxController {
         currentVideo.value!.videoId,
       );
       if (isNewView) appViewCount.value += 1;
-    } catch (e) {
-      log('[PlayerController] _recordView error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Görüntülenme kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -175,8 +216,12 @@ class PlayerController extends GetxController {
       suggestedVideos.value = await videoRepository.getSuggestedVideos(
         currentVideo.value!.videoId,
       );
-    } catch (e) {
-      log('[PlayerController] loadSuggestedVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Önerilen videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isSuggestedLoading.value = false;
     }
@@ -193,8 +238,12 @@ class PlayerController extends GetxController {
         userId,
         currentVideo.value!.videoId,
       );
-    } catch (e) {
-      log('[PlayerController] checkLike error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Beğeni durumu kontrol edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -223,10 +272,14 @@ class PlayerController extends GetxController {
       }
       // OPTİMİZASYON: getEngagementStats() çağrısı kaldırıldı.
       // appLikeCount zaten yukarıda optimistic olarak güncellendi — doğru delta kesin.
-    } catch (e) {
+    } catch (e, stacktrace) {
       isLiked.value = wasLiked;
       appLikeCount.value += wasLiked ? 1 : -1;
-      log('toggleLike error: $e');
+      log(
+        'Beğeni toggle işlemi sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isLikeLoading.value = false;
     }
@@ -265,10 +318,14 @@ class PlayerController extends GetxController {
       }
       // OPTİMİZASYON: getEngagementStats() kaldırıldı.
       // appFavoriteCount zaten optimistic güncellendi.
-    } catch (e) {
+    } catch (e, stacktrace) {
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
-      log('toggleFavorite error: $e');
+      log(
+        'Favori toggle işlemi sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isFavoriteLoading.value = false;
     }
@@ -298,8 +355,12 @@ class PlayerController extends GetxController {
         // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic güncelleme yeterli.
         appShareCount.value += 1;
       }
-    } catch (e) {
-      log('[PlayerController] shareVideo fallback to clipboard: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Video paylaşılırken hata oluştu, panoya kopyalanıyor: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       await Clipboard.setData(ClipboardData(text: videoUrl));
       snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
     } finally {
@@ -316,8 +377,12 @@ class PlayerController extends GetxController {
       comments.value = await commentRepository.getComments(
         currentVideo.value!.videoId,
       );
-    } catch (e) {
-      log('[PlayerController] loadComments error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Yorumlar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isCommentsLoading.value = false;
     }
@@ -340,8 +405,8 @@ class PlayerController extends GetxController {
       await loadComments();
       // OPTİMİZASYON: getEngagementStats() kaldırıldı — yorum sayısını doğrudan güncelle.
       appCommentCount.value += 1;
-    } catch (e) {
-      log('[PlayerController] addComment error: $e');
+    } catch (e, stacktrace) {
+      log('Yorum eklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }
   }
 
@@ -352,8 +417,8 @@ class PlayerController extends GetxController {
       comments.removeWhere((c) => c.id == commentId);
       // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic azalt.
       if (appCommentCount.value > 0) appCommentCount.value -= 1;
-    } catch (e) {
-      log('[PlayerController] deleteComment error: $e');
+    } catch (e, stacktrace) {
+      log('Yorum silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }
   }
 

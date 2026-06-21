@@ -61,7 +61,7 @@ class ProfileController extends GetxController {
   }
 
   @override
-  onInit() {
+  void onInit() {
     super.onInit();
     loadProfile();
   }
@@ -93,7 +93,6 @@ class ProfileController extends GetxController {
       isLoading.value = true;
 
       if (isOwnProfile) {
-        log('profile controller getprofile tetiklendi');
         profile.value = await authRepository.getProfile();
       } else {
         final tid = targetUserId;
@@ -101,17 +100,30 @@ class ProfileController extends GetxController {
           profile.value = await authRepository.getProfileById(tid);
         }
       }
-    } catch (e) {
-      log('loadProfile error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Profil yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value = 'Profil yüklenemedi.';
     } finally {
       isLoading.value = false;
     }
 
     // Profil yüklenince SettingsController'ı senkronize et
-    final p = profile.value;
-    if (p != null && Get.isRegistered<SettingsController>()) {
-      Get.find<SettingsController>().profileVisibility.value =
-          p.profileVisibility;
+    try {
+      final p = profile.value;
+      if (p != null && Get.isRegistered<SettingsController>()) {
+        Get.find<SettingsController>().profileVisibility.value =
+            p.profileVisibility;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'SettingsController senkronizasyonu sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -120,13 +132,21 @@ class ProfileController extends GetxController {
     activitiesLoaded.value = true;
     final userId = isOwnProfile ? _currentUserId : targetUserId;
     if (userId == null) return;
-    await Future.wait([
-      loadFavorites(userId),
-      loadViewedVideos(userId),
-      loadCommentedVideos(userId),
-      loadSharedVideos(userId),
-      loadFollowedUniversities(userId),
-    ]);
+    try {
+      await Future.wait([
+        loadFavorites(userId),
+        loadViewedVideos(userId),
+        loadCommentedVideos(userId),
+        loadSharedVideos(userId),
+        loadFollowedUniversities(userId),
+      ]);
+    } catch (e, stacktrace) {
+      log(
+        'Tüm aktiviteler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Aktivite Yükleme ────────────────────────────────────────────────────
@@ -139,8 +159,12 @@ class ProfileController extends GetxController {
       favoriteVideos.value = await favoritesRepository.getUserFavoriteVideos(
         userId,
       );
-    } catch (e) {
-      log('loadFavorites error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favori videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isFavoritesLoading.value = false;
     }
@@ -154,8 +178,12 @@ class ProfileController extends GetxController {
       viewedVideos.value = await profileActivityRepository.getUserViewedVideos(
         userId,
       );
-    } catch (e) {
-      log('loadViewedVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'İzlenen videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isViewedLoading.value = false;
     }
@@ -168,8 +196,12 @@ class ProfileController extends GetxController {
       isCommentedLoading.value = true;
       commentedVideos.value = await profileActivityRepository
           .getUserCommentedVideos(userId);
-    } catch (e) {
-      log('loadCommentedVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Yorum yapılan videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isCommentedLoading.value = false;
     }
@@ -183,8 +215,12 @@ class ProfileController extends GetxController {
       sharedVideos.value = await profileActivityRepository.getUserSharedVideos(
         userId,
       );
-    } catch (e) {
-      log('loadSharedVideos error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Paylaşılan videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isSharedLoading.value = false;
     }
@@ -195,10 +231,14 @@ class ProfileController extends GetxController {
     if (userId == null) return;
     try {
       isUniversitiesLoading.value = true;
-      followedUniversities.value =
-          await universityFavoritesRepository.getFavoriteUniversities(userId);
-    } catch (e) {
-      log('loadFollowedUniversities error: $e');
+      followedUniversities.value = await universityFavoritesRepository
+          .getFavoriteUniversities(userId);
+    } catch (e, stacktrace) {
+      log(
+        'Takip edilen üniversiteler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isUniversitiesLoading.value = false;
     }
@@ -213,7 +253,6 @@ class ProfileController extends GetxController {
   }) async {
     // GÜVENLİK: Sadece kendi profilini güncelleyebilir
     if (!isOwnProfile) {
-      log('updateProfile: başkasının profili güncellenemez!');
       errorMessage.value = 'Bu profili düzenleme yetkiniz yok.';
       return;
     }
@@ -230,8 +269,12 @@ class ProfileController extends GetxController {
       await authRepository.updateProfile(updated);
       profile.value = updated;
       successMessage.value = 'Profil güncellendi.';
-    } catch (e) {
-      log('updateProfile error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Profil güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Profil güncellenemedi.';
     }
   }
@@ -259,8 +302,16 @@ class ProfileController extends GetxController {
   } */
 
   Future<void> refreshProfile() async {
-    activitiesLoaded.value = false;
-    await loadProfile();
-    await loadAllActivities();
+    try {
+      activitiesLoaded.value = false;
+      await loadProfile();
+      await loadAllActivities();
+    } catch (e, stacktrace) {
+      log(
+        'Profil yenilenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 }

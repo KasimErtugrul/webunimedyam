@@ -14,11 +14,11 @@ class StatsController extends GetxController {
   final errorMessage = Rxn<String>();
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
- @override
-void onReady() {
-  super.onReady();
-  _load();
-}
+  @override
+  void onReady() {
+    super.onReady();
+    _load();
+  }
 
   // ─── Public API ───────────────────────────────────────────────────────────
 
@@ -28,10 +28,10 @@ void onReady() {
   // ─── Private ──────────────────────────────────────────────────────────────
 
   Future<void> _load({bool forceRefresh = false}) async {
-    isLoading.value = true;
-    errorMessage.value = null;
-
     try {
+      isLoading.value = true;
+      errorMessage.value = null;
+
       final result = await statsRepository.getUserStats(
         forceRefresh: forceRefresh,
       );
@@ -39,8 +39,12 @@ void onReady() {
       if (result == null) {
         errorMessage.value = 'İstatistik verisi bulunamadı.';
       }
-    } catch (e, st) {
-      log('[StatsController] load error: $e', stackTrace: st);
+    } catch (e, stacktrace) {
+      log(
+        'İstatistikler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'İstatistikler yüklenemedi.';
     } finally {
       isLoading.value = false;

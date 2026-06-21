@@ -58,7 +58,7 @@ class UniversityFavoritesRepository extends GetxService {
   String? _cachedUserId;
 
   UniversityFavoritesRepository({required SupabaseDataSource supabase})
-      : _supabase = supabase;
+    : _supabase = supabase;
 
   // ─── Cache Yönetimi ──────────────────────────────────────────────────────
 
@@ -77,16 +77,18 @@ class UniversityFavoritesRepository extends GetxService {
     }
     _isCacheLoading = true;
     try {
-      log('🏛️☁️ [UniFav] ID cache dolduruluyor → $userId');
       final ids = await _supabase.getFavoriteUniversityIds(userId);
       _cachedFavoriteIds
         ..clear()
         ..addAll(ids);
       _cachedUserId = userId;
       _isCacheLoaded = true;
-      log('🏛️✅ [UniFav] ID cache hazır → ${ids.length} üniversite');
-    } catch (e) {
-      log('🏛️❌ [UniFav] ID cache doldurulamadı: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite favori ID\'leri cache\'e yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       _isCacheLoading = false;
     }
@@ -108,12 +110,14 @@ class UniversityFavoritesRepository extends GetxService {
 
   Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
     try {
-      log('🏛️☁️ [UniFav] Favori üniversiteler çekiliyor → $userId');
       final universities = await _supabase.getFavoriteUniversities(userId);
-      log('🏛️✅ [UniFav] ${universities.length} üniversite geldi');
       return universities;
-    } catch (e) {
-      log('🏛️❌ [UniFav] Üniversiteler çekilemedi: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favori üniversiteler getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return [];
     }
   }
@@ -147,25 +151,28 @@ class UniversityFavoritesRepository extends GetxService {
   }) async {
     // Optimistic: önce cache'e ekle
     _cachedFavoriteIds.add(universityId);
-    _changeController.add(UniversityFavoriteChange(
-      universityId: universityId,
-      isFavorite: true,
-      university: university,
-    ));
+    _changeController.add(
+      UniversityFavoriteChange(
+        universityId: universityId,
+        isFavorite: true,
+        university: university,
+      ),
+    );
 
     try {
-      log('🏛️☁️➕ [UniFav] Ekleniyor → universityId: $universityId');
       await _supabase.addUniversityFavorite(userId, universityId);
-      log('🏛️✅ [UniFav] Eklendi');
       return true;
-    } catch (e) {
+    } catch (e, stacktrace) {
       // Rollback: cache'den geri çıkar, event'i geri al
       _cachedFavoriteIds.remove(universityId);
-      _changeController.add(UniversityFavoriteChange(
-        universityId: universityId,
-        isFavorite: false,
-      ));
-      log('🏛️❌ [UniFav] Eklenemedi: $e');
+      _changeController.add(
+        UniversityFavoriteChange(universityId: universityId, isFavorite: false),
+      );
+      log(
+        'Üniversite favorilere eklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }
@@ -178,24 +185,24 @@ class UniversityFavoritesRepository extends GetxService {
   Future<bool> removeFavorite(String userId, int universityId) async {
     // Optimistic: önce cache'den çıkar
     _cachedFavoriteIds.remove(universityId);
-    _changeController.add(UniversityFavoriteChange(
-      universityId: universityId,
-      isFavorite: false,
-    ));
+    _changeController.add(
+      UniversityFavoriteChange(universityId: universityId, isFavorite: false),
+    );
 
     try {
-      log('🏛️☁️🗑️ [UniFav] Siliniyor → universityId: $universityId');
       await _supabase.removeUniversityFavorite(userId, universityId);
-      log('🏛️✅ [UniFav] Silindi');
       return true;
-    } catch (e) {
+    } catch (e, stacktrace) {
       // Rollback: cache'e geri ekle, event'i geri al
       _cachedFavoriteIds.add(universityId);
-      _changeController.add(UniversityFavoriteChange(
-        universityId: universityId,
-        isFavorite: true,
-      ));
-      log('🏛️❌ [UniFav] Silinemedi: $e');
+      _changeController.add(
+        UniversityFavoriteChange(universityId: universityId, isFavorite: true),
+      );
+      log(
+        'Üniversite favorilerden çıkarılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }

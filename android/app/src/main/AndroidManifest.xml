@@ -63,5 +63,19 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Android 11+ (API 30+) paket görünürlüğü: url_launcher'ın
+             canLaunchUrl/launchUrl ile http(s) linklerini (YouTube vb.)
+             açabilmesi için bu sorgular gereklidir; yoksa canLaunchUrl
+             her zaman false döner ve tıklama sessizce hiçbir şey yapmaz. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+        </intent>
     </queries>
 </manifest>

@@ -1,6 +1,5 @@
 // lib/main.dart
 
-import 'dart:developer';
 import 'dart:io' as io;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -27,7 +26,7 @@ import 'services/notification_service.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  log('[FCM-BG] Arka planda mesaj alındı: ${message.notification?.title}');
+ 
   // Sistem bildirimi OS tarafından otomatik gösterilir.
   // Ek işlem gerekmiyorsa boş bırakılır.
 }

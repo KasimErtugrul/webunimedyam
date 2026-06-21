@@ -18,7 +18,9 @@ class FavoritesController extends GetxController {
   void onInit() {
     super.onInit();
     // Favori değişimlerini dinle
-    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((event) {
+    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((
+      event,
+    ) {
       _onFavoriteChanged(event);
     });
   }
@@ -36,19 +38,26 @@ class FavoritesController extends GetxController {
   }
 
   void _onFavoriteChanged(FavoriteChange event) {
-    if (event.isFavorite) {
-      // Ekleme: eğer video nesnesi geldiyse ekle, yoksa cache'den yeniden yükle
-      if (event.video != null && !favoriteVideos.any((v) => v.videoId == event.videoId)) {
-        favoriteVideos.insert(0, event.video!);
-        log('[FavoritesController] Favori eklendi (event): ${event.videoId}');
+    try {
+      if (event.isFavorite) {
+        // Ekleme: eğer video nesnesi geldiyse ekle, yoksa cache'den yeniden yükle
+        if (event.video != null &&
+            !favoriteVideos.any((v) => v.videoId == event.videoId)) {
+          favoriteVideos.insert(0, event.video!);
+        } else {
+          // Video objesi gelmediyse, tam veri için cache'den yeniden yükle
+          loadFavorites();
+        }
       } else {
-        // Video objesi gelmediyse, tam veri için cache'den yeniden yükle
-        loadFavorites();
+        // Silme
+        favoriteVideos.removeWhere((v) => v.videoId == event.videoId);
       }
-    } else {
-      // Silme
-      favoriteVideos.removeWhere((v) => v.videoId == event.videoId);
-      log('[FavoritesController] Favori silindi (event): ${event.videoId}');
+    } catch (e, stacktrace) {
+      log(
+        'Favori değişikliği işlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -57,9 +66,12 @@ class FavoritesController extends GetxController {
     try {
       isLoading.value = true;
       favoriteVideos.value = await favoritesRepository.getFavoriteVideos();
-      log('[FavoritesController] Favoriler yüklendi: ${favoriteVideos.length} video');
-    } catch (e) {
-      log('loadFavorites error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Favoriler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     } finally {
       isLoading.value = false;
     }

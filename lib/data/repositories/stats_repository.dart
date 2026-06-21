@@ -10,8 +10,8 @@ class StatsRepository {
   StatsRepository({
     required SupabaseDataSource supabaseDataSource,
     required LocalDataSource localDataSource,
-  })  : _supabase = supabaseDataSource,
-        _local = localDataSource;
+  }) : _supabase = supabaseDataSource,
+       _local = localDataSource;
 
   /// Önce local cache'e bakar (1 saatlik TTL).
   /// Cache yoksa/dolmuşsa Supabase'den çeker ve cache'e yazar.
@@ -22,40 +22,57 @@ class StatsRepository {
       try {
         final cached = await _local.getCachedUserStats();
         if (cached != null) {
-          log('📊💾 [Stats] Kullanıcı istatistikleri LOCAL cache\'den geldi');
           return cached;
         }
-        log('📊⏳ [Stats] Local cache boş veya süresi dolmuş');
-      } catch (e) {
-        log('📊❌ [Stats] Cache okuma hatası: $e');
+      } catch (e, stacktrace) {
+        log(
+          'Kullanıcı istatistikleri cache\'den okunurken hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
       }
     }
 
     // 2. Cache yoksa veya forceRefresh ise Supabase'den çek
     try {
-      log('📊☁️ [Stats] Kullanıcı istatistikleri Supabase\'den çekiliyor...');
       final data = await _supabase.getMyStats();
       if (data == null) {
-        log('📊⚠️ [Stats] Supabase\'den veri gelmedi');
         return null;
       }
       final stats = UserStatsModel.fromMap(data);
       await _local.cacheUserStats(stats);
-      log('📊✅ [Stats] İstatistikler geldi ve cache\'e yazıldı (remote)');
       return stats;
-    } catch (e) {
+    } catch (e, stacktrace) {
       // 3. Ağ hatası: Uygulama çökmesin, süresi geçmiş eski cache'i bile dönelim (Stale fallback)
-      log('📊❌ [Stats] Remote hata: $e → stale cache deneniyor');
+      log(
+        'Kullanıcı istatistikleri remote\'dan getirilirken hata oluştu: $e → stale cache deneniyor',
+        error: e,
+        stackTrace: stacktrace,
+      );
       try {
-        final stale = await _local.getCachedUserStats(); 
-        log(stale != null ? '📊💾 [Stats] Stale cache döndürüldü' : '📊❌ [Stats] Stale cache de yok');
+        final stale = await _local.getCachedUserStats();
         return stale;
-      } catch (staleError) {
-        log('📊❌ [Stats] Stale cache okunurken hata: $staleError');
+      } catch (staleError, staleStacktrace) {
+        log(
+          'Stale cache okunurken hata oluştu: $staleError',
+          error: staleError,
+          stackTrace: staleStacktrace,
+        );
         return null;
       }
     }
   }
 
-  Future<void> clearCache() => _local.clearUserStats();
+  Future<void> clearCache() async {
+    try {
+      await _local.clearUserStats();
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcı istatistikleri cache\'i temizlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
 }

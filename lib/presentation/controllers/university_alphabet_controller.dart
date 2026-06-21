@@ -1,5 +1,6 @@
 // lib/presentation/controllers/university_alphabet_controller.dart
 
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,50 +47,75 @@ class UniversityAlphabetController extends GetxController {
   /// Liste her değiştiğinde (arama, sıralama, ilk yükleme) çağrılır.
   /// [itemExtent] kart için kullanılan sabit yükseklik (örn. 168.h).
   void setData(List<UniversityModel> universities, double itemExtent) {
-    _universities = universities;
-    _itemExtent = itemExtent <= 0 ? 1 : itemExtent;
+    try {
+      _universities = universities;
+      _itemExtent = itemExtent <= 0 ? 1 : itemExtent;
 
-    _letterStartIndex.clear();
-    final letters = <String>[];
-    for (var i = 0; i < universities.length; i++) {
-      final letter = getTurkishInitialTag(universities[i].name);
-      if (!_letterStartIndex.containsKey(letter)) {
-        _letterStartIndex[letter] = i;
-        letters.add(letter);
+      _letterStartIndex.clear();
+      final letters = <String>[];
+      for (var i = 0; i < universities.length; i++) {
+        final letter = getTurkishInitialTag(universities[i].name);
+        if (!_letterStartIndex.containsKey(letter)) {
+          _letterStartIndex[letter] = i;
+          letters.add(letter);
+        }
       }
-    }
-    _sections = _letterStartIndex.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
+      _sections = _letterStartIndex.entries.toList()
+        ..sort((a, b) => a.value.compareTo(b.value));
 
-    availableLetters.value = letters;
+      availableLetters.value = letters;
 
-    if (letters.isEmpty) {
-      currentLetter.value = '';
-    } else if (!letters.contains(currentLetter.value)) {
-      currentLetter.value = letters.first;
+      if (letters.isEmpty) {
+        currentLetter.value = '';
+      } else if (!letters.contains(currentLetter.value)) {
+        currentLetter.value = letters.first;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite alfabe verileri ayarlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
   void _onUserScroll() {
-    if (_programmaticScroll || _sections.isEmpty) return;
-    final approxIndex = (scrollController.offset / _itemExtent).round();
-    final letter = _letterForIndex(approxIndex);
-    if (letter != null && letter != currentLetter.value) {
-      currentLetter.value = letter;
+    try {
+      if (_programmaticScroll || _sections.isEmpty) return;
+      final approxIndex = (scrollController.offset / _itemExtent).round();
+      final letter = _letterForIndex(approxIndex);
+      if (letter != null && letter != currentLetter.value) {
+        currentLetter.value = letter;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcı kaydırması işlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
   /// [index]'in ait olduğu harf bölümünü bulur (en yakın <= index).
   String? _letterForIndex(int index) {
-    String? found;
-    for (final entry in _sections) {
-      if (entry.value <= index) {
-        found = entry.key;
-      } else {
-        break;
+    try {
+      String? found;
+      for (final entry in _sections) {
+        if (entry.value <= index) {
+          found = entry.key;
+        } else {
+          break;
+        }
       }
+      return found ?? (_sections.isNotEmpty ? _sections.first.key : null);
+    } catch (e, stacktrace) {
+      log(
+        'Index için harf bulunurken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return null;
     }
-    return found ?? (_sections.isNotEmpty ? _sections.first.key : null);
   }
 
   /// Sidebar'da bir harfe dokunulduğunda: listeyi yumuşak şekilde kaydır.
@@ -103,33 +129,50 @@ class UniversityAlphabetController extends GetxController {
   }
 
   void _scrollToLetter(String letter, {required bool animated}) {
-    final index = _letterStartIndex[letter];
-    if (index == null || !scrollController.hasClients) return;
+    try {
+      final index = _letterStartIndex[letter];
+      if (index == null || !scrollController.hasClients) return;
 
-    currentLetter.value = letter;
-    _programmaticScroll = true;
+      currentLetter.value = letter;
+      _programmaticScroll = true;
 
-    final maxExtent = scrollController.position.maxScrollExtent;
-    final target = (index * _itemExtent).clamp(0.0, maxExtent);
+      final maxExtent = scrollController.position.maxScrollExtent;
+      final target = (index * _itemExtent).clamp(0.0, maxExtent);
 
-    if (animated) {
-      scrollController
-          .animateTo(
-            target,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-          )
-          .whenComplete(() => _programmaticScroll = false);
-    } else {
-      scrollController.jumpTo(target);
+      if (animated) {
+        scrollController
+            .animateTo(
+              target,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+            )
+            .whenComplete(() => _programmaticScroll = false);
+      } else {
+        scrollController.jumpTo(target);
+        _programmaticScroll = false;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Harfe kaydırma işlemi sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       _programmaticScroll = false;
     }
   }
 
   @override
   void onClose() {
-    scrollController.removeListener(_onUserScroll);
-    scrollController.dispose();
+    try {
+      scrollController.removeListener(_onUserScroll);
+      scrollController.dispose();
+    } catch (e, stacktrace) {
+      log(
+        'Controller kapatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
     super.onClose();
   }
 }

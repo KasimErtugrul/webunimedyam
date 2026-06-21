@@ -32,23 +32,33 @@ class VideoSectionDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments;
-    if (args is! Map<String, dynamic>) {
-      errorMessage.value = 'Sayfa bilgisi alınamadı.';
-      return;
+    try {
+      final args = Get.arguments;
+      if (args is! Map<String, dynamic>) {
+        errorMessage.value = 'Sayfa bilgisi alınamadı.';
+        return;
+      }
+      sectionType = args['type'] as VideoSectionType;
+      sectionTitle = args['title'] as String;
+      loadFirstPage();
+    } catch (e, stacktrace) {
+      log('VideoSectionDetailController başlatılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Sayfa yüklenirken hata oluştu.';
     }
-    sectionType = args['type'] as VideoSectionType;
-    sectionTitle = args['title'] as String;
-    loadFirstPage();
   }
 
   Future<void> loadFirstPage() async {
-    _currentOffset = 0;
-    hasMore.value = true;
-    errorMessage.value = null; // Hata mesajını temizle
-    items.clear();
-    _pageCache.clear();
-    await _fetchPage();
+    try {
+      _currentOffset = 0;
+      hasMore.value = true;
+      errorMessage.value = null; // Hata mesajını temizle
+      items.clear();
+      _pageCache.clear();
+      await _fetchPage();
+    } catch (e, stacktrace) {
+      log('İlk sayfa yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Sayfa yüklenirken hata oluştu.';
+    }
   }
 
   Future<void> loadNextPage() async {
@@ -85,13 +95,28 @@ class VideoSectionDetailController extends GetxController {
 
       items.addAll(result);
       _currentOffset += result.length;
-    } catch (e) {
-      log('VideoSectionDetailController._fetchPage error: $e');
+    } catch (e, stacktrace) {
+      log('Sayfa verisi getirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
       // FIX: Hata olursa UI'a bildir. Kullanıcı "Yeniden Dene" butonu görebilir.
       errorMessage.value = 'Daha fazla video yüklenirken hata oluştu.';
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
+    }
+  }
+
+  // ─── Yeniden Dene ─────────────────────────────────────────────────────────
+
+  Future<void> retry() async {
+    try {
+      // Cache'deki son sayfayı temizle ve tekrar dene
+      if (_currentOffset > 0 && _pageCache.containsKey(_currentOffset - _pageSize)) {
+        _pageCache.remove(_currentOffset - _pageSize);
+      }
+      await _fetchPage();
+    } catch (e, stacktrace) {
+      log('Yeniden deneme sırasında hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Yeniden yüklenirken hata oluştu.';
     }
   }
 }

@@ -51,100 +51,198 @@ class SettingsController extends GetxService {
       isLoading.value = true;
       settings.value = await authRepository.getUserSettings();
       _syncProfileVisibilityFromController();
-    } catch (e) {
-      log('loadSettings error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Ayarlar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value = 'Ayarlar yüklenemedi.';
     } finally {
       isLoading.value = false;
     }
   }
 
   void _syncProfileVisibilityFromController() {
-    if (Get.isRegistered<ProfileController>()) {
-      final p = Get.find<ProfileController>().profile.value;
-      if (p != null) {
-        profileVisibility.value = p.profileVisibility;
-        return;
+    try {
+      if (Get.isRegistered<ProfileController>()) {
+        final p = Get.find<ProfileController>().profile.value;
+        if (p != null) {
+          profileVisibility.value = p.profileVisibility;
+          return;
+        }
       }
+    } catch (e, stacktrace) {
+      log(
+        'Profil görünürlüğü senkronize edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
 
   Future<void> changeTheme(String theme) async {
-    final current = settings.value;
-    if (current == null) return;
-    await _updateSettings(current.copyWith(theme: theme));
-    await authRepository.saveThemeLocally(theme);
-    final mode = theme == 'dark'
-        ? ThemeMode.dark
-        : theme == 'light'
-            ? ThemeMode.light
-            : ThemeMode.system;
-    Get.changeThemeMode(mode);
+    try {
+      final current = settings.value;
+      if (current == null) return;
+      await _updateSettings(current.copyWith(theme: theme));
+      await authRepository.saveThemeLocally(theme);
+      final mode = theme == 'dark'
+          ? ThemeMode.dark
+          : theme == 'light'
+          ? ThemeMode.light
+          : ThemeMode.system;
+      Get.changeThemeMode(mode);
+    } catch (e, stacktrace) {
+      log(
+        'Tema değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value = 'Tema değiştirilemedi.';
+    }
   }
 
   // ─── Oynatma ──────────────────────────────────────────────────────────────
 
   Future<void> toggleAutoplay() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(autoplay: !c.autoplay));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(autoplay: !c.autoplay));
+    } catch (e, stacktrace) {
+      log(
+        'Otomatik oynatma değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> toggleSubtitles() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(showSubtitles: !c.showSubtitles));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(showSubtitles: !c.showSubtitles));
+    } catch (e, stacktrace) {
+      log(
+        'Altyazı değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> changeVideoQuality(String quality) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(videoQuality: quality));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(videoQuality: quality));
+    } catch (e, stacktrace) {
+      log(
+        'Video kalitesi değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Bildirimler ──────────────────────────────────────────────────────────
 
   Future<void> toggleNotifications() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(
-        c.copyWith(notificationsEnabled: !c.notificationsEnabled));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(
+        c.copyWith(notificationsEnabled: !c.notificationsEnabled),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Bildirimler değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> toggleNotifyNewVideos() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(notifyNewVideos: !c.notifyNewVideos));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(notifyNewVideos: !c.notifyNewVideos));
+    } catch (e, stacktrace) {
+      log(
+        'Yeni video bildirimi değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> toggleNotifyCommentReplies() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(
-        c.copyWith(notifyCommentReplies: !c.notifyCommentReplies));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(
+        c.copyWith(notifyCommentReplies: !c.notifyCommentReplies),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Yorum yanıtı bildirimi değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> toggleNotifyFollowRequests() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(
-        c.copyWith(notifyFollowRequests: !c.notifyFollowRequests));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(
+        c.copyWith(notifyFollowRequests: !c.notifyFollowRequests),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Takip isteği bildirimi değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Gizlilik — Eski (geriye uyumluluk) ───────────────────────────────────
 
   Future<void> toggleWatchHistory() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(showWatchHistory: !c.showWatchHistory));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(showWatchHistory: !c.showWatchHistory));
+    } catch (e, stacktrace) {
+      log(
+        'İzleme geçmişi değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> toggleFavoritesPublic() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(
-        c.copyWith(showFavoritesPublic: !c.showFavoritesPublic));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(
+        c.copyWith(showFavoritesPublic: !c.showFavoritesPublic),
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Favorilerin herkese açık olması değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
@@ -170,13 +268,11 @@ class SettingsController extends GetxService {
     try {
       // BUG FIX: Bu satır artık YORUM SATIRI DEĞİL — DB'ye yazılıyor
       await _supabase.updateProfileVisibility(userId, newVisibility.value);
-      log('⚙️✅ [Settings] profileVisibility → ${newVisibility.value} (DB\'ye yazıldı)');
 
       // Tavan düştüyse taşan aktiviteleri indir
       final clamped = _clampAllActivities(current);
       if (clamped != null) {
         await _updateSettings(clamped);
-        log('⚙️✅ [Settings] Taşan aktiviteler tavana indirildi');
       }
 
       // ProfileController varsa senkronize et
@@ -189,72 +285,133 @@ class SettingsController extends GetxService {
           );
         }
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
       profileVisibility.value = oldVisibility; // Rollback
-      log('changeProfileVisibility error: $e');
+      log(
+        'Profil görünürlüğü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Profil görünürlüğü güncellenemedi.';
     }
   }
 
   UserSettingsModel? _clampAllActivities(UserSettingsModel current) {
-    final w = _clamp(current.watchHistoryVisibility);
-    final l = _clamp(current.likesVisibility);
-    final f = _clamp(current.favoritesVisibility);
-    final c = _clamp(current.commentsVisibility);
+    try {
+      final w = _clamp(current.watchHistoryVisibility);
+      final l = _clamp(current.likesVisibility);
+      final f = _clamp(current.favoritesVisibility);
+      final c = _clamp(current.commentsVisibility);
 
-    if (w == current.watchHistoryVisibility &&
-        l == current.likesVisibility &&
-        f == current.favoritesVisibility &&
-        c == current.commentsVisibility) {
+      if (w == current.watchHistoryVisibility &&
+          l == current.likesVisibility &&
+          f == current.favoritesVisibility &&
+          c == current.commentsVisibility) {
+        return null;
+      }
+
+      return current.copyWith(
+        watchHistoryVisibility: w,
+        likesVisibility: l,
+        favoritesVisibility: f,
+        commentsVisibility: c,
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Aktivite görünürlükleri kısıtlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
-
-    return current.copyWith(
-      watchHistoryVisibility: w,
-      likesVisibility: l,
-      favoritesVisibility: f,
-      commentsVisibility: c,
-    );
   }
 
   // ─── Gizlilik — Aktivite Görünürlükleri ───────────────────────────────────
 
   Future<void> changeWatchHistoryVisibility(VisibilityOption v) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(watchHistoryVisibility: _clamp(v)));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(watchHistoryVisibility: _clamp(v)));
+    } catch (e, stacktrace) {
+      log(
+        'İzleme geçmişi görünürlüğü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> changeLikesVisibility(VisibilityOption v) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(likesVisibility: _clamp(v)));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(likesVisibility: _clamp(v)));
+    } catch (e, stacktrace) {
+      log(
+        'Beğeniler görünürlüğü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> changeFavoritesVisibility(VisibilityOption v) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(favoritesVisibility: _clamp(v)));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(favoritesVisibility: _clamp(v)));
+    } catch (e, stacktrace) {
+      log(
+        'Favoriler görünürlüğü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> changeCommentsVisibility(VisibilityOption v) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(commentsVisibility: _clamp(v)));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(commentsVisibility: _clamp(v)));
+    } catch (e, stacktrace) {
+      log(
+        'Yorumlar görünürlüğü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Erişilebilirlik ──────────────────────────────────────────────────────
 
   Future<void> toggleReducedMotion() async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(reducedMotion: !c.reducedMotion));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(reducedMotion: !c.reducedMotion));
+    } catch (e, stacktrace) {
+      log(
+        'Azaltılmış hareket değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Future<void> changeTextScale(double scale) async {
-    final c = settings.value;
-    if (c == null) return;
-    await _updateSettings(c.copyWith(textScaleFactor: scale));
+    try {
+      final c = settings.value;
+      if (c == null) return;
+      await _updateSettings(c.copyWith(textScaleFactor: scale));
+    } catch (e, stacktrace) {
+      log(
+        'Metin ölçeği değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   // ─── Cache ────────────────────────────────────────────────────────────────
@@ -270,8 +427,12 @@ class SettingsController extends GetxService {
         backgroundColor: Colors.green.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
-    } catch (e) {
-      log('clearCache error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Cache temizlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Cache temizlenemedi.';
     } finally {
       isLoading.value = false;
@@ -288,8 +449,8 @@ class SettingsController extends GetxService {
         await authRepository.signOut();
         Get.offAllNamed('/home');
       }
-    } catch (e) {
-      log('signOut delegate error: $e');
+    } catch (e, stacktrace) {
+      log('Çıkış yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Çıkış yapılırken hata oluştu.';
     }
   }
@@ -305,10 +466,13 @@ class SettingsController extends GetxService {
       try {
         await authRepository.updateUserSettings(updated);
         _lastSavedSettings = updated;
-        log('⚙️✅ [Settings] Supabase\'e yazıldı (debounce)');
-      } catch (e) {
+      } catch (e, stacktrace) {
         settings.value = old;
-        log('_updateSettings error: $e');
+        log(
+          'Ayarlar güncellenirken hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
         errorMessage.value = 'Ayarlar güncellenemedi.';
       }
     });

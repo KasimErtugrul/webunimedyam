@@ -14,8 +14,8 @@ class AuthRepository {
   AuthRepository({
     required SupabaseDataSource supabase,
     required LocalDataSource local,
-  })  : _supabase = supabase,
-        _local = local;
+  }) : _supabase = supabase,
+       _local = local;
 
   bool get isLoggedIn => _supabase.currentUser != null;
   String? get currentUserId => _supabase.currentUser?.id;
@@ -28,176 +28,232 @@ class AuthRepository {
     required String password,
     required String username,
   }) async {
-    log('🔐☁️ [Auth] Kayıt isteği Supabase\'e gönderiliyor → $email');
-    await _supabase.signUp(
-      email: email,
-      password: password,
-      username: username,
-    );
-    await NotificationService.instance.onUserLogin();
+    try {
+      await _supabase.signUp(
+        email: email,
+        password: password,
+        username: username,
+      );
+      await NotificationService.instance.onUserLogin();
+    } catch (e, stacktrace) {
+      log('Kayıt olurken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
   }
 
   Future<void> signIn({required String email, required String password}) async {
-    log('🔑☁️ [Auth] Giriş isteği Supabase\'e gönderiliyor → $email');
-    await _supabase.signIn(email: email, password: password);
-    await NotificationService.instance.onUserLogin();
+    try {
+      await _supabase.signIn(email: email, password: password);
+      await NotificationService.instance.onUserLogin();
+    } catch (e, stacktrace) {
+      log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
   }
 
   Future<void> signOut() async {
-    log('🚪🧹 [Auth] Çıkış yapılıyor, tüm local veriler temizleniyor...');
-    await NotificationService.instance.onUserLogout();
-    await Future.wait([
-      _local.clearUserSettings(),
-      _local.clearFavoriteVideos(),
-      _local.clearCache(),
-      _local.clearUserStats(),
-      _local.clearVideoSectionCache(),
-      _local.clearProfile(),
-      _local.clearUniversities(),
-    ]);
-    await _supabase.signOut();
-    log('✅ [Auth] Çıkış tamamlandı, tüm cache temizlendi');
+    try {
+      await NotificationService.instance.onUserLogout();
+      await Future.wait([
+        _local.clearUserSettings(),
+        _local.clearFavoriteVideos(),
+        _local.clearCache(),
+        _local.clearUserStats(),
+        _local.clearVideoSectionCache(),
+        _local.clearProfile(),
+        _local.clearUniversities(),
+      ]);
+      await _supabase.signOut();
+    } catch (e, stacktrace) {
+      log('Çıkış yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
   }
 
   Future<void> updateProfile(ProfileModel profile) async {
-    log('✏️☁️ [Auth] Profil güncelleniyor → ${profile.username}');
-    await _supabase.updateProfile(profile);
-    // BUG FIX: Güncelleme sonrası local cache'i de tazele;
-    // aksi halde bir sonraki açılışta eski veri gelir.
-    await _local.cacheProfile(profile.toSupabase());
-    log('✅ [Auth] Profil güncellendi ve local cache yenilendi');
+    try {
+      await _supabase.updateProfile(profile);
+      await _local.cacheProfile(profile.toSupabase());
+    } catch (e, stacktrace) {
+      log(
+        'Profil güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
   }
 
-  /// Sadece profil görünürlüğünü günceller.
-  ///
-  /// BUG FIX: SettingsController.changeProfileVisibility() bunu çağırıyor.
-  /// Önceki kodda bu metod yoktu ve _supabase.updateProfileVisibility yorum
-  /// satırındaydı — profil görünürlüğü hiçbir zaman DB'ye yazılmıyordu.
   Future<void> updateProfileVisibility(VisibilityOption visibility) async {
-    final userId = currentUserId;
-    if (userId == null) return;
-    log('✏️☁️ [Auth] Profile visibility güncelleniyor → ${visibility.value}');
-    await _supabase.updateProfileVisibility(userId, visibility.value);
+    try {
+      final userId = currentUserId;
+      if (userId == null) return;
 
-    // Local cache'deki profili de güncelle
-    final cachedMap = await _local.getCachedProfile();
-    if (cachedMap != null) {
-      final updated = Map<String, dynamic>.from(cachedMap)
-        ..['profile_visibility'] = visibility.value;
-      await _local.cacheProfile(updated);
+      await _supabase.updateProfileVisibility(userId, visibility.value);
+
+      final cachedMap = await _local.getCachedProfile();
+      if (cachedMap != null) {
+        final updated = Map<String, dynamic>.from(cachedMap)
+          ..['profile_visibility'] = visibility.value;
+        await _local.cacheProfile(updated);
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Profil görünürlüğü güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
     }
-    log('✅ [Auth] Profile visibility güncellendi: ${visibility.value}');
   }
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
-    await _supabase.updateUserSettings(settings);
-    await _local.cacheUserSettings(settings.toSupabase());
-    await _local.setTheme(settings.theme);
+    try {
+      await _supabase.updateUserSettings(settings);
+      await _local.cacheUserSettings(settings.toSupabase());
+      await _local.setTheme(settings.theme);
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcı ayarları güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
   }
 
   Future<void> clearLocalCache() async {
-    log('🧹 [Auth] Sadece local cache temizleniyor (çıkış yok)...');
-    await Future.wait([
-      _local.clearCache(),
-      _local.clearUserStats(),
-      _local.clearVideoSectionCache(),
-    ]);
-    log('✅ [Auth] Local cache temizlendi');
+    try {
+      await Future.wait([
+        _local.clearCache(),
+        _local.clearUserStats(),
+        _local.clearVideoSectionCache(),
+      ]);
+    } catch (e, stacktrace) {
+      log(
+        'Yerel önbellek temizlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
   }
 
   Future<void> completeOnboarding() async {
-    log('🎓✅ [Auth] Onboarding tamamlandı → local + Supabase yazılıyor');
-    await _local.setOnboardingCompleted();
-    final userId = currentUserId;
-    if (userId != null) {
-      await _supabase.completeOnboarding(userId);
+    try {
+      await _local.setOnboardingCompleted();
+      final userId = currentUserId;
+      if (userId != null) {
+        await _supabase.completeOnboarding(userId);
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Onboarding tamamlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
     }
   }
 
   // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
 
   Future<ProfileModel?> getProfile() async {
-    final userId = currentUserId;
-    if (userId == null) {
-      log('⚠️ [Auth] getProfile: kullanıcı giriş yapmamış');
-      return null;
-    }
-
-    // Önce local cache'e bak
-    final cachedMap = await _local.getCachedProfile();
-    if (cachedMap != null) {
-      log('👤💾 [Auth] Profil LOCAL\'den geldi');
-      return ProfileModel.fromSupabase(cachedMap);
-    }
-
     try {
-      log('👤☁️ [Auth] Profil Supabase\'den çekiliyor → $userId');
+      final userId = currentUserId;
+      if (userId == null) {
+        return null;
+      }
+
+      final cachedMap = await _local.getCachedProfile();
+      if (cachedMap != null) {
+        return ProfileModel.fromSupabase(cachedMap);
+      }
+
       final profile = await _supabase.getProfile(userId);
       if (profile != null) {
         await _local.cacheProfile(profile.toSupabase());
-        log('👤💾 [Auth] Profil local cache\'e yazıldı');
       }
       return profile;
-    } catch (e) {
-      log('👤❌ [Auth] Profil çekilemedi (offline?): $e');
+    } catch (e, stacktrace) {
+      log(
+        'Profil bilgileri getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
   }
 
   Future<ProfileModel?> getProfileById(String userId) async {
     try {
-      log('👤☁️ [Auth] Profil çekiliyor (by ID) → $userId');
       final data = await _supabase.getPublicProfile(userId);
       if (data == null) return null;
       return ProfileModel.fromSupabase(data);
-    } catch (e) {
-      log('👤❌ [Auth] getProfileById error: $e');
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcı profili getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
   }
 
   Future<UserSettingsModel?> getUserSettings() async {
-    final userId = currentUserId;
-    if (userId == null) return null;
-
-    final cached = await _local.getCachedUserSettings();
-    if (cached != null) {
-      log('⚙️💾 [Auth] Kullanıcı ayarları LOCAL\'den geldi');
-      return UserSettingsModel.fromSupabase(cached);
-    }
-
     try {
-      log('⚙️☁️ [Auth] Kullanıcı ayarları Supabase\'den çekiliyor...');
+      final userId = currentUserId;
+      if (userId == null) return null;
+
+      final cached = await _local.getCachedUserSettings();
+      if (cached != null) {
+        return UserSettingsModel.fromSupabase(cached);
+      }
+
       final settings = await _supabase.getUserSettings(userId);
       if (settings != null) {
         await _local.cacheUserSettings(settings.toSupabase());
-        log('💾 [Auth] Ayarlar local cache\'e yazıldı');
       }
       return settings;
-    } catch (e) {
-      log('⚙️❌ [Auth] Ayarlar çekilemedi (offline?): $e');
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcı ayarları getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return null;
     }
   }
 
   Future<void> saveThemeLocally(String theme) async {
-    await _local.setTheme(theme);
+    try {
+      await _local.setTheme(theme);
+    } catch (e, stacktrace) {
+      log(
+        'Tema kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
   }
 
   Future<bool> isOnboardingCompleted() async {
-    if (await _local.isOnboardingCompleted()) {
-      log('🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor');
-      return true;
-    }
-
-    final userId = currentUserId;
-    if (userId == null) return false;
-
     try {
-      log('🎓☁️ [Auth] Onboarding durumu Supabase\'den kontrol ediliyor...');
+      if (await _local.isOnboardingCompleted()) {
+        return true;
+      }
+
+      final userId = currentUserId;
+      if (userId == null) return false;
+
       return await _supabase.isOnboardingCompleted(userId);
-    } catch (e) {
-      log('🎓❌ [Auth] Onboarding durumu çekilemedi (offline?): $e');
+    } catch (e, stacktrace) {
+      log(
+        'Onboarding durumu kontrol edilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }

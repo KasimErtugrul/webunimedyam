@@ -15,9 +15,9 @@ class SplashController extends GetxController {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(seconds: 2));
-
     try {
+      await Future.delayed(const Duration(seconds: 2));
+
       final onboardingCompleted = await authRepository.isOnboardingCompleted();
 
       if (!onboardingCompleted) {
@@ -28,12 +28,11 @@ class SplashController extends GetxController {
       // Auth olsun ya da olmasın direkt home'a git.
       // Favori / yorum gibi işlemlerde zaten auth istenir.
       Get.offAllNamed(AppRoutes.home);
-      
-    } catch (e) {
+    } catch (e, stacktrace) {
       // FIX: Kritik Güvenlik Ağı (Fail-Safe)
       // Eğer bu noktada bir hata oluşursa (örn: cache tamamen bozuksa), 
-      // kullanıcıyı splashta mahsur bırakma, direkt Home'a yolla.
-      log('SplashController navigate error: $e');
+      // kullanıcıyı splahta mahsur bırakma, direkt Home'a yolla.
+      log('SplashController yönlendirme sırasında hata oluştu: $e', error: e, stackTrace: stacktrace);
       Get.offAllNamed(AppRoutes.home);
     }
   }
