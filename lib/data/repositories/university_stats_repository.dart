@@ -9,7 +9,7 @@ import '../datasources/remote/supabase_datasource.dart';
 import '../models/university_stats_model.dart';
 
 /// TTL: 30 dakika.
-/// Tek RPC çağrısı (get_home_university_stats) — artkı university_stats_mat
+/// Tek RPC çağrısı (get_home_university_stats) — artık university_leaderboard_mat
 /// materialized view üzerinden çalışıyor; okümaları bloklamaz, pg_cron ile saatlik yenilenir.
 /// ‘newly_discovered’ eşiği dinamik (%20 yüzdelik dilimi) — hardcoded 50 yok.
 /// Bireysel getList() metodları offline fallback veya nadir kullanımlar için korundu.

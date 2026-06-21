@@ -38,11 +38,11 @@ class SupabaseDataSource {
   }
 
   // Profil
-  Future<ProfileModel?> getProfile(String userId) async {
+   Future<ProfileModel?> getProfile(String userId) async {
     try {
       final data = await _client
           .from('profiles')
-          .select()
+          .select()           // profile_visibility artık bu select'e dahil
           .eq('id', userId)
           .maybeSingle();
       if (data == null) return null;
@@ -54,7 +54,7 @@ class SupabaseDataSource {
     }
   }
 
-  Future<void> updateProfile(ProfileModel profile) async {
+   Future<void> updateProfile(ProfileModel profile) async {
     await _client
         .from('profiles')
         .update(profile.toSupabase())
@@ -197,15 +197,19 @@ class SupabaseDataSource {
   }
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
-  Future<List<String>> getFavoriteVideoIds(
-    String userId, {
-    int limit = 20,
-  }) async {
+  // FIX: Eskiden sabit limit=20 ile çağrılıyordu ve hiç sıralama yoktu. Bu
+  // fonksiyon, ana ekrandaki kalp ikonunun "favorilenmiş mi" durumunu belirleyen
+  // TEK kaynak (favoriteIds set'i) — 20'den fazla favorisi olan kullanıcılarda
+  // 21. ve sonrası "favorilenmemiş" görünüyordu. Tekrar kalbe basınca da
+  // UNIQUE(user_id, video_id) ihlali sessizce hata fırlatıyordu. Bu sadece
+  // üyelik kontrolü (Set.contains) için kullanıldığından, ID'leri sayfalama
+  // olmadan TAMAMINI çekiyoruz — sadece video_id kolonu olduğu için maliyeti
+  // ihmal edilebilir düzeyde.
+  Future<List<String>> getFavoriteVideoIds(String userId) async {
     final data = await _client
         .from('favorites')
         .select('video_id')
-        .eq('user_id', userId)
-        .limit(limit);
+        .eq('user_id', userId);
     return (data as List).map((e) => e['video_id'] as String).toList();
   }
 
@@ -235,11 +239,20 @@ class SupabaseDataSource {
     return _attachEngagement(videos);
   }
 
+  // FIX: Eskiden düz insert kullanılıyordu — limit hatası düzelse de, stale
+  // local cache / çift dokunma gibi yarış durumlarında UNIQUE(user_id, video_id)
+  // ihlali fırlatıp toggleFavorite() içinde sessizce yutuluyordu (kalp donmuş
+  // kalıyordu). ignoreDuplicates: true ile bu işlem artık idempotent — kayıt
+  // zaten varsa hata fırlatmadan sessizce no-op olur.
   Future<void> addFavorite(String userId, String videoId) async {
-    await _client.from('favorites').insert({
-      'user_id': userId,
-      'video_id': videoId,
-    });
+    await _client.from('favorites').upsert(
+      {
+        'user_id': userId,
+        'video_id': videoId,
+      },
+      onConflict: 'user_id,video_id',
+      ignoreDuplicates: true,
+    );
   }
 
   Future<void> removeFavorite(String userId, String videoId) async {
@@ -319,15 +332,16 @@ class SupabaseDataSource {
 
   // ─── Üniversiteler + İstatistikler ───────────────────────────────────────
   //
-  // FIX: Daha önce mevcut olmayan 'universities_with_stats' view'ı çağrılıyordu.
-  // Bu view artık Supabase'de oluşturuldu.
   // View; universities tablosundaki tüm kolonları + favorite_count + thumbnail_url içerir.
+  // NOT: Bu view 'universities_with_stats' isminden 'universities_list_view'
+  // olarak yeniden adlandırıldı (ağır 'university_leaderboard_mat' ile
+  // isim karışıklığını önlemek için).
 
   Future<List<Map<String, dynamic>>> getUniversitiesWithVideoCount({
     int limit = 500,
   }) async {
     final data = await _client
-        .from('universities_with_stats') // ✅ View artık mevcut
+        .from('universities_list_view')
         .select('*')
         .order('name', ascending: true)
         .limit(limit);
@@ -369,7 +383,7 @@ class SupabaseDataSource {
   }
 
   // ─── Beğeni (likes) ──────────────────────────────────────────────────────
-  Future<bool> isLiked(String userId, String videoId) async {
+   Future<bool> isLiked(String userId, String videoId) async {
     final data = await _client
         .from('likes')
         .select('id')
@@ -380,10 +394,14 @@ class SupabaseDataSource {
   }
 
   Future<void> addLike(String userId, String videoId) async {
-    await _client.from('likes').upsert({
-      'user_id': userId,
-      'video_id': videoId,
-    }, onConflict: 'user_id,video_id');
+    await _client.from('likes').upsert(
+      {
+        'user_id': userId,
+        'video_id': videoId,
+      },
+      onConflict: 'user_id,video_id',
+      ignoreDuplicates: true,
+    );
   }
 
   Future<void> removeLike(String userId, String videoId) async {
@@ -399,14 +417,14 @@ class SupabaseDataSource {
         .from('likes')
         .select('video_id')
         .eq('user_id', userId)
-        .not('video_id', 'is', null); // DB seviyesinde null satırları ele
+        .not('video_id', 'is', null); // Migration sonrası NOT NULL; filtre defense-in-depth
     log(
       'SupabaseDataSource getLikedVideoIds: userId: $userId, count: ${(data as List).length}',
     );
-
+ 
     return (data as List<dynamic>)
         .map((row) => row['video_id'] as String?)
-        .whereType<String>() // Dart seviyesinde ikinci güvenlik katmanı
+        .whereType<String>()
         .toSet();
   }
 
@@ -436,11 +454,24 @@ class SupabaseDataSource {
   }
 
   // ─── Görüntüleme (content_views) ─────────────────────────────────────────
-  Future<void> recordView(String userId, String videoId) async {
-    await _client.from('content_views').upsert({
-      'user_id': userId,
-      'video_id': videoId,
-    }, onConflict: 'user_id,video_id');
+  // FIX: Eskiden upsert sonrası her zaman "yeni izleyici" sayılıyordu, ama
+  // unique(user_id, video_id) sayesinde tekrar izlemede satır eklenmiyor,
+  // sadece updated_at güncelleniyordu — bu yüzden ekrandaki sayaç gerçekte
+  // artmayan bir şeyi artırıyordu. created_at == updated_at ise satır az önce
+  // İLK KEZ oluşturuldu (ikisi de aynı INSERT içinde now() ile dolduruldu);
+  // farklıysa zaten var olan satır güncellendi (tekrar izleme, yeni izleyici
+  // değil). Dönen bool, çağırana "bu gerçekten yeni bir izleyici mi" bilgisini verir.
+  Future<bool> recordView(String userId, String videoId) async {
+    final result = await _client
+        .from('content_views')
+        .upsert({
+          'user_id': userId,
+          'video_id': videoId,
+        }, onConflict: 'user_id,video_id')
+        .select('created_at, updated_at')
+        .single();
+
+    return result['created_at'] == result['updated_at'];
   }
 
   Future<List<VideoModel>> getUserViewedVideos(
@@ -599,7 +630,7 @@ class SupabaseDataSource {
     String? filterOperator,
     dynamic filterValue,
   }) async {
-    var query = _client.from('university_stats_mat').select();
+    var query = _client.from('university_leaderboard_mat').select();
 
     if (filterColumn != null && filterOperator != null && filterValue != null) {
       switch (filterOperator) {
@@ -811,7 +842,7 @@ class SupabaseDataSource {
         .select('university_id, created_at, universities(*)')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
-
+ 
     final List<UniversityModel> universities = [];
     for (final row in (data as List)) {
       final uniData = row['universities'];
@@ -824,10 +855,14 @@ class SupabaseDataSource {
   }
 
   Future<void> addUniversityFavorite(String userId, int universityId) async {
-    await _client.from('university_favorites').insert({
-      'user_id': userId,
-      'university_id': universityId,
-    });
+    await _client.from('university_favorites').upsert(
+      {
+        'user_id': userId,
+        'university_id': universityId,
+      },
+      onConflict: 'user_id,university_id',
+      ignoreDuplicates: true,
+    );
   }
 
   // ─── Home RPC Bundle'ları ─────────────────────────────────────────────────
@@ -852,7 +887,7 @@ class SupabaseDataSource {
         .eq('university_id', universityId);
   }
 
-  Future<bool> isUniversityFavorited(String userId, int universityId) async {
+   Future<bool> isUniversityFavorited(String userId, int universityId) async {
     final data = await _client
         .from('university_favorites')
         .select('id')
@@ -894,12 +929,15 @@ class SupabaseDataSource {
 
   // ─── Profil Görünürlüğü ───────────────────────────────────────────────────
 
-  /*  Future<void> updateProfileVisibility(String userId, String visibility) async {
+ Future<void> updateProfileVisibility(
+    String userId,
+    String visibility,
+  ) async {
     await _client
         .from('profiles')
         .update({'profile_visibility': visibility})
         .eq('id', userId);
-  } */
+  }
 
   /* // ─── Takip Sistemi ────────────────────────────────────────────────────────
 
@@ -1019,10 +1057,10 @@ class SupabaseDataSource {
     await _client.from('user_follows').delete().eq('id', followId);
   } */
 
-  Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
+   Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
     return await _client
         .from('profiles')
-        .select('id, username, full_name, avatar_url, created_at')
+        .select('id, username, full_name, avatar_url, created_at, profile_visibility')
         .eq('id', userId)
         .maybeSingle();
   }

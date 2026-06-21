@@ -146,15 +146,22 @@ class PlayerController extends GetxController {
   // FIX: appViewCount eskiden sadece _loadEngagementStats() ile sunucudan
   // okunuyordu. Diğer tüm sayaçlar (beğeni, favori, paylaşım, yorum) optimistic
   // güncelleniyordu ama bu unutulmuştu — bu yüzden kullanıcı videoyu izlediğinde
-  // kendi izlemesini anında görmüyordu. recordView başarılıysa ve bu kullanıcı
-  // için yeni bir kayıt oluştuysa sayaç hemen +1 artar.
+  // kendi izlemesini anında görmüyordu. recordView gerçekten YENİ bir izleyici
+  // kaydı oluşturduysa (isNewView = true) sayaç hemen +1 artar. Aynı videoyu
+  // tekrar izlemek (unique constraint sayesinde satır eklemez) artık sayacı
+  // şişirmiyor — önceden her izlemede +1 yapılıyordu, bu da gerçek sunucu
+  // sayısıyla (10 dk'lık cron yenilemesinde) çakışıp ekranda sayının "düşmüş"
+  // gibi görünmesine sebep oluyordu.
   Future<void> _recordView() async {
     if (currentVideo.value == null) return;
     final userId = currentUserId;
     if (userId == null) return;
     try {
-      await engagementRepository.recordView(userId, currentVideo.value!.videoId);
-      appViewCount.value += 1;
+      final isNewView = await engagementRepository.recordView(
+        userId,
+        currentVideo.value!.videoId,
+      );
+      if (isNewView) appViewCount.value += 1;
     } catch (e) {
       log('[PlayerController] _recordView error: $e');
     }

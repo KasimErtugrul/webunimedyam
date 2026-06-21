@@ -1,4 +1,14 @@
 // lib/presentation/controllers/university_detail_controller.dart
+//
+// BUG FIX özeti:
+//   1) toggleFavorite() artık addFavorite/removeFavorite'in bool dönüşünü
+//      kullanıyor. Hata durumunda snackbar gösteriyor.
+//      Önceki kodda repository rethrow yapıyordu; bu controller yakalıyor
+//      ama UI mesajı veriyordu. Ancak repository rethrow kaldırıldığından
+//      artık bool kontrol edilmeli.
+//   2) isFavorite optimistic olarak repository event'inden geliyor
+//      (stream listener). toggleFavorite() içinde manuel set() yok;
+//      bu hem tutarlı hem de çift kaynak sorununu önlüyor.
 
 import 'dart:developer';
 import 'dart:async';
@@ -25,27 +35,20 @@ class UniversityDetailController extends GetxController {
   final isLoading = true.obs;
   final errorMessage = ''.obs;
 
-  // Favori durumu
   final isFavorite = false.obs;
   final isFavoriteLoading = false.obs;
 
   late final StreamSubscription<UniversityFavoriteChange> _favSub;
 
-  // ─── Filtrelenmiş listeler ──────────────────────────────────────────────────
-
-  /// Sadece normal videolar (isShorts == false)
-  List<VideoModel> get videoOnly =>
-      videos.where((v) => !v.isShorts).toList();
-
-  /// Sadece shorts videolar (isShorts == true)
-  List<VideoModel> get shortsOnly =>
-      videos.where((v) => v.isShorts).toList();
+  List<VideoModel> get videoOnly => videos.where((v) => !v.isShorts).toList();
+  List<VideoModel> get shortsOnly => videos.where((v) => v.isShorts).toList();
 
   @override
   void onInit() {
     super.onInit();
 
-    // Favori değişimlerini dinle (başka ekrandan tetiklenirse senkron kalır)
+    // Favori değişimlerini stream'den dinle — optimistic update buradan geliyor.
+    // BUG FIX: isFavorite manuel set edilmiyor; stream tek kaynak.
     _favSub = universityFavoritesRepository.onFavoriteChanged.listen((event) {
       if (event.universityId == university.value?.id) {
         isFavorite.value = event.isFavorite;
@@ -102,7 +105,6 @@ class UniversityDetailController extends GetxController {
     }
   }
 
-  /// Mevcut kullanıcının bu üniversiteyi favori yapıp yapmadığını kontrol eder.
   Future<void> _loadFavoriteStatus() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     final uniId = university.value?.id;
@@ -117,7 +119,10 @@ class UniversityDetailController extends GetxController {
 
   // ─── Favori Toggle ─────────────────────────────────────────────────────────
 
-  /// Favori durumunu tersine çevirir (ekle / kaldır).
+  /// BUG FIX: addFavorite / removeFavorite artık bool döndürüyor.
+  /// Hata durumunda (false) snackbar gösteriliyor.
+  /// isFavorite optimistic olarak repository event stream'inden geliyor;
+  /// burada manuel set yok — stream tek kaynak of truth.
   Future<void> toggleFavorite() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     final uni = university.value;
@@ -130,35 +135,54 @@ class UniversityDetailController extends GetxController {
       return;
     }
 
-    if (isFavoriteLoading.value) return; // çift tıklamayı engelle
+    if (isFavoriteLoading.value) return;
     isFavoriteLoading.value = true;
 
     try {
+      bool success;
       if (isFavorite.value) {
-        await universityFavoritesRepository.removeFavorite(userId, uni!.id!);
-        isFavorite.value = false;
-        Get.snackbar(
-          'Favorilerden Çıkarıldı',
-          '${uni.name} favorilerden çıkarıldı.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
+        success = await universityFavoritesRepository.removeFavorite(
+          userId,
+          uni!.id!,
         );
+        if (success) {
+          Get.snackbar(
+            'Favorilerden Çıkarıldı',
+            '${uni.name} favorilerden çıkarıldı.',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          Get.snackbar(
+            'Hata',
+            'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
       } else {
-        await universityFavoritesRepository.addFavorite(
+        success = await universityFavoritesRepository.addFavorite(
           userId,
           uni!.id!,
           university: uni,
         );
-        isFavorite.value = true;
-        Get.snackbar(
-          'Favorilere Eklendi',
-          '${uni.name} favorilerinize eklendi.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
+        if (success) {
+          Get.snackbar(
+            'Favorilere Eklendi',
+            '${uni.name} favorilerinize eklendi.',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          Get.snackbar(
+            'Hata',
+            'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
       }
     } catch (e) {
-      log('UniversityDetail toggleFavorite error: $e');
+      // Repository artık throw etmiyor ama savunmacı olalım
+      log('UniversityDetail toggleFavorite unexpected error: $e');
       Get.snackbar(
         'Hata',
         'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',

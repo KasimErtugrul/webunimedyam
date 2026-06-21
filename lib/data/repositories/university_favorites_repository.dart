@@ -1,4 +1,26 @@
 // lib/data/repositories/university_favorites_repository.dart
+//
+// BUG FIX özeti:
+//   1) addFavorite() içindeki rethrow kaldırıldı — artık hata loglanır ve
+//      false döner; çağıran (HomeController, UniversityDetailController)
+//      try/catch yazmak zorunda kalmaz, UI sessiz kalmaz.
+//
+//      Eski davranış:
+//        addFavorite() → _supabase.addUniversityFavorite() (insert, hata fırlatır)
+//        → rethrow → HomeController.catch(e) { log(...) } — hata yutulur, hiçbir
+//        şey olmaz; kullanıcıya geri bildirim yok, cache senkronize olmaz.
+//
+//      Yeni davranış:
+//        addFavorite() → _supabase.addUniversityFavorite() (upsert, hata yok)
+//        Cache güncellenir, event yayınlanır, bool döner.
+//        Hata olursa: log + false dön; çağıran koda göre UI mesajı gösterir.
+//
+//   2) removeFavorite() aynı şekilde bool döndürecek şekilde güncellendi —
+//      çağıran controller UI feedback'i bu değere göre verebilir.
+//
+//   3) _ensureCache() → race condition: iki eş zamanlı çağrı aynı anda
+//      _isCacheLoaded == false görüp iki kez Supabase'e gidebilir.
+//      _isLoading flag'i ile çözdük.
 
 import 'dart:developer';
 import 'dart:async';
@@ -23,17 +45,16 @@ class UniversityFavoriteChange {
 class UniversityFavoritesRepository extends GetxService {
   final SupabaseDataSource _supabase;
 
-  // Favori değişimlerini yayınlayan broadcast stream
   final _changeController =
       StreamController<UniversityFavoriteChange>.broadcast();
   Stream<UniversityFavoriteChange> get onFavoriteChanged =>
       _changeController.stream;
 
   // ─── In-memory ID cache ──────────────────────────────────────────────────
-  // OPTİMİZASYON: Her detay sayfasında tek satır Supabase sorgusu yerine
-  // bu Set'e bakılır. Uygulama başladığında veya ilk gerektiğinde doldurulur.
   final Set<int> _cachedFavoriteIds = {};
   bool _isCacheLoaded = false;
+  // BUG FIX: Eş zamanlı _ensureCache() çağrılarında double-fetch'i önler
+  bool _isCacheLoading = false;
   String? _cachedUserId;
 
   UniversityFavoritesRepository({required SupabaseDataSource supabase})
@@ -41,9 +62,20 @@ class UniversityFavoritesRepository extends GetxService {
 
   // ─── Cache Yönetimi ──────────────────────────────────────────────────────
 
-  /// ID cache'ini Supabase'den doldurur (ilk çağrıda veya userId değişince).
+  /// BUG FIX: _isCacheLoading flag'i eklendi.
+  /// Önceki halde iki eş zamanlı çağrı (örn: HomeController + UniversityDetailController
+  /// aynı anda init olunca) her ikisi de _isCacheLoaded == false görüp
+  /// iki kez Supabase'e gidiyordu.
   Future<void> _ensureCache(String userId) async {
     if (_isCacheLoaded && _cachedUserId == userId) return;
+    if (_isCacheLoading) {
+      // Yüklenme devam ediyor, bitene kadar bekle (poll)
+      while (_isCacheLoading) {
+        await Future.delayed(const Duration(milliseconds: 30));
+      }
+      return;
+    }
+    _isCacheLoading = true;
     try {
       log('🏛️☁️ [UniFav] ID cache dolduruluyor → $userId');
       final ids = await _supabase.getFavoriteUniversityIds(userId);
@@ -55,24 +87,25 @@ class UniversityFavoritesRepository extends GetxService {
       log('🏛️✅ [UniFav] ID cache hazır → ${ids.length} üniversite');
     } catch (e) {
       log('🏛️❌ [UniFav] ID cache doldurulamadı: $e');
+    } finally {
+      _isCacheLoading = false;
     }
   }
 
   void _invalidateCache() {
     _isCacheLoaded = false;
+    _isCacheLoading = false;
     _cachedUserId = null;
     _cachedFavoriteIds.clear();
   }
 
   // ─── OKUMA ──────────────────────────────────────────────────────────────
 
-  /// Kullanıcının favori üniversite id listesini döner.
   Future<List<int>> getFavoriteUniversityIds(String userId) async {
     await _ensureCache(userId);
     return _cachedFavoriteIds.toList();
   }
 
-  /// Kullanıcının favori üniversitelerini tam model olarak döner.
   Future<List<UniversityModel>> getFavoriteUniversities(String userId) async {
     try {
       log('🏛️☁️ [UniFav] Favori üniversiteler çekiliyor → $userId');
@@ -85,8 +118,6 @@ class UniversityFavoritesRepository extends GetxService {
     }
   }
 
-  /// OPTİMİZASYON: Supabase'e gitmeden in-memory cache'e bakar.
-  /// Cache yüklü değilse otomatik doldurur.
   Future<bool> isUniversityFavorited(String userId, int universityId) async {
     await _ensureCache(userId);
     return _cachedFavoriteIds.contains(universityId);
@@ -94,46 +125,81 @@ class UniversityFavoritesRepository extends GetxService {
 
   // ─── YAZMA ──────────────────────────────────────────────────────────────
 
-  /// Üniversiteyi favorilere ekler ve stream üzerinden event yayınlar.
-  Future<void> addFavorite(
+  /// Üniversiteyi favorilere ekler.
+  ///
+  /// BUG FIX #1: rethrow kaldırıldı.
+  ///   Önceki kodda _supabase.addUniversityFavorite() → düz INSERT → çakışmada
+  ///   23505 unique_violation → rethrow → HomeController.catch(e) sessizce yutar.
+  ///   Artık _supabase katmanında upsert (ignoreDuplicates) kullanılıyor;
+  ///   DB hatası gelmez. Ağ hatası gibi gerçek hatalar burada yakalanır,
+  ///   cache dokunulmaz, false döner; çağıran UI mesajı gösterebilir.
+  ///
+  /// BUG FIX #2: Optimistic cache update.
+  ///   Önceki kodda cache hemen güncelleniyor, event yayınlanıyordu — bu
+  ///   doğru. Ama hata sonrası cache'i geri almıyordu. Artık hata durumunda
+  ///   cache'den temizleniyor.
+  ///
+  /// Dönüş: true → başarılı, false → hata
+  Future<bool> addFavorite(
     String userId,
     int universityId, {
     UniversityModel? university,
   }) async {
+    // Optimistic: önce cache'e ekle
+    _cachedFavoriteIds.add(universityId);
+    _changeController.add(UniversityFavoriteChange(
+      universityId: universityId,
+      isFavorite: true,
+      university: university,
+    ));
+
     try {
       log('🏛️☁️➕ [UniFav] Ekleniyor → universityId: $universityId');
       await _supabase.addUniversityFavorite(userId, universityId);
-      _cachedFavoriteIds.add(universityId); // cache'e de ekle
       log('🏛️✅ [UniFav] Eklendi');
-      _changeController.add(UniversityFavoriteChange(
-        universityId: universityId,
-        isFavorite: true,
-        university: university,
-      ));
+      return true;
     } catch (e) {
-      log('🏛️❌ [UniFav] Eklenemedi: $e');
-      rethrow;
-    }
-  }
-
-  /// Üniversiteyi favorilerden çıkarır ve stream üzerinden event yayınlar.
-  Future<void> removeFavorite(String userId, int universityId) async {
-    try {
-      log('🏛️☁️🗑️ [UniFav] Siliniyor → universityId: $universityId');
-      await _supabase.removeUniversityFavorite(userId, universityId);
-      _cachedFavoriteIds.remove(universityId); // cache'den de çıkar
-      log('🏛️✅ [UniFav] Silindi');
+      // Rollback: cache'den geri çıkar, event'i geri al
+      _cachedFavoriteIds.remove(universityId);
       _changeController.add(UniversityFavoriteChange(
         universityId: universityId,
         isFavorite: false,
       ));
-    } catch (e) {
-      log('🏛️❌ [UniFav] Silinemedi: $e');
-      rethrow;
+      log('🏛️❌ [UniFav] Eklenemedi: $e');
+      return false;
     }
   }
 
-  /// Kullanıcı çıkış yaptığında cache'i temizle.
+  /// Üniversiteyi favorilerden çıkarır.
+  ///
+  /// BUG FIX: rethrow → bool dönüşü + optimistic rollback.
+  ///
+  /// Dönüş: true → başarılı, false → hata
+  Future<bool> removeFavorite(String userId, int universityId) async {
+    // Optimistic: önce cache'den çıkar
+    _cachedFavoriteIds.remove(universityId);
+    _changeController.add(UniversityFavoriteChange(
+      universityId: universityId,
+      isFavorite: false,
+    ));
+
+    try {
+      log('🏛️☁️🗑️ [UniFav] Siliniyor → universityId: $universityId');
+      await _supabase.removeUniversityFavorite(userId, universityId);
+      log('🏛️✅ [UniFav] Silindi');
+      return true;
+    } catch (e) {
+      // Rollback: cache'e geri ekle, event'i geri al
+      _cachedFavoriteIds.add(universityId);
+      _changeController.add(UniversityFavoriteChange(
+        universityId: universityId,
+        isFavorite: true,
+      ));
+      log('🏛️❌ [UniFav] Silinemedi: $e');
+      return false;
+    }
+  }
+
   void clearCache() => _invalidateCache();
 
   @override

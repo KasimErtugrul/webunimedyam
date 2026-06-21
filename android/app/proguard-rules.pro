@@ -1,0 +1,2 @@
+-dontwarn sun.misc.Cleaner
+-keep class sun.misc.Cleaner { *; }

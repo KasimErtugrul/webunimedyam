@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:io';
 
@@ -89,20 +88,23 @@ class NotificationService {
     }
   }
 
+  // FIX: Eskiden doğrudan upsert kullanılıyordu — bu, aynı token'ın (cihazın)
+  // önceki sahibine ait satırını hiç kontrol etmiyordu. Kullanıcı logout
+  // yapmadan cihazdan çıkarsa (uygulamayı silme, oturum sonlanması vb.) eski
+  // kullanıcının satırı tabloda kalıyordu; aynı cihazda başka biri giriş
+  // yapınca artık aynı token için 2 kullanıcı olabiliyordu — bu da eski
+  // kullanıcının bildirimlerinin yeni kullanıcının cihazına gitmesi riski
+  // taşıyordu. claim_fcm_token RPC'si, token'ı devralırken eski sahibinin
+  // satırını DB tarafında atomik olarak siliyor.
   Future<void> _upsertToken(String token) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
     final platform = Platform.isIOS ? 'ios' : 'android';
     try {
-      await _supabase.from('fcm_tokens').upsert(
-        {
-          'user_id':    userId,
-          'token':      token,
-          'platform':   platform,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        onConflict: 'user_id,token',
-      );
+      await _supabase.rpc('claim_fcm_token', params: {
+        'p_token': token,
+        'p_platform': platform,
+      });
       log('[FCM] Token kaydedildi (platform: $platform).');
     } catch (e) {
       log('[FCM] Token upsert hatası: $e');

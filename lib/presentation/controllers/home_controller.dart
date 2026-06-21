@@ -393,26 +393,31 @@ class HomeController extends GetxController {
     log(
       '🔵 toggleUniversityFavorite called — userId: $userId, uni: ${university.id}',
     );
-
+ 
     if (userId == null) {
       showAuthRequired.value = true;
       log('🔴 userId null, showAuthRequired set');
-
       return;
     }
+ 
     final id = university.id!;
-    try {
-      if (favoriteUniversityIds.contains(id)) {
-        await universityFavoritesRepository.removeFavorite(userId, id);
-      } else {
-        await universityFavoritesRepository.addFavorite(
-          userId,
-          id,
-          university: university,
-        );
-      }
-    } catch (e) {
-      log('toggleUniversityFavorite error: $e');
+    final bool success;
+ 
+    if (favoriteUniversityIds.contains(id)) {
+      success = await universityFavoritesRepository.removeFavorite(userId, id);
+    } else {
+      success = await universityFavoritesRepository.addFavorite(
+        userId,
+        id,
+        university: university,
+      );
+    }
+ 
+    if (!success) {
+      // Repository zaten log'ladı; burada UI'ya geribildirim ver
+      log('🔴 toggleUniversityFavorite başarısız — $id');
+      // İsteğe göre snackbar eklenebilir:
+      // Get.snackbar('Hata', 'İşlem gerçekleştirilemedi.', snackPosition: SnackPosition.BOTTOM);
     }
   }
 

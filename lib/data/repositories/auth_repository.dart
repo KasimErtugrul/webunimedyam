@@ -14,8 +14,8 @@ class AuthRepository {
   AuthRepository({
     required SupabaseDataSource supabase,
     required LocalDataSource local,
-  }) : _supabase = supabase,
-       _local = local;
+  })  : _supabase = supabase,
+        _local = local;
 
   bool get isLoggedIn => _supabase.currentUser != null;
   String? get currentUserId => _supabase.currentUser?.id;
@@ -34,23 +34,18 @@ class AuthRepository {
       password: password,
       username: username,
     );
-    // Kayıt sonrası FCM token'ını kaydet
     await NotificationService.instance.onUserLogin();
   }
 
   Future<void> signIn({required String email, required String password}) async {
     log('🔑☁️ [Auth] Giriş isteği Supabase\'e gönderiliyor → $email');
     await _supabase.signIn(email: email, password: password);
-    // Giriş sonrası FCM token'ını kaydet
     await NotificationService.instance.onUserLogin();
   }
 
   Future<void> signOut() async {
     log('🚪🧹 [Auth] Çıkış yapılıyor, tüm local veriler temizleniyor...');
-
-    // Çıkış öncesi FCM token'ını sil (DB'den)
     await NotificationService.instance.onUserLogout();
-
     await Future.wait([
       _local.clearUserSettings(),
       _local.clearFavoriteVideos(),
@@ -67,7 +62,31 @@ class AuthRepository {
   Future<void> updateProfile(ProfileModel profile) async {
     log('✏️☁️ [Auth] Profil güncelleniyor → ${profile.username}');
     await _supabase.updateProfile(profile);
-    log('✅ [Auth] Profil güncellendi');
+    // BUG FIX: Güncelleme sonrası local cache'i de tazele;
+    // aksi halde bir sonraki açılışta eski veri gelir.
+    await _local.cacheProfile(profile.toSupabase());
+    log('✅ [Auth] Profil güncellendi ve local cache yenilendi');
+  }
+
+  /// Sadece profil görünürlüğünü günceller.
+  ///
+  /// BUG FIX: SettingsController.changeProfileVisibility() bunu çağırıyor.
+  /// Önceki kodda bu metod yoktu ve _supabase.updateProfileVisibility yorum
+  /// satırındaydı — profil görünürlüğü hiçbir zaman DB'ye yazılmıyordu.
+  Future<void> updateProfileVisibility(VisibilityOption visibility) async {
+    final userId = currentUserId;
+    if (userId == null) return;
+    log('✏️☁️ [Auth] Profile visibility güncelleniyor → ${visibility.value}');
+    await _supabase.updateProfileVisibility(userId, visibility.value);
+
+    // Local cache'deki profili de güncelle
+    final cachedMap = await _local.getCachedProfile();
+    if (cachedMap != null) {
+      final updated = Map<String, dynamic>.from(cachedMap)
+        ..['profile_visibility'] = visibility.value;
+      await _local.cacheProfile(updated);
+    }
+    log('✅ [Auth] Profile visibility güncellendi: ${visibility.value}');
   }
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
@@ -125,7 +144,6 @@ class AuthRepository {
     }
   }
 
-  /// Başkasının profilini ID ile çek (public profil bilgisi).
   Future<ProfileModel?> getProfileById(String userId) async {
     try {
       log('👤☁️ [Auth] Profil çekiliyor (by ID) → $userId');
@@ -168,9 +186,7 @@ class AuthRepository {
 
   Future<bool> isOnboardingCompleted() async {
     if (await _local.isOnboardingCompleted()) {
-      log(
-        '🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor',
-      );
+      log('🎓💾 [Auth] Onboarding LOCAL\'de tamamlanmış, Supabase\'e gidilmiyor');
       return true;
     }
 

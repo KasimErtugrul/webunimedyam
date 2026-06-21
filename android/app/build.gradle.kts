@@ -52,6 +52,13 @@ android {
         release {
             // 3. Oluşturduğumuz release imzasını buraya bağlıyoruz
             signingConfig = signingConfigs.getByName("release")
+
+            isMinifyEnabled = true
+        isShrinkResources = true
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
         }
     }
 }

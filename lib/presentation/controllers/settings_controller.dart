@@ -28,23 +28,18 @@ class SettingsController extends GetxService {
   UserSettingsModel? _lastSavedSettings;
 
   // ─── Tavan kontrolü ───────────────────────────────────────────────────────
-  // Bir aktivite görünürlüğü profil görünürlüğünden daha açık olamaz.
-  // public > friends > private sıralaması.
-
   static const _order = [
     VisibilityOption.private,
     VisibilityOption.friends,
     VisibilityOption.public,
   ];
 
-  /// Verilen aktivite değeri profil tavanını aşıyorsa tavana indirir, aşmıyorsa olduğu gibi döner.
   VisibilityOption _clamp(VisibilityOption activity) {
     final ceiling = profileVisibility.value;
     if (_order.indexOf(activity) > _order.indexOf(ceiling)) return ceiling;
     return activity;
   }
 
-  /// Bu seçenek profil tavanı dahilinde mi? (UI'da disabled kontrolü için)
   bool isAllowed(VisibilityOption option) {
     return _order.indexOf(option) <= _order.indexOf(profileVisibility.value);
   }
@@ -55,7 +50,6 @@ class SettingsController extends GetxService {
     try {
       isLoading.value = true;
       settings.value = await authRepository.getUserSettings();
-      // profil çekme — ProfileController'dan gelecek
       _syncProfileVisibilityFromController();
     } catch (e) {
       log('loadSettings error: $e');
@@ -65,7 +59,6 @@ class SettingsController extends GetxService {
   }
 
   void _syncProfileVisibilityFromController() {
-    // ProfileController şu an kayıtlıysa direkt al
     if (Get.isRegistered<ProfileController>()) {
       final p = Get.find<ProfileController>().profile.value;
       if (p != null) {
@@ -73,9 +66,6 @@ class SettingsController extends GetxService {
         return;
       }
     }
-    // Kayıtlı değilse — profil sayfası açıldığında ProfileController
-    // changeProfileVisibility() üzerinden zaten senkronize ediyor (mevcut kod var)
-    // Ekstra bir şey yapmaya gerek yok
   }
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
@@ -88,8 +78,8 @@ class SettingsController extends GetxService {
     final mode = theme == 'dark'
         ? ThemeMode.dark
         : theme == 'light'
-        ? ThemeMode.light
-        : ThemeMode.system;
+            ? ThemeMode.light
+            : ThemeMode.system;
     Get.changeThemeMode(mode);
   }
 
@@ -119,8 +109,7 @@ class SettingsController extends GetxService {
     final c = settings.value;
     if (c == null) return;
     await _updateSettings(
-      c.copyWith(notificationsEnabled: !c.notificationsEnabled),
-    );
+        c.copyWith(notificationsEnabled: !c.notificationsEnabled));
   }
 
   Future<void> toggleNotifyNewVideos() async {
@@ -133,16 +122,14 @@ class SettingsController extends GetxService {
     final c = settings.value;
     if (c == null) return;
     await _updateSettings(
-      c.copyWith(notifyCommentReplies: !c.notifyCommentReplies),
-    );
+        c.copyWith(notifyCommentReplies: !c.notifyCommentReplies));
   }
 
   Future<void> toggleNotifyFollowRequests() async {
     final c = settings.value;
     if (c == null) return;
     await _updateSettings(
-      c.copyWith(notifyFollowRequests: !c.notifyFollowRequests),
-    );
+        c.copyWith(notifyFollowRequests: !c.notifyFollowRequests));
   }
 
   // ─── Gizlilik — Eski (geriye uyumluluk) ───────────────────────────────────
@@ -157,15 +144,21 @@ class SettingsController extends GetxService {
     final c = settings.value;
     if (c == null) return;
     await _updateSettings(
-      c.copyWith(showFavoritesPublic: !c.showFavoritesPublic),
-    );
+        c.copyWith(showFavoritesPublic: !c.showFavoritesPublic));
   }
 
   // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
 
-  /// Profil görünürlüğünü değiştir.
-  /// Tavan düştüğünde tavanı aşan aktiviteler otomatik indirilir.
-  /// Tavan yükseldiğinde aktivitelere dokunulmaz (kullanıcı kendi seçer).
+  /// Profil görünürlüğünü değiştir ve DB'ye yaz.
+  ///
+  /// BUG FIX: Önceki kodda `_supabase.updateProfileVisibility(...)` çağrısı
+  /// yorum satırındaydı. Bu yüzden:
+  ///   - profileVisibility.value sadece RAM'de değişiyordu
+  ///   - can_view_activity() / can_view_profile() DB'den okuduğu için
+  ///     her zaman eski değeri (public) görüyordu
+  ///   - Uygulama restart'ında ayar sıfırlanıyordu
+  ///
+  /// Artık hem profiles tablosu hem de ProfileController senkronize ediliyor.
   Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
     final userId = _supabase.currentUser?.id;
     final current = settings.value;
@@ -175,18 +168,18 @@ class SettingsController extends GetxService {
     profileVisibility.value = newVisibility; // Optimistic UI
 
     try {
-      // 1) profiles tablosunu güncelle
-      //   await _supabase.updateProfileVisibility(userId, newVisibility.value);
-      log('⚙️✅ [Settings] profileVisibility → ${newVisibility.value}');
+      // BUG FIX: Bu satır artık YORUM SATIRI DEĞİL — DB'ye yazılıyor
+      await _supabase.updateProfileVisibility(userId, newVisibility.value);
+      log('⚙️✅ [Settings] profileVisibility → ${newVisibility.value} (DB\'ye yazıldı)');
 
-      // 2) Tavan düştüyse taşan aktiviteleri indir
+      // Tavan düştüyse taşan aktiviteleri indir
       final clamped = _clampAllActivities(current);
       if (clamped != null) {
         await _updateSettings(clamped);
         log('⚙️✅ [Settings] Taşan aktiviteler tavana indirildi');
       }
 
-      // 3) ProfileController varsa senkronize et
+      // ProfileController varsa senkronize et
       if (Get.isRegistered<ProfileController>()) {
         final profileCtrl = Get.find<ProfileController>();
         final existing = profileCtrl.profile.value;
@@ -203,8 +196,6 @@ class SettingsController extends GetxService {
     }
   }
 
-  /// Tüm aktiviteleri mevcut tavana göre clamp eder.
-  /// Hiçbiri taşmıyorsa null döner (gereksiz kayıt yok).
   UserSettingsModel? _clampAllActivities(UserSettingsModel current) {
     final w = _clamp(current.watchHistoryVisibility);
     final l = _clamp(current.likesVisibility);
@@ -227,7 +218,6 @@ class SettingsController extends GetxService {
   }
 
   // ─── Gizlilik — Aktivite Görünürlükleri ───────────────────────────────────
-  // Her setter önce tavan kontrolü yapar; tavan izin vermiyorsa sessizce reddeder.
 
   Future<void> changeWatchHistoryVisibility(VisibilityOption v) async {
     final c = settings.value;

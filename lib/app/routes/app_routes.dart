@@ -17,6 +17,7 @@ abstract class AppRoutes {
   static const shortsPlayer = '/shorts-player';
 
   /// Basit Shorts oynatıcı (üniversite bilgisi olmadan)
+  // ignore: unintended_html_in_doc_comment
   /// Argüman: {'shorts': List<VideoModel>, 'initialIndex': int}
   static const simpleShortsPlayer = '/simple-shorts-player';
 
