@@ -79,9 +79,40 @@ void main() async {
 }
 
 // ─── App Widget ────────────────────────────────────────────────────────────
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String initialTheme;
   const MyApp({super.key, required this.initialTheme});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // FIX: Uygulama arka plandan ön plana her geçtiğinde FCM token'ı yenile.
+  // Bu sayede:
+  //   • Kullanıcı favoriye üniversite ekledikten sonra uygulamayı kapatıp
+  //     açtığında (token daha önce DB'de yoksa) bildirim artık ulaşır.
+  //   • OS token'ı yenilediğinde (onTokenRefresh dışında) DB güncellenir.
+  //   • Cihaz değişikliği / uygulama güncellemesi sonrası token kaybolmaz.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final authRepo = Get.find<AuthRepository>();
+      authRepo.onAppResume();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +126,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme:                      AppTheme.lightTheme,
           darkTheme:                  AppTheme.darkTheme,
-          themeMode: initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
+          themeMode: widget.initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
           initialRoute: AppRoutes.splash,
           getPages:     AppPages.pages,
         );

@@ -23,6 +23,26 @@ class AuthRepository {
 
   // ─── YAZMA İŞLEMLERİ (Write) ─────────────────────────────────────────────
 
+  // ─── Uygulama Açılışı / Ön plana Geçiş ──────────────────────────────────
+  // FIX: Bildirim token'ı yalnızca login/signup'ta kaydediliyordu.
+  // Bu yüzden uygulama yüklü olup token henüz DB'de yokken (ilk kurulum,
+  // uygulama güncelleme, OS token yenilemesi) bildirim hiç ulaşamıyordu.
+  // Artık uygulama her ön plana geldiğinde token güncellenir — böylece
+  // Sercan gibi "favori ekle ama henüz aç" senaryoları da kapsanır.
+  Future<void> onAppResume() async {
+    if (!isLoggedIn) return;
+    try {
+      await NotificationService.instance.onUserLogin();
+    } catch (e, stacktrace) {
+      log(
+        'Uygulama açılışında token yenilenirken hata: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      // Token yenileme kritik değil; uygulama akışını bozmadan devam et.
+    }
+  }
+
   Future<void> signUp({
     required String email,
     required String password,
