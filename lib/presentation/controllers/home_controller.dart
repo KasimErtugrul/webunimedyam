@@ -486,6 +486,12 @@ class HomeController extends GetxController {
   bool isLikeLoading(String videoId) => _likeLoadingIds.contains(videoId);
   bool isShareLoading(String videoId) => _shareLoadingIds.contains(videoId);
 
+  // ─── Like toggle — tam optimistic update ─────────────────────────────────
+  // Önceki kodda _likedIds güncelleniyor ama videos listesindeki
+  // VideoModel.appLikeCount dokunulmuyordu. Kart doğrudan video.appLikeCount
+  // okuduğu için sayı hiç değişmiyordu. Artık toggle anında hem _likedIds
+  // hem de videos listesindeki ilgili model copyWith ile güncelleniyor.
+  // Hata durumunda her ikisi de rollback ediliyor.
   Future<void> toggleLike(String videoId) async {
     final userId = _currentUserId;
     if (userId == null) {
@@ -499,13 +505,11 @@ class HomeController extends GetxController {
     _likeLoadingIds.add(videoId);
 
     try {
+      // Cache'de yoksa DB'den bir kez sorgula
       if (!_likeCache.containsKey(videoId)) {
         _likeCacheLoading.add(videoId);
         try {
-          _likeCache[videoId] = await engagementRepository.isLiked(
-            userId,
-            videoId,
-          );
+          _likeCache[videoId] = await engagementRepository.isLiked(userId, videoId);
         } finally {
           _likeCacheLoading.remove(videoId);
         }
@@ -514,12 +518,14 @@ class HomeController extends GetxController {
 
       final wasLiked = _likeCache[videoId]!;
 
+      // ── Optimistic update: hem durum hem sayaç anında değişir ──
       _likeCache[videoId] = !wasLiked;
       if (wasLiked) {
         _likedIds.remove(videoId);
       } else {
         _likedIds.add(videoId);
       }
+      _updateVideoLikeCount(videoId, wasLiked ? -1 : 1);
 
       try {
         if (wasLiked) {
@@ -528,12 +534,14 @@ class HomeController extends GetxController {
           await engagementRepository.addLike(userId, videoId);
         }
       } catch (e, stacktrace) {
+        // Rollback: hem durum hem sayaç geri alınır
         _likeCache[videoId] = wasLiked;
         if (wasLiked) {
           _likedIds.add(videoId);
         } else {
           _likedIds.remove(videoId);
         }
+        _updateVideoLikeCount(videoId, wasLiked ? 1 : -1);
         log(
           'Beğeni toggle yazma işlemi sırasında hata oluştu: $e',
           error: e,
@@ -544,6 +552,32 @@ class HomeController extends GetxController {
       _likeLoadingIds.remove(videoId);
       _likeProcessing.remove(videoId);
     }
+  }
+
+  // videos listesindeki VideoModel'in appLikeCount'unu günceller
+  void _updateVideoLikeCount(String videoId, int delta) {
+    final idx = videos.indexWhere((v) => v.videoId == videoId);
+    if (idx == -1) return;
+    final updated = videos[idx].copyWith(
+      appLikeCount: (videos[idx].appLikeCount + delta).clamp(0, 999999999),
+    );
+    videos[idx] = updated;
+  }
+
+  // PlayerController kapanırken like durumunu senkronize eder.
+  // Bu sayede player'dan beğenip geri dönünce ana sayfada da
+  // durum ve sayaç doğru görünür.
+  void syncLikeFromPlayer(String videoId, bool isNowLiked) {
+    final wasLiked = _likeCache[videoId] ?? _likedIds.contains(videoId);
+    if (wasLiked == isNowLiked) return; // zaten senkron
+
+    _likeCache[videoId] = isNowLiked;
+    if (isNowLiked) {
+      if (!_likedIds.contains(videoId)) _likedIds.add(videoId);
+    } else {
+      _likedIds.remove(videoId);
+    }
+    _updateVideoLikeCount(videoId, isNowLiked ? 1 : -1);
   }
 
   // ─── Paylaşım ─────────────────────────────────────────────────────────────

@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -600,16 +599,21 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
           // ── Beğeni ──
           Obx(() {
-            // likedVideoIds (RxList) doğrudan okunuyor — GetX bu sayede
-            // assignAll / add / remove çağrılarında Obx'i yeniden build eder.
+            // likedVideoIds (RxList) → like durumu reactive
+            // videos (RxList) → appLikeCount reactive: toggleLike anında
+            // videos[idx] copyWith ile güncellendiği için sayaç anında değişir.
             final liked = controller.likedVideoIds.contains(video.videoId);
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final likeCount = liveVideo?.appLikeCount ?? video.appLikeCount;
             return _igActionBtn(
               context: context,
               icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
               color: liked
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
-              count: liked ? video.appLikeCount + 1 : video.appLikeCount,
+              count: likeCount,
               isActive: liked,
               onTap: () => controller.toggleLike(video.videoId),
             );

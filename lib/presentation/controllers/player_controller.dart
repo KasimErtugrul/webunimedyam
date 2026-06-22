@@ -13,7 +13,7 @@ import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
 import 'settings_controller.dart';
 
-// HomeController ve FavoritesController IMPORT EDİLMİYOR! Bağımlılık yok.
+import 'home_controller.dart';
 
 class PlayerController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -424,6 +424,17 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
+    // PlayerController kapanırken HomeController'ı senkronize et.
+    // Kullanıcı player'dan beğenip geri döndüğünde ana sayfadaki
+    // kart durumu ve sayacı doğru yansısın.
+    try {
+      if (currentVideo.value != null && Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().syncLikeFromPlayer(
+          currentVideo.value!.videoId,
+          isLiked.value,
+        );
+      }
+    } catch (_) {}
     youtubeController?.close();
     super.onClose();
   }
