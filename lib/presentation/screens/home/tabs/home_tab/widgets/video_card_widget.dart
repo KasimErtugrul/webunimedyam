@@ -576,10 +576,17 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
         children: [
           // ── Görüntülenme (buton yok) ──
           Obx(() {
+            // BUG FIX: Önce global viewCountOverrides'a bak — bu video
+            // HomeController.videos listesinde olmasa da (örn. üniversite
+            // detay ekranından açılmışsa) PlayerController.onClose() burayı
+            // güncelliyor. Bulunamazsa eski mantığa (liveVideo / statik
+            // video.appViewCount) düş.
+            final override = controller.viewCountOverrides[video.videoId];
             final liveVideo = controller.videos.firstWhereOrNull(
               (v) => v.videoId == video.videoId,
             );
-            final viewCount = liveVideo?.appViewCount ?? video.appViewCount;
+            final viewCount =
+                override ?? liveVideo?.appViewCount ?? video.appViewCount;
             return Padding(
               padding: EdgeInsets.all(8.w),
               child: Row(

@@ -18,23 +18,21 @@ class NotificationService {
 
   // ─── initialize ──────────────────────────────────────────────────────────
 
+  // FIX: Bu metod artık bildirim İZNİ İSTEMİYOR. Önceden burada
+  // requestPermission() çağrılıyordu — bu da uygulama ilk açıldığı an,
+  // kullanıcı login olmadan/hiç hesabı olmadan, hatta context bile
+  // görmeden Android'in "bir kerelik" izin dialogunu harcıyordu.
+  // (_saveTokenIfLoggedIn() zaten userId == null ise hiçbir şey
+  // yapmıyordu, yani o izin isteme anı tamamen anlamsızdı.)
+  //
+  // Artık initialize() sadece dinleyicileri kurar; gerçek izin isteme
+  // ve token kaydı, kullanıcı başarıyla giriş yaptığında onUserLogin()
+  // içinde yapılır.
   Future<void> initialize() async {
     try {
-      final settings = await _messaging.requestPermission(
-        alert: true, badge: true, sound: true, provisional: false,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        return;
-      }
-
-      if (Platform.isIOS) await _messaging.getAPNSToken();
-
       await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true, badge: true, sound: true,
       );
-
-      await _saveTokenIfLoggedIn();
 
       _messaging.onTokenRefresh.listen((newToken) async {
         await _upsertToken(newToken);
@@ -49,6 +47,17 @@ class NotificationService {
           _handleNotificationTap(initialMessage);
         });
       }
+
+      // Kullanıcı uygulamayı kapatıp açtığında (login session zaten
+      // varsa) izin durumu hâlâ "authorized" ise token'ı tazelemek için
+      // dene; izin daha önce hiç istenmediyse/reddedildiyse burada
+      // sessizce hiçbir şey yapmaz (requestPermission çağrılmıyor).
+      final current = await _messaging.getNotificationSettings();
+      if (current.authorizationStatus == AuthorizationStatus.authorized ||
+          current.authorizationStatus == AuthorizationStatus.provisional) {
+        if (Platform.isIOS) await _messaging.getAPNSToken();
+        await _saveTokenIfLoggedIn();
+      }
     } catch (e, stacktrace) {
       log('Bildirim servisi başlatılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }
@@ -56,8 +65,21 @@ class NotificationService {
 
   // ─── Auth Hooks ──────────────────────────────────────────────────────────
 
+  // FIX: İzin isteme artık burada — kullanıcı gerçekten giriş yaptığı an.
+  // Böylece Android'in tek seferlik sistem dialogu, kullanıcının
+  // uygulamayla niye ilgisi olduğunu bildiği bir anda gösteriliyor.
   Future<void> onUserLogin() async {
     try {
+      final settings = await _messaging.requestPermission(
+        alert: true, badge: true, sound: true, provisional: false,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        return;
+      }
+
+      if (Platform.isIOS) await _messaging.getAPNSToken();
+
       await _saveTokenIfLoggedIn();
     } catch (e, stacktrace) {
       log('Kullanıcı girişinde FCM token kaydedilirken hata oluştu: $e', error: e, stackTrace: stacktrace);

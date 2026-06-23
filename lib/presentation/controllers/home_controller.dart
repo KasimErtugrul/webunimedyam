@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
-import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
@@ -46,6 +46,20 @@ class HomeController extends GetxController {
   final isLoadingMore = false.obs;
 
   final videos = <VideoModel>[].obs;
+
+  // BUG FIX: Görüntülenme sayısı için GLOBAL override cache.
+  // Önceki kodda syncViewCountFromPlayer() SADECE `videos` listesindeki
+  // (HomeController'a ait) video kaydını güncelliyordu. Ama VideoCardWidget
+  // başka controller'ların kendi listelerinde de kullanılıyor (örn.
+  // university_detail_screen.dart -> UniversityDetailController.videos).
+  // O durumda firstWhereOrNull eşleşme bulamıyor, widget statik/eski
+  // appViewCount'a düşüyor -> liste ekranına geri dönünce sayaç 0 görünüyor,
+  // sadece o ekran kendi verisini yeniden çekince (refresh/pull-to-refresh)
+  // düzeliyordu. Beğeni/favori bundan etkilenmiyordu çünkü onların ikon
+  // durumu zaten likedVideoIds/favoriteIds gibi global, ID bazlı setlerden
+  // okunuyordu. Bu map de aynı global mantığı görüntülenmeye taşıyor.
+  final viewCountOverrides = <String, int>{}.obs;
+
   final playlists = <PlaylistModel>[].obs;
   final favoriteIds = <String>[].obs;
   final _sharedIds = <String>[].obs;
@@ -483,7 +497,15 @@ class HomeController extends GetxController {
     videos[idx] = videos[idx].copyWith(appViewCount: newCount);
   }
 
+  // BUG FIX: Artık SADECE `videos` listesini değil, global
+  // `viewCountOverrides` map'ini de güncelliyor. VideoCardWidget hangi
+  // controller'ın listesinden render edilmiş olursa olsun (Home, Üniversite
+  // Detay, vs.) bu map'e bakarak en güncel sayıyı gösterebilsin diye.
   void syncViewCountFromPlayer(String videoId, int viewCount) {
+    final current = viewCountOverrides[videoId] ?? 0;
+    if (viewCount > current) {
+      viewCountOverrides[videoId] = viewCount;
+    }
     _updateVideoViewCount(videoId, viewCount);
   }
 
