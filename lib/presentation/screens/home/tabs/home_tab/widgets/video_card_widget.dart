@@ -575,27 +575,33 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       child: Row(
         children: [
           // ── Görüntülenme (buton yok) ──
-          Padding(
-            padding: EdgeInsets.all(8.w),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.visibility_outlined,
-                  size: 20.sp,
-                  color: AppTheme.textSec(context),
-                ),
-                SizedBox(width: 3.w),
-                Text(
-                  _formatCount(video.appViewCount),
-                  style: TextStyle(
+          Obx(() {
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final viewCount = liveVideo?.appViewCount ?? video.appViewCount;
+            return Padding(
+              padding: EdgeInsets.all(8.w),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: 20.sp,
                     color: AppTheme.textSec(context),
-                    fontSize: 12.sp,
                   ),
-                ),
-              ],
-            ),
-          ),
+                  SizedBox(width: 3.w),
+                  Text(
+                    _formatCount(viewCount),
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
 
           // ── Beğeni ──
           Obx(() {
@@ -662,13 +668,17 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 ),
               );
             }
+            final liveVideoShare = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final shareCount = liveVideoShare?.appShareCount ?? video.appShareCount;
             return _igActionBtn(
               context: context,
               icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
               color: hasShared
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
-              count: video.appShareCount,
+              count: shareCount,
               isActive: hasShared,
               onTap: () => controller.shareVideo(video),
             );
@@ -679,6 +689,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           // ── Favori ──
           Obx(() {
             final isFav = controller.favoriteIds.contains(video.videoId);
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final favCount = liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
             return _igActionBtn(
               context: context,
               icon: isFav
@@ -687,9 +701,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               color: isFav
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.textPri(context),
-              count: isFav
-                  ? video.appFavoriteCount + 1
-                  : video.appFavoriteCount,
+              count: favCount,
               isActive: isFav,
               onTap: () => controller.toggleFavorite(video.videoId),
             );

@@ -424,15 +424,12 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
-    // PlayerController kapanırken HomeController'ı senkronize et.
-    // Kullanıcı player'dan beğenip geri döndüğünde ana sayfadaki
-    // kart durumu ve sayacı doğru yansısın.
     try {
       if (currentVideo.value != null && Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().syncLikeFromPlayer(
-          currentVideo.value!.videoId,
-          isLiked.value,
-        );
+        final home = Get.find<HomeController>();
+        home.syncLikeFromPlayer(currentVideo.value!.videoId, isLiked.value);
+        home.syncFavoriteFromPlayer(currentVideo.value!.videoId, isFavorite.value);
+        home.syncViewCountFromPlayer(currentVideo.value!.videoId, appViewCount.value);
       }
     } catch (_) {}
     youtubeController?.close();

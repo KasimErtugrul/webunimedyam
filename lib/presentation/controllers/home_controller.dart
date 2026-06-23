@@ -168,9 +168,13 @@ class HomeController extends GetxController {
   }
 
   void _onFavoriteChanged(FavoriteChange event) {
-    if (event.isFavorite) {
-      if (!favoriteIds.contains(event.videoId)) favoriteIds.add(event.videoId);
-    } else {
+    final wasFav = favoriteIds.contains(event.videoId);
+    // Önce sayacı güncelle, sonra favoriteIds'i — ikisi tutarlı rebuild için
+    if (event.isFavorite && !wasFav) {
+      _updateVideoFavoriteCount(event.videoId, 1);
+      favoriteIds.add(event.videoId);
+    } else if (!event.isFavorite && wasFav) {
+      _updateVideoFavoriteCount(event.videoId, -1);
       favoriteIds.remove(event.videoId);
     }
   }
@@ -427,8 +431,18 @@ class HomeController extends GetxController {
       return;
     }
 
+    final wasFav = isFavorite(videoId);
+
+    // ── Optimistic update: durum ve sayaç anında değişir ──
+    if (wasFav) {
+      favoriteIds.remove(videoId);
+    } else {
+      favoriteIds.add(videoId);
+    }
+    _updateVideoFavoriteCount(videoId, wasFav ? -1 : 1);
+
     try {
-      if (isFavorite(videoId)) {
+      if (wasFav) {
         await favoritesRepository.removeFavorite(userId, videoId);
         await favoritesRepository.removeFavoriteVideoLocally(videoId);
       } else {
@@ -439,11 +453,58 @@ class HomeController extends GetxController {
         }
       }
     } catch (e, stacktrace) {
+      // Rollback
+      if (wasFav) {
+        favoriteIds.add(videoId);
+      } else {
+        favoriteIds.remove(videoId);
+      }
+      _updateVideoFavoriteCount(videoId, wasFav ? 1 : -1);
       log(
         'Favori durumu değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
+    }
+  }
+
+  void _updateVideoFavoriteCount(String videoId, int delta) {
+    final idx = videos.indexWhere((v) => v.videoId == videoId);
+    if (idx == -1) return;
+    videos[idx] = videos[idx].copyWith(
+      appFavoriteCount: (videos[idx].appFavoriteCount + delta).clamp(0, 999999999),
+    );
+  }
+
+  void _updateVideoViewCount(String videoId, int newCount) {
+    final idx = videos.indexWhere((v) => v.videoId == videoId);
+    if (idx == -1) return;
+    if (videos[idx].appViewCount >= newCount) return; // geri gitme
+    videos[idx] = videos[idx].copyWith(appViewCount: newCount);
+  }
+
+  void syncViewCountFromPlayer(String videoId, int viewCount) {
+    _updateVideoViewCount(videoId, viewCount);
+  }
+
+  void _updateVideoShareCount(String videoId, int delta) {
+    final idx = videos.indexWhere((v) => v.videoId == videoId);
+    if (idx == -1) return;
+    videos[idx] = videos[idx].copyWith(
+      appShareCount: (videos[idx].appShareCount + delta).clamp(0, 999999999),
+    );
+  }
+
+  void syncFavoriteFromPlayer(String videoId, bool isNowFav) {
+    final wasFav = favoriteIds.contains(videoId);
+    if (wasFav == isNowFav) return;
+    // Önce sayacı güncelle, sonra favoriteIds'i değiştir.
+    // Böylece Obx rebuild olduğunda hem icon hem sayaç tutarlı görünür.
+    _updateVideoFavoriteCount(videoId, isNowFav ? 1 : -1);
+    if (isNowFav) {
+      favoriteIds.add(videoId);
+    } else {
+      favoriteIds.remove(videoId);
     }
   }
 
@@ -572,12 +633,13 @@ class HomeController extends GetxController {
     if (wasLiked == isNowLiked) return; // zaten senkron
 
     _likeCache[videoId] = isNowLiked;
+    // Önce sayacı güncelle, sonra _likedIds'i değiştir.
+    _updateVideoLikeCount(videoId, isNowLiked ? 1 : -1);
     if (isNowLiked) {
       if (!_likedIds.contains(videoId)) _likedIds.add(videoId);
     } else {
       _likedIds.remove(videoId);
     }
-    _updateVideoLikeCount(videoId, isNowLiked ? 1 : -1);
   }
 
   // ─── Paylaşım ─────────────────────────────────────────────────────────────
@@ -597,7 +659,11 @@ class HomeController extends GetxController {
       final userId = _currentUserId;
       if (userId != null) {
         await engagementRepository.recordShare(userId, video.videoId);
-        if (!_sharedIds.contains(video.videoId)) _sharedIds.add(video.videoId);
+        if (!_sharedIds.contains(video.videoId)) {
+          _sharedIds.add(video.videoId);
+          // Paylaşım sayacını videos listesinde anında güncelle
+          _updateVideoShareCount(video.videoId, 1);
+        }
       }
     } catch (e, stacktrace) {
       log(
