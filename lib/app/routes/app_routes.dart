@@ -15,6 +15,7 @@ abstract class AppRoutes {
   static const universityDetail = '/university-detail';
   static const notifications = '/notifications';
   static const shortsPlayer = '/shorts-player';
+  static const radio = '/radio';
 
   /// Basit Shorts oynatıcı (üniversite bilgisi olmadan)
   // ignore: unintended_html_in_doc_comment

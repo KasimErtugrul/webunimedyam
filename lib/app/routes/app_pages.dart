@@ -4,6 +4,7 @@ import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
 import '../../presentation/screens/player/video_viewers_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/radio/radio_page.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
@@ -117,5 +118,6 @@ abstract class AppPages {
       page: () => const SimpleShortsPlayerScreen(),
       transition: Transition.downToUp,
     ),
+    GetPage(name: AppRoutes.radio, page: () => const RadioPage()),
   ];
 }

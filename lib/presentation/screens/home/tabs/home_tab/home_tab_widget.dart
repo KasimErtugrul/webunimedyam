@@ -109,6 +109,12 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 titleSpacing: 16.w,
                 toolbarHeight: kToolbarHeight,
                 expandedHeight: kToolbarHeight + _shortsAreaHeight,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.radio_rounded),
+                    onPressed: () => Get.toNamed(AppRoutes.radio),
+                  ),
+                ],
                 title: Row(
                   children: [
                     Container(
@@ -185,22 +191,19 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     }
 
     final showLoader = controller.hasMoreVideos.value;
-    
+
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          if (index >= nonShorts.length) {
-            return controller.isLoadingMore.value
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : const SizedBox.shrink();
-          }
-          return VideoCardWidget(video: nonShorts[index]);
-        },
-        childCount: nonShorts.length + (showLoader ? 1 : 0),
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        if (index >= nonShorts.length) {
+          return controller.isLoadingMore.value
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : const SizedBox.shrink();
+        }
+        return VideoCardWidget(video: nonShorts[index]);
+      }, childCount: nonShorts.length + (showLoader ? 1 : 0)),
     );
   }
 
