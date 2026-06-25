@@ -1083,14 +1083,18 @@ class SupabaseDataSource {
   }
 
   /// Keseßilmemiş videolar (app_view_count = 0).
-  /// offset == 0 ise rastgele örnekleme yap (her refresh’te farklı videolar).
-  /// offset > 0 ise detay sayfası sayfalaması çin deterministik sıra.
+  /// useRandomSampling=true VE offset == 0 ise rastgele örnekleme yap
+  /// (sadece ana ekran section'ı için — her refresh'te farklı videolar).
+  /// Detay sayfası (video_section_detail) useRandomSampling=false geçer,
+  /// böylece "Tümünü Gör" ana ekranda gösterilenle aynı, deterministik
+  /// sırayla başlar; offset > 0 zaten her zaman deterministiktir.
   Future<List<Map<String, dynamic>>> getNewAndUndiscoveredVideos({
     int limit = 10,
     int offset = 0,
+    bool useRandomSampling = true,
   }) async {
     try {
-      if (offset > 0) {
+      if (offset > 0 || !useRandomSampling) {
         return await getVideoEngagementList(
           orderBy: 'published_at',
           filterColumn: 'app_view_count',

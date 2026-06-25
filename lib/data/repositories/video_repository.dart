@@ -566,6 +566,7 @@ class VideoRepository {
           data = await _supabase.getNewAndUndiscoveredVideos(
             limit: limit,
             offset: offset,
+            useRandomSampling: false,
           );
       }
 
