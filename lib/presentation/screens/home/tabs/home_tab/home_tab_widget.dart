@@ -7,8 +7,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
-import '../../../../../data/repositories/shorts_repository.dart';
-import '../../../../../data/datasources/remote/supabase_datasource.dart';
+
 import '../../../../controllers/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
 
@@ -29,31 +28,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
   // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
   // SliverAppBar'ın expandedHeight'ı bu değere göre hesaplanır.
-  double get _shortsAreaHeight => 10.h + 100.h + 1;
+  double get _shortsAreaHeight => 115.h;
 
   @override
   void initState() {
     super.initState();
 
-    if (!Get.isRegistered<ShortsRepository>()) {
-      Get.lazyPut(
-        () => ShortsRepository(supabase: Get.find<SupabaseDataSource>()),
-        fenix: true,
-      );
-    }
-    if (!Get.isRegistered<ShortsController>()) {
-      Get.lazyPut(
-        () => ShortsController(repository: Get.find<ShortsRepository>()),
-        fenix: true,
-      );
-    }
-
     // IndexedStack tüm tab'ları aynı anda build eder, bu yüzden
     // ilk frame render olduktan sonra shorts yükle — ekran görünürken başlasın.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.isRegistered<ShortsController>()) {
-        Get.find<ShortsController>().loadShorts();
-      }
+      // Get.find<ShortsController>().loadShorts();
     });
 
     _scrollController.addListener(_onScroll);

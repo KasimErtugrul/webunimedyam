@@ -35,10 +35,11 @@ class ShortsController extends GetxController {
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     // loadShorts() burada çağrılmıyor.
     // HomeTabWidget.initState() içindeki addPostFrameCallback tetikliyor.
+    await loadShorts();
   }
 
   // ─── Veri ────────────────────────────────────────────────────────────────

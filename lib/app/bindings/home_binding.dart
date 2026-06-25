@@ -3,6 +3,8 @@ import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/search_repository.dart';
+import '../../data/repositories/shorts_repository.dart';
+import '../../presentation/controllers/shorts_controller.dart';
 import '../../presentation/controllers/video_search_controller.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
@@ -149,6 +151,19 @@ class HomeBinding extends Bindings {
           searchRepository: Get.find(),
           historyDataSource: Get.find(),
         ),
+        fenix: true,
+      );
+    }
+
+     if (!Get.isRegistered<ShortsRepository>()) {
+      Get.lazyPut(
+        () => ShortsRepository(supabase: Get.find<SupabaseDataSource>()),
+        fenix: true,
+      );
+    }
+    if (!Get.isRegistered<ShortsController>()) {
+      Get.lazyPut(
+        () => ShortsController(repository: Get.find<ShortsRepository>()),
         fenix: true,
       );
     }

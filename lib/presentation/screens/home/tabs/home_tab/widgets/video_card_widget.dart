@@ -174,108 +174,109 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   // HIZLI YORUM COMPOSER — videoya girmeden anında yorum gönderme
   // ═══════════════════════════════════════════════════════════════════════════
   void _showQuickCommentSheet(BuildContext context, HomeController controller) {
-   // final textController = TextEditingController();
+    // final textController = TextEditingController();
 
     showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppTheme.card(context),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
-    ),
-    builder: (sheetContext) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── Başlık kısmı aynı kalıyor ──
-                Row(
-                  children: [
-                    Icon(
-                      Icons.bolt_rounded,
-                      size: 18.sp,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    SizedBox(width: 6.w),
-                    Expanded(
-                      child: Text(
-                        video.universityName ?? video.channelTitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppTheme.textPri(context),
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.card(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Başlık kısmı aynı kalıyor ──
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.bolt_rounded,
+                        size: 18.sp,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      SizedBox(width: 6.w),
+                      Expanded(
+                        child: Text(
+                          video.universityName ?? video.channelTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(sheetContext),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 20.sp,
-                        color: AppTheme.textSec(context),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(sheetContext),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 20.sp,
+                          color: AppTheme.textSec(context),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  video.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: 12.sp,
+                    ],
                   ),
-                ),
-                SizedBox(height: 14.h),
-
-                // ── Güncellenmiş CommentInputWidget kullanımı ──
-                Obx(() {
-                  final isSending = controller.quickCommentSendingIds
-                      .contains(video.videoId);
-                  return AbsorbPointer(
-                    absorbing: isSending,
-                    child: Opacity(
-                      opacity: isSending ? 0.5 : 1,
-                      child: CommentInputWidget(
-                        // ✅ ARTIK CONTROLLER GEÇMİYORUZ
-                        onSend: (String text) async {  // ✅ TEXT PARAMETRE OLARAK GELİYOR
-                          final ok = await controller.sendQuickComment(
-                            video,
-                            text,
-                          );
-                          if (ok) {
-                            // ❌ SIL: textController.clear();
-                            if (sheetContext.mounted) {
-                              Navigator.pop(sheetContext);
-                            }
-                            Get.snackbar(
-                              'Gönderildi 🎉',
-                              'Yorumun videoya eklendi.',
-                              snackPosition: SnackPosition.BOTTOM,
-                            );
-                          }
-                        },
-                      ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    video.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: 12.sp,
                     ),
-                  );
-                }),
-              ],
+                  ),
+                  SizedBox(height: 14.h),
+
+                  // ── Güncellenmiş CommentInputWidget kullanımı ──
+                  Obx(() {
+                    final isSending = controller.quickCommentSendingIds
+                        .contains(video.videoId);
+                    return AbsorbPointer(
+                      absorbing: isSending,
+                      child: Opacity(
+                        opacity: isSending ? 0.5 : 1,
+                        child: CommentInputWidget(
+                          // ✅ ARTIK CONTROLLER GEÇMİYORUZ
+                          onSend: (String text) async {
+                            // ✅ TEXT PARAMETRE OLARAK GELİYOR
+                            final ok = await controller.sendQuickComment(
+                              video,
+                              text,
+                            );
+                            if (ok) {
+                              // ❌ SIL: textController.clear();
+                              if (sheetContext.mounted) {
+                                Navigator.pop(sheetContext);
+                              }
+                              Get.snackbar(
+                                'Gönderildi 🎉',
+                                'Yorumun videoya eklendi.',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
   }
 
   @override
@@ -283,7 +284,6 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     final controller = Get.find<HomeController>();
     final isLive = video.isLiveBroadcast;
     final isUpcoming = video.isUpcoming;
-   
 
     timeago.setLocaleMessages('tr', timeago.TrMessages());
 
@@ -678,7 +678,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final liveVideoShare = controller.videos.firstWhereOrNull(
               (v) => v.videoId == video.videoId,
             );
-            final shareCount = liveVideoShare?.appShareCount ?? video.appShareCount;
+            final shareCount =
+                liveVideoShare?.appShareCount ?? video.appShareCount;
             return _igActionBtn(
               context: context,
               icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
@@ -699,7 +700,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final liveVideo = controller.videos.firstWhereOrNull(
               (v) => v.videoId == video.videoId,
             );
-            final favCount = liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
+            final favCount =
+                liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
             return _igActionBtn(
               context: context,
               icon: isFav
@@ -736,7 +738,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: color, size: 22.sp),
+              Icon(icon, color: color, size: 17.sp),
               if (count > 0) ...[
                 SizedBox(width: 3.w),
                 Text(

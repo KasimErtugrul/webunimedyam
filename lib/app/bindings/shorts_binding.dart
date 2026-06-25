@@ -1,4 +1,4 @@
-// lib/app/bindings/shorts_binding.dart
+/* // lib/app/bindings/shorts_binding.dart
 
 import 'package:get/get.dart';
 
@@ -25,4 +25,4 @@ class ShortsBinding extends Bindings {
       fenix: true,
     );
   }
-}
+} */
