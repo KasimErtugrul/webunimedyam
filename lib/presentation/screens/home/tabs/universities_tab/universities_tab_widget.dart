@@ -22,8 +22,9 @@ class UniversitiesTabWidget extends StatelessWidget {
     final activeSorts = sortController.activeSorts;
     if (activeSorts.isEmpty) return true;
     if (activeSorts.length == 1 &&
-        activeSorts.first.criteria == SortCriteria.name)
+        activeSorts.first.criteria == SortCriteria.name) {
       return true;
+    }
     return false;
   }
 
@@ -157,8 +158,9 @@ class UniversitiesTabWidget extends StatelessWidget {
 
               // ── Aktif Sıralama Chip'leri ─────────────────────────────
               Obx(() {
-                if (sortController.activeSorts.isEmpty)
+                if (sortController.activeSorts.isEmpty) {
                   return const SliverToBoxAdapter(child: SizedBox.shrink());
+                }
                 return SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
