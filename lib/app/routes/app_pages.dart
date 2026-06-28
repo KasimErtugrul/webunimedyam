@@ -1,9 +1,13 @@
+// lib/app/routes/app_pages.dart
+
 import 'package:get/get.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
 import '../../presentation/screens/player/video_viewers_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile_activity_list/profile_activity_list_screen.dart';
+import '../../presentation/screens/followed_universities_list/followed_universities_list_screen.dart';
 import '../../presentation/screens/radio/radio_page.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
@@ -21,6 +25,8 @@ import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
+import '../bindings/profile_activity_list_binding.dart';
+import '../bindings/followed_universities_list_binding.dart';
 import '../bindings/settings_binding.dart';
 import '../bindings/search_binding.dart';
 import '../bindings/stats_binding.dart';
@@ -60,6 +66,16 @@ abstract class AppPages {
       preventDuplicates: false,
     ),
     GetPage(
+      name: AppRoutes.profileActivityList,
+      page: () => const ProfileActivityListScreen(),
+      binding: ProfileActivityListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.followedUniversitiesList,
+      page: () => const FollowedUniversitiesListScreen(),
+      binding: FollowedUniversitiesListBinding(),
+    ),
+    GetPage(
       name: AppRoutes.settings,
       page: () => const SettingsScreen(),
       binding: SettingsBinding(),
@@ -94,25 +110,15 @@ abstract class AppPages {
       page: () => const UniversityDetailScreen(),
       binding: UniversityDetailBinding(),
     ),
-   /*  GetPage(
-      name: AppRoutes.notifications,
-      page: () => const NotificationsScreen(),
-    ), */
     GetPage(
       name: AppRoutes.videoViewers,
       page: () => const VideoViewersScreen(),
     ),
-
-    // ── Üniversiteli Shorts Oynatıcı ──────────────────────────────────────
-    // Argüman: {'shorts': List<ShortsModel>, 'initialIndex': int}
     GetPage(
       name: AppRoutes.shortsPlayer,
       page: () => const ShortsPlayerScreen(),
       transition: Transition.downToUp,
     ),
-
-    // ── Basit Shorts Oynatıcı (üniversite bilgisi yok) ────────────────────
-    // Argüman: {'shorts': List<VideoModel>, 'initialIndex': int}
     GetPage(
       name: AppRoutes.simpleShortsPlayer,
       page: () => const SimpleShortsPlayerScreen(),

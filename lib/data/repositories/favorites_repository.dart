@@ -54,17 +54,16 @@ class FavoritesRepository extends GetxService {
   }
 
   /// Belirli bir kullanıcının favori videolarını döner.
-  /// - Kendi userId'si → local-first
+  /// - Kendi userId'si → Supabase (pagination için her zaman remote)
   /// - Başka userId  → doğrudan Supabase (local cache bypass)
-  Future<List<VideoModel>> getUserFavoriteVideos(String userId) async {
+  Future<List<VideoModel>> getUserFavoriteVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
-      final currentUserId = _supabase.currentUser?.id;
-
-      if (currentUserId == userId) {
-        return _getSelfFavoriteVideos(userId);
-      } else {
-        return _getOtherUserFavoriteVideos(userId);
-      }
+      // Pagination gerektiğinden her zaman Supabase'e gidiyoruz
+      return await _supabase.getUserFavoriteVideos(userId, limit: limit, offset: offset);
     } catch (e, stacktrace) {
       log(
         'Kullanıcı favori videoları getirilirken hata oluştu: $e',
@@ -75,7 +74,7 @@ class FavoritesRepository extends GetxService {
     }
   }
 
-  Future<List<VideoModel>> _getSelfFavoriteVideos(String userId) async {
+  Future<List<VideoModel>> getSelfFavoriteVideos(String userId) async {
     try {
       final localFavorites = await _local.getFavoriteVideos();
       if (localFavorites.isNotEmpty) {
@@ -98,7 +97,7 @@ class FavoritesRepository extends GetxService {
     }
   }
 
-  Future<List<VideoModel>> _getOtherUserFavoriteVideos(String userId) async {
+  Future<List<VideoModel>> getOtherUserFavoriteVideos(String userId) async {
     try {
       // RLS izin vermiyorsa Supabase zaten boş döndürür
       final videos = await _supabase.getUserFavoriteVideos(userId);

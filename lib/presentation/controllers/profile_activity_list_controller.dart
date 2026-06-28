@@ -110,19 +110,6 @@ class ProfileActivityListController extends GetxController {
     }
   }
 
-  IconData get emptyIcon {
-    switch (activityType) {
-      case ProfileActivityType.favorites:
-        return 468985; // Icons.favorite_outline_rounded codepoint — kullanılmıyor
-      case ProfileActivityType.viewed:
-        return 0;
-      case ProfileActivityType.commented:
-        return 0;
-      case ProfileActivityType.shared:
-        return 0;
-    }
-  }
-
   String get emptyText {
     if (isOwnProfile) {
       switch (activityType) {

@@ -7,8 +7,6 @@ import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/profile_controller.dart';
-import 'stat_chip_widget.dart';
-import 'stat_divider_widget.dart';
 
 class ProfileHeaderWidget extends StatelessWidget {
   final ProfileController controller;
@@ -17,90 +15,43 @@ class ProfileHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final profile     = controller.profile.value;
-/*       final isOwnProfile = controller.isOwnProfile;
- */
+      final profile = controller.profile.value;
+
       return Container(
         color: AppTheme.bg(context),
-        padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 12.h),
+        padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 20.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // ── Avatar ──────────────────────────────────────────────────────
             _AvatarWidget(
               avatarUrl: profile?.avatarUrl,
-              username:  profile?.username ?? 'U',
+              username: profile?.username ?? 'U',
             ),
 
-            SizedBox(height: 12.h),
+            SizedBox(height: 14.h),
 
             // ── Kullanıcı adı ────────────────────────────────────────────────
             Text(
               profile?.username ?? 'Kullanıcı',
               style: TextStyle(
-                color:      AppTheme.textPri(context),
-                fontSize:   19.sp,
+                color: AppTheme.textPri(context),
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             // ── Tam isim (varsa) ─────────────────────────────────────────────
             if ((profile?.fullName ?? '').isNotEmpty) ...[
-              SizedBox(height: 2.h),
+              SizedBox(height: 4.h),
               Text(
                 profile!.fullName!,
                 style: TextStyle(
-                  color:    AppTheme.textSec(context),
-                  fontSize: 13.sp,
+                  color: AppTheme.textSec(context),
+                  fontSize: 14.sp,
                 ),
               ),
             ],
-
-           /*  // ── Takipçi / Takip sayıları ──────────────────────────────────
-            if (profile != null) ...[
-              SizedBox(height: 12.h),
-              FollowCountsWidget(userId: profile.id),
-            ],
-
-            SizedBox(height: 16.h), */
-
-            // ── İstatistik chipleri ──────────────────────────────────────────
-            Obx(
-              () => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  StatChipWidget(
-                    icon:  Icons.favorite_rounded,
-                    count: controller.favoriteVideos.length,
-                    label: 'Favori',
-                  ),
-                  const StatDividerWidget(),
-                  StatChipWidget(
-                    icon:  Icons.play_circle_rounded,
-                    count: controller.viewedVideos.length,
-                    label: 'İzlenen',
-                  ),
-                  const StatDividerWidget(),
-                  StatChipWidget(
-                    icon:  Icons.chat_bubble_rounded,
-                    count: controller.commentedVideos.length,
-                    label: 'Yorum',
-                  ),
-                  const StatDividerWidget(),
-                  StatChipWidget(
-                    icon:  Icons.share_rounded,
-                    count: controller.sharedVideos.length,
-                    label: 'Paylaşım',
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Takip butonu (başkasının profili) ────────────────────────────
-          /*   if (!isOwnProfile && profile != null) ...[
-              SizedBox(height: 16.h),
-              FollowButtonWidget(targetProfile: profile),
-            ], */
           ],
         ),
       );
@@ -112,7 +63,7 @@ class ProfileHeaderWidget extends StatelessWidget {
 
 class _AvatarWidget extends StatelessWidget {
   final String? avatarUrl;
-  final String  username;
+  final String username;
 
   const _AvatarWidget({required this.avatarUrl, required this.username});
 
@@ -121,20 +72,20 @@ class _AvatarWidget extends StatelessWidget {
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
 
     return Container(
-      width:  78.w,
-      height: 78.h,
+      width: 80.w,
+      height: 80.h,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: const LinearGradient(
           colors: [AppTheme.primaryColor, Color(0xFF158a3e)],
           begin: Alignment.topLeft,
-          end:   Alignment.bottomRight,
+          end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color:      AppTheme.primaryColor.withValues(alpha: 0.35),
+            color: AppTheme.primaryColor.withValues(alpha: 0.35),
             blurRadius: 18.r,
-            offset:     Offset(0, 6.h),
+            offset: Offset(0, 6.h),
           ),
         ],
       ),
@@ -142,9 +93,9 @@ class _AvatarWidget extends StatelessWidget {
           ? ClipOval(
               child: CachedNetworkImage(
                 imageUrl: avatarUrl!,
-                fit:      BoxFit.cover,
-                width:    78.w,
-                height:   78.h,
+                fit: BoxFit.cover,
+                width: 80.w,
+                height: 80.h,
                 errorWidget: (_, __, ___) => _InitialLetter(username: username),
               ),
             )
@@ -163,8 +114,8 @@ class _InitialLetter extends StatelessWidget {
       child: Text(
         username.isNotEmpty ? username[0].toUpperCase() : 'U',
         style: TextStyle(
-          color:      Colors.white,
-          fontSize:   30.sp,
+          color: Colors.white,
+          fontSize: 32.sp,
           fontWeight: FontWeight.bold,
         ),
       ),

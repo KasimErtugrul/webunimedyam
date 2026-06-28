@@ -15,9 +15,13 @@ class ProfileActivityRepository {
   ProfileActivityRepository({required SupabaseDataSource supabase})
     : _supabase = supabase;
 
-  Future<List<VideoModel>> getUserViewedVideos(String userId) async {
+  Future<List<VideoModel>> getUserViewedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
-      return await _supabase.getUserViewedVideos(userId);
+      return await _supabase.getUserViewedVideos(userId, limit: limit, offset: offset);
     } catch (e, stacktrace) {
       log(
         'Kullanıcının izlediği videolar getirilirken hata oluştu: $e',
@@ -28,9 +32,13 @@ class ProfileActivityRepository {
     }
   }
 
-  Future<List<VideoModel>> getUserCommentedVideos(String userId) async {
+  Future<List<VideoModel>> getUserCommentedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
-      return await _supabase.getUserCommentedVideos(userId);
+      return await _supabase.getUserCommentedVideos(userId, limit: limit, offset: offset);
     } catch (e, stacktrace) {
       log(
         'Kullanıcının yorum yaptığı videolar getirilirken hata oluştu: $e',
@@ -41,9 +49,13 @@ class ProfileActivityRepository {
     }
   }
 
-  Future<List<VideoModel>> getUserSharedVideos(String userId) async {
+  Future<List<VideoModel>> getUserSharedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
-      return await _supabase.getUserSharedVideos(userId);
+      return await _supabase.getUserSharedVideos(userId, limit: limit, offset: offset);
     } catch (e, stacktrace) {
       log(
         'Kullanıcının paylaştığı videolar getirilirken hata oluştu: $e',

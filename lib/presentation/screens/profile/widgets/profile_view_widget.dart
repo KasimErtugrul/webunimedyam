@@ -6,168 +6,146 @@ import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
+import '../../../../data/datasources/remote/supabase_datasource.dart';
+import '../../../controllers/profile_activity_list_controller.dart';
 import '../../../controllers/profile_controller.dart';
-import 'activity_video_tab/video_activity_tab_widget.dart';
-import 'followed_universities_tab/followed_universities_tab_widget.dart';
 import 'profile_header/profile_header_widget.dart';
 
 class ProfileViewWidget extends StatelessWidget {
   final ProfileController controller;
   const ProfileViewWidget({super.key, required this.controller});
 
+  String get _userId {
+    if (controller.isOwnProfile) {
+      final supabase = Get.find<SupabaseDataSource>();
+      return supabase.currentUser?.id ?? '';
+    }
+    return controller.targetUserId ?? '';
+  }
+
+  void _navigateTo(ProfileActivityType type) {
+    Get.toNamed(
+      AppRoutes.profileActivityList,
+      arguments: {
+        'type': type,
+        'userId': _userId,
+        'isOwnProfile': controller.isOwnProfile,
+      },
+    );
+  }
+
+  void _navigateToUniversities() {
+    Get.toNamed(
+      AppRoutes.followedUniversitiesList,
+      arguments: {
+        'userId': _userId,
+        'isOwnProfile': controller.isOwnProfile,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverAppBar(
-              expandedHeight: 400.h,
-              pinned: true,
-              floating: false,
-              surfaceTintColor: Colors.transparent,
-              // ── Sadece kendi profilinde göster ──────────────────────────
-              actions: controller.isOwnProfile
-                  ? [
-                      IconButton(
-                        icon: Icon(
-                          Icons.bar_chart_rounded,
-                          color: AppTheme.textPri(context),
-                          size: 24.sp,
-                        ),
-                        tooltip: 'İstatistiklerim',
-                        onPressed: () => Get.toNamed(AppRoutes.stats),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 320.h,
+            pinned: true,
+            floating: false,
+            surfaceTintColor: Colors.transparent,
+            actions: controller.isOwnProfile
+                ? [
+                    IconButton(
+                      icon: Icon(
+                        Icons.bar_chart_rounded,
+                        color: AppTheme.textPri(context),
+                        size: 24.sp,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.settings_outlined,
-                          color: AppTheme.textPri(context),
-                          size: 24.sp,
-                        ),
-                        tooltip: 'Ayarlar',
-                        onPressed: () => Get.toNamed(AppRoutes.settings),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: AppTheme.textPri(context),
-                          size: 24.sp,
-                        ),
-                        tooltip: 'Profili Düzenle',
-                        onPressed: () =>
-                            _showEditProfileDialog(context, controller),
-                      ),
-                    ]
-                  : [], // Başkasının profilinde hiçbir şey gösterme
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: ProfileHeaderWidget(controller: controller),
-              ),
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(48.h),
-                child: Container(
-                  color: AppTheme.bg(context),
-                  child: TabBar(
-                    isScrollable: false,
-                    indicatorColor: AppTheme.primaryColor,
-                    indicatorWeight: 2.5.w,
-                    labelColor: AppTheme.primaryColor,
-                    unselectedLabelColor: AppTheme.textSec(context),
-                    labelStyle: TextStyle(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w600,
+                      tooltip: 'İstatistiklerim',
+                      onPressed: () => Get.toNamed(AppRoutes.stats),
                     ),
-                    unselectedLabelStyle: TextStyle(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w500,
+                    IconButton(
+                      icon: Icon(
+                        Icons.settings_outlined,
+                        color: AppTheme.textPri(context),
+                        size: 24.sp,
+                      ),
+                      tooltip: 'Ayarlar',
+                      onPressed: () => Get.toNamed(AppRoutes.settings),
                     ),
-                    tabs: [
-                      Tab(
-                        icon: Icon(Icons.favorite_rounded, size: 18.sp),
-                        text: 'Favoriler',
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: AppTheme.textPri(context),
+                        size: 24.sp,
                       ),
-                      Tab(
-                        icon: Icon(Icons.play_circle_rounded, size: 18.sp),
-                        text: 'İzlenenler',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.chat_bubble_rounded, size: 18.sp),
-                        text: 'Yorumlar',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.share_rounded, size: 18.sp),
-                        text: 'Paylaşılan',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.account_balance_rounded, size: 18.sp),
-                        text: 'Üniversiteler',
-                      ),
-                    ],
+                      tooltip: 'Profili Düzenle',
+                      onPressed: () =>
+                          _showEditProfileDialog(context, controller),
+                    ),
+                  ]
+                : [],
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: ProfileHeaderWidget(controller: controller),
+            ),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // ── Bölüm başlığı ──────────────────────────────────────────
+                Text(
+                  'Aktiviteler',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
                   ),
                 ),
-              ),
+                SizedBox(height: 12.h),
+
+                // ── Butonlar ───────────────────────────────────────────────
+                _ActivityButton(
+                  icon: Icons.favorite_rounded,
+                  label: 'Favoriler',
+                  color: const Color(0xFFE53935),
+                  onTap: () => _navigateTo(ProfileActivityType.favorites),
+                ),
+                SizedBox(height: 10.h),
+                _ActivityButton(
+                  icon: Icons.play_circle_rounded,
+                  label: 'İzlenenler',
+                  color: const Color(0xFF1E88E5),
+                  onTap: () => _navigateTo(ProfileActivityType.viewed),
+                ),
+                SizedBox(height: 10.h),
+                _ActivityButton(
+                  icon: Icons.chat_bubble_rounded,
+                  label: 'Yorum Yapılanlar',
+                  color: const Color(0xFF43A047),
+                  onTap: () => _navigateTo(ProfileActivityType.commented),
+                ),
+                SizedBox(height: 10.h),
+                _ActivityButton(
+                  icon: Icons.share_rounded,
+                  label: 'Paylaşılanlar',
+                  color: const Color(0xFF8E24AA),
+                  onTap: () => _navigateTo(ProfileActivityType.shared),
+                ),
+                SizedBox(height: 10.h),
+                _ActivityButton(
+                  icon: Icons.account_balance_rounded,
+                  label: 'Takip Edilen Üniversiteler',
+                  color: const Color(0xFFF4511E),
+                  onTap: _navigateToUniversities,
+                ),
+              ]),
             ),
-          ],
-          body: TabBarView(
-            children: [
-              VideoActivityTabWidget(
-                videos: controller.favoriteVideos,
-                isLoading: controller.isFavoritesLoading,
-                emptyIcon: Icons.favorite_outline_rounded,
-                emptyText: controller.isOwnProfile
-                    ? 'Henüz favori eklemedin'
-                    : 'Favori bulunamadı',
-                emptySubtext: controller.isOwnProfile
-                    ? 'Beğendiğin videoları favorilere ekle'
-                    : 'Bu kullanıcının favorileri gizli olabilir',
-                onRefresh: () => controller.loadFavorites(),
-              ),
-              VideoActivityTabWidget(
-                videos: controller.viewedVideos,
-                isLoading: controller.isViewedLoading,
-                emptyIcon: Icons.play_circle_outline_rounded,
-                emptyText: controller.isOwnProfile
-                    ? 'Henüz video izlemedin'
-                    : 'İzleme geçmişi bulunamadı',
-                emptySubtext: controller.isOwnProfile
-                    ? 'İzlediğin videolar burada görünür'
-                    : 'Bu kullanıcının izleme geçmişi gizli olabilir',
-                onRefresh: () => controller.loadViewedVideos(),
-              ),
-              VideoActivityTabWidget(
-                videos: controller.commentedVideos,
-                isLoading: controller.isCommentedLoading,
-                emptyIcon: Icons.chat_bubble_outline_rounded,
-                emptyText: controller.isOwnProfile
-                    ? 'Henüz yorum yapmadın'
-                    : 'Yorum bulunamadı',
-                emptySubtext: controller.isOwnProfile
-                    ? 'Yorum yaptığın videolar burada görünür'
-                    : 'Bu kullanıcının yorumları gizli olabilir',
-                onRefresh: () => controller.loadCommentedVideos(),
-              ),
-              VideoActivityTabWidget(
-                videos: controller.sharedVideos,
-                isLoading: controller.isSharedLoading,
-                emptyIcon: Icons.share_outlined,
-                emptyText: controller.isOwnProfile
-                    ? 'Henüz paylaşım yapmadın'
-                    : 'Paylaşım bulunamadı',
-                emptySubtext: controller.isOwnProfile
-                    ? 'Paylaştığın videolar burada görünür'
-                    : 'Bu kullanıcının paylaşımları gizli olabilir',
-                onRefresh: () => controller.loadSharedVideos(),
-              ),
-              FollowedUniversitiesTabWidget(
-                universities: controller.followedUniversities,
-                isLoading: controller.isUniversitiesLoading,
-                isOwnProfile: controller.isOwnProfile,
-                onRefresh: () => controller.loadFollowedUniversities(),
-              ),
-            ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -176,7 +154,6 @@ class ProfileViewWidget extends StatelessWidget {
     BuildContext context,
     ProfileController controller,
   ) {
-    // Güvenlik: sadece kendi profilinde açılabilir
     if (!controller.isOwnProfile) return;
 
     final usernameCtrl = TextEditingController(
@@ -278,6 +255,65 @@ class ProfileViewWidget extends StatelessWidget {
             child: Text('Kaydet', style: TextStyle(fontSize: 14.sp)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Aktivite Butonu ────────────────────────────────────────────────────────
+
+class _ActivityButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActivityButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38.w,
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(icon, color: color, size: 20.sp),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppTheme.textSec(context),
+              size: 20.sp,
+            ),
+          ],
+        ),
       ),
     );
   }

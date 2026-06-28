@@ -25,4 +25,12 @@ abstract class AppRoutes {
   /// Videoyu kimlerin izlediği sayfası
   /// Argüman: {'videoId': String, 'totalViewCount': int}
   static const videoViewers = '/video-viewers';
+
+  /// Profil aktivite listesi (favoriler, izlenenler, yorumlar, paylaşılanlar)
+  /// Argüman: {'type': ProfileActivityType, 'userId': String, 'isOwnProfile': bool}
+  static const profileActivityList = '/profile-activity-list';
+
+  /// Takip edilen üniversiteler listesi
+  /// Argüman: {'userId': String, 'isOwnProfile': bool}
+  static const followedUniversitiesList = '/followed-universities-list';
 }

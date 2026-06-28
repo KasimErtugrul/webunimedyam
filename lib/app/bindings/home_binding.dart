@@ -108,9 +108,7 @@ class HomeBinding extends Bindings {
       Get.lazyPut(
         () => ProfileController(
           authRepository: Get.find(),
-          favoritesRepository: Get.find(),
-          profileActivityRepository: Get.find(),
-          universityFavoritesRepository: Get.find(),
+         
         ),
         fenix: true,
       );
@@ -123,9 +121,7 @@ class HomeBinding extends Bindings {
       Get.lazyPut(
         () => ProfileController(
           authRepository: Get.find(),
-          favoritesRepository: Get.find(),
-          profileActivityRepository: Get.find(),
-                 universityFavoritesRepository: Get.find(),
+        
 
         ),
         tag: currentUserId,
