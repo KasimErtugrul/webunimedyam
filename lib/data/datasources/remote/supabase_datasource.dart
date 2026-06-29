@@ -159,7 +159,7 @@ class SupabaseDataSource {
     }
   }
 
-  Future<List<VideoModel>> getCachedVideos({
+  /* Future<List<VideoModel>> getCachedVideos({
     int limit = 20,
     int offset = 0,
   }) async {
@@ -184,7 +184,7 @@ class SupabaseDataSource {
       );
       throw Exception('Videolar yüklenemedi. Lütfen tekrar deneyin.');
     }
-  }
+  } */
 
   /// FIX: `videos_cache` tablosunda app_view_count/app_like_count vb. kolonlar
   /// yok — bu yüzden üniversite detay sayfasındaki videolar her zaman 0
@@ -256,15 +256,7 @@ class SupabaseDataSource {
     }
   }
 
-  Future<void> upsertVideos(List<VideoModel> videos) async {
-    try {
-      final data = videos.map((v) => v.toSupabase()).toList();
-      await _client.from('videos_cache').upsert(data, onConflict: 'video_id');
-    } catch (e, stackTrace) {
-      log('Videolar kaydedilirken hata oluştu: $e\n$stackTrace');
-      throw Exception('Videolar kaydedilemedi. Lütfen tekrar deneyin.');
-    }
-  }
+
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
   // FIX: Eskiden sabit limit=20 ile çağrılıyordu ve hiç sıralama yoktu. Bu

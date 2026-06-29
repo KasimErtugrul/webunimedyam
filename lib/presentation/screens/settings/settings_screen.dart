@@ -1,5 +1,3 @@
-// lib/presentation/screens/settings/settings_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -49,9 +47,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text('Ayarlar', style: TextStyle(fontSize: 20.sp)),
       ),
       body: Obx(() {
-        final s         = _controller.settings.value;
+        final s = _controller.settings.value;
         final isLoading = _controller.isLoading.value;
-        final profVis   = _controller.profileVisibility.value;
+        final profVis = _controller.profileVisibility.value;
 
         if (isLoading && s == null) {
           return const Center(child: CircularProgressIndicator());
@@ -60,7 +58,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return ListView(
           padding: EdgeInsets.only(bottom: 32.h),
           children: [
-
             // ═══ GÖRÜNÜM ═══════════════════════════════════════
             _SectionHeader(title: 'Görünüm'),
             _SettingsTile(
@@ -76,16 +73,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               value: s?.autoplay ?? true,
               onChanged: (_) => _controller.toggleAutoplay(),
-              secondary: Icon(Icons.play_circle_outline,
-                  color: AppTheme.textSec(context), size: 24.sp),
-              title: Text('Otomatik Oynat',
-                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
-              subtitle: Text('Sıradaki videoyu otomatik başlat',
-                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
+              secondary: Icon(
+                Icons.play_circle_outline,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Otomatik Oynat',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              subtitle: Text(
+                'Sıradaki videoyu otomatik başlat',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
-            SwitchListTile(
+            /* SwitchListTile(
               value: s?.showSubtitles ?? false,
               onChanged: (_) => _controller.toggleSubtitles(),
               secondary: Icon(Icons.subtitles_outlined,
@@ -96,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-            ),
+            ), */
 
             // ═══ BİLDİRİMLER ════════════════════════════════════
             _Divider(),
@@ -104,12 +114,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               value: s?.notificationsEnabled ?? true,
               onChanged: (_) => _controller.toggleNotifications(),
-              secondary: Icon(Icons.notifications_outlined,
-                  color: AppTheme.textSec(context), size: 24.sp),
-              title: Text('Bildirimler',
-                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
-              subtitle: Text('Tüm bildirimleri aç/kapat',
-                  style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
+              secondary: Icon(
+                Icons.notifications_outlined,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Bildirimler',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
+              subtitle: Text(
+                'Tüm bildirimleri aç/kapat',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 13.sp,
+                ),
+              ),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
             ),
@@ -117,28 +140,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 value: s?.notifyNewVideos ?? true,
                 onChanged: (_) => _controller.toggleNotifyNewVideos(),
-                secondary: Icon(Icons.ondemand_video_outlined,
-                    color: AppTheme.textSec(context), size: 24.sp),
-                title: Text('Yeni Video',
-                    style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
-                subtitle: Text('Takip ettiğin kanalların yeni videoları',
-                    style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
+                secondary: Icon(
+                  Icons.ondemand_video_outlined,
+                  color: AppTheme.textSec(context),
+                  size: 24.sp,
+                ),
+                title: Text(
+                  'Yeni Video',
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: 16.sp,
+                  ),
+                ),
+                subtitle: Text(
+                  'Takip ettiğin kanalların yeni videoları',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 13.sp,
+                  ),
+                ),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
-              SwitchListTile(
+              /* SwitchListTile(
                 value: s?.notifyCommentReplies ?? true,
                 onChanged: (_) => _controller.toggleNotifyCommentReplies(),
-                secondary: Icon(Icons.comment_outlined,
-                    color: AppTheme.textSec(context), size: 24.sp),
-                title: Text('Yorum Yanıtları',
-                    style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
-                subtitle: Text('Yorumlarına gelen yanıtlar',
-                    style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
+                secondary: Icon(
+                  Icons.comment_outlined,
+                  color: AppTheme.textSec(context),
+                  size: 24.sp,
+                ),
+                title: Text(
+                  'Yorum Yanıtları',
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: 16.sp,
+                  ),
+                ),
+                subtitle: Text(
+                  'Yorumlarına gelen yanıtlar',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 13.sp,
+                  ),
+                ),
                 activeColor: AppTheme.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-              ),
-             /*  SwitchListTile(
+              ), */
+              /*  SwitchListTile(
                 value: s?.notifyFollowRequests ?? true,
                 onChanged: (_) => _controller.toggleNotifyFollowRequests(),
                 secondary: Icon(Icons.person_add_outlined,
@@ -218,17 +267,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // ═══ ERİŞİLEBİLİRLİK ════════════════════════════════
             _Divider(),
-            _SectionHeader(title: 'Erişilebilirlik'),
+            /*  _SectionHeader(title: 'Erişilebilirlik'),
             SwitchListTile(
               value: s?.reducedMotion ?? false,
               onChanged: (_) => _controller.toggleReducedMotion(),
-              secondary: Icon(Icons.animation_outlined,
-                  color: AppTheme.textSec(context), size: 24.sp),
-              title: Text('Animasyonları Azalt',
-                  style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
+              secondary: Icon(
+                Icons.animation_outlined,
+                color: AppTheme.textSec(context),
+                size: 24.sp,
+              ),
+              title: Text(
+                'Animasyonları Azalt',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                ),
+              ),
               activeColor: AppTheme.primaryColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-            ),
+            ), */
 
             // ═══ HESAP ══════════════════════════════════════════
             _Divider(),
@@ -280,9 +337,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _themeLabel(String? theme) {
     switch (theme) {
-      case 'dark':  return 'Koyu';
-      case 'light': return 'Açık';
-      default:      return 'Sistem';
+      case 'dark':
+        return 'Koyu';
+      case 'light':
+        return 'Açık';
+      default:
+        return 'Sistem';
     }
   }
 }
@@ -295,12 +355,13 @@ class _CeilingNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profileVisibility == VisibilityOption.public) return const SizedBox.shrink();
+    if (profileVisibility == VisibilityOption.public)
+      return const SizedBox.shrink();
 
     final isPrivate = profileVisibility == VisibilityOption.private;
-    final color     = isPrivate ? Colors.orange : Colors.blue;
-    final icon      = isPrivate ? Icons.lock_outline : Icons.people_outlined;
-    final msg       = isPrivate
+    final color = isPrivate ? Colors.orange : Colors.blue;
+    final icon = isPrivate ? Icons.lock_outline : Icons.people_outlined;
+    final msg = isPrivate
         ? 'Profil gizli — aktiviteler en fazla "Gizli" yapılabilir.'
         : 'Profil arkadaşlara açık — aktiviteler en fazla "Arkadaşlara açık" yapılabilir.';
 
@@ -354,11 +415,8 @@ class _SectionHeader extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Divider(
-        height: 8.h,
-        thickness: 0.5,
-        color: AppTheme.surface(context),
-      );
+  Widget build(BuildContext context) =>
+      Divider(height: 8.h, thickness: 0.5, color: AppTheme.surface(context));
 }
 
 class _SettingsTile extends StatelessWidget {
@@ -380,15 +438,27 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: AppTheme.textSec(context), size: 24.sp),
-      title: Text(title,
-          style: TextStyle(
-              color: titleColor ?? AppTheme.textPri(context), fontSize: 16.sp)),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: titleColor ?? AppTheme.textPri(context),
+          fontSize: 16.sp,
+        ),
+      ),
       subtitle: subtitle != null
-          ? Text(subtitle!,
-              style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp))
+          ? Text(
+              subtitle!,
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 13.sp,
+              ),
+            )
           : null,
-      trailing:
-          Icon(Icons.chevron_right, color: AppTheme.textSec(context), size: 20.sp),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: AppTheme.textSec(context),
+        size: 20.sp,
+      ),
       onTap: onTap,
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
     );
@@ -433,16 +503,24 @@ class _VisibilityTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: AppTheme.textSec(context), size: 24.sp),
-      title: Text(title,
-          style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp)),
-      subtitle: Text(subtitle,
-          style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp)),
+      title: Text(
+        title,
+        style: TextStyle(color: AppTheme.textPri(context), fontSize: 16.sp),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: AppTheme.textSec(context), fontSize: 13.sp),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _VisibilityBadge(option: current),
           SizedBox(width: 4.w),
-          Icon(Icons.chevron_right, color: AppTheme.textSec(context), size: 20.sp),
+          Icon(
+            Icons.chevron_right,
+            color: AppTheme.textSec(context),
+            size: 20.sp,
+          ),
         ],
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -470,22 +548,29 @@ class _VisibilityTile extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12.h),
-            Text(title,
-                style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPri(context))),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPri(context),
+              ),
+            ),
             SizedBox(height: 4.h),
-            Text(subtitle,
-                style: TextStyle(
-                    fontSize: 13.sp, color: AppTheme.textSec(context))),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: AppTheme.textSec(context),
+              ),
+            ),
             SizedBox(height: 12.h),
             for (final option in VisibilityOption.values)
               _VisibilityOptionRow(
-                option:    option,
+                option: option,
                 isCurrent: option == current,
                 isAllowed: _isAllowed(option),
-                ceiling:   ceiling,
+                ceiling: ceiling,
                 onTap: () {
                   if (!_isAllowed(option)) return;
                   Get.back();
@@ -549,26 +634,33 @@ class _VisibilityOptionRow extends StatelessWidget {
           dimmed
               ? 'Profil "${ceiling!.label}" olduğu için seçilemiyor'
               : option.sublabel,
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: 12.sp,
-          ),
+          style: TextStyle(color: AppTheme.textSec(context), fontSize: 12.sp),
         ),
         trailing: isCurrent
-            ? Icon(Icons.check_rounded, color: AppTheme.primaryColor, size: 20.sp)
+            ? Icon(
+                Icons.check_rounded,
+                color: AppTheme.primaryColor,
+                size: 20.sp,
+              )
             : dimmed
-                ? Icon(Icons.lock_outline,
-                    color: AppTheme.textSec(context), size: 16.sp)
-                : null,
+            ? Icon(
+                Icons.lock_outline,
+                color: AppTheme.textSec(context),
+                size: 16.sp,
+              )
+            : null,
       ),
     );
   }
 
   (IconData, Color) _iconAndColor(VisibilityOption o) {
     switch (o) {
-      case VisibilityOption.public:  return (Icons.public_outlined,  Colors.green);
-      case VisibilityOption.friends: return (Icons.people_outlined,  Colors.blue);
-      case VisibilityOption.private: return (Icons.lock_outline,     Colors.orange);
+      case VisibilityOption.public:
+        return (Icons.public_outlined, Colors.green);
+      case VisibilityOption.friends:
+        return (Icons.people_outlined, Colors.blue);
+      case VisibilityOption.private:
+        return (Icons.lock_outline, Colors.orange);
     }
   }
 }
@@ -582,9 +674,17 @@ class _VisibilityBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (option) {
-      VisibilityOption.public  => (Icons.public_outlined,  Colors.green,  'Herkese'),
-      VisibilityOption.friends => (Icons.people_outlined,  Colors.blue,   'Arkadaş'),
-      VisibilityOption.private => (Icons.lock_outline,     Colors.orange, 'Gizli'),
+      VisibilityOption.public => (
+        Icons.public_outlined,
+        Colors.green,
+        'Herkese',
+      ),
+      VisibilityOption.friends => (
+        Icons.people_outlined,
+        Colors.blue,
+        'Arkadaş',
+      ),
+      VisibilityOption.private => (Icons.lock_outline, Colors.orange, 'Gizli'),
     };
 
     return Container(
@@ -599,9 +699,14 @@ class _VisibilityBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 12.sp, color: color),
           SizedBox(width: 4.w),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11.sp, color: color, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.sp,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

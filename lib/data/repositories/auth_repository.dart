@@ -104,28 +104,7 @@ class AuthRepository {
     }
   }
 
-  Future<void> updateProfileVisibility(VisibilityOption visibility) async {
-    try {
-      final userId = currentUserId;
-      if (userId == null) return;
-
-      await _supabase.updateProfileVisibility(userId, visibility.value);
-
-      final cachedMap = await _local.getCachedProfile();
-      if (cachedMap != null) {
-        final updated = Map<String, dynamic>.from(cachedMap)
-          ..['profile_visibility'] = visibility.value;
-        await _local.cacheProfile(updated);
-      }
-    } catch (e, stacktrace) {
-      log(
-        'Profil görünürlüğü güncellenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-      rethrow;
-    }
-  }
+ 
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
     try {

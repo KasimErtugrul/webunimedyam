@@ -121,34 +121,6 @@ class SettingsController extends GetxService {
     }
   }
 
-  Future<void> toggleSubtitles() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(showSubtitles: !c.showSubtitles));
-    } catch (e, stacktrace) {
-      log(
-        'Altyazı değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  Future<void> changeVideoQuality(String quality) async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(videoQuality: quality));
-    } catch (e, stacktrace) {
-      log(
-        'Video kalitesi değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
   // ─── Bildirimler ──────────────────────────────────────────────────────────
 
   Future<void> toggleNotifications() async {
@@ -181,70 +153,6 @@ class SettingsController extends GetxService {
     }
   }
 
-  Future<void> toggleNotifyCommentReplies() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(
-        c.copyWith(notifyCommentReplies: !c.notifyCommentReplies),
-      );
-    } catch (e, stacktrace) {
-      log(
-        'Yorum yanıtı bildirimi değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  Future<void> toggleNotifyFollowRequests() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(
-        c.copyWith(notifyFollowRequests: !c.notifyFollowRequests),
-      );
-    } catch (e, stacktrace) {
-      log(
-        'Takip isteği bildirimi değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  // ─── Gizlilik — Eski (geriye uyumluluk) ───────────────────────────────────
-
-  Future<void> toggleWatchHistory() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(showWatchHistory: !c.showWatchHistory));
-    } catch (e, stacktrace) {
-      log(
-        'İzleme geçmişi değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  Future<void> toggleFavoritesPublic() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(
-        c.copyWith(showFavoritesPublic: !c.showFavoritesPublic),
-      );
-    } catch (e, stacktrace) {
-      log(
-        'Favorilerin herkese açık olması değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
   // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
 
   /// Profil görünürlüğünü değiştir ve DB'ye yaz.
@@ -260,6 +168,9 @@ class SettingsController extends GetxService {
   Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
     final userId = _supabase.currentUser?.id;
     final current = settings.value;
+    log(
+      'changeProfileVisibility: userId=$userId, newVisibility=$newVisibility, current=$current',
+    );
     if (userId == null || current == null) return;
 
     final oldVisibility = profileVisibility.value;
@@ -268,7 +179,9 @@ class SettingsController extends GetxService {
     try {
       // BUG FIX: Bu satır artık YORUM SATIRI DEĞİL — DB'ye yazılıyor
       await _supabase.updateProfileVisibility(userId, newVisibility.value);
-
+      log(
+        'changeProfileVisibility: DB güncellemesi başarılı: userId=$userId, newVisibility=$newVisibility',
+      );
       // Tavan düştüyse taşan aktiviteleri indir
       final clamped = _clampAllActivities(current);
       if (clamped != null) {
@@ -378,36 +291,6 @@ class SettingsController extends GetxService {
     } catch (e, stacktrace) {
       log(
         'Yorumlar görünürlüğü değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  // ─── Erişilebilirlik ──────────────────────────────────────────────────────
-
-  Future<void> toggleReducedMotion() async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(reducedMotion: !c.reducedMotion));
-    } catch (e, stacktrace) {
-      log(
-        'Azaltılmış hareket değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
-  Future<void> changeTextScale(double scale) async {
-    try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(textScaleFactor: scale));
-    } catch (e, stacktrace) {
-      log(
-        'Metin ölçeği değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
