@@ -580,6 +580,45 @@ class SupabaseDataSource {
     }
   }
 
+  Future<void> removeView(String userId, String videoId) async {
+    try {
+      await _client
+          .from('content_views')
+          .delete()
+          .eq('user_id', userId)
+          .eq('video_id', videoId);
+    } catch (e, stackTrace) {
+      log('İzleme kaydı silinirken hata oluştu: $e\n$stackTrace');
+      throw Exception('İzleme kaydı silinemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  Future<void> removeShared(String userId, String videoId) async {
+    try {
+      await _client
+          .from('shared')
+          .delete()
+          .eq('user_id', userId)
+          .eq('video_id', videoId);
+    } catch (e, stackTrace) {
+      log('Paylaşım kaydı silinirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Paylaşım kaydı silinemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  Future<void> removeCommentsByVideo(String userId, String videoId) async {
+    try {
+      await _client
+          .from('comments')
+          .delete()
+          .eq('user_id', userId)
+          .eq('video_id', videoId);
+    } catch (e, stackTrace) {
+      log('Yorumlar silinirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Yorumlar silinemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
   Future<Set<String>> getLikedVideoIds(String userId) async {
     try {
       final data = await _client

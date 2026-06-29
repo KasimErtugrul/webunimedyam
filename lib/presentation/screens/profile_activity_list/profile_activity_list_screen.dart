@@ -82,7 +82,89 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
               if (index == controller.videos.length) {
                 return _LoadMoreIndicator();
               }
-              return _VideoCard(video: controller.videos[index]);
+              final video = controller.videos[index];
+              if (!controller.isOwnProfile) {
+                return _VideoCard(video: video);
+              }
+              return Dismissible(
+                key: ValueKey(video.videoId),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade600,
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.only(right: 20.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.delete_outline_rounded,
+                          color: Colors.white, size: 24.sp),
+                      SizedBox(height: 4.h),
+                      Text(
+                        'Sil',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                confirmDismiss: (_) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: AppTheme.card(context),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      title: Text(
+                        'Kaydı Sil',
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      content: Text(
+                        'Bu kayıt listenden kaldırılacak. Emin misin?',
+                        style: TextStyle(
+                          color: AppTheme.textSec(context),
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: Text(
+                            'İptal',
+                            style: TextStyle(
+                              color: AppTheme.textSec(context),
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade600,
+                            foregroundColor: Colors.white,
+                            minimumSize: Size(72.w, 36.h),
+                          ),
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: Text('Sil', style: TextStyle(fontSize: 14.sp)),
+                        ),
+                      ],
+                    ),
+                  ) ??
+                      false;
+                },
+                onDismissed: (_) => controller.removeVideo(video.videoId),
+                child: _VideoCard(video: video),
+              );
             },
           ),
         );
@@ -246,19 +328,19 @@ class _EmptyView extends StatelessWidget {
   });
 
   IconData get _icon {
-  switch (activityType) {
-    case ProfileActivityType.favorites:
-      return Icons.favorite_outline_rounded;
-    case ProfileActivityType.viewed:
-      return Icons.play_circle_outline_rounded;
-    case ProfileActivityType.commented:
-      return Icons.chat_bubble_outline_rounded;
-    case ProfileActivityType.shared:
-      return Icons.share_outlined;
-    case ProfileActivityType.liked:
-      return Icons.thumb_up_alt_outlined;
+    switch (activityType) {
+      case ProfileActivityType.favorites:
+        return Icons.favorite_outline_rounded;
+      case ProfileActivityType.viewed:
+        return Icons.play_circle_outline_rounded;
+      case ProfileActivityType.commented:
+        return Icons.chat_bubble_outline_rounded;
+      case ProfileActivityType.shared:
+        return Icons.share_outlined;
+      case ProfileActivityType.liked:
+        return Icons.thumb_up_alt_outlined;
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

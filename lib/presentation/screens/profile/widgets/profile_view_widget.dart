@@ -37,10 +37,7 @@ class ProfileViewWidget extends StatelessWidget {
   void _navigateToUniversities() {
     Get.toNamed(
       AppRoutes.followedUniversitiesList,
-      arguments: {
-        'userId': _userId,
-        'isOwnProfile': controller.isOwnProfile,
-      },
+      arguments: {'userId': _userId, 'isOwnProfile': controller.isOwnProfile},
     );
   }
 
@@ -50,7 +47,7 @@ class ProfileViewWidget extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 320.h,
+            expandedHeight: 200.h,
             pinned: true,
             floating: false,
             surfaceTintColor: Colors.transparent,

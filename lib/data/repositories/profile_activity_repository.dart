@@ -8,6 +8,8 @@
 import 'dart:developer';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_model.dart';
+import '../../presentation/controllers/profile_activity_list_controller.dart'
+    show ProfileActivityType;
 
 class ProfileActivityRepository {
   final SupabaseDataSource _supabase;
@@ -80,6 +82,25 @@ class ProfileActivityRepository {
         stackTrace: stacktrace,
       );
       return [];
+    }
+  }
+
+  Future<void> removeActivity(
+    ProfileActivityType type,
+    String userId,
+    String videoId,
+  ) async {
+    switch (type) {
+      case ProfileActivityType.favorites:
+        await _supabase.removeFavorite(userId, videoId);
+      case ProfileActivityType.viewed:
+        await _supabase.removeView(userId, videoId);
+      case ProfileActivityType.commented:
+        await _supabase.removeCommentsByVideo(userId, videoId);
+      case ProfileActivityType.shared:
+        await _supabase.removeShared(userId, videoId);
+      case ProfileActivityType.liked:
+        await _supabase.removeLike(userId, videoId);
     }
   }
 }

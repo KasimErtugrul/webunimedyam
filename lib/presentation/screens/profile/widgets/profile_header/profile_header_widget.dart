@@ -19,7 +19,7 @@ class ProfileHeaderWidget extends StatelessWidget {
 
       return Container(
         color: AppTheme.bg(context),
-        padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 20.h),
+        // padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 20.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

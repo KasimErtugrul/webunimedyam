@@ -149,4 +149,23 @@ class ProfileActivityListController extends GetxController {
     }
     return 'Bu kullanıcının içerikleri gizli olabilir';
   }
+
+  Future<void> removeVideo(String videoId) async {
+    try {
+      await profileActivityRepository.removeActivity(
+        activityType,
+        userId,
+        videoId,
+      );
+      videos.removeWhere((v) => v.videoId == videoId);
+      _offset = (_offset - 1).clamp(0, double.maxFinite.toInt());
+    } catch (e, stacktrace) {
+      log('Video silinirken hata: $e', error: e, stackTrace: stacktrace);
+      Get.snackbar(
+        'Hata',
+        'Kayıt silinemedi. Lütfen tekrar deneyin.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
 }
