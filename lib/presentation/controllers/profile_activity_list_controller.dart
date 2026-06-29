@@ -2,15 +2,16 @@
 
 import 'dart:developer';
 import 'package:get/get.dart';
-import '../../data/repositories/favorites_repository.dart';
+/* import '../../app/utils/turkish_alphabet_sort_util.dart';
+ */import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/models/video_model.dart';
 
 enum ProfileActivityType { favorites, viewed, commented, shared, liked }
 
 /// Sıralama seçenekleri
-enum ActivitySortOption { dateDesc, universityAsc, universityDesc }
-
+/* enum ActivitySortOption { dateDesc, universityAsc, universityDesc }
+ */
 /// Görünüm seçenekleri
 enum ActivityViewMode { list, grid }
 
@@ -30,8 +31,9 @@ class ProfileActivityListController extends GetxController {
   final isLoadingMore = false.obs;
   final hasMore = true.obs;
 
-  final sortOption = ActivitySortOption.dateDesc.obs;
+ /*  final sortOption = ActivitySortOption.dateDesc.obs; */
   final viewMode = ActivityViewMode.list.obs;
+  final searchQuery = ''.obs;
 
   late final ProfileActivityType activityType;
   late final String userId;
@@ -81,7 +83,7 @@ class ProfileActivityListController extends GetxController {
 
       videos.addAll(result);
       _offset += result.length;
-      _applySort();
+     /*  _applySort(); */
     } catch (e, stacktrace) {
       log('Aktivite listesi yüklenirken hata: $e', error: e, stackTrace: stacktrace);
     } finally {
@@ -160,34 +162,65 @@ class ProfileActivityListController extends GetxController {
     return 'Bu kullanıcının içerikleri gizli olabilir';
   }
 
-  void changeSortOption(ActivitySortOption option) {
+ /*  void changeSortOption(ActivitySortOption option) {
     if (sortOption.value == option) return;
     sortOption.value = option;
     _applySort();
-  }
+  } */
 
   void changeViewMode(ActivityViewMode mode) {
     if (viewMode.value == mode) return;
     viewMode.value = mode;
   }
 
-  void _applySort() {
+  void updateSearchQuery(String value) {
+    searchQuery.value = value;
+  }
+
+  void clearSearch() {
+    searchQuery.value = '';
+  }
+
+  /// Arama kutusuna girilen metne göre filtrelenmiş liste.
+  /// Üniversite adında veya video başlığında arama yapar; bu sayede kullanıcı
+  /// "ÇOMÜ'den hangi videoları beğendim" gibi sorulara hızlıca cevap bulabilir.
+  List<VideoModel> get filteredVideos {
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isEmpty) return videos;
+    return videos.where((v) {
+      final uni = (v.universityName ?? '').toLowerCase();
+      final title = v.title.toLowerCase();
+      return uni.contains(query) || title.contains(query);
+    }).toList();
+  }
+
+  /* void _applySort() {
     switch (sortOption.value) {
       case ActivitySortOption.dateDesc:
         videos.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
         break;
       case ActivitySortOption.universityAsc:
-        videos.sort((a, b) => (a.universityName ?? '')
-            .toLowerCase()
-            .compareTo((b.universityName ?? '').toLowerCase()));
+        videos.sort((a, b) {
+          final cmp = turkishAlphabetCompare(
+            a.universityName ?? '',
+            b.universityName ?? '',
+          );
+          if (cmp != 0) return cmp;
+          return b.publishedAt.compareTo(a.publishedAt);
+        });
         break;
       case ActivitySortOption.universityDesc:
-        videos.sort((a, b) => (b.universityName ?? '')
-            .toLowerCase()
-            .compareTo((a.universityName ?? '').toLowerCase()));
+        videos.sort((a, b) {
+          final cmp = turkishAlphabetCompare(
+            b.universityName ?? '',
+            a.universityName ?? '',
+          );
+          if (cmp != 0) return cmp;
+          return b.publishedAt.compareTo(a.publishedAt);
+        });
         break;
     }
-  }
+  } */
 
   Future<void> removeVideo(String videoId) async {
     try {

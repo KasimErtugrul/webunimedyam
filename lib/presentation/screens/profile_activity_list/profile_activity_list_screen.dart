@@ -1,5 +1,3 @@
-// lib/presentation/screens/profile_activity_list/profile_activity_list_screen.dart
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,6 +19,7 @@ class ProfileActivityListScreen extends StatefulWidget {
 class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
   late final ProfileActivityListController controller;
   final ScrollController _scrollController = ScrollController();
+  /* final TextEditingController _searchController = TextEditingController(); */
 
   @override
   void initState() {
@@ -39,29 +38,8 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+
     super.dispose();
-  }
-
-  String _sortLabel(ActivitySortOption option) {
-    switch (option) {
-      case ActivitySortOption.dateDesc:
-        return 'Tarihe Göre (Yeni)';
-      case ActivitySortOption.universityAsc:
-        return 'Üniversite (A-Z)';
-      case ActivitySortOption.universityDesc:
-        return 'Üniversite (Z-A)';
-    }
-  }
-
-  IconData _sortIcon(ActivitySortOption option) {
-    switch (option) {
-      case ActivitySortOption.dateDesc:
-        return Icons.schedule_rounded;
-      case ActivitySortOption.universityAsc:
-        return Icons.arrow_downward_rounded;
-      case ActivitySortOption.universityDesc:
-        return Icons.arrow_upward_rounded;
-    }
   }
 
   @override
@@ -74,46 +52,6 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
         ),
         surfaceTintColor: Colors.transparent,
         actions: [
-          // ─── Sıralama butonu ──────────────────────────────────────────
-          Obx(() {
-            return PopupMenuButton<ActivitySortOption>(
-              icon: Icon(_sortIcon(controller.sortOption.value),
-                  size: 22.sp, color: AppTheme.textPri(context)),
-              tooltip: 'Sırala',
-              onSelected: controller.changeSortOption,
-              itemBuilder: (context) => ActivitySortOption.values
-                  .map(
-                    (option) => PopupMenuItem<ActivitySortOption>(
-                      value: option,
-                      child: Row(
-                        children: [
-                          Icon(
-                            _sortIcon(option),
-                            size: 18.sp,
-                            color: controller.sortOption.value == option
-                                ? AppTheme.primaryColor
-                                : AppTheme.textSec(context),
-                          ),
-                          SizedBox(width: 10.w),
-                          Text(
-                            _sortLabel(option),
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: controller.sortOption.value == option
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: controller.sortOption.value == option
-                                  ? AppTheme.primaryColor
-                                  : AppTheme.textPri(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          }),
           // ─── Görünüm değiştirme butonu ────────────────────────────────
           Obx(() {
             final isGrid = controller.viewMode.value == ActivityViewMode.grid;
@@ -132,43 +70,53 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
           SizedBox(width: 4.w),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: AppTheme.primaryColor,
-              strokeWidth: 3.w,
-            ),
-          );
-        }
+      body: Column(
+        children: [
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryColor,
+                    strokeWidth: 3.w,
+                  ),
+                );
+              }
 
-        if (controller.videos.isEmpty) {
-          return _EmptyView(
-            emptyText: controller.emptyText,
-            emptySubtext: controller.emptySubtext,
-            activityType: controller.activityType,
-          );
-        }
+              if (controller.videos.isEmpty) {
+                return _EmptyView(
+                  emptyText: controller.emptyText,
+                  emptySubtext: controller.emptySubtext,
+                  activityType: controller.activityType,
+                );
+              }
 
-        final isGrouped = controller.sortOption.value != ActivitySortOption.dateDesc;
-        final isGrid = controller.viewMode.value == ActivityViewMode.grid;
+              final displayVideos = controller.filteredVideos;
 
-        return RefreshIndicator(
-          color: AppTheme.primaryColor,
-          onRefresh: controller.loadInitial,
-          child: isGrouped
-              ? _GroupedContent(
+              if (displayVideos.isEmpty) {
+                return _NoSearchResultsView(
+                  query: controller.searchQuery.value,
+                );
+              }
+
+              /*   final isGrouped =
+                  controller.sortOption.value != ActivitySortOption.dateDesc; */
+              final isGrid = controller.viewMode.value == ActivityViewMode.grid;
+
+              return RefreshIndicator(
+                color: AppTheme.primaryColor,
+                onRefresh: controller.loadInitial,
+                child: _FlatContent(
                   controller: controller,
-                  scrollController: _scrollController,
-                  isGrid: isGrid,
-                )
-              : _FlatContent(
-                  controller: controller,
+                  videos: displayVideos,
                   scrollController: _scrollController,
                   isGrid: isGrid,
                 ),
-        );
-      }),
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -177,19 +125,23 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
 
 class _FlatContent extends StatelessWidget {
   final ProfileActivityListController controller;
+  final List<VideoModel> videos;
   final ScrollController scrollController;
   final bool isGrid;
 
   const _FlatContent({
     required this.controller,
+    required this.videos,
     required this.scrollController,
     required this.isGrid,
   });
 
   @override
   Widget build(BuildContext context) {
-    final videos = controller.videos;
-    final extraCount = controller.hasMore.value ? 1 : 0;
+    final extraCount =
+        controller.hasMore.value && controller.searchQuery.value.isEmpty
+        ? 1
+        : 0;
 
     if (isGrid) {
       return GridView.builder(
@@ -222,7 +174,11 @@ class _FlatContent extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(BuildContext context, VideoModel video, {required bool isGrid}) {
+  Widget _buildItem(
+    BuildContext context,
+    VideoModel video, {
+    required bool isGrid,
+  }) {
     if (!controller.isOwnProfile) {
       return isGrid ? _VideoGridCard(video: video) : _VideoCard(video: video);
     }
@@ -230,151 +186,6 @@ class _FlatContent extends StatelessWidget {
       controller: controller,
       video: video,
       child: isGrid ? _VideoGridCard(video: video) : _VideoCard(video: video),
-    );
-  }
-}
-
-// ─── Gruplu İçerik (Üniversiteye göre) ─────────────────────────────────────
-
-class _GroupedContent extends StatelessWidget {
-  final ProfileActivityListController controller;
-  final ScrollController scrollController;
-  final bool isGrid;
-
-  const _GroupedContent({
-    required this.controller,
-    required this.scrollController,
-    required this.isGrid,
-  });
-
-  List<MapEntry<String, List<VideoModel>>> _buildGroups() {
-    final groups = <MapEntry<String, List<VideoModel>>>[];
-    String? currentKey;
-    List<VideoModel>? currentList;
-
-    for (final video in controller.videos) {
-      final key = (video.universityName?.trim().isNotEmpty ?? false)
-          ? video.universityName!.trim()
-          : 'Diğer';
-      if (key != currentKey) {
-        currentKey = key;
-        currentList = <VideoModel>[];
-        groups.add(MapEntry(key, currentList));
-      }
-      currentList!.add(video);
-    }
-    return groups;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final groups = _buildGroups();
-
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final group = groups[index];
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 18.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionHeader(
-                        title: group.key,
-                        count: group.value.length,
-                      ),
-                      SizedBox(height: 8.h),
-                      if (isGrid)
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10.h,
-                            crossAxisSpacing: 10.w,
-                            childAspectRatio: 0.82,
-                          ),
-                          itemCount: group.value.length,
-                          itemBuilder: (context, i) =>
-                              _buildItem(context, group.value[i], isGrid: true),
-                        )
-                      else
-                        Column(
-                          children: group.value
-                              .map((video) => _buildItem(context, video, isGrid: false))
-                              .toList(),
-                        ),
-                    ],
-                  ),
-                );
-              },
-              childCount: groups.length,
-            ),
-          ),
-        ),
-        if (controller.hasMore.value)
-          const SliverToBoxAdapter(child: _LoadMoreIndicator()),
-      ],
-    );
-  }
-
-  Widget _buildItem(BuildContext context, VideoModel video, {required bool isGrid}) {
-    if (!controller.isOwnProfile) {
-      return isGrid ? _VideoGridCard(video: video) : _VideoCard(video: video);
-    }
-    return _DismissibleVideo(
-      controller: controller,
-      video: video,
-      child: isGrid ? _VideoGridCard(video: video) : _VideoCard(video: video),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final int count;
-
-  const _SectionHeader({required this.title, required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 4.w,
-          height: 16.h,
-          decoration: BoxDecoration(
-            color: AppTheme.primaryColor,
-            borderRadius: BorderRadius.circular(2.r),
-          ),
-        ),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPri(context),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Text(
-          '$count',
-          style: TextStyle(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textSec(context),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -408,7 +219,11 @@ class _DismissibleVideo extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24.sp),
+            Icon(
+              Icons.delete_outline_rounded,
+              color: Colors.white,
+              size: 24.sp,
+            ),
             SizedBox(height: 4.h),
             Text(
               'Sil',
@@ -531,7 +346,9 @@ class _VideoCard extends StatelessWidget {
                       right: 5.w,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 5.w, vertical: 2.h),
+                          horizontal: 5.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.80),
                           borderRadius: BorderRadius.circular(4.r),
@@ -636,7 +453,8 @@ class _VideoGridCard extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: AppTheme.surface(context)),
+                    placeholder: (_, __) =>
+                        Container(color: AppTheme.surface(context)),
                     errorWidget: (_, __, ___) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
@@ -652,7 +470,9 @@ class _VideoGridCard extends StatelessWidget {
                       right: 5.w,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 5.w, vertical: 2.h),
+                          horizontal: 5.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.80),
                           borderRadius: BorderRadius.circular(4.r),
@@ -722,6 +542,51 @@ String _timeAgo(DateTime date) {
   return '${diff.inMinutes} dakika önce';
 }
 
+// ─── Arama Sonucu Bulunamadı ────────────────────────────────────────────────
+
+class _NoSearchResultsView extends StatelessWidget {
+  final String query;
+  const _NoSearchResultsView({required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              color: AppTheme.textSec(context),
+              size: 48.sp,
+            ),
+            SizedBox(height: 14.h),
+            Text(
+              '"$query" için sonuç bulunamadı',
+              style: TextStyle(
+                color: AppTheme.textPri(context),
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              'Üniversite adını veya video başlığını kontrol et',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: 13.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Boş Durum ──────────────────────────────────────────────────────────────
 
 class _EmptyView extends StatelessWidget {
@@ -758,11 +623,7 @@ class _EmptyView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              _icon,
-              color: AppTheme.textSec(context),
-              size: 56.sp,
-            ),
+            Icon(_icon, color: AppTheme.textSec(context), size: 56.sp),
             SizedBox(height: 16.h),
             Text(
               emptyText,
