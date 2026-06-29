@@ -19,7 +19,6 @@ class ProfileActivityListScreen extends StatefulWidget {
 class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
   late final ProfileActivityListController controller;
   final ScrollController _scrollController = ScrollController();
-  /* final TextEditingController _searchController = TextEditingController(); */
 
   @override
   void initState() {
@@ -38,7 +37,6 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-
     super.dispose();
   }
 
@@ -52,7 +50,6 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
         ),
         surfaceTintColor: Colors.transparent,
         actions: [
-          // ─── Görünüm değiştirme butonu ────────────────────────────────
           Obx(() {
             final isGrid = controller.viewMode.value == ActivityViewMode.grid;
             return IconButton(
@@ -99,8 +96,6 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
                 );
               }
 
-              /*   final isGrouped =
-                  controller.sortOption.value != ActivitySortOption.dateDesc; */
               final isGrid = controller.viewMode.value == ActivityViewMode.grid;
 
               return RefreshIndicator(
@@ -151,7 +146,7 @@ class _FlatContent extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 10.h,
           crossAxisSpacing: 10.w,
-          childAspectRatio: 0.82,
+          childAspectRatio: 0.68,
         ),
         itemCount: videos.length + extraCount,
         itemBuilder: (context, index) {
@@ -311,7 +306,9 @@ class _VideoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Thumbnail ──────────────────────────────────────────────────
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(14.r),
@@ -321,17 +318,17 @@ class _VideoCard extends StatelessWidget {
                 children: [
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
-                    width: 118.w,
-                    height: 72.h,
+                    width: 140.w,
+                    height: 84.h,
                     fit: BoxFit.cover,
                     placeholder: (_, __) => Container(
-                      width: 118.w,
-                      height: 72.h,
+                      width: 140.w,
+                      height: 84.h,
                       color: AppTheme.surface(context),
                     ),
                     errorWidget: (_, __, ___) => Container(
-                      width: 118.w,
-                      height: 72.h,
+                      width: 140.w,
+                      height: 84.h,
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,
@@ -366,12 +363,15 @@ class _VideoCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── İçerik ────────────────────────────────────────────────────
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(12.w, 10.h, 10.w, 10.h),
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 8.w, 10.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Başlık
                     Text(
                       video.title,
                       style: TextStyle(
@@ -383,7 +383,9 @@ class _VideoCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 6.h),
+                    SizedBox(height: 5.h),
+
+                    // Üniversite adı
                     if ((video.universityName ?? '').isNotEmpty)
                       Text(
                         video.universityName!,
@@ -395,7 +397,10 @@ class _VideoCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    SizedBox(height: 4.h),
+                    if ((video.universityName ?? '').isNotEmpty)
+                      SizedBox(height: 4.h),
+
+                    // Tarih
                     Text(
                       _timeAgo(video.publishedAt),
                       style: TextStyle(
@@ -403,12 +408,18 @@ class _VideoCard extends StatelessWidget {
                         fontSize: 11.sp,
                       ),
                     ),
+
+                    // ── İstatistikler ───────────────────────────────────────
+                    SizedBox(height: 8.h),
+                    _StatRowCompact(video: video),
                   ],
                 ),
               ),
             ),
+
+            // ── Ok ikonu ───────────────────────────────────────────────────
             Padding(
-              padding: EdgeInsets.only(right: 8.w),
+              padding: EdgeInsets.only(right: 8.w, top: 36.h),
               child: Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textSec(context),
@@ -445,6 +456,7 @@ class _VideoGridCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Thumbnail ──────────────────────────────────────────────────
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Stack(
@@ -490,13 +502,15 @@ class _VideoGridCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── İçerik ────────────────────────────────────────────────────
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 8.h),
+                padding: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 6.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Başlık
                     Text(
                       video.title,
                       style: TextStyle(
@@ -508,6 +522,8 @@ class _VideoGridCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+
+                    // Üniversite adı
                     if ((video.universityName ?? '').isNotEmpty)
                       Padding(
                         padding: EdgeInsets.only(top: 4.h),
@@ -522,6 +538,11 @@ class _VideoGridCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+
+                    const Spacer(),
+
+                    // ── İstatistikler ───────────────────────────────────────
+                    _StatRowGrid(video: video),
                   ],
                 ),
               ),
@@ -532,6 +553,169 @@ class _VideoGridCard extends StatelessWidget {
     );
   }
 }
+
+// ─── İstatistik Satırı – Liste (Yatay, kompakt) ────────────────────────────
+
+class _StatRowCompact extends StatelessWidget {
+  final VideoModel video;
+  const _StatRowCompact({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <_StatItem>[
+      if (video.appViewCount > 0)
+        _StatItem(icon: Icons.visibility_outlined, value: video.appViewCount),
+      if (video.appLikeCount > 0)
+        _StatItem(icon: Icons.thumb_up_outlined, value: video.appLikeCount),
+      if (video.appCommentCount > 0)
+        _StatItem(
+          icon: Icons.chat_bubble_outline_rounded,
+          value: video.appCommentCount,
+        ),
+      if (video.appFavoriteCount > 0)
+        _StatItem(
+          icon: Icons.favorite_outline_rounded,
+          value: video.appFavoriteCount,
+        ),
+      if (video.appShareCount > 0)
+        _StatItem(icon: Icons.share_outlined, value: video.appShareCount),
+    ];
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 10.w,
+      runSpacing: 4.h,
+      children: items
+          .map(
+            (item) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(item.icon, size: 13.sp, color: AppTheme.textSec(context)),
+                SizedBox(width: 3.w),
+                Text(
+                  _compactNumber(item.value),
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+// ─── İstatistik Satırı – Izgara (İki satıra bölünmüş) ──────────────────────
+
+class _StatRowGrid extends StatelessWidget {
+  final VideoModel video;
+  const _StatRowGrid({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    final row1 = <_StatItem>[];
+    final row2 = <_StatItem>[];
+
+    if (video.appViewCount > 0) {
+      row1.add(
+        _StatItem(icon: Icons.visibility_outlined, value: video.appViewCount),
+      );
+    }
+    if (video.appLikeCount > 0) {
+      row1.add(
+        _StatItem(icon: Icons.thumb_up_outlined, value: video.appLikeCount),
+      );
+    }
+    if (video.appFavoriteCount > 0) {
+      row1.add(
+        _StatItem(
+          icon: Icons.favorite_outline_rounded,
+          value: video.appFavoriteCount,
+        ),
+      );
+    }
+    if (video.appCommentCount > 0) {
+      row2.add(
+        _StatItem(
+          icon: Icons.chat_bubble_outline_rounded,
+          value: video.appCommentCount,
+        ),
+      );
+    }
+    if (video.appShareCount > 0) {
+      row2.add(
+        _StatItem(icon: Icons.share_outlined, value: video.appShareCount),
+      );
+    }
+
+    if (row1.isEmpty && row2.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (row1.isNotEmpty) _buildGridStatLine(context, row1),
+        if (row1.isNotEmpty && row2.isNotEmpty) SizedBox(height: 3.h),
+        if (row2.isNotEmpty) _buildGridStatLine(context, row2),
+      ],
+    );
+  }
+
+  Widget _buildGridStatLine(BuildContext context, List<_StatItem> items) {
+    return Row(
+      children: [
+        for (int i = 0; i < items.length; i++) ...[
+          if (i > 0) SizedBox(width: 8.w),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                items[i].icon,
+                size: 11.sp,
+                color: AppTheme.textSec(context),
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                _compactNumber(items[i].value),
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+        const Spacer(),
+      ],
+    );
+  }
+}
+
+// ─── İstatistik Veri Sınıfı ─────────────────────────────────────────────────
+
+class _StatItem {
+  final IconData icon;
+  final int value;
+  const _StatItem({required this.icon, required this.value});
+}
+
+// ─── Sayı Formatla ──────────────────────────────────────────────────────────
+
+String _compactNumber(int count) {
+  if (count >= 1000000) {
+    return '${(count / 1000000).toStringAsFixed(1).replaceAllMapped(RegExp(r'\.0$'), (_) => '')}M';
+  }
+  if (count >= 1000) {
+    return '${(count / 1000).toStringAsFixed(1).replaceAllMapped(RegExp(r'\.0$'), (_) => '')}B';
+  }
+  return '$count';
+}
+
+// ─── Zaman ──────────────────────────────────────────────────────────────────
 
 String _timeAgo(DateTime date) {
   final diff = DateTime.now().difference(date);

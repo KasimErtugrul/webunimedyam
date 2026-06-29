@@ -162,24 +162,15 @@ class ProfileActivityListController extends GetxController {
     return 'Bu kullanıcının içerikleri gizli olabilir';
   }
 
- /*  void changeSortOption(ActivitySortOption option) {
-    if (sortOption.value == option) return;
-    sortOption.value = option;
-    _applySort();
-  } */
+ 
 
   void changeViewMode(ActivityViewMode mode) {
     if (viewMode.value == mode) return;
     viewMode.value = mode;
   }
 
-  void updateSearchQuery(String value) {
-    searchQuery.value = value;
-  }
 
-  void clearSearch() {
-    searchQuery.value = '';
-  }
+
 
   /// Arama kutusuna girilen metne göre filtrelenmiş liste.
   /// Üniversite adında veya video başlığında arama yapar; bu sayede kullanıcı
@@ -194,33 +185,7 @@ class ProfileActivityListController extends GetxController {
     }).toList();
   }
 
-  /* void _applySort() {
-    switch (sortOption.value) {
-      case ActivitySortOption.dateDesc:
-        videos.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
-        break;
-      case ActivitySortOption.universityAsc:
-        videos.sort((a, b) {
-          final cmp = turkishAlphabetCompare(
-            a.universityName ?? '',
-            b.universityName ?? '',
-          );
-          if (cmp != 0) return cmp;
-          return b.publishedAt.compareTo(a.publishedAt);
-        });
-        break;
-      case ActivitySortOption.universityDesc:
-        videos.sort((a, b) {
-          final cmp = turkishAlphabetCompare(
-            b.universityName ?? '',
-            a.universityName ?? '',
-          );
-          if (cmp != 0) return cmp;
-          return b.publishedAt.compareTo(a.publishedAt);
-        });
-        break;
-    }
-  } */
+ 
 
   Future<void> removeVideo(String videoId) async {
     try {
