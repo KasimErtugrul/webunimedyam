@@ -6,7 +6,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/models/video_model.dart';
 
-enum ProfileActivityType { favorites, viewed, commented, shared }
+enum ProfileActivityType { favorites, viewed, commented, shared, liked }
 
 class ProfileActivityListController extends GetxController {
   final FavoritesRepository favoritesRepository;
@@ -94,6 +94,8 @@ class ProfileActivityListController extends GetxController {
         return profileActivityRepository.getUserCommentedVideos(userId, limit: limit, offset: offset);
       case ProfileActivityType.shared:
         return profileActivityRepository.getUserSharedVideos(userId, limit: limit, offset: offset);
+      case ProfileActivityType.liked:
+        return profileActivityRepository.getUserLikedVideos(userId, limit: limit, offset: offset);
     }
   }
 
@@ -107,6 +109,8 @@ class ProfileActivityListController extends GetxController {
         return 'Yorum Yapılanlar';
       case ProfileActivityType.shared:
         return 'Paylaşılanlar';
+      case ProfileActivityType.liked:
+        return 'Beğenilenler';
     }
   }
 
@@ -121,6 +125,8 @@ class ProfileActivityListController extends GetxController {
           return 'Henüz yorum yapmadın';
         case ProfileActivityType.shared:
           return 'Henüz paylaşım yapmadın';
+        case ProfileActivityType.liked:
+          return 'Henüz video beğenmedin';
       }
     }
     return 'İçerik bulunamadı';
@@ -137,6 +143,8 @@ class ProfileActivityListController extends GetxController {
           return 'Yorum yaptığın videolar burada görünür';
         case ProfileActivityType.shared:
           return 'Paylaştığın videolar burada görünür';
+        case ProfileActivityType.liked:
+          return 'Beğendiğin videolar burada görünür';
       }
     }
     return 'Bu kullanıcının içerikleri gizli olabilir';

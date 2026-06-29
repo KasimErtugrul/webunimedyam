@@ -739,6 +739,39 @@ class SupabaseDataSource {
     }
   }
 
+  Future<List<VideoModel>> getUserLikedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final data = await _client
+          .from('likes')
+          .select('video_id, created_at, videos_cache(*, universities(name))')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
+
+      final List<VideoModel> videos = [];
+      for (final row in (data as List)) {
+        final videoData = row['videos_cache'];
+        if (videoData == null) continue;
+        final map = Map<String, dynamic>.from(videoData as Map);
+        if (map['universities'] != null) {
+          map['university_name'] = map['universities']['name'];
+        }
+        map.remove('universities');
+        videos.add(VideoModel.fromSupabase(map));
+      }
+      return _attachEngagement(videos);
+    } catch (e, stackTrace) {
+      log('Beğenilen videolar getirilirken hata oluştu: $e\n$stackTrace');
+      throw Exception(
+        'Beğenilen videolar yüklenemedi. Lütfen tekrar deneyin.',
+      );
+    }
+  }
+
   // FIX: favorites/content_views/shared tabloları 'videos_cache' tablosuna
   // FK ile bağlı olduğu için PostgREST embed'i doğrudan 'videos_cache'
   // tablosundan yapılıyor — ama bu tabloda app_view_count/app_like_count vb.

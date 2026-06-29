@@ -116,6 +116,13 @@ class ProfileViewWidget extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 _ActivityButton(
+                  icon: Icons.thumb_up_alt_rounded,
+                  label: 'Beğenilenler',
+                  color: const Color(0xFF00ACC1),
+                  onTap: () => _navigateTo(ProfileActivityType.liked),
+                ),
+                SizedBox(height: 10.h),
+                _ActivityButton(
                   icon: Icons.play_circle_rounded,
                   label: 'İzlenenler',
                   color: const Color(0xFF1E88E5),

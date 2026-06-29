@@ -65,4 +65,21 @@ class ProfileActivityRepository {
       return [];
     }
   }
+
+  Future<List<VideoModel>> getUserLikedVideos(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      return await _supabase.getUserLikedVideos(userId, limit: limit, offset: offset);
+    } catch (e, stacktrace) {
+      log(
+        'Kullanıcının beğendiği videolar getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return [];
+    }
+  }
 }

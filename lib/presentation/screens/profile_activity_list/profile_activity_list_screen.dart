@@ -246,17 +246,19 @@ class _EmptyView extends StatelessWidget {
   });
 
   IconData get _icon {
-    switch (activityType) {
-      case ProfileActivityType.favorites:
-        return Icons.favorite_outline_rounded;
-      case ProfileActivityType.viewed:
-        return Icons.play_circle_outline_rounded;
-      case ProfileActivityType.commented:
-        return Icons.chat_bubble_outline_rounded;
-      case ProfileActivityType.shared:
-        return Icons.share_outlined;
-    }
+  switch (activityType) {
+    case ProfileActivityType.favorites:
+      return Icons.favorite_outline_rounded;
+    case ProfileActivityType.viewed:
+      return Icons.play_circle_outline_rounded;
+    case ProfileActivityType.commented:
+      return Icons.chat_bubble_outline_rounded;
+    case ProfileActivityType.shared:
+      return Icons.share_outlined;
+    case ProfileActivityType.liked:
+      return Icons.thumb_up_alt_outlined;
   }
+}
 
   @override
   Widget build(BuildContext context) {
