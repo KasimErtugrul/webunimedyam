@@ -8,6 +8,12 @@ import '../../data/models/video_model.dart';
 
 enum ProfileActivityType { favorites, viewed, commented, shared, liked }
 
+/// Sıralama seçenekleri
+enum ActivitySortOption { dateDesc, universityAsc, universityDesc }
+
+/// Görünüm seçenekleri
+enum ActivityViewMode { list, grid }
+
 class ProfileActivityListController extends GetxController {
   final FavoritesRepository favoritesRepository;
   final ProfileActivityRepository profileActivityRepository;
@@ -23,6 +29,9 @@ class ProfileActivityListController extends GetxController {
   final isLoading = false.obs;
   final isLoadingMore = false.obs;
   final hasMore = true.obs;
+
+  final sortOption = ActivitySortOption.dateDesc.obs;
+  final viewMode = ActivityViewMode.list.obs;
 
   late final ProfileActivityType activityType;
   late final String userId;
@@ -72,6 +81,7 @@ class ProfileActivityListController extends GetxController {
 
       videos.addAll(result);
       _offset += result.length;
+      _applySort();
     } catch (e, stacktrace) {
       log('Aktivite listesi yüklenirken hata: $e', error: e, stackTrace: stacktrace);
     } finally {
@@ -148,6 +158,35 @@ class ProfileActivityListController extends GetxController {
       }
     }
     return 'Bu kullanıcının içerikleri gizli olabilir';
+  }
+
+  void changeSortOption(ActivitySortOption option) {
+    if (sortOption.value == option) return;
+    sortOption.value = option;
+    _applySort();
+  }
+
+  void changeViewMode(ActivityViewMode mode) {
+    if (viewMode.value == mode) return;
+    viewMode.value = mode;
+  }
+
+  void _applySort() {
+    switch (sortOption.value) {
+      case ActivitySortOption.dateDesc:
+        videos.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+        break;
+      case ActivitySortOption.universityAsc:
+        videos.sort((a, b) => (a.universityName ?? '')
+            .toLowerCase()
+            .compareTo((b.universityName ?? '').toLowerCase()));
+        break;
+      case ActivitySortOption.universityDesc:
+        videos.sort((a, b) => (b.universityName ?? '')
+            .toLowerCase()
+            .compareTo((a.universityName ?? '').toLowerCase()));
+        break;
+    }
   }
 
   Future<void> removeVideo(String videoId) async {
