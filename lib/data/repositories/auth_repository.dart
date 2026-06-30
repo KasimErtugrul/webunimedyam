@@ -1,6 +1,7 @@
 // lib/data/repositories/auth_repository.dart
 
 import 'dart:developer';
+import '../../services/auth_service.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../datasources/local/local_datasource.dart';
 import '../models/profile_model.dart';
@@ -55,6 +56,10 @@ class AuthRepository {
         username: username,
       );
       await NotificationService.instance.onUserLogin();
+      // auth_status user property'si AnalyticsService'in authStateChanges
+      // dinleyicisi tarafından otomatik güncellenir; burada sadece
+      // dönüşüm (conversion) event'ini logluyoruz.
+      await AnalyticsService.instance.logSignUp(method: 'email');
     } catch (e, stacktrace) {
       log('Kayıt olurken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -65,6 +70,7 @@ class AuthRepository {
     try {
       await _supabase.signIn(email: email, password: password);
       await NotificationService.instance.onUserLogin();
+      await AnalyticsService.instance.logLogin(method: 'email');
     } catch (e, stacktrace) {
       log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -84,6 +90,7 @@ class AuthRepository {
         _local.clearUniversities(),
       ]);
       await _supabase.signOut();
+      await AnalyticsService.instance.logLogout();
     } catch (e, stacktrace) {
       log('Çıkış yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;

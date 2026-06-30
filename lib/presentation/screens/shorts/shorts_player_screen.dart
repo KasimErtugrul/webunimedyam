@@ -25,9 +25,19 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
 
   YoutubePlayerController? _ytController;
   Timer? _progressTimer;
-  double _progress = 0.0;
   bool _isMuted = false;
   bool _isPaused = false;
+
+  // FIX: _progress artık setState yerine ValueNotifier ile güncelleniyor.
+  // Önceden her 500ms'de bir setState() TÜM ekranı (player dahil) yeniden
+  // build ediyordu. Kullanıcı videoya pinch/swipe ile native fullscreen'e
+  // geçtiğinde (showFullscreenButton:false sadece YouTube'un UI butonunu
+  // gizler, jestleri değil), tam o anda gelen bir setState WebView'in
+  // layout'unu native fullscreen geçişiyle aynı anda yeniden hesaplatıyor;
+  // bu da iframe player'ın videoyu sıfırlamasına (en baştan başlamasına)
+  // yol açıyordu. ValueNotifier sayesinde artık sadece progress bar
+  // widget'ı rebuild oluyor, player ağacı tamamen sabit kalıyor.
+  final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
 
   // FIX: Her yeni controller için benzersiz key → YoutubePlayer widget'ı
   // tamamen yeniden oluşturulur, eski controller'a kilitli kalmaz.
@@ -50,6 +60,7 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
     _progressTimer?.cancel();
     _ytController?.close();
     _chipScrollController.dispose();
+    _progressNotifier.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -60,9 +71,9 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
     _progressTimer?.cancel();
     _ytController?.close();
 
+    _progressNotifier.value = 0.0; // FIX: setState yerine notifier sıfırlanıyor
     if (mounted) {
       setState(() {
-        _progress = 0.0;
         _isPaused = false;
         _playerKey++; // FIX: key artırılınca YoutubePlayer tamamen yeniden oluşur
       });
@@ -92,7 +103,7 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
         if (!mounted) return;
         if (dur > 0) {
           final p = (cur / dur).clamp(0.0, 1.0);
-          setState(() => _progress = p);
+          _progressNotifier.value = p; // FIX: setState yerine notifier
           if (p >= 0.99 && _currentIndex < _shorts.length - 1) {
             _goToIndex(_currentIndex + 1);
           }
@@ -183,11 +194,21 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
+                  // FIX: YoutubePlayer artık Positioned.fill içinde.
+                  // Önceden Stack'in içinde serbest (loose) constraint'lerle
+                  // kendi aspectRatio'sunu (9/16) hesaplıyordu — bu, dış
+                  // AspectRatio(9/16) kutusuyla çakışan ikinci bir oran
+                  // hesaplaması yaratıyor ve bazı ekran boylarında video
+                  // kutudan biraz taşıp Stack tarafından alttan kırpılıyordu.
+                  // Positioned.fill ile artık kesin (tight) constraint
+                  // veriliyor; player tam olarak 9:16 kutuyu dolduruyor,
+                  // taşma/kırpılma olmuyor.
                   if (_ytController != null)
-                    YoutubePlayer(
-                      key: ValueKey(_playerKey), // FIX: zorunlu!
-                      controller: _ytController!,
-                      aspectRatio: 9 / 16,
+                    Positioned.fill(
+                      child: YoutubePlayer(
+                        key: ValueKey(_playerKey), // FIX: zorunlu!
+                        controller: _ytController!,
+                      ),
                     ),
                 ],
               ),
@@ -290,15 +311,20 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
                     SizedBox(height: 10.h),
 
                     // ── Progress bar ──────────────────────────────────
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(2.r),
-                      child: LinearProgressIndicator(
-                        value: _progress,
-                        backgroundColor: Colors.white24,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor,
+                    // FIX: setState yerine ValueListenableBuilder — sadece
+                    // bu küçük widget rebuild oluyor, player'a dokunulmuyor.
+                    ValueListenableBuilder<double>(
+                      valueListenable: _progressNotifier,
+                      builder: (context, progress, _) => ClipRRect(
+                        borderRadius: BorderRadius.circular(2.r),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.white24,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.primaryColor,
+                          ),
+                          minHeight: 4,
                         ),
-                        minHeight: 4,
                       ),
                     ),
 
