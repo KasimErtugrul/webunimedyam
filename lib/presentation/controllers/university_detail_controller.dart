@@ -20,6 +20,7 @@ import '../../data/models/university_model.dart';
 import '../../data/models/video_model.dart';
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/video_repository.dart';
+import '../../services/analytics_service.dart';
 
 class UniversityDetailController extends GetxController {
   final VideoRepository videoRepository;
@@ -69,6 +70,13 @@ class UniversityDetailController extends GetxController {
         university.value = args;
         _loadFavoriteStatus();
         loadVideos();
+        AnalyticsService.instance.logEvent(
+          'university_view',
+          parameters: {
+            'university_id': args.id ?? -1,
+            'university_name': args.name ?? 'unknown',
+          },
+        );
       } else if (args is int) {
         _loadUniversityById(args);
       } else {
@@ -109,6 +117,13 @@ class UniversityDetailController extends GetxController {
       university.value = await videoRepository.getUniversityById(id);
       await _loadFavoriteStatus();
       await loadVideos();
+      AnalyticsService.instance.logEvent(
+        'university_view',
+        parameters: {
+          'university_id': id,
+          'university_name': university.value?.name ?? 'unknown',
+        },
+      );
     } catch (e, stacktrace) {
       log(
         'Üniversite ID ile yüklenirken hata oluştu: $e',
@@ -171,6 +186,12 @@ class UniversityDetailController extends GetxController {
           'Favorilere eklemek için giriş yapmalısınız.',
           snackPosition: SnackPosition.BOTTOM,
         );
+        if (userId == null) {
+          AnalyticsService.instance.logEvent(
+            'auth_wall_hit',
+            parameters: {'action': 'university_favorite'},
+          );
+        }
         return;
       }
 
@@ -191,6 +212,10 @@ class UniversityDetailController extends GetxController {
               snackPosition: SnackPosition.BOTTOM,
               duration: const Duration(seconds: 2),
             );
+            AnalyticsService.instance.logEvent(
+              'university_unfavorite',
+              parameters: {'university_id': uni.id!, 'university_name': uni.name ?? 'unknown'},
+            );
           } else {
             Get.snackbar(
               'Hata',
@@ -210,6 +235,10 @@ class UniversityDetailController extends GetxController {
               '${uni.name} favorilerinize eklendi.',
               snackPosition: SnackPosition.BOTTOM,
               duration: const Duration(seconds: 2),
+            );
+            AnalyticsService.instance.logEvent(
+              'university_favorite',
+              parameters: {'university_id': uni.id!, 'university_name': uni.name ?? 'unknown'},
             );
           } else {
             Get.snackbar(

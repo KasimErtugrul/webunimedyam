@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 
 import '../../data/models/shorts_model.dart';
 import '../../data/repositories/shorts_repository.dart';
+import '../../services/analytics_service.dart';
 
 class ShortsController extends GetxController {
   final ShortsRepository _repository;
@@ -67,6 +68,7 @@ class ShortsController extends GetxController {
         stackTrace: stacktrace,
       );
       errorMessage.value = 'Shorts yüklenemedi.';
+      AnalyticsService.instance.recordError(e, stacktrace, reason: 'shorts_load_failed');
     } finally {
       isLoading.value = false;
     }
@@ -106,5 +108,16 @@ class ShortsController extends GetxController {
   /// Pull-to-refresh desteği.
   Future<void> refresh() => loadShorts();
 
-  void setCurrentIndex(int index) => currentIndex.value = index;
+  void setCurrentIndex(int index) {
+    currentIndex.value = index;
+    if (index >= 0 && index < shorts.length) {
+      AnalyticsService.instance.logEvent(
+        'short_view',
+        parameters: {
+          'video_id': shorts[index].videoId,
+          'position': index,
+        },
+      );
+    }
+  }
 }

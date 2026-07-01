@@ -19,7 +19,7 @@ import 'data/datasources/local/local_datasource.dart';
 import 'data/datasources/remote/supabase_datasource.dart';
 import 'data/repositories/auth_repository.dart';
 import 'presentation/controllers/settings_controller.dart';
-import 'services/auth_service.dart';
+import 'services/analytics_service.dart';
 import 'services/notification_service.dart';
 
 // ─── Background mesaj handler (top-level, sınıf dışı) ─────────────────────

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/models/video_model.dart';
+import '../../services/analytics_service.dart';
 
 class VideoSearchController extends GetxController {
   final SearchRepository searchRepository;
@@ -90,6 +91,18 @@ class VideoSearchController extends GetxController {
       _debounce?.cancel();
       isLoading.value = true;
       await _doSearch(trimmed);
+
+      // Analytics: search — GA4'ün önerdiği standart event ismiyle.
+      // Not: onQueryChanged() sırasındaki debounce aramaları burada değil,
+      // sadece kullanıcının kesin bir arama yaptığı bu noktada loglanıyor,
+      // aksi halde her tuş vuruşu ayrı event olurdu.
+      AnalyticsService.instance.logSearch(trimmed);
+      if (results.isEmpty) {
+        AnalyticsService.instance.logEvent(
+          'search_no_results',
+          parameters: {'search_term': trimmed},
+        );
+      }
     } catch (e, stacktrace) {
       log('Sorgu gönderilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }

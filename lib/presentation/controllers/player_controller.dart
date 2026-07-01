@@ -11,6 +11,7 @@ import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
+import '../../services/analytics_service.dart';
 import 'settings_controller.dart';
 
 import 'home_controller.dart';
@@ -69,6 +70,14 @@ class PlayerController extends GetxController {
         loadComments();
         _loadInitialState();
         loadSuggestedVideos(); // ← YENİ
+
+        // Analytics: video_play — recordView() sadece giriş yapmış kullanıcılar
+        // için Supabase'e yazıldığından, misafir izlemelerini de yakalamak için
+        // burada auth durumundan bağımsız ayrı bir event gönderiyoruz.
+        AnalyticsService.instance.logVideoPlay(
+          videoId: currentVideo.value!.videoId,
+          title: currentVideo.value!.title,
+        );
       });
     }
   }
@@ -150,6 +159,7 @@ class PlayerController extends GetxController {
         error: e,
         stackTrace: stacktrace,
       );
+      AnalyticsService.instance.recordError(e, stacktrace, reason: 'player_init_failed');
     }
   }
 
@@ -252,6 +262,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'like'});
       return;
     }
     if (isLikeLoading.value) return;
@@ -272,6 +283,10 @@ class PlayerController extends GetxController {
       }
       // OPTİMİZASYON: getEngagementStats() çağrısı kaldırıldı.
       // appLikeCount zaten yukarıda optimistic olarak güncellendi — doğru delta kesin.
+      AnalyticsService.instance.logEvent(
+        wasLiked ? 'video_unlike' : 'video_like',
+        parameters: {'video_id': currentVideo.value!.videoId},
+      );
     } catch (e, stacktrace) {
       isLiked.value = wasLiked;
       appLikeCount.value += wasLiked ? 1 : -1;
@@ -291,6 +306,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'favorite'});
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -318,6 +334,10 @@ class PlayerController extends GetxController {
       }
       // OPTİMİZASYON: getEngagementStats() kaldırıldı.
       // appFavoriteCount zaten optimistic güncellendi.
+      AnalyticsService.instance.logFavorite(
+        videoId: currentVideo.value!.videoId,
+        added: wasAdding,
+      );
     } catch (e, stacktrace) {
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
@@ -355,6 +375,10 @@ class PlayerController extends GetxController {
         // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic güncelleme yeterli.
         appShareCount.value += 1;
       }
+      AnalyticsService.instance.logShare(
+        videoId: currentVideo.value!.videoId,
+        method: 'share_sheet',
+      );
     } catch (e, stacktrace) {
       log(
         'Video paylaşılırken hata oluştu, panoya kopyalanıyor: $e',
@@ -363,6 +387,10 @@ class PlayerController extends GetxController {
       );
       await Clipboard.setData(ClipboardData(text: videoUrl));
       snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
+      AnalyticsService.instance.logShare(
+        videoId: currentVideo.value!.videoId,
+        method: 'clipboard_fallback',
+      );
     } finally {
       isShareLoading.value = false; // ← burada kalabilir
     }
@@ -393,6 +421,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'comment'});
       return;
     }
     if (content.trim().isEmpty) return;
@@ -405,6 +434,10 @@ class PlayerController extends GetxController {
       await loadComments();
       // OPTİMİZASYON: getEngagementStats() kaldırıldı — yorum sayısını doğrudan güncelle.
       appCommentCount.value += 1;
+      AnalyticsService.instance.logEvent(
+        'comment_add',
+        parameters: {'video_id': currentVideo.value!.videoId},
+      );
     } catch (e, stacktrace) {
       log('Yorum eklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }

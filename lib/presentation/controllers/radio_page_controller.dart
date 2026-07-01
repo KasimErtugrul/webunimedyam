@@ -6,6 +6,7 @@ import 'package:radio_player/radio_player.dart';
 
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/models/university_model.dart';
+import '../../services/analytics_service.dart';
 
 class RadioPageController extends GetxController {
   final universities = <UniversityModel>[].obs;
@@ -94,6 +95,13 @@ class RadioPageController extends GetxController {
       parseStreamMetadata: true,
     );
     RadioPlayer.play();
+    AnalyticsService.instance.logEvent(
+      'radio_play',
+      parameters: {
+        'university_id': uni.id ?? -1,
+        'university_name': uni.name ?? 'unknown',
+      },
+    );
   }
 
   /// Tüm stream'leri iptal et, radyoyu durdur ve state'i sıfırla.

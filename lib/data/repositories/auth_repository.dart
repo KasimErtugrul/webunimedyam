@@ -1,7 +1,7 @@
 // lib/data/repositories/auth_repository.dart
 
 import 'dart:developer';
-import '../../services/auth_service.dart';
+import '../../services/analytics_service.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../datasources/local/local_datasource.dart';
 import '../models/profile_model.dart';
