@@ -20,7 +20,10 @@ class ProfileBinding extends Bindings {
      );
    }
 
-   final args = Get.arguments as Map<String, dynamic>?;
+   // NOT: profile_screen.dart'taki _tag getter'ıyla aynı sebepten (bkz. o
+   // dosyadaki açıklama) sert cast yerine güvenli tip kontrolü kullanıyoruz.
+   final rawArgs = Get.arguments;
+   final args = rawArgs is Map<String, dynamic> ? rawArgs : null;
    final targetUserId = args?['userId'] as String?;
 
    final supabase = Get.find<SupabaseDataSource>();

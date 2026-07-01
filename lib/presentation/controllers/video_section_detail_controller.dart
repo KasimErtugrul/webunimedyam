@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/models/video_engagement_model.dart';
+import '../../services/analytics_service.dart';
 
 export '../../data/repositories/video_repository.dart' show VideoSectionType;
 
@@ -40,6 +41,14 @@ class VideoSectionDetailController extends GetxController {
       }
       sectionType = args['type'] as VideoSectionType;
       sectionTitle = args['title'] as String;
+
+      // Hangi kürasyon bölümünün (trend/en çok izlenen/en çok beğenilen vb.)
+      // "tümünü gör" ile en çok tıklandığını ölçmek için.
+      AnalyticsService.instance.logEvent('video_section_view', parameters: {
+        'section_type': sectionType.name,
+        'section_title': sectionTitle,
+      });
+
       loadFirstPage();
     } catch (e, stacktrace) {
       log('VideoSectionDetailController başlatılırken hata oluştu: $e', error: e, stackTrace: stacktrace);

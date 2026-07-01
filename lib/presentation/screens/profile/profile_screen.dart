@@ -11,8 +11,18 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   /// Binding ile aynı tag hesaplaması: targetUserId ?? currentUserId
+  ///
+  /// NOT: Bu ekran home_screen.dart'ta IndexedStack içinde bir sekme olarak
+  /// tutuluyor, yani sekmeye her geçişte gerçek bir Get.toNamed çağrısı
+  /// yapılmıyor. Bu yüzden Get.arguments, en son yapılan (bu ekranla
+  /// alakasız) bir navigasyondan kalma "eski" bir değer olabilir (örn. bir
+  /// üniversite detayına geçişte gönderilen UniversityModel). Sert bir
+  /// `as Map<String, dynamic>?` cast'i bu durumda TypeError fırlatıp
+  /// crash'e yol açıyordu (bkz. Crashlytics: ProfileScreen._tag). Bu yüzden
+  /// tip kontrolünü güvenli (is-check) şekilde yapıyoruz.
   String get _tag {
-    final args = Get.arguments as Map<String, dynamic>?;
+    final rawArgs = Get.arguments;
+    final args = rawArgs is Map<String, dynamic> ? rawArgs : null;
     final targetUserId = args?['userId'] as String?;
     if (targetUserId != null) return targetUserId;
     final supabase = Get.find<SupabaseDataSource>();

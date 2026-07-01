@@ -3,8 +3,14 @@ import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
 import '../../services/notification_service.dart';
+import '../../services/analytics_service.dart';
 import 'favorites_controller.dart';
 import 'home_controller.dart';
+
+/// Email/şifre ile giriş-kayıt akışı tek yöntem olduğu için event
+/// parametrelerinde sabit olarak kullanılıyor. İleride Google/Apple
+/// girişi eklenirse ilgili çağrılarda bu değer değiştirilmeli.
+const String _kAuthMethod = 'email';
 
 class AuthController extends GetxController {
   final AuthRepository authRepository;
@@ -26,10 +32,19 @@ class AuthController extends GetxController {
       // Login başarılı → FCM token'ı Supabase'e kaydet
       await NotificationService.instance.onUserLogin();
 
+      // auth_wall_hit sonrası dönüşümü ölçebilmek için GA4 önerilen event.
+      AnalyticsService.instance.logLogin(method: _kAuthMethod);
+
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
       log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Giriş başarısız. Email ve şifrenizi kontrol edin.';
+
+      // Başarısız giriş denemelerini ayrı işaretliyoruz ki "kaç kişi login
+      // ekranına geldi ama şifre/email hatası yüzünden vazgeçti" görülebilsin.
+      AnalyticsService.instance.logEvent('login_failed', parameters: {
+        'method': _kAuthMethod,
+      });
     } finally {
       isLoading.value = false;
     }
@@ -55,10 +70,19 @@ class AuthController extends GetxController {
       // Kayıt başarılı → FCM token'ı Supabase'e kaydet
       await NotificationService.instance.onUserLogin();
 
+      // auth_wall_hit sonrası dönüşümü ölçebilmek için GA4 önerilen event.
+      AnalyticsService.instance.logSignUp(method: _kAuthMethod);
+
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
       log('Kayıt olunurken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Kayıt başarısız. Bilgilerinizi kontrol edin.';
+
+      // Başarısız kayıt denemelerini ayrı işaretliyoruz (örn. email zaten
+      // kullanımda, zayıf şifre vb. nedenlerle formu terk edenleri görmek için).
+      AnalyticsService.instance.logEvent('sign_up_failed', parameters: {
+        'method': _kAuthMethod,
+      });
     } finally {
       isLoading.value = false;
     }
@@ -74,6 +98,8 @@ class AuthController extends GetxController {
       await NotificationService.instance.onUserLogout();
 
       await authRepository.signOut();
+
+      AnalyticsService.instance.logLogout();
 
       // Bağımlı controller'ları resetle
       if (Get.isRegistered<HomeController>()) {

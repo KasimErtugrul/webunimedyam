@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/profile_model.dart';
+import '../../services/analytics_service.dart';
 import 'settings_controller.dart';
 
 class ProfileController extends GetxController {
@@ -32,7 +33,14 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadProfile();
+    loadProfile().then((_) {
+      // Sadece ekrana ilk girişte logla; refreshProfile() (pull-to-refresh)
+      // aynı loadProfile()'ı tekrar çağırdığı için burada değil, doğrudan
+      // onInit akışında bir kereliğine tetikleniyor.
+      AnalyticsService.instance.logEvent('profile_view', parameters: {
+        'own_profile': isOwnProfile.toString(),
+      });
+    });
   }
 
   /// Kendi profilimiz mi görüntülüyoruz?
@@ -106,6 +114,17 @@ class ProfileController extends GetxController {
       await authRepository.updateProfile(updated);
       profile.value = updated;
       successMessage.value = 'Profil güncellendi.';
+
+      // Gerçek değerleri değil, hangi alanların değiştiğini logluyoruz
+      // (kullanıcı adı/avatar gibi kişisel veriyi Analytics'e taşımamak için).
+      AnalyticsService.instance.logEvent('profile_update', parameters: {
+        'username_changed':
+            (username != null && username != current.username).toString(),
+        'full_name_changed':
+            (fullName != null && fullName != current.fullName).toString(),
+        'avatar_changed':
+            (avatarUrl != null && avatarUrl != current.avatarUrl).toString(),
+      });
     } catch (e, stacktrace) {
       log(
         'Profil güncellenirken hata oluştu: $e',

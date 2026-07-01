@@ -11,6 +11,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
+import '../../services/analytics_service.dart';
 
 import '../../data/models/video_model.dart';
 import '../../data/models/playlist_model.dart';
@@ -432,6 +433,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'favorite',
+        'source': 'home_feed',
+      });
       return;
     }
 
@@ -456,6 +461,10 @@ class HomeController extends GetxController {
           await favoritesRepository.saveFavoriteVideoLocally(video);
         }
       }
+      AnalyticsService.instance.logEvent(
+        wasFav ? 'remove_from_favorites' : 'add_to_favorites',
+        parameters: {'video_id': videoId, 'source': 'home_feed'},
+      );
     } catch (e, stacktrace) {
       // Rollback
       if (wasFav) {
@@ -530,19 +539,35 @@ class HomeController extends GetxController {
 
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'university_favorite',
+        'source': 'home_feed',
+      });
       return;
     }
 
     final id = university.id!;
     final bool success;
+    final wasFav = favoriteUniversityIds.contains(id);
 
-    if (favoriteUniversityIds.contains(id)) {
+    if (wasFav) {
       success = await universityFavoritesRepository.removeFavorite(userId, id);
     } else {
       success = await universityFavoritesRepository.addFavorite(
         userId,
         id,
         university: university,
+      );
+    }
+
+    if (success) {
+      AnalyticsService.instance.logEvent(
+        wasFav ? 'university_unfavorite' : 'university_favorite',
+        parameters: {
+          'university_id': id,
+          'university_name': university.name ?? 'unknown',
+          'source': 'home_feed',
+        },
       );
     }
 
@@ -569,6 +594,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'like',
+        'source': 'home_feed',
+      });
       return;
     }
     if (_likeProcessing.contains(videoId)) return;
@@ -606,6 +635,10 @@ class HomeController extends GetxController {
         } else {
           await engagementRepository.addLike(userId, videoId);
         }
+        AnalyticsService.instance.logEvent(
+          wasLiked ? 'video_unlike' : 'video_like',
+          parameters: {'video_id': videoId, 'source': 'home_feed'},
+        );
       } catch (e, stacktrace) {
         // Rollback: hem durum hem sayaç geri alınır
         _likeCache[videoId] = wasLiked;
@@ -677,6 +710,12 @@ class HomeController extends GetxController {
           _updateVideoShareCount(video.videoId, 1);
         }
       }
+      AnalyticsService.instance.logEvent('share', parameters: {
+        'content_type': 'video',
+        'item_id': video.videoId,
+        'method': 'share_sheet',
+        'source': 'home_feed',
+      });
     } catch (e, stacktrace) {
       log(
         'Video paylaşılırken hata oluştu, panoya kopyalanıyor: $e',
@@ -689,6 +728,12 @@ class HomeController extends GetxController {
         'Video bağlantısı panoya kopyalandı.',
         snackPosition: SnackPosition.BOTTOM,
       );
+      AnalyticsService.instance.logEvent('share', parameters: {
+        'content_type': 'video',
+        'item_id': video.videoId,
+        'method': 'clipboard_fallback',
+        'source': 'home_feed',
+      });
     } finally {
       _shareLoadingIds.remove(video.videoId);
       _shareProcessing.remove(video.videoId);
@@ -706,6 +751,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'comment',
+        'source': 'home_feed',
+      });
       return false;
     }
 
@@ -722,6 +771,10 @@ class HomeController extends GetxController {
       if (!_commentedIds.contains(video.videoId)) {
         _commentedIds.add(video.videoId);
       }
+      AnalyticsService.instance.logEvent('comment_add', parameters: {
+        'video_id': video.videoId,
+        'source': 'home_feed',
+      });
       return true;
     } catch (e, stacktrace) {
       log(

@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/models/user_stats_model.dart';
 import '../../data/repositories/stats_repository.dart';
+import '../../services/analytics_service.dart';
 
 class StatsController extends GetxController {
   final StatsRepository statsRepository;
@@ -17,6 +18,9 @@ class StatsController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    // Bu ekranın (kişisel istatistikler) ne sıklıkla ziyaret edildiğini
+    // ölçmek için — sadece ilk girişte, refresh()'te tekrar sayılmıyor.
+    AnalyticsService.instance.logEvent('stats_view');
     _load();
   }
 

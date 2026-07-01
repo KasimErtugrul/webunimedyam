@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
+import '../../services/analytics_service.dart';
 import 'auth_controller.dart';
 import 'profile_controller.dart';
 
@@ -51,6 +52,18 @@ class SettingsController extends GetxService {
       isLoading.value = true;
       settings.value = await authRepository.getUserSettings();
       _syncProfileVisibilityFromController();
+
+      // Mevcut tema tercihini user property olarak set ediyoruz ki
+      // kullanıcı hiç tema değiştirmese bile Firebase'de doğru segmentte
+      // görünsün (light/dark/system dağılımını Audience/User properties'te
+      // görebilmek için).
+      final loadedTheme = settings.value?.theme;
+      if (loadedTheme != null) {
+        AnalyticsService.instance.setUserProperty(
+          name: 'app_theme',
+          value: loadedTheme,
+        );
+      }
     } catch (e, stacktrace) {
       log(
         'Ayarlar yüklenirken hata oluştu: $e',
@@ -89,6 +102,15 @@ class SettingsController extends GetxService {
       if (current == null) return;
       await _updateSettings(current.copyWith(theme: theme));
       await authRepository.saveThemeLocally(theme);
+
+      AnalyticsService.instance.logEvent('theme_change', parameters: {
+        'theme': theme,
+      });
+      AnalyticsService.instance.setUserProperty(
+        name: 'app_theme',
+        value: theme,
+      );
+
       final mode = theme == 'dark'
           ? ThemeMode.dark
           : theme == 'light'

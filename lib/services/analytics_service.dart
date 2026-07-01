@@ -93,6 +93,23 @@ class AnalyticsService {
 
   Future<void> logLogout() => logEvent('logout');
 
+  // ─── Genel amaçlı user property ────────────────────────────────────────
+
+  /// Kullanıcının kalıcı özelliklerini (tema tercihi, dil vb.) set etmek için.
+  /// auth_status/user_id gibi otomatik değil, ilgili controller'lar
+  /// (örn. SettingsController) tarafından uygun anlarda çağrılmalı.
+  Future<void> setUserProperty({required String name, required String? value}) async {
+    try {
+      await _analytics.setUserProperty(name: name, value: value);
+    } catch (e, stacktrace) {
+      log(
+        'User property set edilirken hata oluştu ($name): $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
   // ─── İçerik / buton event'leri ──────────────────────────────────────────
 
   /// Genel buton tıklama event'i. `buttonName` ekran+aksiyon ayırt edecek
