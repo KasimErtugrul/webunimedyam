@@ -25,8 +25,18 @@ class ProfileController extends GetxController {
 
   /// Route arguments'tan gelen hedef userId.
   /// null ise kendi profilimiz demektir.
+  ///
+  /// NOT: Profil sekmesi home_screen.dart'ta IndexedStack içinde tutulduğu
+  /// için her görünüme geçişte gerçek bir Get.toNamed çağrısı yapılmıyor.
+  /// Bu yüzden Get.arguments, bu ekranla alakasız bir önceki navigasyondan
+  /// kalma bir değer (örn. player'a geçişte gönderilen bir VideoModel)
+  /// olabilir. Sert cast bunu TypeError'a çevirip crash'e yol açıyordu
+  /// (bkz. Crashlytics: ProfileController.targetUserId). Bu yüzden tip
+  /// kontrolünü güvenli (is-check) şekilde yapıyoruz — profile_screen.dart
+  /// ve profile_binding.dart'taki aynı düzeltmeyle tutarlı.
   String? get targetUserId {
-    final args = Get.arguments as Map<String, dynamic>?;
+    final rawArgs = Get.arguments;
+    final args = rawArgs is Map<String, dynamic> ? rawArgs : null;
     return args?['userId'] as String?;
   }
 

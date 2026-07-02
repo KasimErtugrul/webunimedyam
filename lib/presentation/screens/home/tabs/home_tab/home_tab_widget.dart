@@ -1,5 +1,7 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/home_tab_widget.dart
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -186,6 +188,9 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 )
               : const SizedBox.shrink();
         }
+        log(
+          'home tab widget üniversite adları : ${nonShorts[index].universityName}',
+        );
         return VideoCardWidget(video: nonShorts[index]);
       }, childCount: nonShorts.length + (showLoader ? 1 : 0)),
     );

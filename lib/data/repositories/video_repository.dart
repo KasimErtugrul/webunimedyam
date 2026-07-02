@@ -181,6 +181,7 @@ class VideoRepository {
   Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
     try {
       final videos = await _supabase.getCachedVideosByUniversity(universityId);
+      
       return videos;
     } catch (e, stacktrace) {
       log(
