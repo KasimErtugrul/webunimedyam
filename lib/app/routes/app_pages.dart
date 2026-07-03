@@ -19,6 +19,7 @@ import '../../presentation/screens/video_section_detail/video_section_detail_scr
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
+import '../../presentation/screens/university_wheel/university_wheel_screen.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
@@ -32,6 +33,7 @@ import '../bindings/search_binding.dart';
 import '../bindings/stats_binding.dart';
 import '../bindings/video_section_detail_binding.dart';
 import '../bindings/university_detail_binding.dart';
+import '../bindings/university_wheel_binding.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -125,5 +127,10 @@ abstract class AppPages {
       transition: Transition.downToUp,
     ),
     GetPage(name: AppRoutes.radio, page: () => const RadioPage()),
+    GetPage(
+      name: AppRoutes.universityWheel,
+      page: () => const UniversityWheelScreen(),
+      binding: UniversityWheelBinding(),
+    ),
   ];
 }

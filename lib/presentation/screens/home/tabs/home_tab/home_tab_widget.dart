@@ -14,6 +14,7 @@ import '../../../../controllers/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
 
 import 'shorts/shorts_row_widget.dart';
+import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
 
 class HomeTabWidget extends StatefulWidget {
@@ -53,8 +54,29 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 400) {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 400) {
+      controller.loadMoreVideos();
+    }
+  }
+
+  // BUG FIX: Sayfa boyu (ör. sadece 5-6 video) ekranı tam doldurmuyorsa
+  // scroll extent 0'a yakın kalıyor ve kullanıcı hiç aşağı kaydıramadığı
+  // için _onScroll asla tetiklenmiyordu — "10'lu pagination çalışmıyor"
+  // hissi buradan geliyordu. Her frame sonunda içerik hâlâ sığıyor mu diye
+  // kontrol edip gerekiyorsa otomatik bir sayfa daha çekiyoruz.
+  void _maybeAutoLoadMore() {
+    if (!mounted) return;
+    if (!_scrollController.hasClients) return;
+    // Wheel görünümünde bu "kısa ekran" auto-load mantığı uygulanmaz —
+    // wheel artık kendi sayfalamasını HomeFeedWheelWidget içinde,
+    // wheel index'i sona yaklaştıkça tetikliyor (bkz. home_feed_wheel_widget.dart).
+    if (controller.isWheelView.value) return;
+    if (!controller.hasMoreVideos.value || controller.isLoadingMore.value) {
+      return;
+    }
+    if (_scrollController.position.maxScrollExtent <= 0) {
       controller.loadMoreVideos();
     }
   }
@@ -69,6 +91,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeAutoLoadMore());
+
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
@@ -96,6 +120,24 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 toolbarHeight: kToolbarHeight,
                 expandedHeight: kToolbarHeight + _shortsAreaHeight,
                 actions: [
+                  Obx(
+                    () => IconButton(
+                      icon: Icon(
+                        controller.isWheelView.value
+                            ? Icons.view_list_rounded
+                            : Icons.blur_circular_rounded,
+                      ),
+                      tooltip: controller.isWheelView.value
+                          ? 'Liste Görünümü'
+                          : 'Wheel Görünümü',
+                      onPressed: controller.toggleWheelView,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.view_carousel_rounded),
+                    tooltip: 'Üniversite Radarı',
+                    onPressed: () => Get.toNamed(AppRoutes.universityWheel),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.radio_rounded),
                     onPressed: () => Get.toNamed(AppRoutes.radio),
@@ -176,12 +218,28 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       return SliverToBoxAdapter(child: _buildEmptyWidget(context));
     }
 
+    // ── Wheel görünümü: aynı veriyi (nonShorts) farklı bir arayüzle
+    // gösterir. Ekstra ağ isteği yapılmaz, ekstra video çekilmez.
+    if (controller.isWheelView.value) {
+      return SliverToBoxAdapter(
+        child: HomeFeedWheelWidget(
+          videos: nonShorts,
+          universities: controller.universities,
+        ),
+      );
+    }
+
     final showLoader = controller.hasMoreVideos.value;
+    // BUG FIX: isLoadingMore burada (Obx'in senkron build çağrısı içinde)
+    // okunmazsa, sadece aşağıdaki lazy SliverChildBuilderDelegate builder'ı
+    // içinde okunduğu için Obx bunu bir bağımlılık olarak izleyemiyordu —
+    // alt kısımdaki yükleniyor göstergesi hiç güncellenmiyordu.
+    final isLoadingMore = controller.isLoadingMore.value;
 
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         if (index >= nonShorts.length) {
-          return controller.isLoadingMore.value
+          return isLoadingMore
               ? const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(child: CircularProgressIndicator()),

@@ -78,6 +78,13 @@ class HomeController extends GetxController {
   final selectedIndex = 0.obs;
   final selectedUniversity = Rxn<UniversityModel>();
 
+  // Ana sayfa besleme (feed) görünüm modu: liste mi, wheel mi?
+  // Mevcut listview akışını bozmuyor; sadece aynı `videos` verisini
+  // farklı bir arayüzle gösteriyor.
+  final isWheelView = false.obs;
+
+  void toggleWheelView() => isWheelView.value = !isWheelView.value;
+
   final statsMostWatched = <UniversityStatsModel>[].obs;
   final statsMostLiked = <UniversityStatsModel>[].obs;
   final statsPopularInApp = <UniversityStatsModel>[].obs;
@@ -351,11 +358,13 @@ class HomeController extends GetxController {
       if (uni != null) {
         videos.value = await videoRepository.getVideosByUniversity(uni.id!);
       } else {
-        videos.value = await videoRepository.getLatestVideosPerUniversity(
+        final firstPage = await videoRepository.getLatestVideosPerUniversity(
           page: 0,
         );
+        videos.value = firstPage;
         currentPage.value = 0;
-        hasMoreVideos.value = true;
+        // Cache/ilk sayfa tam pageSize kadar geldiyse muhtemelen devamı vardır.
+        hasMoreVideos.value = firstPage.length >= _pageSize;
       }
     } catch (e, stacktrace) {
       log(
@@ -378,9 +387,19 @@ class HomeController extends GetxController {
       final newVideos = await videoRepository.getLatestVideosPerUniversity(
         page: nextPage,
       );
-      videos.addAll(newVideos);
+
+      // BUG FIX: Sunucudan/cache'ten aynı videonun tekrar gelmesi ihtimaline
+      // karşı (sayfa sınırları çakışırsa) videoId bazlı tekilleştirme yapılır.
+      // Bu olmadan liste aynı kartları tekrar tekrar ekleyip "pagination
+      // çalışmıyor gibi görünüyor" hissi yaratabiliyordu.
+      final existingIds = videos.map((v) => v.videoId).toSet();
+      final uniqueNewVideos = newVideos
+          .where((v) => existingIds.add(v.videoId))
+          .toList();
+
+      videos.addAll(uniqueNewVideos);
       currentPage.value = nextPage;
-      hasMoreVideos.value = newVideos.length == _pageSize;
+      hasMoreVideos.value = newVideos.length >= _pageSize;
     } catch (e, stacktrace) {
       log(
         'Daha fazla video yüklenirken hata oluştu: $e',

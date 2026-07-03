@@ -17,6 +17,10 @@ abstract class AppRoutes {
   static const shortsPlayer = '/shorts-player';
   static const radio = '/radio';
 
+  /// Solda dev "wheel slider" ile üniversite logoları, sağda seçili
+  /// üniversitenin haberlerinin (videolarının) gösterildiği ekran.
+  static const universityWheel = '/university-wheel';
+
   /// Basit Shorts oynatıcı (üniversite bilgisi olmadan)
   // ignore: unintended_html_in_doc_comment
   /// Argüman: {'shorts': List<VideoModel>, 'initialIndex': int}
