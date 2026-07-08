@@ -15,8 +15,13 @@ import '../../../../../../data/models/watch_progress_model.dart';
 
 class ContinueWatchingCardWidget extends StatelessWidget {
   final WatchProgressModel progress;
+  final VoidCallback? onRemove;
 
-  const ContinueWatchingCardWidget({super.key, required this.progress});
+  const ContinueWatchingCardWidget({
+    super.key,
+    required this.progress,
+    this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,30 +85,54 @@ class ContinueWatchingCardWidget extends StatelessWidget {
                       size: 34.sp,
                     ),
                   ),
-                  // Kalan süre chip'i — sağ üst
-                  if (progress.remainingLabel.isNotEmpty)
-                    Positioned(
-                      top: 6.h,
-                      right: 6.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.75),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          progress.remainingLabel,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w600,
+                  // Kalan süre chip'i + kaldırma (✕) butonu — sağ üst
+                  Positioned(
+                    top: 6.h,
+                    right: 6.w,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // ✕ — "artık izlemek istemiyorum, listeden kaldır"
+                        if (onRemove != null)
+                          GestureDetector(
+                            onTap: onRemove,
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              padding: EdgeInsets.all(3.w),
+                              margin: EdgeInsets.only(right: 4.w),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.75),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                color: Colors.white,
+                                size: 11.sp,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        if (progress.remainingLabel.isNotEmpty)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 5.w,
+                              vertical: 2.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.75),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: Text(
+                              progress.remainingLabel,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
                   // İlerleme çubuğu — alt kenar
                   Positioned(
                     left: 0,

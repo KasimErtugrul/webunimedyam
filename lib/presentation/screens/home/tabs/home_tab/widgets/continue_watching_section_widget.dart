@@ -12,8 +12,13 @@ import 'continue_watching_card_widget.dart';
 
 class ContinueWatchingSectionWidget extends StatelessWidget {
   final List<WatchProgressModel> items;
+  final void Function(String videoId)? onRemove;
 
-  const ContinueWatchingSectionWidget({super.key, required this.items});
+  const ContinueWatchingSectionWidget({
+    super.key,
+    required this.items,
+    this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +57,13 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return ContinueWatchingCardWidget(progress: items[index]);
+              final item = items[index];
+              return ContinueWatchingCardWidget(
+                progress: item,
+                onRemove: onRemove == null
+                    ? null
+                    : () => onRemove!(item.videoId),
+              );
             },
           ),
         ),

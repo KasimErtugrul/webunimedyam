@@ -197,9 +197,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               // Tamamen local: WatchProgressRepository (Hive) üzerinden gelir.
               SliverToBoxAdapter(
                 child: Obx(() {
-                  final items = controller.continueWatching
-                      .toList(); // okuma burada olmalı
-                  return ContinueWatchingSectionWidget(items: items);
+                  // NOT: .toList() burada, Obx'in builder callback'i içinde
+                  // çağrılıyor — RxList'in okunması (dependency tracking)
+                  // ancak bu şekilde doğru şekilde kaydediliyor. Alt widget
+                  // kendi build()'ünde okusaydı, Obx bunu bir bağımlılık
+                  // olarak göremezdi (ayrı bir build çağrısı olurdu).
+                  final items = controller.continueWatching.toList();
+                  return ContinueWatchingSectionWidget(
+                    items: items,
+                    onRemove: controller.removeFromContinueWatching,
+                  );
                 }),
               ),
 
