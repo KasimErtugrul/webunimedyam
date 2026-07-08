@@ -11,6 +11,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
+import '../../data/repositories/watch_progress_repository.dart';
 import '../../services/analytics_service.dart';
 
 import '../../data/models/video_model.dart';
@@ -18,6 +19,7 @@ import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
+import '../../data/models/watch_progress_model.dart';
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
@@ -27,6 +29,7 @@ class HomeController extends GetxController {
   final EngagementRepository engagementRepository;
   final UniversityFavoritesRepository universityFavoritesRepository;
   final CommentRepository commentRepository;
+  final WatchProgressRepository watchProgressRepository;
 
   HomeController({
     required this.videoRepository,
@@ -36,6 +39,7 @@ class HomeController extends GetxController {
     required this.engagementRepository,
     required this.universityFavoritesRepository,
     required this.commentRepository,
+    required this.watchProgressRepository,
   });
 
   // ─── State ─────────────────────────────────────────────────────────────────
@@ -106,6 +110,10 @@ class HomeController extends GetxController {
   final isVideoSectionsLoading = false.obs;
   final showAuthRequired = false.obs;
 
+  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
+  final continueWatching = <WatchProgressModel>[].obs;
+  final isContinueWatchingLoading = false.obs;
+
   // ─── Like local cache ─────────────────────────────────────────────────────
   final _likeCache = <String, bool>{};
   final _likeCacheLoading = <String>{};
@@ -170,6 +178,27 @@ class HomeController extends GetxController {
     loadFavorites();
     loadUniversityStats();
     loadVideoSections();
+    loadContinueWatching();
+  }
+
+  // ─── Yarım Bırakılan Videolar ───────────────────────────────────────────
+
+  /// Ana sayfadaki "İzlemeye Devam Et" yatay listesini yükler (en fazla 20
+  /// video, en son bırakılan en başta). Tamamen local — ağ isteği yapmaz.
+  Future<void> loadContinueWatching() async {
+    try {
+      isContinueWatchingLoading.value = true;
+      continueWatching.value = await watchProgressRepository
+          .getContinueWatching();
+    } catch (e, stacktrace) {
+      log(
+        'Yarım bırakılan videolar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      isContinueWatchingLoading.value = false;
+    }
   }
 
   @override

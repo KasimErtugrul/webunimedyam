@@ -16,6 +16,7 @@ import '../../../../controllers/shorts_controller.dart';
 import 'shorts/shorts_row_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
+import 'widgets/continue_watching_section_widget.dart';
 
 class HomeTabWidget extends StatefulWidget {
   const HomeTabWidget({super.key});
@@ -102,6 +103,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             await controller.refreshVideos();
             await controller.loadPlaylists();
             await controller.loadUniversityStats();
+            await controller.loadContinueWatching();
             await Get.find<ShortsController>().refresh();
           },
           child: CustomScrollView(
@@ -190,6 +192,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   ),
                 ),
               ), */
+
+              // ── Yarım Bırakılan Videolar (İzlemeye Devam Et) ────────────
+              // Tamamen local: WatchProgressRepository (Hive) üzerinden gelir.
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  final items = controller.continueWatching
+                      .toList(); // okuma burada olmalı
+                  return ContinueWatchingSectionWidget(items: items);
+                }),
+              ),
 
               // ── İçerik Alanı ───────────────────────────────────────
               Obx(() => _buildContentSliver(context)),

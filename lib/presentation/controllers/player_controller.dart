@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/watch_progress_repository.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/comment_model.dart';
 import '../../services/analytics_service.dart';
@@ -22,6 +24,7 @@ class PlayerController extends GetxController {
   final EngagementRepository engagementRepository;
   final AuthRepository authRepository;
   final VideoRepository videoRepository; // ← YENİ
+  final WatchProgressRepository watchProgressRepository; // ← YENİ: yarım bırakılan videolar
 
   PlayerController({
     required this.favoritesRepository,
@@ -29,6 +32,7 @@ class PlayerController extends GetxController {
     required this.engagementRepository,
     required this.authRepository,
     required this.videoRepository, // ← YENİ
+    required this.watchProgressRepository, // ← YENİ
   });
 
   YoutubePlayerController? youtubeController;
@@ -59,6 +63,10 @@ class PlayerController extends GetxController {
   final currentVideo = Rxn<VideoModel>();
   String? get currentUserId => authRepository.currentUserId;
 
+  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
+  Timer? _progressTimer;
+  int? _resumeFromSeconds;
+
   @override
   void onInit() {
     super.onInit();
@@ -70,6 +78,7 @@ class PlayerController extends GetxController {
         loadComments();
         _loadInitialState();
         loadSuggestedVideos(); // ← YENİ
+        _startProgressTracking(); // ← YENİ: yarım bırakılan videolar
 
         // Analytics: video_play — recordView() sadece giriş yapmış kullanıcılar
         // için Supabase'e yazıldığından, misafir izlemelerini de yakalamak için
@@ -139,9 +148,17 @@ class PlayerController extends GetxController {
       final autoplay =
           Get.find<SettingsController>().settings.value?.autoplay ?? true;
 
+      // YENİ: Video daha önce yarım bırakıldıysa kaldığı saniyeyi oku —
+      // tamamen local (Hive), Supabase'e gitmez.
+      _resumeFromSeconds = await watchProgressRepository
+          .getResumePositionSeconds(currentVideo.value!.videoId);
+
       youtubeController = YoutubePlayerController.fromVideoId(
         videoId: currentVideo.value!.videoId,
         autoPlay: autoplay,
+        startSeconds: (_resumeFromSeconds != null && _resumeFromSeconds! > 0)
+            ? _resumeFromSeconds!.toDouble()
+            : null,
         params: const YoutubePlayerParams(
           showFullscreenButton: false,
           showControls: true,
@@ -160,6 +177,45 @@ class PlayerController extends GetxController {
         stackTrace: stacktrace,
       );
       AnalyticsService.instance.recordError(e, stacktrace, reason: 'player_init_failed');
+    }
+  }
+
+  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
+  //
+  // Supabase'e HİÇBİR ŞEY yazılmaz. Sadece cihazdaki Hive kutusuna, video +
+  // kalınan saniye + toplam süre kaydedilir. Ana sayfadaki yatay liste
+  // buradan (HomeController.continueWatching) beslenir.
+
+  void _startProgressTracking() {
+    if (youtubeController == null) return;
+    // Her 5 saniyede bir anlık pozisyonu okuyup diske (Hive) yazıyoruz.
+    // currentTime / duration, paketin resmi olarak dokümante ettiği async
+    // getter'lar — video oynatıcı state akışına bağımlı değil.
+    _progressTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _persistProgress(),
+    );
+  }
+
+  Future<void> _persistProgress() async {
+    if (currentVideo.value == null || youtubeController == null) return;
+    try {
+      final durationSeconds = (await youtubeController!.duration).round();
+      // metadata henüz yüklenmemişse (duration == 0) kaydetmeye değmez.
+      if (durationSeconds <= 0) return;
+      final positionSeconds = (await youtubeController!.currentTime).round();
+
+      await watchProgressRepository.saveProgress(
+        video: currentVideo.value!,
+        positionSeconds: positionSeconds,
+        durationSeconds: durationSeconds,
+      );
+    } catch (e, stacktrace) {
+      log(
+        'İzleme ilerlemesi kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -463,15 +519,24 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
+    // YENİ: Ekrandan çıkılırken SON pozisyonu kaydet — kullanıcı geri
+    // döndüğünde tam olarak bıraktığı yerden devam etsin. Player'ı hemen
+    // kapatırsak currentTime/duration çağrıları yarıda kesilebilir, bu
+    // yüzden kapatmayı son kayıt bitene kadar erteliyoruz.
+    _progressTimer?.cancel();
+    final controllerToClose = youtubeController;
+    _persistProgress().whenComplete(() => controllerToClose?.close());
+
     try {
       if (currentVideo.value != null && Get.isRegistered<HomeController>()) {
         final home = Get.find<HomeController>();
         home.syncLikeFromPlayer(currentVideo.value!.videoId, isLiked.value);
         home.syncFavoriteFromPlayer(currentVideo.value!.videoId, isFavorite.value);
         home.syncViewCountFromPlayer(currentVideo.value!.videoId, appViewCount.value);
+        // YENİ: Ana sayfadaki "İzlemeye Devam Et" listesini tazele.
+        home.loadContinueWatching();
       }
     } catch (_) {}
-    youtubeController?.close();
     super.onClose();
   }
 }

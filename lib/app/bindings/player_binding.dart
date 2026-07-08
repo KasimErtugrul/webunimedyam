@@ -5,6 +5,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/comment_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
+import '../../data/repositories/watch_progress_repository.dart';
 import '../../presentation/controllers/player_controller.dart';
 import '../../data/repositories/video_repository.dart';
 
@@ -52,6 +53,14 @@ class PlayerBinding extends Bindings {
       );
     }
 
+    // İzleme ilerlemesi (yarım bırakılan videolar) — tamamen local
+    if (!Get.isRegistered<WatchProgressRepository>()) {
+      Get.lazyPut(
+        () => WatchProgressRepository(local: Get.find()),
+        fenix: true,
+      );
+    }
+
     Get.put<PlayerController>(
       PlayerController(
         favoritesRepository: Get.find(),
@@ -59,6 +68,7 @@ class PlayerBinding extends Bindings {
         engagementRepository: Get.find(),
         authRepository: Get.find(),
         videoRepository: Get.find(), // ← YENİ
+        watchProgressRepository: Get.find(), // ← YENİ: yarım bırakılan videolar
       ),
 
       permanent: false,

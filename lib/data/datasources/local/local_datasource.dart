@@ -6,6 +6,7 @@ import 'app_cache_box.dart';
 import '../../models/video_model.dart';
 import '../../models/user_stats_model.dart';
 import '../../models/video_engagement_model.dart';
+import '../../models/watch_progress_model.dart';
 
 class LocalDataSource {
   static const _onboardingKey = 'onboarding_completed';
@@ -499,6 +500,121 @@ class LocalDataSource {
     try {
       await _box.delete(_universityKey);
       await _box.delete(_universityTimeKey);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // ─── İzleme İlerlemesi (Yarım Bırakılan Videolar) ────────────────────────
+  //
+  // Tamamen local: kullanıcı bir videoyu belirli bir noktaya kadar izleyip
+  // bırakırsa (ör. 12. dakikada), o video ile en son kaldığı saniye burada
+  // tutulur. Ana sayfadaki "İzlemeye Devam Et" yatay listesi buradan beslenir.
+  // En yeni bırakılan video listenin başında olacak şekilde sıralı tutulur.
+
+  static const _watchProgressKey = 'watch_progress';
+  static const _maxWatchProgressEntries = 20;
+
+  // Bir video, süresinin bu oranından fazlasını izlediyse veya bitişine bu
+  // kadar saniyeden az kaldıysa "bitti" sayılır ve devam listesine hiç
+  // girmez / listedeyse çıkarılır.
+  static const _finishedRatioThreshold = 0.95;
+  static const _finishedRemainingSecondsThreshold = 15;
+
+  // Videoya çok az girilip hemen çıkıldıysa (ör. ilk 10 sn) "yarım bırakıldı"
+  // sayılmaz — kullanıcı henüz izlemeye başlamamış demektir.
+  static const _minStartSecondsToTrack = 10;
+
+  Future<List<WatchProgressModel>> getWatchProgressList() async {
+    try {
+      final raw = _box.get(_watchProgressKey) as List?;
+      if (raw == null) return [];
+      return raw
+          .map((e) => WatchProgressModel.fromMap(_asMap(e)))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<WatchProgressModel?> getWatchProgress(String videoId) async {
+    try {
+      final all = await getWatchProgressList();
+      for (final entry in all) {
+        if (entry.videoId == videoId) return entry;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Video ilerlemesini kaydeder (upsert). Video zaten "bitmiş" sayılıyorsa
+  /// listeden çıkarılır; bitmemişse en başa alınır (en son izlenen üstte).
+  Future<void> saveWatchProgress({
+    required VideoModel video,
+    required int positionSeconds,
+    required int durationSeconds,
+  }) async {
+    try {
+      if (positionSeconds < _minStartSecondsToTrack) return;
+
+      final isFinished =
+          durationSeconds > 0 &&
+          (positionSeconds / durationSeconds >= _finishedRatioThreshold ||
+              (durationSeconds - positionSeconds) <=
+                  _finishedRemainingSecondsThreshold);
+
+      final existing = await getWatchProgressList();
+      existing.removeWhere((e) => e.videoId == video.videoId);
+
+      if (isFinished) {
+        await _box.put(
+          _watchProgressKey,
+          existing.map((e) => e.toMap()).toList(),
+        );
+        return;
+      }
+
+      existing.insert(
+        0,
+        WatchProgressModel(
+          video: video,
+          positionSeconds: positionSeconds,
+          durationSeconds: durationSeconds,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      );
+
+      if (existing.length > _maxWatchProgressEntries) {
+        existing.removeRange(_maxWatchProgressEntries, existing.length);
+      }
+
+      await _box.put(
+        _watchProgressKey,
+        existing.map((e) => e.toMap()).toList(),
+      );
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> removeWatchProgress(String videoId) async {
+    try {
+      final existing = await getWatchProgressList();
+      existing.removeWhere((e) => e.videoId == videoId);
+      await _box.put(
+        _watchProgressKey,
+        existing.map((e) => e.toMap()).toList(),
+      );
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> clearWatchProgress() async {
+    try {
+      await _box.delete(_watchProgressKey);
     } catch (e) {
       // Sessizce devam et
     }
