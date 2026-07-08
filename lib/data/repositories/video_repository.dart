@@ -1,10 +1,10 @@
 // lib/data/repositories/video_repository.dart
 
-import 'dart:convert';
 import 'dart:developer';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_ce/hive.dart';
 
+import '../datasources/local/app_cache_box.dart';
 import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_model.dart';
@@ -32,6 +32,11 @@ class VideoRepository {
     required LocalDataSource local,
   }) : _supabase = supabase,
        _local = local;
+
+  Box get _box => AppCacheBox.instance;
+
+  Map<String, dynamic> _asMap(dynamic v) =>
+      Map<String, dynamic>.from(v as Map);
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
 
@@ -288,10 +293,7 @@ class VideoRepository {
 
   Future<bool> _isBundleCacheValid() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final timeStr = prefs.getString(_bundleTimeKey);
-      if (timeStr == null) return false;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_bundleTimeKey) as DateTime?;
       if (cacheTime == null) return false;
       return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
           _bundleTtlMinutes;
@@ -307,10 +309,9 @@ class VideoRepository {
 
   Future<Map<String, dynamic>?> _getBundleFromCache() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonStr = prefs.getString(_bundleCacheKey);
-      if (jsonStr == null) return null;
-      return Map<String, dynamic>.from(json.decode(jsonStr) as Map);
+      final raw = _box.get(_bundleCacheKey);
+      if (raw == null) return null;
+      return _asMap(raw);
     } catch (e, stacktrace) {
       log(
         'Bundle cache\'den veri okunurken hata oluştu: $e',
@@ -323,12 +324,8 @@ class VideoRepository {
 
   Future<void> _saveBundleToCache(Map<String, dynamic> data) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_bundleCacheKey, json.encode(data));
-      await prefs.setString(
-        _bundleTimeKey,
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_bundleCacheKey, data);
+      await _box.put(_bundleTimeKey, DateTime.now().toUtc());
     } catch (e, stacktrace) {
       log(
         'Bundle cache\'e veri yazılırken hata oluştu: $e',

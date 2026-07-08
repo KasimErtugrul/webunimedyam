@@ -1,10 +1,10 @@
 // lib/data/repositories/university_stats_repository.dart
 
-import 'dart:convert';
 import 'dart:developer';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_ce/hive.dart';
 
+import '../datasources/local/app_cache_box.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/university_stats_model.dart';
 
@@ -23,14 +23,16 @@ class UniversityStatsRepository {
   UniversityStatsRepository({required SupabaseDataSource supabase})
     : _supabase = supabase;
 
+  Box get _box => AppCacheBox.instance;
+
+  Map<String, dynamic> _asMap(dynamic v) =>
+      Map<String, dynamic>.from(v as Map);
+
   // ─── Bundle Cache ────────────────────────────────────────────────────────
 
   Future<bool> _isBundleCacheValid() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final timeStr = prefs.getString(_bundleTimeKey);
-      if (timeStr == null) return false;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_bundleTimeKey) as DateTime?;
       if (cacheTime == null) return false;
       return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
           _ttlMinutes;
@@ -46,10 +48,9 @@ class UniversityStatsRepository {
 
   Future<Map<String, dynamic>?> _getBundleFromCache() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonStr = prefs.getString(_bundleCacheKey);
-      if (jsonStr == null) return null;
-      return Map<String, dynamic>.from(json.decode(jsonStr) as Map);
+      final raw = _box.get(_bundleCacheKey);
+      if (raw == null) return null;
+      return _asMap(raw);
     } catch (e, stacktrace) {
       log(
         'Bundle cache\'den veri okunurken hata oluştu: $e',
@@ -62,12 +63,8 @@ class UniversityStatsRepository {
 
   Future<void> _saveBundleToCache(Map<String, dynamic> data) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_bundleCacheKey, json.encode(data));
-      await prefs.setString(
-        _bundleTimeKey,
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_bundleCacheKey, data);
+      await _box.put(_bundleTimeKey, DateTime.now().toUtc());
     } catch (e, stacktrace) {
       log(
         'Bundle cache\'e veri yazılırken hata oluştu: $e',
@@ -196,12 +193,9 @@ class UniversityStatsRepository {
 
   Future<bool> _isCacheValid(String orderBy, {String? filterColumn}) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final timeStr = prefs.getString(
-        _cacheTimeKey(orderBy, filterColumn: filterColumn),
-      );
-      if (timeStr == null) return false;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime =
+          _box.get(_cacheTimeKey(orderBy, filterColumn: filterColumn))
+              as DateTime?;
       if (cacheTime == null) return false;
       return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
           _ttlMinutes;
@@ -220,19 +214,10 @@ class UniversityStatsRepository {
     String? filterColumn,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonStr = prefs.getString(
-        _cacheKey(orderBy, filterColumn: filterColumn),
-      );
-      if (jsonStr == null) return null;
-      final list = json.decode(jsonStr) as List;
-      return list
-          .map(
-            (e) => UniversityStatsModel.fromMap(
-              Map<String, dynamic>.from(e as Map),
-            ),
-          )
-          .toList();
+      final raw =
+          _box.get(_cacheKey(orderBy, filterColumn: filterColumn)) as List?;
+      if (raw == null) return null;
+      return raw.map((e) => UniversityStatsModel.fromMap(_asMap(e))).toList();
     } catch (e, stacktrace) {
       log(
         'Cache\'den veri okunurken hata oluştu: $e',
@@ -249,14 +234,13 @@ class UniversityStatsRepository {
     String? filterColumn,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
+      await _box.put(
         _cacheKey(orderBy, filterColumn: filterColumn),
-        json.encode(data.map((e) => e.toMap()).toList()),
+        data.map((e) => e.toMap()).toList(),
       );
-      await prefs.setString(
+      await _box.put(
         _cacheTimeKey(orderBy, filterColumn: filterColumn),
-        DateTime.now().toUtc().toIso8601String(),
+        DateTime.now().toUtc(),
       );
     } catch (e, stacktrace) {
       log(

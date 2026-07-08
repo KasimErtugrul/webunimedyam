@@ -1,8 +1,11 @@
-import 'package:shared_preferences/shared_preferences.dart';
+// lib/data/datasources/local/local_datasource.dart
+
+import 'package:hive_ce/hive.dart';
+
+import 'app_cache_box.dart';
 import '../../models/video_model.dart';
 import '../../models/user_stats_model.dart';
 import '../../models/video_engagement_model.dart';
-import 'dart:convert';
 
 class LocalDataSource {
   static const _onboardingKey = 'onboarding_completed';
@@ -11,18 +14,15 @@ class LocalDataSource {
   static const _themeKey = 'theme';
   static const _languageKey = 'language';
 
-  SharedPreferences? _prefs;
+  Box get _box => AppCacheBox.instance;
 
-  Future<SharedPreferences> get _p async {
-    _prefs ??= await SharedPreferences.getInstance();
-    return _prefs!;
-  }
+  Map<String, dynamic> _asMap(dynamic v) =>
+      Map<String, dynamic>.from(v as Map);
 
   // Onboarding
   Future<bool> isOnboardingCompleted() async {
     try {
-      final prefs = await _p;
-      return prefs.getBool(_onboardingKey) ?? false;
+      return (_box.get(_onboardingKey) as bool?) ?? false;
     } catch (e) {
       return false;
     }
@@ -30,22 +30,18 @@ class LocalDataSource {
 
   Future<void> setOnboardingCompleted() async {
     try {
-      final prefs = await _p;
-      await prefs.setBool(_onboardingKey, true);
+      await _box.put(_onboardingKey, true);
     } catch (e) {
-      // Log yok, sessizce devam et
+      // Sessizce devam et
     }
   }
 
   // Video Cache
   Future<List<VideoModel>> getCachedVideos() async {
     try {
-      final prefs = await _p;
-      final jsonString = prefs.getString(_videoCacheKey);
-      if (jsonString == null) return [];
-
-      final List<dynamic> jsonList = json.decode(jsonString);
-      return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
+      final raw = _box.get(_videoCacheKey) as List?;
+      if (raw == null) return [];
+      return raw.map((e) => VideoModel.fromSupabase(_asMap(e))).toList();
     } catch (e) {
       return [];
     }
@@ -54,11 +50,12 @@ class LocalDataSource {
   // FIX: OOM RİSKİ ÖNLENDİ. Artık sadece son 50 videoyu cache'liyor.
   Future<void> cacheVideos(List<VideoModel> videos) async {
     try {
-      final prefs = await _p;
       final videosToCache = videos.take(50).toList();
-      final jsonList = videosToCache.map((v) => v.toSupabase()).toList();
-      await prefs.setString(_videoCacheKey, json.encode(jsonList));
-      await prefs.setString(_cacheTimeKey, DateTime.now().toIso8601String());
+      await _box.put(
+        _videoCacheKey,
+        videosToCache.map((v) => v.toSupabase()).toList(),
+      );
+      await _box.put(_cacheTimeKey, DateTime.now().toUtc());
     } catch (e) {
       // Sessizce devam et
     }
@@ -66,11 +63,7 @@ class LocalDataSource {
 
   Future<bool> isCacheValid() async {
     try {
-      final prefs = await _p;
-      final cacheTimeString = prefs.getString(_cacheTimeKey);
-      if (cacheTimeString == null) return false;
-
-      final cacheTime = DateTime.tryParse(cacheTimeString);
+      final cacheTime = _box.get(_cacheTimeKey) as DateTime?;
       if (cacheTime == null) return false;
 
       final nowUtc = DateTime.now().toUtc();
@@ -100,9 +93,8 @@ class LocalDataSource {
 
   Future<void> clearCache() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_videoCacheKey);
-      await prefs.remove(_cacheTimeKey);
+      await _box.delete(_videoCacheKey);
+      await _box.delete(_cacheTimeKey);
     } catch (e) {
       // Sessizce devam et
     }
@@ -111,8 +103,7 @@ class LocalDataSource {
   // Theme
   Future<String> getTheme() async {
     try {
-      final prefs = await _p;
-      return prefs.getString(_themeKey) ?? 'dark';
+      return (_box.get(_themeKey) as String?) ?? 'dark';
     } catch (e) {
       return 'dark';
     }
@@ -120,8 +111,7 @@ class LocalDataSource {
 
   Future<void> setTheme(String theme) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_themeKey, theme);
+      await _box.put(_themeKey, theme);
     } catch (e) {
       // Sessizce devam et
     }
@@ -130,8 +120,7 @@ class LocalDataSource {
   // Language
   Future<String> getLanguage() async {
     try {
-      final prefs = await _p;
-      return prefs.getString(_languageKey) ?? 'tr';
+      return (_box.get(_languageKey) as String?) ?? 'tr';
     } catch (e) {
       return 'tr';
     }
@@ -139,8 +128,7 @@ class LocalDataSource {
 
   Future<void> setLanguage(String language) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_languageKey, language);
+      await _box.put(_languageKey, language);
     } catch (e) {
       // Sessizce devam et
     }
@@ -152,10 +140,9 @@ class LocalDataSource {
 
   Future<Map<String, dynamic>?> getCachedUserSettings() async {
     try {
-      final prefs = await _p;
-      final s = prefs.getString(_userSettingsKey);
-      if (s == null) return null;
-      return Map<String, dynamic>.from(json.decode(s) as Map);
+      final raw = _box.get(_userSettingsKey);
+      if (raw == null) return null;
+      return _asMap(raw);
     } catch (e) {
       return null;
     }
@@ -163,8 +150,7 @@ class LocalDataSource {
 
   Future<void> cacheUserSettings(Map<String, dynamic> settings) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_userSettingsKey, json.encode(settings));
+      await _box.put(_userSettingsKey, settings);
     } catch (e) {
       // Sessizce devam et
     }
@@ -172,8 +158,7 @@ class LocalDataSource {
 
   Future<void> clearUserSettings() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_userSettingsKey);
+      await _box.delete(_userSettingsKey);
     } catch (e) {
       // Sessizce devam et
     }
@@ -185,11 +170,9 @@ class LocalDataSource {
 
   Future<List<VideoModel>> getFavoriteVideos() async {
     try {
-      final prefs = await _p;
-      final jsonString = prefs.getString(_favoriteVideosKey);
-      if (jsonString == null) return [];
-      final List<dynamic> jsonList = json.decode(jsonString);
-      return jsonList.map((e) => VideoModel.fromSupabase(e)).toList();
+      final raw = _box.get(_favoriteVideosKey) as List?;
+      if (raw == null) return [];
+      return raw.map((e) => VideoModel.fromSupabase(_asMap(e))).toList();
     } catch (e) {
       return [];
     }
@@ -198,7 +181,6 @@ class LocalDataSource {
   // FIX: OOM RİSKİ ÖNLENDİ. Liste 100'ü geçerse en eski favorileri siler.
   Future<void> saveFavoriteVideo(VideoModel video) async {
     try {
-      final prefs = await _p;
       final existing = await getFavoriteVideos();
       if (existing.any((v) => v.videoId == video.videoId)) return;
 
@@ -210,9 +192,9 @@ class LocalDataSource {
         existing.removeRange(maxFavorites, existing.length);
       }
 
-      await prefs.setString(
+      await _box.put(
         _favoriteVideosKey,
-        json.encode(existing.map((v) => v.toSupabase()).toList()),
+        existing.map((v) => v.toSupabase()).toList(),
       );
     } catch (e) {
       // Sessizce devam et
@@ -221,12 +203,11 @@ class LocalDataSource {
 
   Future<void> removeFavoriteVideo(String videoId) async {
     try {
-      final prefs = await _p;
       final existing = await getFavoriteVideos();
       existing.removeWhere((v) => v.videoId == videoId);
-      await prefs.setString(
+      await _box.put(
         _favoriteVideosKey,
-        json.encode(existing.map((v) => v.toSupabase()).toList()),
+        existing.map((v) => v.toSupabase()).toList(),
       );
     } catch (e) {
       // Sessizce devam et
@@ -235,8 +216,7 @@ class LocalDataSource {
 
   Future<void> clearFavoriteVideos() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_favoriteVideosKey);
+      await _box.delete(_favoriteVideosKey);
     } catch (e) {
       // Sessizce devam et
     }
@@ -250,11 +230,7 @@ class LocalDataSource {
 
   Future<UserStatsModel?> getCachedUserStats() async {
     try {
-      final prefs = await _p;
-      final timeStr = prefs.getString(_userStatsCacheTimeKey);
-      if (timeStr == null) return null;
-
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_userStatsCacheTimeKey) as DateTime?;
       if (cacheTime == null) return null;
 
       final expired =
@@ -262,11 +238,10 @@ class LocalDataSource {
           _statsTtlMinutes;
       if (expired) return null;
 
-      final jsonStr = prefs.getString(_userStatsKey);
-      if (jsonStr == null) return null;
+      final raw = _box.get(_userStatsKey);
+      if (raw == null) return null;
 
-      final map = Map<String, dynamic>.from(json.decode(jsonStr) as Map);
-      return UserStatsModel.fromMap(map);
+      return UserStatsModel.fromMap(_asMap(raw));
     } catch (e) {
       return null;
     }
@@ -274,12 +249,8 @@ class LocalDataSource {
 
   Future<void> cacheUserStats(UserStatsModel stats) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_userStatsKey, json.encode(stats.toMap()));
-      await prefs.setString(
-        _userStatsCacheTimeKey,
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_userStatsKey, stats.toMap());
+      await _box.put(_userStatsCacheTimeKey, DateTime.now().toUtc());
     } catch (e) {
       // Sessizce devam et
     }
@@ -287,9 +258,8 @@ class LocalDataSource {
 
   Future<void> clearUserStats() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_userStatsKey);
-      await prefs.remove(_userStatsCacheTimeKey);
+      await _box.delete(_userStatsKey);
+      await _box.delete(_userStatsCacheTimeKey);
     } catch (e) {
       // Sessizce devam et
     }
@@ -306,24 +276,19 @@ class LocalDataSource {
 
   Future<List<VideoEngagementModel>?> getCachedVideoSection(String key) async {
     try {
-      final prefs = await _p;
-      final timeStr = prefs.getString(_sectionTimeKey(key));
-      if (timeStr == null) return null;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_sectionTimeKey(key)) as DateTime?;
       if (cacheTime == null) return null;
+
       final expired =
           DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
           _sectionTtlMinutes;
       if (expired) return null;
-      final jsonStr = prefs.getString(_sectionKey(key));
-      if (jsonStr == null) return null;
-      final list = json.decode(jsonStr) as List;
-      return list
-          .map(
-            (e) => VideoEngagementModel.fromMap(
-              Map<String, dynamic>.from(e as Map),
-            ),
-          )
+
+      final raw = _box.get(_sectionKey(key)) as List?;
+      if (raw == null) return null;
+
+      return raw
+          .map((e) => VideoEngagementModel.fromMap(_asMap(e)))
           .toList();
     } catch (e) {
       return null;
@@ -335,15 +300,8 @@ class LocalDataSource {
     List<VideoEngagementModel> items,
   ) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(
-        _sectionKey(key),
-        json.encode(items.map((e) => e.toMap()).toList()),
-      );
-      await prefs.setString(
-        _sectionTimeKey(key),
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_sectionKey(key), items.map((e) => e.toMap()).toList());
+      await _box.put(_sectionTimeKey(key), DateTime.now().toUtc());
     } catch (e) {
       // Sessizce devam et
     }
@@ -351,13 +309,13 @@ class LocalDataSource {
 
   Future<void> clearVideoSectionCache() async {
     try {
-      final prefs = await _p;
-      final keys = prefs.getKeys().where(
+      final keys = _box.keys.where(
         (k) =>
-            k.startsWith(_videoSectionPrefix) ||
-            k.startsWith(_videoSectionTimePrefix),
+            k is String &&
+            (k.startsWith(_videoSectionPrefix) ||
+                k.startsWith(_videoSectionTimePrefix)),
       );
-      await Future.wait(keys.map((k) => prefs.remove(k)));
+      await _box.deleteAll(keys);
     } catch (e) {
       // Sessizce devam et
     }
@@ -371,18 +329,18 @@ class LocalDataSource {
 
   Future<Map<String, dynamic>?> getCachedProfile() async {
     try {
-      final prefs = await _p;
-      final timeStr = prefs.getString(_profileTimeKey);
-      if (timeStr == null) return null;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_profileTimeKey) as DateTime?;
       if (cacheTime == null) return null;
+
       final expired =
           DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
           _profileTtlMinutes;
       if (expired) return null;
-      final s = prefs.getString(_profileKey);
-      if (s == null) return null;
-      return Map<String, dynamic>.from(json.decode(s) as Map);
+
+      final raw = _box.get(_profileKey);
+      if (raw == null) return null;
+
+      return _asMap(raw);
     } catch (e) {
       return null;
     }
@@ -390,12 +348,8 @@ class LocalDataSource {
 
   Future<void> cacheProfile(Map<String, dynamic> profile) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_profileKey, json.encode(profile));
-      await prefs.setString(
-        _profileTimeKey,
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_profileKey, profile);
+      await _box.put(_profileTimeKey, DateTime.now().toUtc());
     } catch (e) {
       // Sessizce devam et
     }
@@ -403,9 +357,8 @@ class LocalDataSource {
 
   Future<void> clearProfile() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_profileKey);
-      await prefs.remove(_profileTimeKey);
+      await _box.delete(_profileKey);
+      await _box.delete(_profileTimeKey);
     } catch (e) {
       // Sessizce devam et
     }
@@ -419,10 +372,7 @@ class LocalDataSource {
 
   Future<bool> isUniversityCacheValid() async {
     try {
-      final prefs = await _p;
-      final timeStr = prefs.getString(_universityTimeKey);
-      if (timeStr == null) return false;
-      final cacheTime = DateTime.tryParse(timeStr);
+      final cacheTime = _box.get(_universityTimeKey) as DateTime?;
       if (cacheTime == null) return false;
       return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
           _universityTtlMinutes;
@@ -433,11 +383,9 @@ class LocalDataSource {
 
   Future<List<Map<String, dynamic>>> getCachedUniversities() async {
     try {
-      final prefs = await _p;
-      final s = prefs.getString(_universityKey);
-      if (s == null) return [];
-      final list = json.decode(s) as List;
-      return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      final raw = _box.get(_universityKey) as List?;
+      if (raw == null) return [];
+      return raw.map((e) => _asMap(e)).toList();
     } catch (e) {
       return [];
     }
@@ -447,12 +395,8 @@ class LocalDataSource {
     List<Map<String, dynamic>> universities,
   ) async {
     try {
-      final prefs = await _p;
-      await prefs.setString(_universityKey, json.encode(universities));
-      await prefs.setString(
-        _universityTimeKey,
-        DateTime.now().toUtc().toIso8601String(),
-      );
+      await _box.put(_universityKey, universities);
+      await _box.put(_universityTimeKey, DateTime.now().toUtc());
     } catch (e) {
       // Sessizce devam et
     }
@@ -460,9 +404,8 @@ class LocalDataSource {
 
   Future<void> clearUniversities() async {
     try {
-      final prefs = await _p;
-      await prefs.remove(_universityKey);
-      await prefs.remove(_universityTimeKey);
+      await _box.delete(_universityKey);
+      await _box.delete(_universityTimeKey);
     } catch (e) {
       // Sessizce devam et
     }

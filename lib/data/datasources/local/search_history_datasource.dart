@@ -1,13 +1,19 @@
-import 'package:shared_preferences/shared_preferences.dart';
+// lib/data/datasources/local/search_history_datasource.dart
+
+import 'package:hive_ce/hive.dart';
+
+import 'app_cache_box.dart';
 
 class SearchHistoryDataSource {
   static const _key = 'search_history';
   static const _maxItems = 15;
 
+  Box get _box => AppCacheBox.instance;
+
   Future<List<String>> getHistory() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getStringList(_key) ?? [];
+      final raw = _box.get(_key) as List?;
+      return raw?.cast<String>() ?? [];
     } catch (e) {
       return [];
     }
@@ -17,12 +23,11 @@ class SearchHistoryDataSource {
     try {
       final q = query.trim();
       if (q.isEmpty) return;
-      final prefs = await SharedPreferences.getInstance();
-      final history = prefs.getStringList(_key) ?? [];
+      final history = await getHistory();
       history.remove(q); // varsa eski konumdan kaldır
       history.insert(0, q); // başa ekle
       if (history.length > _maxItems) history.removeLast();
-      await prefs.setStringList(_key, history);
+      await _box.put(_key, history);
     } catch (e) {
       // Sessizce devam et
     }
@@ -30,10 +35,9 @@ class SearchHistoryDataSource {
 
   Future<void> removeQuery(String query) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final history = prefs.getStringList(_key) ?? [];
+      final history = await getHistory();
       history.remove(query);
-      await prefs.setStringList(_key, history);
+      await _box.put(_key, history);
     } catch (e) {
       // Sessizce devam et
     }
@@ -41,8 +45,7 @@ class SearchHistoryDataSource {
 
   Future<void> clearAll() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_key);
+      await _box.delete(_key);
     } catch (e) {
       // Sessizce devam et
     }

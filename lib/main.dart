@@ -8,13 +8,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
 import 'app/themes/app_theme.dart';
+import 'data/datasources/local/app_cache_box.dart';
 import 'data/datasources/local/local_datasource.dart';
 import 'data/datasources/remote/supabase_datasource.dart';
 import 'data/repositories/auth_repository.dart';
@@ -66,9 +67,17 @@ void main() async {
   // user property'sini set ediyor, sonra her login/logout'ta otomatik günceller.
   await AnalyticsService.instance.initialize();
 
+  // ── Hive (local cache) ────────────────────────────────────────────────────
+  // NOT: SharedPreferences'tan geçiş — tüm local cache tek bir Hive box'ında
+  // tutuluyor. Box uygulama boyunca açık kalır (main dışında bir daha
+  // Hive.openBox çağrılmaz), diğer katmanlar AppCacheBox.instance ile
+  // senkron erişir.
+  await Hive.initFlutter();
+  await Hive.openBox(AppCacheBox.name);
+
   // ── Tema ──────────────────────────────────────────────────────────────────
-  final prefs      = await SharedPreferences.getInstance();
-  final savedTheme = prefs.getString('theme') ?? 'dark';
+  final savedTheme =
+      (AppCacheBox.instance.get('theme') as String?) ?? 'dark';
 
   await ScreenUtil.ensureScreenSize();
 
