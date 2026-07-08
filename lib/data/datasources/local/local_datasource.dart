@@ -226,27 +226,25 @@ class LocalDataSource {
 
   static const _userStatsKey = 'user_stats';
   static const _userStatsCacheTimeKey = 'user_stats_cache_time';
-  static const _statsTtlMinutes = 60;
 
+  // GÜNCELLEME: Artık TTL/süre kontrolü yapılmıyor. İlk senkronizasyondan
+  // (Supabase'den ilk çekilişten) sonra bu cache, uygulama içi aksiyonlarla
+  // (izleme/beğeni/favori/yorum/paylaşım) recordLocal*** metotlarıyla
+  // doğrudan güncellenen "canlı" veri kaynağı haline geliyor. Süre dolduğu
+  // gerekçesiyle bu veriyi görmezden gelip gereksiz yere Supabase'e tekrar
+  // gitmemize gerek yok — istatistik ekranı artık tamamen buradan besleniyor.
   Future<UserStatsModel?> getCachedUserStats() async {
     try {
-      final cacheTime = _box.get(_userStatsCacheTimeKey) as DateTime?;
-      if (cacheTime == null) return null;
-
-      final expired =
-          DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes >=
-          _statsTtlMinutes;
-      if (expired) return null;
-
       final raw = _box.get(_userStatsKey);
       if (raw == null) return null;
-
       return UserStatsModel.fromMap(_asMap(raw));
     } catch (e) {
       return null;
     }
   }
 
+  /// Supabase'den taze veri geldiğinde (ilk açılış veya elle "yenile")
+  /// çağrılır; yerel cache'i sunucudaki son duruma sıfırlar.
   Future<void> cacheUserStats(UserStatsModel stats) async {
     try {
       await _box.put(_userStatsKey, stats.toMap());
@@ -263,6 +261,101 @@ class LocalDataSource {
     } catch (e) {
       // Sessizce devam et
     }
+  }
+
+  // ─── Uygulama İçi Aksiyonları Local'e Yansıtma (Mirror) ──────────────────
+  //
+  // Mantık: Supabase'e bir yazma işlemi (beğeni/favori/yorum/paylaşım/izleme)
+  // gittiğinde AYNI ANDA yerel istatistik kopyasına da aynı değişiklik
+  // uygulanır — sunucudaki karmaşık view/SQL hesaplamalarını burada tekrar
+  // üretmeye çalışmıyoruz, sadece "sunucuya ne gittiyse local'e de o gider"
+  // basit kuralını izliyoruz.
+  //
+  // Henüz hiç senkron yapılmamışsa (cache boşsa) hiçbir şey yapılmaz; bir
+  // sonraki getUserStats() çağrısı zaten Supabase'den taze veriyi çekip
+  // cache'i oluşturacaktır — bu yüzden action'lar sessizce no-op olur.
+
+  Future<void> _mutateUserStats(
+    UserStatsModel Function(UserStatsModel current) mutate,
+  ) async {
+    try {
+      final raw = _box.get(_userStatsKey);
+      if (raw == null) return; // İlk senkron henüz yapılmadı, dokunma.
+      final current = UserStatsModel.fromMap(_asMap(raw));
+      final updated = mutate(current);
+      // NOT: _userStatsCacheTimeKey kasıtlı olarak burada güncellenmiyor;
+      // o alan yalnızca "en son Supabase senkronu ne zaman oldu" bilgisini
+      // taşıyor, mirror güncellemeleriyle karışmaması için ayrı tutuluyor.
+      await _box.put(_userStatsKey, updated.toMap());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  int _nonNegative(int value) => value < 0 ? 0 : value;
+
+  /// Bir video Supabase'e İLK KEZ izlenme olarak kaydedildiğinde
+  /// (recordView → isNewView == true) çağrılır.
+  Future<void> recordLocalVideoWatched({VideoModel? video}) async {
+    final now = DateTime.now().toUtc();
+    await _mutateUserStats(
+      (s) => s.copyWith(
+        totalWatched: s.totalWatched + 1,
+        firstWatchAt: s.firstWatchAt ?? now,
+        lastWatchAt: now,
+        lastWatchedAt: now,
+        lastWatchedTitle: video?.title ?? s.lastWatchedTitle,
+        lastWatchedThumbnail: video?.bestThumbnail ?? s.lastWatchedThumbnail,
+      ),
+    );
+  }
+
+  /// Bir video beğenildiğinde (added: true) veya beğenisi geri
+  /// alındığında (added: false) — Supabase'e addLike/removeLike ile aynı
+  /// anda — çağrılır.
+  Future<void> recordLocalLikeChange({
+    required bool added,
+    VideoModel? video,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await _mutateUserStats((s) {
+      final newTotal = _nonNegative(s.totalLiked + (added ? 1 : -1));
+      if (!added) return s.copyWith(totalLiked: newTotal);
+      return s.copyWith(
+        totalLiked: newTotal,
+        lastLikedAt: now,
+        lastLikedTitle: video?.title ?? s.lastLikedTitle,
+        lastLikedThumbnail: video?.bestThumbnail ?? s.lastLikedThumbnail,
+      );
+    });
+  }
+
+  /// Bir video favorilere eklendiğinde/çıkarıldığında — Supabase'e
+  /// addFavorite/removeFavorite ile aynı anda — çağrılır.
+  Future<void> recordLocalFavoriteChange({required bool added}) async {
+    await _mutateUserStats(
+      (s) => s.copyWith(
+        totalFavorited: _nonNegative(s.totalFavorited + (added ? 1 : -1)),
+      ),
+    );
+  }
+
+  /// Bir yorum eklendiğinde/silindiğinde — Supabase'e addComment/
+  /// deleteComment ile aynı anda — çağrılır.
+  Future<void> recordLocalCommentChange({required bool added}) async {
+    await _mutateUserStats(
+      (s) => s.copyWith(
+        totalCommented: _nonNegative(s.totalCommented + (added ? 1 : -1)),
+      ),
+    );
+  }
+
+  /// Bir video paylaşıldığında — Supabase'e recordShare ile aynı anda —
+  /// çağrılır.
+  Future<void> recordLocalShare() async {
+    await _mutateUserStats(
+      (s) => s.copyWith(totalShared: s.totalShared + 1),
+    );
   }
 
   // ─── Video Seksiyon Cache (30 dk TTL) ────────────────────────────────────

@@ -157,4 +157,70 @@ class UserStatsModel {
   String toString() {
     return 'UserStatsModel{userId=$userId, username=$username, fullName=$fullName, avatarUrl=$avatarUrl, memberSince=$memberSince, totalWatched=$totalWatched, totalLiked=$totalLiked, totalFavorited=$totalFavorited, totalCommented=$totalCommented, totalShared=$totalShared, uniqueUniversitiesWatched=$uniqueUniversitiesWatched, watchedThisWeek=$watchedThisWeek, watchedThisMonth=$watchedThisMonth, estimatedWatchMinutes=$estimatedWatchMinutes, firstWatchAt=$firstWatchAt, lastWatchAt=$lastWatchAt, currentStreakDays=$currentStreakDays, longestStreakDays=$longestStreakDays, topUniversityName=$topUniversityName, topUniversityLogo=$topUniversityLogo, topUniversityWatchCount=$topUniversityWatchCount, lastWatchedTitle=$lastWatchedTitle, lastWatchedThumbnail=$lastWatchedThumbnail, lastWatchedAt=$lastWatchedAt, lastLikedTitle=$lastLikedTitle, lastLikedThumbnail=$lastLikedThumbnail, lastLikedAt=$lastLikedAt}';
   }
+
+  /// YENİ: Uygulama içi aksiyonlardan (izleme/beğeni/favori/yorum/paylaşım)
+  /// sonra istatistikleri Supabase'e tekrar sormadan yerelde güncelleyebilmek
+  /// için eklendi (bkz. LocalDataSource.recordLocal*** metodları).
+  UserStatsModel copyWith({
+    String? userId,
+    String? username,
+    String? fullName,
+    String? avatarUrl,
+    DateTime? memberSince,
+    int? totalWatched,
+    int? totalLiked,
+    int? totalFavorited,
+    int? totalCommented,
+    int? totalShared,
+    int? uniqueUniversitiesWatched,
+    int? watchedThisWeek,
+    int? watchedThisMonth,
+    int? estimatedWatchMinutes,
+    DateTime? firstWatchAt,
+    DateTime? lastWatchAt,
+    int? currentStreakDays,
+    int? longestStreakDays,
+    String? topUniversityName,
+    String? topUniversityLogo,
+    int? topUniversityWatchCount,
+    String? lastWatchedTitle,
+    String? lastWatchedThumbnail,
+    DateTime? lastWatchedAt,
+    String? lastLikedTitle,
+    String? lastLikedThumbnail,
+    DateTime? lastLikedAt,
+  }) {
+    return UserStatsModel(
+      userId: userId ?? this.userId,
+      username: username ?? this.username,
+      fullName: fullName ?? this.fullName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      memberSince: memberSince ?? this.memberSince,
+      totalWatched: totalWatched ?? this.totalWatched,
+      totalLiked: totalLiked ?? this.totalLiked,
+      totalFavorited: totalFavorited ?? this.totalFavorited,
+      totalCommented: totalCommented ?? this.totalCommented,
+      totalShared: totalShared ?? this.totalShared,
+      uniqueUniversitiesWatched:
+          uniqueUniversitiesWatched ?? this.uniqueUniversitiesWatched,
+      watchedThisWeek: watchedThisWeek ?? this.watchedThisWeek,
+      watchedThisMonth: watchedThisMonth ?? this.watchedThisMonth,
+      estimatedWatchMinutes:
+          estimatedWatchMinutes ?? this.estimatedWatchMinutes,
+      firstWatchAt: firstWatchAt ?? this.firstWatchAt,
+      lastWatchAt: lastWatchAt ?? this.lastWatchAt,
+      currentStreakDays: currentStreakDays ?? this.currentStreakDays,
+      longestStreakDays: longestStreakDays ?? this.longestStreakDays,
+      topUniversityName: topUniversityName ?? this.topUniversityName,
+      topUniversityLogo: topUniversityLogo ?? this.topUniversityLogo,
+      topUniversityWatchCount:
+          topUniversityWatchCount ?? this.topUniversityWatchCount,
+      lastWatchedTitle: lastWatchedTitle ?? this.lastWatchedTitle,
+      lastWatchedThumbnail: lastWatchedThumbnail ?? this.lastWatchedThumbnail,
+      lastWatchedAt: lastWatchedAt ?? this.lastWatchedAt,
+      lastLikedTitle: lastLikedTitle ?? this.lastLikedTitle,
+      lastLikedThumbnail: lastLikedThumbnail ?? this.lastLikedThumbnail,
+      lastLikedAt: lastLikedAt ?? this.lastLikedAt,
+    );
+  }
 }

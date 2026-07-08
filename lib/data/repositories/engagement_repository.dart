@@ -27,6 +27,7 @@ import 'dart:developer';
 import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/video_viewer_model.dart';
+import '../models/video_model.dart';
 
 class EngagementRepository {
   final SupabaseDataSource _supabase;
@@ -97,11 +98,13 @@ class EngagementRepository {
   /// Önceki kodda hata direkt throw ediliyordu.
   /// HomeController ve PlayerController zaten catch yazıyor ama
   /// tutarlı davranış için repository katmanında da logla.
-  Future<void> addLike(String userId, String videoId) async {
+  Future<void> addLike(String userId, String videoId, {VideoModel? video}) async {
     try {
       await _supabase.addLike(userId, videoId);
-      // FIX: totalLiked istatistiği etkileniyor, cache invalidasyonu şart.
-      await _local.clearUserStats();
+      // GÜNCELLEME: Artık cache'i silip bir sonraki açılışta Supabase'e
+      // tekrar gitmiyoruz — aynı beğeniyi doğrudan yerel istatistik
+      // kopyasına da yansıtıyoruz (mirror).
+      await _local.recordLocalLikeChange(added: true, video: video);
     } catch (e, stacktrace) {
       log(
         'Beğeni eklenirken hata oluştu: $e',
@@ -113,10 +116,10 @@ class EngagementRepository {
   }
 
   /// BUG FIX: try/catch + log eklendi.
-  Future<void> removeLike(String userId, String videoId) async {
+  Future<void> removeLike(String userId, String videoId, {VideoModel? video}) async {
     try {
       await _supabase.removeLike(userId, videoId);
-      await _local.clearUserStats();
+      await _local.recordLocalLikeChange(added: false, video: video);
     } catch (e, stacktrace) {
       log(
         'Beğeni silinirken hata oluştu: $e',
@@ -179,12 +182,16 @@ class EngagementRepository {
     }
   }
 
-  Future<bool> recordView(String userId, String videoId) async {
+  Future<bool> recordView(String userId, String videoId, {VideoModel? video}) async {
     try {
       final result = await _supabase.recordView(userId, videoId);
-      // FIX: totalWatched / watchedThisWeek / watchedThisMonth / streak
-      // gibi alanlar etkileniyor, cache invalidasyonu şart.
-      await _local.clearUserStats();
+      // GÜNCELLEME: sadece gerçekten YENİ bir izlemeyse (result == true,
+      // yani bu video bu kullanıcı için ilk kez kaydedildi) yerel
+      // istatistiğe +1 yansıt. Tekrar izlemelerde sunucu da saymıyor,
+      // biz de saymıyoruz.
+      if (result) {
+        await _local.recordLocalVideoWatched(video: video);
+      }
       return result;
     } catch (e, stacktrace) {
       log(
@@ -199,8 +206,8 @@ class EngagementRepository {
   Future<void> recordShare(String userId, String videoId) async {
     try {
       await _supabase.recordShare(userId, videoId);
-      // FIX: totalShared istatistiği etkileniyor.
-      await _local.clearUserStats();
+      // GÜNCELLEME: totalShared'i doğrudan yerelde de +1 yapıyoruz.
+      await _local.recordLocalShare();
     } catch (e, stacktrace) {
       log(
         'Paylaşım kaydedilirken hata oluştu: $e',

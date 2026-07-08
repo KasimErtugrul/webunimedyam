@@ -207,6 +207,7 @@ class PlayerController extends GetxController {
       final isNewView = await engagementRepository.recordView(
         userId,
         currentVideo.value!.videoId,
+        video: currentVideo.value,
       );
       if (isNewView) appViewCount.value += 1;
     } catch (e, stacktrace) {
@@ -277,9 +278,14 @@ class PlayerController extends GetxController {
         await engagementRepository.removeLike(
           userId,
           currentVideo.value!.videoId,
+          video: currentVideo.value,
         );
       } else {
-        await engagementRepository.addLike(userId, currentVideo.value!.videoId);
+        await engagementRepository.addLike(
+          userId,
+          currentVideo.value!.videoId,
+          video: currentVideo.value,
+        );
       }
       // OPTİMİZASYON: getEngagementStats() çağrısı kaldırıldı.
       // appLikeCount zaten yukarıda optimistic olarak güncellendi — doğru delta kesin.
