@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -24,7 +24,7 @@ class PlayerController extends GetxController {
   final EngagementRepository engagementRepository;
   final AuthRepository authRepository;
   final VideoRepository videoRepository; // ← YENİ
-  final WatchProgressRepository watchProgressRepository; // ← YENİ: yarım bırakılan videolar
+  final WatchProgressRepository watchProgressRepository; // ← YENİ: İzlemeye Devam Et
 
   PlayerController({
     required this.favoritesRepository,
@@ -63,9 +63,21 @@ class PlayerController extends GetxController {
   final currentVideo = Rxn<VideoModel>();
   String? get currentUserId => authRepository.currentUserId;
 
-  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
+  // ─── İzlemeye Devam Et (Continue Watching) — TAMAMEN LOCAL ───────────────
   Timer? _progressTimer;
-  int? _resumeFromSeconds;
+  int _lastPositionSeconds = 0;
+  int _lastDurationSeconds = 0;
+  bool _firstProgressSaveDone = false;
+  DateTime? _lastProgressPersistAt;
+  static const _progressPersistInterval = Duration(seconds: 3);
+  // BUG FIX: autoPlay varsayılan olarak açık olduğundan, kullanıcı oynat
+  // tuşuna hiç basmadan videoya girip anında geri çıksa bile video otomatik
+  // oynamaya başlıyor ve saniyeler ilerliyordu. Eşik 1 saniyeyken bu, gerçekte
+  // hiç izlenmemiş videoların bile "İzlemeye Devam Et" listesine düşmesine
+  // sebep oluyordu. Artık ilk kayıt için en az bu kadar saniye izlenmiş
+  // olması gerekiyor — anlık girip-çıkmalar artık kayıt oluşturmuyor, ama
+  // gerçekten birkaç saniye izleyen kullanıcı için liste yine çalışıyor.
+  static const _minSecondsForFirstSave = 5;
 
   @override
   void onInit() {
@@ -73,12 +85,11 @@ class PlayerController extends GetxController {
     currentVideo.value = Get.arguments as VideoModel?;
 
     if (currentVideo.value != null) {
-      _initPlayer().then((_) {
+      _initPlayer().then((_) async {
         isPlayerReady.value = true;
         loadComments();
         _loadInitialState();
         loadSuggestedVideos(); // ← YENİ
-        _startProgressTracking(); // ← YENİ: yarım bırakılan videolar
 
         // Analytics: video_play — recordView() sadece giriş yapmış kullanıcılar
         // için Supabase'e yazıldığından, misafir izlemelerini de yakalamak için
@@ -87,8 +98,115 @@ class PlayerController extends GetxController {
           videoId: currentVideo.value!.videoId,
           title: currentVideo.value!.title,
         );
+
+        // İzlemeye Devam Et: kaldığı yerden devam ettir + izleme takibini başlat.
+        await _restoreSavedProgress();
+        _startProgressTracking();
       });
     }
+  }
+
+  // ─── İzlemeye Devam Et — Kaldığı Yerden Başlatma ─────────────────────────
+  Future<void> _restoreSavedProgress() async {
+    try {
+      if (currentVideo.value == null || youtubeController == null) return;
+      if (currentVideo.value!.isLiveBroadcast) return;
+
+      final saved = await watchProgressRepository.getProgress(
+        currentVideo.value!.videoId,
+      );
+      if (saved == null) return;
+      if (saved.isNearlyFinished) return;
+      if (saved.positionSeconds < 2) return; // çok az izlenmişse baştan başlasın
+
+      // BUG FIX: _initPlayer() tamamlandığında YoutubePlayerController
+      // sadece OLUŞTURULMUŞ olur; YouTube iframe'i videoyu henüz yüklemiş
+      // (hazır) olmayabilir. Bu durumda seekTo() komutu çok erken gönderilip
+      // sessizce yok sayılıyor ve video baştan oynamaya devam ediyordu.
+      // Bu yüzden gerçekten hazır olana (duration okunabilir hale gelene)
+      // kadar kısa aralıklarla bekliyoruz, ancak sonsuz beklememesi için
+      // bir üst sınır koyuyoruz.
+      final isReady = await _waitUntilPlayerReady();
+      if (!isReady || youtubeController == null) return;
+
+      await youtubeController!.seekTo(
+        seconds: saved.positionSeconds.toDouble(),
+        allowSeekAhead: true,
+      );
+
+      _lastPositionSeconds = saved.positionSeconds;
+      _lastDurationSeconds = saved.durationSeconds;
+    } catch (e, stacktrace) {
+      log(
+        'Kaydedilen izleme ilerlemesi geri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
+  /// YouTube iframe'i gerçekten videoyu yükleyip `duration` bilgisini
+  /// dönebilir hale gelene kadar bekler (en fazla ~6 saniye dener).
+  /// Player henüz metadata döndürmüyorsa `duration` 0 veya hata gelir.
+  Future<bool> _waitUntilPlayerReady() async {
+    for (var attempt = 0; attempt < 24; attempt++) {
+      if (youtubeController == null) return false;
+      try {
+        final dur = await youtubeController!.duration;
+        if (dur > 0) return true;
+      } catch (_) {
+        // Henüz hazır değil, tekrar dene.
+      }
+      await Future.delayed(const Duration(milliseconds: 250));
+    }
+    return false;
+  }
+
+  // ─── İzlemeye Devam Et — İzleme Takibi ───────────────────────────────────
+  // Video oynatılırken periyodik olarak konum/süre okunur ve yerel olarak
+  // kaydedilir. Kullanıcı videoyu 1 saniye bile izlese (ilk tik'te) hemen
+  // "İzlemeye Devam Et" listesine düşer; sonrasında izlemeye devam ettikçe
+  // (tekrar açıp bitirmeden çıksa da) kayıt her seferinde güncellenir.
+  void _startProgressTracking() {
+    _progressTimer?.cancel();
+    _progressTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (youtubeController == null || currentVideo.value == null) return;
+      if (currentVideo.value!.isLiveBroadcast) return;
+      try {
+        final dur = await youtubeController!.duration;
+        final cur = await youtubeController!.currentTime;
+        if (dur <= 0) return;
+
+        _lastPositionSeconds = cur.round();
+        _lastDurationSeconds = dur.round();
+
+        final now = DateTime.now();
+        final isFirstSave =
+            !_firstProgressSaveDone &&
+            _lastPositionSeconds >= _minSecondsForFirstSave;
+        final intervalPassed =
+            _lastProgressPersistAt == null ||
+            now.difference(_lastProgressPersistAt!) >= _progressPersistInterval;
+
+        if (isFirstSave || (intervalPassed && _firstProgressSaveDone)) {
+          await _persistProgress();
+          _firstProgressSaveDone = true;
+          _lastProgressPersistAt = now;
+        }
+      } catch (_) {
+        // Player henüz hazır değilse sessizce geç, bir sonraki tik'te dene.
+      }
+    });
+  }
+
+  Future<void> _persistProgress() async {
+    if (currentVideo.value == null) return;
+    if (_lastDurationSeconds <= 0) return;
+    await watchProgressRepository.saveProgress(
+      video: currentVideo.value!,
+      positionSeconds: _lastPositionSeconds,
+      durationSeconds: _lastDurationSeconds,
+    );
   }
 
   Future<void> _loadInitialState() async {
@@ -148,17 +266,9 @@ class PlayerController extends GetxController {
       final autoplay =
           Get.find<SettingsController>().settings.value?.autoplay ?? true;
 
-      // YENİ: Video daha önce yarım bırakıldıysa kaldığı saniyeyi oku —
-      // tamamen local (Hive), Supabase'e gitmez.
-      _resumeFromSeconds = await watchProgressRepository
-          .getResumePositionSeconds(currentVideo.value!.videoId);
-
       youtubeController = YoutubePlayerController.fromVideoId(
         videoId: currentVideo.value!.videoId,
         autoPlay: autoplay,
-        startSeconds: (_resumeFromSeconds != null && _resumeFromSeconds! > 0)
-            ? _resumeFromSeconds!.toDouble()
-            : null,
         params: const YoutubePlayerParams(
           showFullscreenButton: false,
           showControls: true,
@@ -177,45 +287,6 @@ class PlayerController extends GetxController {
         stackTrace: stacktrace,
       );
       AnalyticsService.instance.recordError(e, stacktrace, reason: 'player_init_failed');
-    }
-  }
-
-  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
-  //
-  // Supabase'e HİÇBİR ŞEY yazılmaz. Sadece cihazdaki Hive kutusuna, video +
-  // kalınan saniye + toplam süre kaydedilir. Ana sayfadaki yatay liste
-  // buradan (HomeController.continueWatching) beslenir.
-
-  void _startProgressTracking() {
-    if (youtubeController == null) return;
-    // Her 5 saniyede bir anlık pozisyonu okuyup diske (Hive) yazıyoruz.
-    // currentTime / duration, paketin resmi olarak dokümante ettiği async
-    // getter'lar — video oynatıcı state akışına bağımlı değil.
-    _progressTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _persistProgress(),
-    );
-  }
-
-  Future<void> _persistProgress() async {
-    if (currentVideo.value == null || youtubeController == null) return;
-    try {
-      final durationSeconds = (await youtubeController!.duration).round();
-      // metadata henüz yüklenmemişse (duration == 0) kaydetmeye değmez.
-      if (durationSeconds <= 0) return;
-      final positionSeconds = (await youtubeController!.currentTime).round();
-
-      await watchProgressRepository.saveProgress(
-        video: currentVideo.value!,
-        positionSeconds: positionSeconds,
-        durationSeconds: durationSeconds,
-      );
-    } catch (e, stacktrace) {
-      log(
-        'İzleme ilerlemesi kaydedilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
     }
   }
 
@@ -519,24 +590,44 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
-    // YENİ: Ekrandan çıkılırken SON pozisyonu kaydet — kullanıcı geri
-    // döndüğünde tam olarak bıraktığı yerden devam etsin. Player'ı hemen
-    // kapatırsak currentTime/duration çağrıları yarıda kesilebilir, bu
-    // yüzden kapatmayı son kayıt bitene kadar erteliyoruz.
-    _progressTimer?.cancel();
-    final controllerToClose = youtubeController;
-    _persistProgress().whenComplete(() => controllerToClose?.close());
-
     try {
       if (currentVideo.value != null && Get.isRegistered<HomeController>()) {
         final home = Get.find<HomeController>();
         home.syncLikeFromPlayer(currentVideo.value!.videoId, isLiked.value);
         home.syncFavoriteFromPlayer(currentVideo.value!.videoId, isFavorite.value);
         home.syncViewCountFromPlayer(currentVideo.value!.videoId, appViewCount.value);
-        // YENİ: Ana sayfadaki "İzlemeye Devam Et" listesini tazele.
-        home.loadContinueWatching();
       }
     } catch (_) {}
+
+    // İzlemeye Devam Et: kullanıcı videoyu bitirmeden ekrandan çıkıyor —
+    // en son bilinen konumu (cached, controller'a async gitmeden) kaydet.
+    // Timer henüz iptal edilmeden önce, en güncel değerleri yakalamak için
+    // fire-and-forget bir final persist yapılır.
+    //
+    // BUG FIX: Eğer ticker'da hiç ilk kayıt yapılmadıysa (kullanıcı eşiğe
+    // ulaşmadan çıktıysa) burada da YENİ bir kayıt OLUŞTURULMAMALI —
+    // aksi halde "oynat tuşuna basmadan hemen geri dön" senaryosunda video
+    // yine de listeye düşer. Zaten var olan bir kaydı güncellemek serbest.
+    _progressTimer?.cancel();
+    final shouldPersistOnClose =
+        _firstProgressSaveDone ||
+        _lastPositionSeconds >= _minSecondsForFirstSave;
+    if (currentVideo.value != null &&
+        _lastDurationSeconds > 0 &&
+        shouldPersistOnClose) {
+      // Not: onClose senkron olduğundan await edilemez; ancak repository
+      // çağrısı Hive'a yazmayı hemen kuyruğa alır, youtubeController.close()
+      // ile yarışmaz çünkü zaten cache'lenmiş (senkron okunmuş) değerleri kullanır.
+      unawaited(
+        watchProgressRepository.saveProgress(
+          video: currentVideo.value!,
+          positionSeconds: _lastPositionSeconds,
+          durationSeconds: _lastDurationSeconds,
+        ),
+      );
+    }
+
+    youtubeController?.close();
     super.onClose();
   }
 }

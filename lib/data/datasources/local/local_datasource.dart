@@ -505,33 +505,36 @@ class LocalDataSource {
     }
   }
 
-  // ─── İzleme İlerlemesi (Yarım Bırakılan Videolar) ────────────────────────
+  // ─── İzleme İlerlemesi (Continue Watching) — TAMAMEN LOCAL ───────────────
   //
-  // Tamamen local: kullanıcı bir videoyu belirli bir noktaya kadar izleyip
-  // bırakırsa (ör. 12. dakikada), o video ile en son kaldığı saniye burada
-  // tutulur. Ana sayfadaki "İzlemeye Devam Et" yatay listesi buradan beslenir.
-  // En yeni bırakılan video listenin başında olacak şekilde sıralı tutulur.
+  // Kullanıcı bir videoyu izlerken bıraktığı saniye burada, cihaz üzerinde
+  // Hive ile tutulur. Sunucuya (Supabase) HİÇBİR ŞEY gönderilmez — bu özellik
+  // tamamen yerel çalışır. Kayıtlar videoId'ye göre map'te tutulur, okurken
+  // en son güncellenene göre sıralanır.
 
   static const _watchProgressKey = 'watch_progress';
-  static const _maxWatchProgressEntries = 20;
+  static const _maxWatchProgressEntries = 30;
 
-  // Bir video, süresinin bu oranından fazlasını izlediyse veya bitişine bu
-  // kadar saniyeden az kaldıysa "bitti" sayılır ve devam listesine hiç
-  // girmez / listedeyse çıkarılır.
-  static const _finishedRatioThreshold = 0.95;
-  static const _finishedRemainingSecondsThreshold = 15;
+  Future<Map<String, dynamic>> _getWatchProgressRaw() async {
+    try {
+      final raw = _box.get(_watchProgressKey);
+      if (raw == null) return {};
+      return Map<String, dynamic>.from(raw as Map);
+    } catch (e) {
+      return {};
+    }
+  }
 
-  // Videoya çok az girilip hemen çıkıldıysa (ör. ilk 10 sn) "yarım bırakıldı"
-  // sayılmaz — kullanıcı henüz izlemeye başlamamış demektir.
-  static const _minStartSecondsToTrack = 10;
-
+  /// "İzlemeye Devam Et" listesini, en son izlenen en üstte olacak
+  /// şekilde döner.
   Future<List<WatchProgressModel>> getWatchProgressList() async {
     try {
-      final raw = _box.get(_watchProgressKey) as List?;
-      if (raw == null) return [];
-      return raw
+      final raw = await _getWatchProgressRaw();
+      final items = raw.values
           .map((e) => WatchProgressModel.fromMap(_asMap(e)))
           .toList();
+      items.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      return items;
     } catch (e) {
       return [];
     }
@@ -539,74 +542,68 @@ class LocalDataSource {
 
   Future<WatchProgressModel?> getWatchProgress(String videoId) async {
     try {
-      final all = await getWatchProgressList();
-      for (final entry in all) {
-        if (entry.videoId == videoId) return entry;
-      }
-      return null;
+      final raw = await _getWatchProgressRaw();
+      final entry = raw[videoId];
+      if (entry == null) return null;
+      return WatchProgressModel.fromMap(_asMap(entry));
     } catch (e) {
       return null;
     }
   }
 
-  /// Video ilerlemesini kaydeder (upsert). Video zaten "bitmiş" sayılıyorsa
-  /// listeden çıkarılır; bitmemişse en başa alınır (en son izlenen üstte).
+  /// Bir videonun izleme ilerlemesini kaydeder/günceller.
+  /// Kullanıcı videoyu 1 saniye bile izlese burası çağrılır — video anında
+  /// "İzlemeye Devam Et" listesine düşer. Daha sonra ne kadar ilerlerse
+  /// (tekrar açıp bitirmeden çıkarsa da) aynı kayıt güncellenir.
   Future<void> saveWatchProgress({
     required VideoModel video,
     required int positionSeconds,
     required int durationSeconds,
   }) async {
     try {
-      if (positionSeconds < _minStartSecondsToTrack) return;
+      final raw = await _getWatchProgressRaw();
+      raw[video.videoId] = WatchProgressModel(
+        video: video,
+        positionSeconds: positionSeconds,
+        durationSeconds: durationSeconds,
+        updatedAt: DateTime.now().toUtc(),
+      ).toMap();
 
-      final isFinished =
-          durationSeconds > 0 &&
-          (positionSeconds / durationSeconds >= _finishedRatioThreshold ||
-              (durationSeconds - positionSeconds) <=
-                  _finishedRemainingSecondsThreshold);
-
-      final existing = await getWatchProgressList();
-      existing.removeWhere((e) => e.videoId == video.videoId);
-
-      if (isFinished) {
-        await _box.put(
-          _watchProgressKey,
-          existing.map((e) => e.toMap()).toList(),
-        );
-        return;
+      // OOM/şişme riskine karşı: en fazla N kayıt tutulur, en eskiler silinir.
+      if (raw.length > _maxWatchProgressEntries) {
+        final entries = raw.entries.toList()
+          ..sort((a, b) {
+            final aDate =
+                DateTime.tryParse(
+                  (_asMap(a.value)['updated_at'] ?? '').toString(),
+                ) ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+            final bDate =
+                DateTime.tryParse(
+                  (_asMap(b.value)['updated_at'] ?? '').toString(),
+                ) ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+            return aDate.compareTo(bDate);
+          });
+        final toRemove = entries.length - _maxWatchProgressEntries;
+        for (var i = 0; i < toRemove; i++) {
+          raw.remove(entries[i].key);
+        }
       }
 
-      existing.insert(
-        0,
-        WatchProgressModel(
-          video: video,
-          positionSeconds: positionSeconds,
-          durationSeconds: durationSeconds,
-          updatedAt: DateTime.now().toUtc(),
-        ),
-      );
-
-      if (existing.length > _maxWatchProgressEntries) {
-        existing.removeRange(_maxWatchProgressEntries, existing.length);
-      }
-
-      await _box.put(
-        _watchProgressKey,
-        existing.map((e) => e.toMap()).toList(),
-      );
+      await _box.put(_watchProgressKey, raw);
     } catch (e) {
       // Sessizce devam et
     }
   }
 
+  /// Video tamamlandığında veya kullanıcı listeden kaldırdığında çağrılır.
   Future<void> removeWatchProgress(String videoId) async {
     try {
-      final existing = await getWatchProgressList();
-      existing.removeWhere((e) => e.videoId == videoId);
-      await _box.put(
-        _watchProgressKey,
-        existing.map((e) => e.toMap()).toList(),
-      );
+      final raw = await _getWatchProgressRaw();
+      if (raw.remove(videoId) != null) {
+        await _box.put(_watchProgressKey, raw);
+      }
     } catch (e) {
       // Sessizce devam et
     }

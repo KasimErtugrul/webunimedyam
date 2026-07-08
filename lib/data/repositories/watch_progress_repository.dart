@@ -1,8 +1,10 @@
 // lib/data/repositories/watch_progress_repository.dart
 //
-// Tamamen local (cihaz-içi) çalışır — Supabase'e hiçbir şey yazmaz/okumaz.
-// "Yarım Bırakılan Videolar" / "İzlemeye Devam Et" özelliğinin veri katmanı.
+// "İzlemeye Devam Et" (Continue Watching) özelliği için repository.
+// BİLİNÇLİ OLARAK Supabase'e (remote) hiç dokunmaz — tamamen LocalDataSource
+// (Hive) üzerinden çalışır. Böylece izleme ilerlemesi tamamen cihazda kalır.
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
@@ -11,12 +13,27 @@ import '../datasources/local/local_datasource.dart';
 import '../models/video_model.dart';
 import '../models/watch_progress_model.dart';
 
+/// İlerleme kaydedildiğinde/kaldırıldığında yayılan olay.
+/// HomeController gibi dinleyiciler, "İzlemeye Devam Et" satırını anında
+/// güncelleyebilsin diye kullanılır.
+class WatchProgressChange {
+  final String videoId;
+  final bool removed;
+
+  WatchProgressChange({required this.videoId, required this.removed});
+}
+
 class WatchProgressRepository extends GetxService {
   final LocalDataSource _local;
 
   WatchProgressRepository({required LocalDataSource local}) : _local = local;
 
-  /// Ana sayfada gösterilecek "yarım bırakılan" videolar (en yeni önce).
+  final _changeController = StreamController<WatchProgressChange>.broadcast();
+  Stream<WatchProgressChange> get onProgressChanged =>
+      _changeController.stream;
+
+  /// Ana sayfada gösterilecek "İzlemeye Devam Et" listesi
+  /// (en son izlenen en üstte).
   Future<List<WatchProgressModel>> getContinueWatching() async {
     try {
       return await _local.getWatchProgressList();
@@ -30,16 +47,12 @@ class WatchProgressRepository extends GetxService {
     }
   }
 
-  /// Player açılırken: bu video daha önce yarım bırakıldıysa kaldığı saniyeyi
-  /// döner, aksi halde null.
-  Future<int?> getResumePositionSeconds(String videoId) async {
+  Future<WatchProgressModel?> getProgress(String videoId) async {
     try {
-      final entry = await _local.getWatchProgress(videoId);
-      if (entry == null) return null;
-      return entry.positionSeconds;
+      return await _local.getWatchProgress(videoId);
     } catch (e, stacktrace) {
       log(
-        'Devam pozisyonu okunurken hata oluştu: $e',
+        'İzleme ilerlemesi getirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
@@ -47,17 +60,32 @@ class WatchProgressRepository extends GetxService {
     }
   }
 
-  /// Oynatma sırasında periyodik olarak (ör. her 5 sn'de bir) çağrılır.
+  /// Videonun izleme ilerlemesini kaydeder. Kullanıcı videoyu bitirmeye
+  /// yakın izlediyse (isNearlyFinished), kayıt tutmak yerine kaydı siler —
+  /// tamamlanan videolar "İzlemeye Devam Et" listesinde görünmemeli.
   Future<void> saveProgress({
     required VideoModel video,
     required int positionSeconds,
     required int durationSeconds,
   }) async {
     try {
+      final nearlyFinished =
+          durationSeconds > 0 &&
+          (durationSeconds - positionSeconds <= 5 ||
+              positionSeconds / durationSeconds >= 0.95);
+
+      if (nearlyFinished) {
+        await removeProgress(video.videoId);
+        return;
+      }
+
       await _local.saveWatchProgress(
         video: video,
         positionSeconds: positionSeconds,
         durationSeconds: durationSeconds,
+      );
+      _changeController.add(
+        WatchProgressChange(videoId: video.videoId, removed: false),
       );
     } catch (e, stacktrace) {
       log(
@@ -71,6 +99,9 @@ class WatchProgressRepository extends GetxService {
   Future<void> removeProgress(String videoId) async {
     try {
       await _local.removeWatchProgress(videoId);
+      _changeController.add(
+        WatchProgressChange(videoId: videoId, removed: true),
+      );
     } catch (e, stacktrace) {
       log(
         'İzleme ilerlemesi silinirken hata oluştu: $e',
@@ -78,5 +109,23 @@ class WatchProgressRepository extends GetxService {
         stackTrace: stacktrace,
       );
     }
+  }
+
+  Future<void> clearAll() async {
+    try {
+      await _local.clearWatchProgress();
+    } catch (e, stacktrace) {
+      log(
+        'İzleme ilerlemeleri temizlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
+  @override
+  void onClose() {
+    _changeController.close();
+    super.onClose();
   }
 }

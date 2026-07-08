@@ -193,20 +193,25 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 ),
               ), */
 
-              // ── Yarım Bırakılan Videolar (İzlemeye Devam Et) ────────────
-              // Tamamen local: WatchProgressRepository (Hive) üzerinden gelir.
+              // ── İzlemeye Devam Et (Continue Watching) — TAMAMEN LOCAL ──
               SliverToBoxAdapter(
                 child: Obx(() {
-                  // NOT: .toList() burada, Obx'in builder callback'i içinde
-                  // çağrılıyor — RxList'in okunması (dependency tracking)
-                  // ancak bu şekilde doğru şekilde kaydediliyor. Alt widget
-                  // kendi build()'ünde okusaydı, Obx bunu bir bağımlılık
-                  // olarak göremezdi (ayrı bir build çağrısı olurdu).
+                  // BUG FIX: Obx yalnızca kendi builder'ı İÇİNDE, senkron
+                  // olarak yapılan reactive okumaları izler. RxList referansı
+                  // doğrudan bir child widget'a parametre olarak geçilip
+                  // liste erişimi (isEmpty/iterasyon) o widget'ın KENDİ
+                  // build()'inde yapılırsa, bu okuma Obx'in izleme
+                  // penceresinin DIŞINDA kalır ve "hiç observable yok" hatası
+                  // fırlatılır. Bu yüzden listeyi burada, closure içinde
+                  // somut bir List'e çeviriyoruz (gerçek bir okuma tetikler).
+
                   final items = controller.continueWatching.toList();
-                  return ContinueWatchingSectionWidget(
-                    items: items,
-                    onRemove: controller.removeFromContinueWatching,
-                  );
+                  return !controller.isWheelView.value
+                      ? ContinueWatchingSectionWidget(
+                          items: items,
+                          onRemove: controller.removeFromContinueWatching,
+                        )
+                      : SizedBox.shrink();
                 }),
               ),
 

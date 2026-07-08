@@ -1,4 +1,4 @@
-// lib/presentation/screens/home/tabs/home_tab/widgets/continue_watching_card_widget.dart
+/* // lib/presentation/screens/home/tabs/home_tab/widgets/continue_watching_card_widget.dart
 //
 // "İzlemeye Devam Et" yatay listesindeki tek bir video kartı.
 // Karta basınca video, PlayerController._initPlayer() içinde
@@ -190,3 +190,4 @@ class ContinueWatchingCardWidget extends StatelessWidget {
     );
   }
 }
+ */

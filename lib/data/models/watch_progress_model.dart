@@ -1,45 +1,64 @@
 // lib/data/models/watch_progress_model.dart
 //
-// Kullanıcının yarım bıraktığı bir videonun yerel (Hive) izleme ilerlemesini
-// temsil eder. Tamamen cihaz-içi (local-only) tutulur, Supabase'e yazılmaz.
+// "İzlemeye Devam Et" (Continue Watching) özelliği için, bir kullanıcının
+// bir videoyu nereye kadar izlediğini TAMAMEN LOCAL (Hive) olarak saklayan
+// model. Sunucuya hiçbir şey gönderilmez — tamamen cihaz üzerinde tutulur.
 
 import 'video_model.dart';
 
 class WatchProgressModel {
+  /// İzlenen videonun tüm bilgileri (kart gösterimi için gerekli).
   final VideoModel video;
-  final int positionSeconds; // videonun bırakıldığı saniye (ör. 12. dk -> 720)
-  final int durationSeconds; // videonun toplam süresi (saniye)
-  final DateTime updatedAt; // en son ne zaman güncellendi
 
-  const WatchProgressModel({
+  /// Kullanıcının videoda en son bıraktığı saniye.
+  final int positionSeconds;
+
+  /// Videonun toplam süresi (saniye). 0 ise bilinmiyor demektir.
+  final int durationSeconds;
+
+  /// Bu ilerlemenin en son ne zaman güncellendiği.
+  final DateTime updatedAt;
+
+  WatchProgressModel({
     required this.video,
     required this.positionSeconds,
     required this.durationSeconds,
     required this.updatedAt,
   });
 
-  String get videoId => video.videoId;
-
-  /// 0.0 - 1.0 arası izlenme oranı
-  double get progressRatio {
+  /// 0.0 - 1.0 arası izlenme oranı.
+  double get progressFraction {
     if (durationSeconds <= 0) return 0;
-    final ratio = positionSeconds / durationSeconds;
-    if (ratio.isNaN || ratio.isInfinite) return 0;
-    return ratio.clamp(0.0, 1.0);
+    return (positionSeconds / durationSeconds).clamp(0.0, 1.0);
   }
 
+  /// Kalan süre (saniye). Negatif olamaz.
   int get remainingSeconds {
     final remaining = durationSeconds - positionSeconds;
     return remaining < 0 ? 0 : remaining;
   }
 
-  /// "12 dk kaldı" gibi kısa, kullanıcıya gösterilecek kalan süre metni
-  String get remainingLabel {
-    final remaining = remainingSeconds;
-    if (remaining <= 0) return '';
-    final minutes = (remaining / 60).ceil();
-    if (minutes < 1) return '1 dk kaldı';
-    return '$minutes dk kaldı';
+  /// Video, "izlendi" sayılacak kadar sona yaklaşmış mı?
+  /// (Son 5 saniye veya %95 üzeri izlenmişse tamamlanmış kabul edilir.)
+  bool get isNearlyFinished {
+    if (durationSeconds <= 0) return false;
+    if (remainingSeconds <= 5) return true;
+    return progressFraction >= 0.95;
+  }
+
+  String get formattedPosition => _formatSeconds(positionSeconds);
+  String get formattedDuration => _formatSeconds(durationSeconds);
+  String get formattedRemaining => _formatSeconds(remainingSeconds);
+
+  static String _formatSeconds(int totalSeconds) {
+    final s = totalSeconds < 0 ? 0 : totalSeconds;
+    final h = s ~/ 3600;
+    final m = (s % 3600) ~/ 60;
+    final sec = s % 60;
+    if (h > 0) {
+      return '$h:${m.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}';
+    }
+    return '$m:${sec.toString().padLeft(2, '0')}';
   }
 
   WatchProgressModel copyWith({
@@ -77,16 +96,4 @@ class WatchProgressModel {
           DateTime.now(),
     );
   }
-}
-
-/// Video modelinin ISO 8601 `duration` alanını (ör. "PT12M34S") saniyeye çevirir.
-int parseIsoDurationToSeconds(String iso) {
-  final match = RegExp(
-    r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?',
-  ).firstMatch(iso);
-  if (match == null) return 0;
-  final h = int.tryParse(match.group(1) ?? '') ?? 0;
-  final m = int.tryParse(match.group(2) ?? '') ?? 0;
-  final s = int.tryParse(match.group(3) ?? '') ?? 0;
-  return h * 3600 + m * 60 + s;
 }

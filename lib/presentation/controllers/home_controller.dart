@@ -29,7 +29,7 @@ class HomeController extends GetxController {
   final EngagementRepository engagementRepository;
   final UniversityFavoritesRepository universityFavoritesRepository;
   final CommentRepository commentRepository;
-  final WatchProgressRepository watchProgressRepository;
+  final WatchProgressRepository watchProgressRepository; // ← YENİ: İzlemeye Devam Et
 
   HomeController({
     required this.videoRepository,
@@ -39,7 +39,7 @@ class HomeController extends GetxController {
     required this.engagementRepository,
     required this.universityFavoritesRepository,
     required this.commentRepository,
-    required this.watchProgressRepository,
+    required this.watchProgressRepository, // ← YENİ
   });
 
   // ─── State ─────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ class HomeController extends GetxController {
   final isVideoSectionsLoading = false.obs;
   final showAuthRequired = false.obs;
 
-  // ─── Yarım Bırakılan Videolar (İzlemeye Devam Et) — tamamen local ────────
+  // ─── İzlemeye Devam Et (Continue Watching) — TAMAMEN LOCAL ────────────────
   final continueWatching = <WatchProgressModel>[].obs;
   final isContinueWatchingLoading = false.obs;
 
@@ -131,6 +131,7 @@ class HomeController extends GetxController {
 
   late final StreamSubscription<FavoriteChange> _favoriteSubscription;
   late final StreamSubscription<UniversityFavoriteChange> _uniFavSubscription;
+  late final StreamSubscription<WatchProgressChange> _watchProgressSubscription;
 
   int get likedIdsCount => _likedIds.length;
 
@@ -168,6 +169,10 @@ class HomeController extends GetxController {
             favoriteUniversityIds.remove(event.universityId);
           }
         });
+    // İzlemeye Devam Et: player'da ilerleme kaydedildikçe/silindikçe
+    // ana sayfadaki listeyi anında güncelle.
+    _watchProgressSubscription = watchProgressRepository.onProgressChanged
+        .listen((_) => loadContinueWatching());
   }
 
   @override
@@ -181,46 +186,11 @@ class HomeController extends GetxController {
     loadContinueWatching();
   }
 
-  // ─── Yarım Bırakılan Videolar ───────────────────────────────────────────
-
-  /// Ana sayfadaki "İzlemeye Devam Et" yatay listesini yükler (en fazla 20
-  /// video, en son bırakılan en başta). Tamamen local — ağ isteği yapmaz.
-  Future<void> loadContinueWatching() async {
-    try {
-      isContinueWatchingLoading.value = true;
-      continueWatching.value = await watchProgressRepository
-          .getContinueWatching();
-    } catch (e, stacktrace) {
-      log(
-        'Yarım bırakılan videolar yüklenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    } finally {
-      isContinueWatchingLoading.value = false;
-    }
-  }
-
-  /// Kullanıcı bir videonun üzerindeki ✕'e bastığında çağrılır — "artık
-  /// izlemek istemiyorum, bir daha karşıma çıkmasın" demektir. Önce listeden
-  /// anında kaldırılır (optimistic), sonra local depodan (Hive) silinir.
-  Future<void> removeFromContinueWatching(String videoId) async {
-    continueWatching.removeWhere((e) => e.videoId == videoId);
-    try {
-      await watchProgressRepository.removeProgress(videoId);
-    } catch (e, stacktrace) {
-      log(
-        'Yarım bırakılan video kaldırılırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
-
   @override
   void onClose() {
     _favoriteSubscription.cancel();
     _uniFavSubscription.cancel();
+    _watchProgressSubscription.cancel();
     super.onClose();
   }
 
@@ -279,6 +249,46 @@ class HomeController extends GetxController {
       );
     } finally {
       isVideoSectionsLoading.value = false;
+    }
+  }
+
+  // ─── İzlemeye Devam Et (Continue Watching) — TAMAMEN LOCAL ────────────────
+
+  Future<void> loadContinueWatching() async {
+    try {
+      isContinueWatchingLoading.value = true;
+      continueWatching.value = await watchProgressRepository
+          .getContinueWatching();
+    } catch (e, stacktrace) {
+      log(
+        'İzlemeye devam et listesi yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      isContinueWatchingLoading.value = false;
+    }
+  }
+
+  /// Kullanıcı "İzlemeye Devam Et" kartını kaldırdığında (ör. kaydırarak
+  /// veya "Kaldır" butonuyla) çağrılır. Optimistic olarak listeden çıkarır.
+  Future<void> removeFromContinueWatching(String videoId) async {
+    final removedIndex = continueWatching.indexWhere(
+      (w) => w.video.videoId == videoId,
+    );
+    if (removedIndex == -1) return;
+    final removedItem = continueWatching[removedIndex];
+    continueWatching.removeAt(removedIndex);
+    try {
+      await watchProgressRepository.removeProgress(videoId);
+    } catch (e, stacktrace) {
+      // Hata durumunda geri ekle
+      continueWatching.insert(removedIndex, removedItem);
+      log(
+        'İzlemeye devam et kaydı kaldırılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -497,10 +507,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'favorite', 'source': 'home_feed'},
-      );
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'favorite',
+        'source': 'home_feed',
+      });
       return;
     }
 
@@ -549,10 +559,7 @@ class HomeController extends GetxController {
     final idx = videos.indexWhere((v) => v.videoId == videoId);
     if (idx == -1) return;
     videos[idx] = videos[idx].copyWith(
-      appFavoriteCount: (videos[idx].appFavoriteCount + delta).clamp(
-        0,
-        999999999,
-      ),
+      appFavoriteCount: (videos[idx].appFavoriteCount + delta).clamp(0, 999999999),
     );
   }
 
@@ -606,10 +613,10 @@ class HomeController extends GetxController {
 
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'university_favorite', 'source': 'home_feed'},
-      );
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'university_favorite',
+        'source': 'home_feed',
+      });
       return;
     }
 
@@ -661,10 +668,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'like', 'source': 'home_feed'},
-      );
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'like',
+        'source': 'home_feed',
+      });
       return;
     }
     if (_likeProcessing.contains(videoId)) return;
@@ -678,10 +685,7 @@ class HomeController extends GetxController {
       if (!_likeCache.containsKey(videoId)) {
         _likeCacheLoading.add(videoId);
         try {
-          _likeCache[videoId] = await engagementRepository.isLiked(
-            userId,
-            videoId,
-          );
+          _likeCache[videoId] = await engagementRepository.isLiked(userId, videoId);
         } finally {
           _likeCacheLoading.remove(videoId);
         }
@@ -780,15 +784,12 @@ class HomeController extends GetxController {
           _updateVideoShareCount(video.videoId, 1);
         }
       }
-      AnalyticsService.instance.logEvent(
-        'share',
-        parameters: {
-          'content_type': 'video',
-          'item_id': video.videoId,
-          'method': 'share_sheet',
-          'source': 'home_feed',
-        },
-      );
+      AnalyticsService.instance.logEvent('share', parameters: {
+        'content_type': 'video',
+        'item_id': video.videoId,
+        'method': 'share_sheet',
+        'source': 'home_feed',
+      });
     } catch (e, stacktrace) {
       log(
         'Video paylaşılırken hata oluştu, panoya kopyalanıyor: $e',
@@ -801,15 +802,12 @@ class HomeController extends GetxController {
         'Video bağlantısı panoya kopyalandı.',
         snackPosition: SnackPosition.BOTTOM,
       );
-      AnalyticsService.instance.logEvent(
-        'share',
-        parameters: {
-          'content_type': 'video',
-          'item_id': video.videoId,
-          'method': 'clipboard_fallback',
-          'source': 'home_feed',
-        },
-      );
+      AnalyticsService.instance.logEvent('share', parameters: {
+        'content_type': 'video',
+        'item_id': video.videoId,
+        'method': 'clipboard_fallback',
+        'source': 'home_feed',
+      });
     } finally {
       _shareLoadingIds.remove(video.videoId);
       _shareProcessing.remove(video.videoId);
@@ -827,10 +825,10 @@ class HomeController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'comment', 'source': 'home_feed'},
-      );
+      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {
+        'action': 'comment',
+        'source': 'home_feed',
+      });
       return false;
     }
 
@@ -847,10 +845,10 @@ class HomeController extends GetxController {
       if (!_commentedIds.contains(video.videoId)) {
         _commentedIds.add(video.videoId);
       }
-      AnalyticsService.instance.logEvent(
-        'comment_add',
-        parameters: {'video_id': video.videoId, 'source': 'home_feed'},
-      );
+      AnalyticsService.instance.logEvent('comment_add', parameters: {
+        'video_id': video.videoId,
+        'source': 'home_feed',
+      });
       return true;
     } catch (e, stacktrace) {
       log(

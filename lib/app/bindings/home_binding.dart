@@ -12,13 +12,13 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/video_repository.dart';
-import '../../data/repositories/watch_progress_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
 import '../../presentation/controllers/home_controller.dart';
 import '../../presentation/controllers/profile_controller.dart';
 import '../../presentation/controllers/university_sort_controller.dart'; // YENİ
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
+import '../../data/repositories/watch_progress_repository.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -88,7 +88,7 @@ class HomeBinding extends Bindings {
       );
     }
 
-    // İzleme ilerlemesi (yarım bırakılan videolar) — tamamen local
+    // YENİ: İzlemeye Devam Et — tamamen local çalışan repository
     if (!Get.isRegistered<WatchProgressRepository>()) {
       Get.lazyPut(
         () => WatchProgressRepository(local: Get.find()),
@@ -107,7 +107,7 @@ class HomeBinding extends Bindings {
         engagementRepository: Get.find(),
         universityFavoritesRepository: Get.find(), // ← ekle
         commentRepository: Get.find(),
-        watchProgressRepository: Get.find(), // ← YENİ: yarım bırakılan videolar
+        watchProgressRepository: Get.find(), // ← YENİ
       ),
       fenix: true,
     );
