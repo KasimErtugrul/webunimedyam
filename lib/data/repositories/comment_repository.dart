@@ -1,12 +1,17 @@
 import 'dart:developer';
+import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/comment_model.dart';
 
 class CommentRepository {
   final SupabaseDataSource _supabase;
+  final LocalDataSource _local;
 
-  CommentRepository({required SupabaseDataSource supabase})
-    : _supabase = supabase;
+  CommentRepository({
+    required SupabaseDataSource supabase,
+    required LocalDataSource local,
+  }) : _supabase = supabase,
+       _local = local;
 
   // ─── OKUMA İŞLEMLERİ (Read) ──────────────────────────────────────────────
   // İnternet yoksa uygulama çökmemeli, boş liste dönmeli. UI "Yorum yok" gösterir.
@@ -36,6 +41,9 @@ class CommentRepository {
   }) async {
     try {
       await _supabase.addComment(userId, videoId, content);
+      // FIX: yorum sayısı istatistik ekranındaki totalCommented'ı etkiliyor.
+      // Cache invalidasyonu yapılmazsa 60 dk boyunca eski sayı gösterilir.
+      await _local.clearUserStats();
     } catch (e, stacktrace) {
       log('Yorum eklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -45,6 +53,7 @@ class CommentRepository {
   Future<void> deleteComment(String commentId) async {
     try {
       await _supabase.deleteComment(commentId);
+      await _local.clearUserStats();
     } catch (e, stacktrace) {
       log('Yorum silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;

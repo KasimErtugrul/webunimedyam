@@ -75,13 +75,16 @@ class HomeBinding extends Bindings {
 
     if (!Get.isRegistered<EngagementRepository>()) {
       Get.lazyPut(
-        () => EngagementRepository(supabase: Get.find()),
+        () => EngagementRepository(supabase: Get.find(), local: Get.find()),
         fenix: true,
       );
     }
 
     if (!Get.isRegistered<CommentRepository>()) {
-      Get.lazyPut(() => CommentRepository(supabase: Get.find()), fenix: true);
+      Get.lazyPut(
+        () => CommentRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
     }
 
     // ── Controllers ────────────────────────────────────────────────────────

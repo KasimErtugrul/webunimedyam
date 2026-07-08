@@ -181,6 +181,8 @@ class FavoritesRepository extends GetxService {
   Future<void> addFavorite(String userId, String videoId) async {
     try {
       await _supabase.addFavorite(userId, videoId);
+      // FIX: totalFavorited istatistiği etkileniyor, cache invalidasyonu şart.
+      await _local.clearUserStats();
     } catch (e, stacktrace) {
       log(
         'Favori eklenirken hata oluştu: $e',
@@ -194,6 +196,7 @@ class FavoritesRepository extends GetxService {
   Future<void> removeFavorite(String userId, String videoId) async {
     try {
       await _supabase.removeFavorite(userId, videoId);
+      await _local.clearUserStats();
     } catch (e, stacktrace) {
       log(
         'Favori silinirken hata oluştu: $e',
