@@ -216,6 +216,10 @@ class VideoRepository {
     try {
       await _local.clearCache();
       await _local.clearVideoSectionCache();
+      // FIX: Trend/En Çok İzlenen/vb. ana sayfa bölümleri ayrı bir bundle
+      // cache'i kullanıyordu ve yukarıdaki temizlemeler ona dokunmuyordu.
+      // Artık pull-to-refresh bunu da temizliyor.
+      await clearBundleCache();
       // Varsayılan parametreler (page=0) ile çağırır, ilk sayfayı yeniler.
       return await getLatestVideosPerUniversity();
     } catch (e, stacktrace) {
@@ -329,6 +333,24 @@ class VideoRepository {
     } catch (e, stacktrace) {
       log(
         'Bundle cache\'e veri yazılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
+  /// FIX: Ana sayfa "Trend/En Çok İzlenen/vb." bölümlerinin cache'i
+  /// clearVideoSectionCache()'den TAMAMEN AYRI bir key alanı kullanıyordu
+  /// (_bundleCacheKey / _bundleTimeKey), bu yüzden pull-to-refresh bu
+  /// bölümleri hiç yenilemiyordu — 30 dk'lık TTL dolana kadar bayat kalıyordu.
+  /// refreshVideos() artık bunu da temizliyor.
+  Future<void> clearBundleCache() async {
+    try {
+      await _box.delete(_bundleCacheKey);
+      await _box.delete(_bundleTimeKey);
+    } catch (e, stacktrace) {
+      log(
+        'Bundle cache temizlenirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );

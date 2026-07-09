@@ -217,7 +217,7 @@ class VideoDetailCard extends StatelessWidget {
                       _statChip(
                         context,
                         icon: Icons.trending_up_rounded,
-                        label: '${item.engagementScore} puan',
+                        label: '${item.engagementScore} etkileşim puanı',
                         highlight: true,
                       ),
                     ],

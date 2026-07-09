@@ -1,4 +1,4 @@
-// lib/app/bindings/university_wheel_binding.dart
+/* // lib/app/bindings/university_wheel_binding.dart
 
 import 'package:get/get.dart';
 
@@ -29,3 +29,4 @@ class UniversityWheelBinding extends Bindings {
     );
   }
 }
+ */

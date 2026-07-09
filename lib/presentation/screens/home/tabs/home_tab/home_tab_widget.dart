@@ -101,6 +101,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           color: Theme.of(context).colorScheme.primary,
           onRefresh: () async {
             await controller.refreshVideos();
+            // FIX: loadVideoSections() burada hiç çağrılmıyordu, bu yüzden
+            // Trend/En Çok İzlenen/Keşfedilmemiş gibi bölümler pull-to-refresh
+            // ile asla yenilenmiyordu (sadece ilk açılışta bir kez yükleniyordu).
+            await controller.loadVideoSections();
             await controller.loadPlaylists();
             await controller.loadUniversityStats();
             await controller.loadContinueWatching();
@@ -135,11 +139,11 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                       onPressed: controller.toggleWheelView,
                     ),
                   ),
-                  IconButton(
+                 /*  IconButton(
                     icon: const Icon(Icons.view_carousel_rounded),
                     tooltip: 'Üniversite Radarı',
                     onPressed: () => Get.toNamed(AppRoutes.universityWheel),
-                  ),
+                  ), */
                   IconButton(
                     icon: const Icon(Icons.radio_rounded),
                     onPressed: () => Get.toNamed(AppRoutes.radio),

@@ -58,13 +58,15 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '🔥 Trend Videolar',
     type: VideoSectionType.trending,
-    statLabelBuilder: (v) => '${v.engagementScore} puan',
+    statLabelBuilder: (v) => '${v.engagementScore} etkileşim puanı',
     statIcon: Icons.trending_up_rounded,
     description:
-        'Uygulama içi etkileşim puanına göre sıralanan videolar. '
-        'İzlenme, beğeni, yorum ve favori sayıları birleştirilerek '
-        'hesaplanan bir "engagement score" kullanılır. '
-        'En yüksek puana sahip videolar bu listede yer alır.',
+        'Bu videolar; izlenme, beğeni, favori, paylaşım ve yorum '
+        'sayıları toplanarak sıralanır (her biri farklı ağırlıkta '
+        'sayılır — örneğin bir yorum, bir izlenmeden daha değerlidir). '
+        '"Etkileşim puanı" bu toplamı ifade eder; kullanıcının kendi '
+        'puanı ya da rütbesiyle ilgisi yoktur, yalnızca videonun ne '
+        'kadar ilgi gördüğünü gösterir.',
   ),
   VideoSectionConfig(
     title: '👁️ En Çok İzlenenler',

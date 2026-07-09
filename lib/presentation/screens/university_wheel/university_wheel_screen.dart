@@ -1,4 +1,4 @@
-// lib/presentation/screens/university_wheel/university_wheel_screen.dart
+/* // lib/presentation/screens/university_wheel/university_wheel_screen.dart
 //
 // "Üniversite Radarı" ekranı.
 // Solda kocaman bir WheelSlider ile üniversite logoları arasında gezinilir,
@@ -403,3 +403,4 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
+ */
