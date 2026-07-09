@@ -1,6 +1,7 @@
 // lib/data/repositories/auth_repository.dart
 
 import 'dart:developer';
+import 'dart:typed_data';
 import '../../services/analytics_service.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../datasources/local/local_datasource.dart';
@@ -104,6 +105,49 @@ class AuthRepository {
     } catch (e, stacktrace) {
       log(
         'Profil güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Profil fotoğrafını yükler, avatar_url'i profiles tablosunda günceller
+  /// ve yerel önbelleği tazeler. Yüklenen public URL döner.
+  Future<String> uploadAvatar({
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw Exception('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
+    }
+    try {
+      final avatarUrl = await _supabase.uploadAvatar(
+        userId: userId,
+        bytes: bytes,
+        fileExtension: fileExtension,
+      );
+
+      // Mevcut profili çekip sadece avatarUrl'i değiştiriyoruz; aksi halde
+      // toSupabase() diğer alanları (username, full_name) null'a düşürür.
+      final currentProfile = await _supabase.getProfile(userId);
+      if (currentProfile == null) {
+        throw Exception('Profil bulunamadı.');
+      }
+      final updatedProfile = currentProfile.copyWith(avatarUrl: avatarUrl);
+      await _supabase.updateProfile(updatedProfile);
+
+      final cached = await _local.getCachedProfile();
+      if (cached != null) {
+        cached['avatar_url'] = avatarUrl;
+        await _local.cacheProfile(cached);
+      }
+
+      return avatarUrl;
+    } catch (e, stacktrace) {
+      log(
+        'Profil fotoğrafı yüklenirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );

@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/profile_model.dart';
 import '../../services/analytics_service.dart';
@@ -18,6 +19,8 @@ class ProfileController extends GetxController {
 
   final successMessage = RxnString();
   final errorMessage = RxnString();
+
+  final isUploadingAvatar = false.obs;
 
   // ─── Kimlik ───────────────────────────────────────────────────────────────
 
@@ -142,6 +145,67 @@ class ProfileController extends GetxController {
         stackTrace: stacktrace,
       );
       errorMessage.value = 'Profil güncellenemedi.';
+    }
+  }
+
+  // ─── Profil Fotoğrafı ─────────────────────────────────────────────────────
+
+  /// Galeriden fotoğraf seçtirir, sıkıştırır, Supabase Storage'a yükler
+  /// ve profiles.avatar_url alanını günceller.
+  Future<void> pickAndUploadAvatar({ImageSource source = ImageSource.gallery}) async {
+    if (!isOwnProfile) {
+      errorMessage.value = 'Bu profili düzenleme yetkiniz yok.';
+      return;
+    }
+    if (isUploadingAvatar.value) return;
+
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+      if (picked == null) return; // Kullanıcı seçimi iptal etti
+
+      isUploadingAvatar.value = true;
+
+      final bytes = await picked.readAsBytes();
+
+      // Boyut güvenliği: bucket zaten 5MB sınırlı ama erken kullanıcı
+      // geri bildirimi için burada da kontrol ediyoruz.
+      if (bytes.lengthInBytes > 5 * 1024 * 1024) {
+        errorMessage.value = 'Fotoğraf çok büyük. Lütfen 5MB altında bir fotoğraf seçin.';
+        return;
+      }
+
+      var extension = picked.path.split('.').last.toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'webp'].contains(extension)) {
+        extension = 'jpg';
+      }
+
+      final avatarUrl = await authRepository.uploadAvatar(
+        bytes: bytes,
+        fileExtension: extension,
+      );
+
+      final current = profile.value;
+      if (current != null) {
+        profile.value = current.copyWith(avatarUrl: avatarUrl);
+      }
+
+      successMessage.value = 'Profil fotoğrafı güncellendi.';
+      AnalyticsService.instance.logEvent('profile_avatar_upload');
+    } catch (e, stacktrace) {
+      log(
+        'Profil fotoğrafı yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value = 'Profil fotoğrafı yüklenemedi. Lütfen tekrar deneyin.';
+    } finally {
+      isUploadingAvatar.value = false;
     }
   }
 

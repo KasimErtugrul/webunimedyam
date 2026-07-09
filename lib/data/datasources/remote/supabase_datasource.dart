@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/shorts_model.dart';
@@ -78,6 +79,53 @@ class SupabaseDataSource {
     } catch (e, stackTrace) {
       log('Profil güncellenirken hata oluştu: $e\n$stackTrace');
       throw Exception('Profil güncellenemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// Profil fotoğrafını 'avatars' bucket'ına yükler ve public URL döner.
+  /// Dosya yolu: {userId}/avatar.{ext} (upsert:true ile üzerine yazılır,
+  /// böylece storage.objects RLS politikaları [userId klasör kuralı] geçerli olur).
+  Future<String> uploadAvatar({
+    required String userId,
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    try {
+      final path = '$userId/avatar.$fileExtension';
+      final contentType = switch (fileExtension.toLowerCase()) {
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+        _ => 'image/jpeg',
+      };
+
+      await _client.storage
+          .from('avatars')
+          .uploadBinary(
+            path,
+            bytes,
+            fileOptions: FileOptions(contentType: contentType, upsert: true),
+          );
+
+      // Public bucket olsa da CDN/tarayıcı cache'ini kırmak için
+      // sona bir cache-busting query parametresi ekliyoruz.
+      final publicUrl = _client.storage.from('avatars').getPublicUrl(path);
+      return '$publicUrl?t=${DateTime.now().millisecondsSinceEpoch}';
+    } catch (e, stackTrace) {
+      log('Profil fotoğrafı yüklenirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Profil fotoğrafı yüklenemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// Kullanıcının avatar klasöründeki tüm dosyaları siler (profil fotoğrafını kaldırma).
+  Future<void> deleteAvatar(String userId) async {
+    try {
+      final files = await _client.storage.from('avatars').list(path: userId);
+      if (files.isEmpty) return;
+      final paths = files.map((f) => '$userId/${f.name}').toList();
+      await _client.storage.from('avatars').remove(paths);
+    } catch (e, stackTrace) {
+      log('Profil fotoğrafı silinirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Profil fotoğrafı silinemedi. Lütfen tekrar deneyin.');
     }
   }
 
