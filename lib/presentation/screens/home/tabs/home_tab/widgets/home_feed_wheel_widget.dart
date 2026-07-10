@@ -64,13 +64,14 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double kWheelCardHeight = 380;
+    double kWheelCardHeight = 340;
 
     final videos = widget.videos;
     if (videos.isEmpty) return const SizedBox.shrink();
 
     final idx = _activeIndex.clamp(0, videos.length - 1);
     final active = videos[idx];
+    final activeUni = _uniFor(active);
 
     return Obx(() {
       final tail = _ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value;
@@ -86,7 +87,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
               child: WheelVideoCardWidget(
                 key: ValueKey(active.videoId),
                 video: active,
-                university: _uniFor(active),
+                university: activeUni,
               ),
             ),
             SizedBox(height: 14.h),
@@ -104,6 +105,10 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
                 onChanged: _onChanged,
               ),
             ),
+            SizedBox(height: 10.h),
+
+            // Wheel altı — üniversite adı + takip butonu (klasik yapı)
+            // _buildUniversityBar(context, active, activeUni),
           ],
         ),
       );
@@ -113,6 +118,8 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
 // ═══════════════════════════════════════════════════════════════════════
 //  LOGO WHEEL — Yatay şerit (RotatedBox tekniği)
+//  NOT: Aktif slot çerçevesi kaldırıldı — sadece opaklık/boyut ile
+//  aktif öğe vurgulanıyor (klasik/sade görünüm).
 // ═══════════════════════════════════════════════════════════════════════
 class _LogoWheel extends StatefulWidget {
   final List<VideoModel> videos;
@@ -167,136 +174,104 @@ class _LogoWheelState extends State<_LogoWheel> {
   Widget build(BuildContext context) {
     final total = widget.videos.length + (widget.showTail ? 1 : 0);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Aktif slot çerçevesi
-        IgnorePointer(
-          child: Container(
-            width: _extent,
-            margin: EdgeInsets.symmetric(vertical: 4.h),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                width: 1.2,
-              ),
-            ),
-          ),
-        ),
-
-        // Wheel — useMagnifier: false (bkz. önceki not)
-        RotatedBox(
-          quarterTurns: 3,
-          child: ListWheelScrollView.useDelegate(
-            controller: _sc,
-            itemExtent: _extent,
-            diameterRatio: 2.0,
-            perspective: 0.0022,
-            squeeze: 1.05,
-            physics: const FixedExtentScrollPhysics(),
-            useMagnifier: false,
-            overAndUnderCenterOpacity: 1,
-            onSelectedItemChanged: _select,
-            childDelegate: ListWheelChildBuilderDelegate(
-              childCount: total,
-              builder: (context, i) {
-                final Widget child;
-                if (i >= widget.videos.length) {
-                  child = widget.isLoading
-                      ? Center(
-                          child: SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.2,
-                              color: AppTheme.primaryColor.withValues(
-                                alpha: 0.7,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Icon(
-                            Icons.more_horiz_rounded,
-                            color: AppTheme.textSec(
-                              context,
-                            ).withValues(alpha: 0.4),
-                            size: 20.sp,
-                          ),
-                        );
-                } else {
-                  final uni = _uniFor(widget.videos[i]);
-                  final isActive = i == widget.activeIndex;
-                  final size = isActive ? _active : _inactive;
-                  final hasLogo =
-                      uni?.logoUrl != null && uni!.logoUrl!.isNotEmpty;
-                  final bg = AppTheme.isDark(context)
-                      ? const Color(0xFF2A2A2A)
-                      : const Color(0xFFF0F0F0);
-
-                  child = AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: isActive ? 1 : 0.45,
-                    child: Center(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOut,
-                        width: size,
-                        height: size,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: bg,
-                          boxShadow: isActive
-                              ? [
-                                  BoxShadow(
-                                    color: AppTheme.primaryColor.withValues(
-                                      alpha: 0.4,
-                                    ),
-                                    blurRadius: 10,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : null,
-                          border: Border.all(
-                            color: isActive
-                                ? AppTheme.primaryColor
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                        padding: EdgeInsets.all(6.w),
-                        child: ClipOval(
-                          child: hasLogo
-                              ? CachedNetworkImage(
-                                  imageUrl: uni.logoUrl!,
-                                  fit: BoxFit.contain,
-                                  fadeInDuration: Duration.zero,
-                                  fadeOutDuration: Duration.zero,
-                                  errorWidget: (_, __, ___) => Icon(
-                                    Icons.school_rounded,
-                                    color: AppTheme.textSec(context),
-                                    size: size * 0.5,
-                                  ),
-                                  placeholder: (_, __) => Container(color: bg),
-                                )
-                              : Icon(
-                                  Icons.school_rounded,
-                                  color: AppTheme.textSec(context),
-                                  size: size * 0.5,
-                                ),
+    // Wheel — useMagnifier: false (bkz. önceki not)
+    return RotatedBox(
+      quarterTurns: 3,
+      child: ListWheelScrollView.useDelegate(
+        controller: _sc,
+        itemExtent: _extent,
+        diameterRatio: 2.0,
+        perspective: 0.0022,
+        squeeze: 1.05,
+        physics: const FixedExtentScrollPhysics(),
+        useMagnifier: false,
+        overAndUnderCenterOpacity: 1,
+        onSelectedItemChanged: _select,
+        childDelegate: ListWheelChildBuilderDelegate(
+          childCount: total,
+          builder: (context, i) {
+            final Widget child;
+            if (i >= widget.videos.length) {
+              child = widget.isLoading
+                  ? Center(
+                      child: SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: AppTheme.primaryColor.withValues(alpha: 0.7),
                         ),
                       ),
+                    )
+                  : Center(
+                      child: Icon(
+                        Icons.more_horiz_rounded,
+                        color: AppTheme.textSec(context).withValues(alpha: 0.4),
+                        size: 20.sp,
+                      ),
+                    );
+            } else {
+              final uni = _uniFor(widget.videos[i]);
+              final isActive = i == widget.activeIndex;
+              final size = isActive ? _active : _inactive;
+              final hasLogo = uni?.logoUrl != null && uni!.logoUrl!.isNotEmpty;
+              final bg = AppTheme.isDark(context)
+                  ? const Color(0xFF2A2A2A)
+                  : const Color(0xFFF0F0F0);
+
+              child = AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: isActive ? 1 : 0.45,
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: bg,
+                      boxShadow: isActive
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.4,
+                                ),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
-                  );
-                }
-                return RotatedBox(quarterTurns: 1, child: child);
-              },
-            ),
-          ),
+                    padding: EdgeInsets.all(6.w),
+                    child: ClipOval(
+                      child: hasLogo
+                          ? CachedNetworkImage(
+                              imageUrl: uni.logoUrl!,
+                              fit: BoxFit.contain,
+                              fadeInDuration: Duration.zero,
+                              fadeOutDuration: Duration.zero,
+                              errorWidget: (_, __, ___) => Icon(
+                                Icons.school_rounded,
+                                color: AppTheme.textSec(context),
+                                size: size * 0.5,
+                              ),
+                              placeholder: (_, __) => Container(color: bg),
+                            )
+                          : Icon(
+                              Icons.school_rounded,
+                              color: AppTheme.textSec(context),
+                              size: size * 0.5,
+                            ),
+                    ),
+                  ),
+                ),
+              );
+            }
+            return RotatedBox(quarterTurns: 1, child: child);
+          },
         ),
-      ],
+      ),
     );
   }
 }

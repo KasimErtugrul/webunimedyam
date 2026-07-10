@@ -1,25 +1,14 @@
 // lib/presentation/screens/home/tabs/home_tab/widgets/wheel_video_card_widget.dart
 //
 // ═══════════════════════════════════════════════════════════════════════
-// SABİT YÜKSEKLİK STRATEJİSİ (ÖNEMLİ)
+// MEDIA-FIRST KART (v3 — üniversite adı + takip butonu kart içine döndü)
 // ═══════════════════════════════════════════════════════════════════════
-// Bu kart, parent tarafından SizedBox(height: kWheelCardHeight.h) ile
-// SABİT bir yüksekliğe zorlanıyor (bkz. home_feed_wheel_widget.dart).
-// Kartın içindeki bölümler şu şekilde davranır:
-//
-//   • Header      -> sabit yükseklik (tek satır uni adı + tek satır zaman)
-//   • Thumbnail   -> sabit yükseklik (aspect-ratio'ya bakmaksızın SABİT)
-//   • Stats Row   -> sabit yükseklik (ikon + sayı satırı her zaman aynı)
-//   • Divider     -> sabit yükseklik (1px çizgi + padding)
-//   • Content     -> Expanded! Kalan TÜM alanı kaplar.
-//        ├─ Başlık   -> SizedBox(height: sabit 2 satır payı) + Align(topLeft)
-//        │             1 satır da olsa 2 satır da olsa KUTU BOYU DEĞİŞMEZ.
-//        └─ Açıklama -> Expanded (kalan alanın tamamı) + Align(topLeft)
-//                      1 satır da olsa 4 satır da olsa KUTU BOYU DEĞİŞMEZ,
-//                      metin sadece üstte gösterilir, taşan kısım ellipsis.
-//
-// Sonuç: video başlığı veya açıklaması ister 1 satır ister maksimum
-// satır sayısı kadar olsun, KART YÜKSEKLİĞİ ASLA KIRPILMAZ / OYNAMAZ.
+//   • Media Block -> thumbnail edge-to-edge. Sol üstte üniversite adı +
+//                    hemen altında takip butonu (glass pill). Sağ üstte
+//                    CANLI/YAKINDA rozeti + süre/HD. Altta başlık + zaman
+//                    (gradient üzerinde, poster mantığı).
+//   • Stats Row   -> düz, çerçevesiz, ikon + sayı.
+//   • Description -> Expanded, kutu/çerçeve yok, sade tipografi.
 // ═══════════════════════════════════════════════════════════════════════
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -40,17 +29,9 @@ class WheelVideoCardWidget extends StatelessWidget {
 
   const WheelVideoCardWidget({super.key, required this.video, this.university});
 
-  // ── Sabit boyut sabitleri (satır sayısı ne olursa olsun DEĞİŞMEZ) ──
-  static double get _headerHeight => 44.h;
-  static double get _thumbnailHeight => 128.h;
-  static double get _statsHeight => 34.h;
-  static double get _dividerBlockHeight => 13.h;
-
-  // Başlık: fontSize 12.5.sp, line-height 1.3 => satır başına ~16.25.sp
-  static double get _titleFontSize => 12.5.sp;
-  static const double _titleLineHeight = 1.3;
-  static double get _titleBoxHeight =>
-      _titleFontSize * _titleLineHeight * 2; // 2 satır sabit pay
+  static double get _mediaHeight => 196.h;
+  static double get _statsHeight => 36.h;
+  static double get _topGradientHeight => 68.h;
 
   @override
   Widget build(BuildContext context) {
@@ -61,196 +42,53 @@ class WheelVideoCardWidget extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: AppTheme.textSec(context).withOpacity(0.07)),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(
-              AppTheme.isDark(context) ? 0.22 : 0.05,
+              AppTheme.isDark(context) ? 0.28 : 0.06,
             ),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      // mainAxisSize.max (varsayılan): kart parent'tan gelen sabit
-      // yüksekliği doldurur; Content bölümü Expanded olduğu için
-      // artan/eksilen tüm boşluğu o karşılar.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: _headerHeight,
-            child: _buildHeader(context, controller),
+            height: _mediaHeight,
+            child: _buildMedia(context, controller),
           ),
-          SizedBox(height: _thumbnailHeight, child: _buildThumbnail(context)),
           SizedBox(
             height: _statsHeight,
             child: _buildStatsRow(context, controller),
           ),
-          SizedBox(height: _dividerBlockHeight, child: _buildDivider(context)),
-          Expanded(child: _buildContent(context)),
+          Expanded(child: _buildDescription(context)),
         ],
       ),
     );
   }
 
   // ════════════════════════════════════════════════════════════════
-  // HEADER
+  // MEDIA — thumbnail edge-to-edge + gradient içinde uni/başlık/rozet
   // ════════════════════════════════════════════════════════════════
-  Widget _buildHeader(BuildContext context, HomeController controller) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(12.w, 8.h, 10.w, 4.h),
-      child: Row(
-        children: [
-          _buildLogo(context),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: GestureDetector(
-              onTap: university == null
-                  ? null
-                  : () => Get.toNamed(
-                      AppRoutes.universityDetail,
-                      arguments: university,
-                    ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    university?.name ??
-                        video.universityName ??
-                        video.channelTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPri(context),
-                      height: 1.1,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    timeago.format(video.publishedAt, locale: 'tr'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 9.sp,
-                      color: AppTheme.textSec(context),
-                      height: 1.1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          _buildFollowButton(context, controller),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogo(BuildContext context) {
-    return Container(
-      width: 32.w,
-      height: 32.w,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-      ),
-      padding: EdgeInsets.all(1.6.w),
-      child: ClipOval(
-        child: (university?.logoUrl == null || university!.logoUrl!.isEmpty)
-            ? Container(
-                color: AppTheme.surface(context),
-                child: Icon(
-                  Icons.school_rounded,
-                  size: 15.sp,
-                  color: AppTheme.textSec(context),
-                ),
-              )
-            : CachedNetworkImage(
-                imageUrl: university!.logoUrl!,
-                fit: BoxFit.contain,
-                errorWidget: (_, __, ___) => Icon(
-                  Icons.school_rounded,
-                  size: 15.sp,
-                  color: AppTheme.textSec(context),
-                ),
-                placeholder: (_, __) =>
-                    Container(color: AppTheme.surface(context)),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildFollowButton(BuildContext context, HomeController controller) {
-    return Obx(() {
-      final uniId = university?.id ?? video.universityId;
-      final isFav = controller.favoriteUniversityIds.contains(uniId);
-      return GestureDetector(
-        onTap: university == null
-            ? null
-            : () => controller.toggleUniversityFavorite(university!),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
-          decoration: BoxDecoration(
-            color: isFav
-                ? AppTheme.primaryColor.withOpacity(0.12)
-                : AppTheme.primaryColor,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isFav ? Icons.check_rounded : Icons.add_rounded,
-                size: 13.sp,
-                color: isFav ? AppTheme.primaryColor : Colors.white,
-              ),
-              SizedBox(width: 2.w),
-              Text(
-                isFav ? 'Takipte' : 'Takip Et',
-                style: TextStyle(
-                  fontSize: 9.5.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isFav ? AppTheme.primaryColor : Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  // THUMBNAIL — yükseklik SABİT (_thumbnailHeight), aspect-ratio yok sayılır
-  // ════════════════════════════════════════════════════════════════
-  Widget _buildThumbnail(BuildContext context) {
+  Widget _buildMedia(BuildContext context, HomeController controller) {
     final isLive = video.isLiveBroadcast;
     final isUpcoming = video.isUpcoming;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
-      child: GestureDetector(
-        onTap: isUpcoming
-            ? () => _showUpcomingDialog(context)
-            : () => Get.toNamed(
-                AppRoutes.player,
-                arguments: video,
-                parameters: {'videoId': video.videoId},
-              ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.r),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        GestureDetector(
+          onTap: isUpcoming
+              ? () => _showUpcomingDialog(context)
+              : () => Get.toNamed(
+                  AppRoutes.player,
+                  arguments: video,
+                  parameters: {'videoId': video.videoId},
+                ),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -275,32 +113,59 @@ class WheelVideoCardWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              // Hafif alttan-üste gradient — pill/badge okunurluğu için
+
+              // Üstten karartma — sol/sağ üst bilgiler için okunurluk
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: 0,
-                height: 44.h,
+                top: 0,
+                height: _topGradientHeight,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.45),
+                        Colors.black.withOpacity(0.55),
                         Colors.transparent,
                       ],
                     ),
                   ),
                 ),
               ),
-              if (!isLive && !isUpcoming)
+
+              // Alttan güçlü gradient — başlığın oturduğu zemin
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 108.h,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.82),
+                        Colors.black.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Ortada oynat ikonu (canlı/yakında değilse)
+              /*  if (!isLive && !isUpcoming)
                 Center(
                   child: Container(
-                    padding: EdgeInsets.all(6.w),
+                    padding: EdgeInsets.all(10.w),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.35),
+                      color: Colors.black.withOpacity(0.32),
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.5),
+                        width: 1,
+                      ),
                     ),
                     child: Icon(
                       Icons.play_arrow_rounded,
@@ -309,34 +174,155 @@ class WheelVideoCardWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (isLive)
-                Positioned(
-                  top: 8.h,
-                  left: 8.w,
-                  child: _badge('CANLI', const Color(0xFFE53935)),
+ */
+              // Alt — başlık + yayın zamanı (gradient üstünde)
+              Positioned(
+                left: 12.w,
+                right: 12.w,
+                bottom: 10.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      video.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.5.sp,
+                        fontWeight: FontWeight.w700,
+                        height: 1.25,
+                        shadows: const [
+                          Shadow(color: Colors.black45, blurRadius: 4),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 3.h),
+                    Text(
+                      timeago.format(video.publishedAt, locale: 'tr'),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.75),
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              if (isUpcoming)
-                Positioned(
-                  top: 8.h,
-                  left: 8.w,
-                  child: _badge('YAKINDA', const Color(0xFF5C6BC0)),
-                ),
-              if (!isLive)
-                Positioned(
-                  bottom: 8.h,
-                  right: 8.w,
-                  child: _pillLabel(video.formattedDuration),
-                ),
-              if (video.isHd)
-                Positioned(
-                  bottom: 8.h,
-                  left: 8.w,
-                  child: _pillLabel('HD', small: true),
-                ),
+              ),
             ],
           ),
         ),
-      ),
+
+        // Sol üst — üniversite adı + takip butonu (tıklamalar ayrı,
+        // GestureDetector medya tıklamasının üstünde ama IgnorePointer yok
+        // çünkü kendi Material/InkWell'leri var).
+        Positioned(
+          top: 10.h,
+          left: 10.w,
+          right: 92.w,
+          child: _buildUniversityBlock(context, controller),
+        ),
+
+        // Sağ üst — CANLI/YAKINDA rozeti + süre/HD
+        Positioned(
+          top: 10.h,
+          right: 10.w,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (isLive) _badge('CANLI', const Color(0xFFE53935)),
+              if (isUpcoming) _badge('YAKINDA', const Color(0xFF5C6BC0)),
+              if (isLive || isUpcoming) SizedBox(height: 4.h),
+              Row(
+                children: [
+                  if (video.isHd) ...[
+                    _pillLabel('HD', small: true),
+                    SizedBox(width: 4.w),
+                  ],
+                  if (!isLive) _pillLabel(video.formattedDuration),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // Sol üst — üniversite adı + takip butonu (glass pill, görsel üzerinde)
+  // ════════════════════════════════════════════════════════════════
+  Widget _buildUniversityBlock(
+    BuildContext context,
+    HomeController controller,
+  ) {
+    final uni = university;
+    final name = uni?.name ?? video.universityName ?? video.channelTitle;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: uni == null
+              ? null
+              : () => Get.toNamed(AppRoutes.universityDetail, arguments: uni),
+          child: Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w700,
+              shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
+            ),
+          ),
+        ),
+        SizedBox(height: 5.h),
+        Obx(() {
+          final uniId = uni?.id ?? video.universityId;
+          final isFav = controller.favoriteUniversityIds.contains(uniId);
+          return GestureDetector(
+            onTap: uni == null
+                ? null
+                : () => controller.toggleUniversityFavorite(uni),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: isFav
+                    ? Colors.white.withOpacity(0.16)
+                    : AppTheme.primaryColor,
+                borderRadius: BorderRadius.circular(20.r),
+                border: isFav
+                    ? Border.all(color: Colors.white.withOpacity(0.5))
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isFav ? Icons.check_rounded : Icons.add_rounded,
+                    size: 12.sp,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: 3.w),
+                  Text(
+                    isFav ? 'Takipte' : 'Takip Et',
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -360,13 +346,13 @@ class WheelVideoCardWidget extends StatelessWidget {
 
   Widget _badge(String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(6.r),
+        borderRadius: BorderRadius.circular(7.r),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4),
+            color: color.withOpacity(0.45),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -398,7 +384,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         vertical: small ? 2.h : 3.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.75),
+        color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Text(
@@ -413,11 +399,11 @@ class WheelVideoCardWidget extends StatelessWidget {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // STATS ROW — sabit yükseklik
+  // STATS ROW — düz, çerçevesiz, sade ikon + sayı
   // ════════════════════════════════════════════════════════════════
   Widget _buildStatsRow(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(8.w, 2.h, 8.w, 0),
+      padding: EdgeInsets.fromLTRB(10.w, 6.h, 10.w, 0),
       child: Obx(() {
         final liveVideo = controller.videos.firstWhereOrNull(
           (v) => v.videoId == video.videoId,
@@ -442,15 +428,15 @@ class WheelVideoCardWidget extends StatelessWidget {
 
         return Row(
           children: [
-            _statChip(context, icon: Icons.visibility_outlined, count: views),
-            _statButton(
+            _statItem(context, icon: Icons.visibility_outlined, count: views),
+            _statItem(
               context,
               icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
               count: likes,
               isActive: liked,
               onTap: () => controller.toggleLike(video.videoId),
             ),
-            _statButton(
+            _statItem(
               context,
               icon: hasCommented
                   ? Icons.mode_comment_rounded
@@ -465,10 +451,10 @@ class WheelVideoCardWidget extends StatelessWidget {
             ),
             if (isShareLoading)
               Padding(
-                padding: EdgeInsets.all(6.w),
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
                 child: SizedBox(
-                  width: 14.sp,
-                  height: 14.sp,
+                  width: 13.sp,
+                  height: 13.sp,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: AppTheme.textSec(context),
@@ -476,7 +462,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 ),
               )
             else
-              _statButton(
+              _statItem(
                 context,
                 icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
                 count: shares,
@@ -484,7 +470,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 onTap: () => controller.shareVideo(video),
               ),
             const Spacer(),
-            _statButton(
+            _statItem(
               context,
               icon: isFav
                   ? Icons.bookmark_rounded
@@ -499,180 +485,75 @@ class WheelVideoCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _statChip(
+  Widget _statItem(
     BuildContext context, {
     required IconData icon,
     required int count,
+    VoidCallback? onTap,
+    bool isActive = false,
   }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 3.w),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13.sp, color: AppTheme.textSec(context)),
-          SizedBox(width: 2.w),
+    final color = isActive ? AppTheme.primaryColor : AppTheme.textSec(context);
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15.sp, color: color),
+        if (count > 0) ...[
+          SizedBox(width: 3.w),
           Text(
             _formatCount(count),
             style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: 9.sp,
+              color: color,
+              fontSize: 9.5.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
         ],
-      ),
+      ],
     );
-  }
 
-  Widget _statButton(
-    BuildContext context, {
-    required IconData icon,
-    required int count,
-    required VoidCallback onTap,
-    bool isActive = false,
-  }) {
-    final color = isActive ? AppTheme.primaryColor : AppTheme.textPri(context);
+    if (onTap == null) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        child: content,
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(10.r),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 4.h),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 13.sp, color: color),
-              if (count > 0) ...[
-                SizedBox(width: 2.w),
-                Text(
-                  _formatCount(count),
-                  style: TextStyle(
-                    color: isActive ? color : AppTheme.textSec(context),
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+          child: content,
         ),
       ),
     );
   }
 
   // ════════════════════════════════════════════════════════════════
-  // DIVIDER
+  // DESCRIPTION — kutu/çerçeve yok, sade tipografi
   // ════════════════════════════════════════════════════════════════
-  Widget _buildDivider(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-      child: Divider(
-        height: 1,
-        thickness: 0.6,
-        color: AppTheme.textSec(context).withOpacity(0.08),
-      ),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  // CONTENT — Expanded! Başlık sabit kutu (2 satır payı) + Açıklama
-  // Expanded kutu (4 satır max). Metin az olsa da kutu boyu SABİT kalır.
-  // ════════════════════════════════════════════════════════════════
-  Widget _buildContent(BuildContext context) {
+  Widget _buildDescription(BuildContext context) {
     final hasDescription = video.description.trim().isNotEmpty;
     final descriptionText = hasDescription
         ? video.description.replaceAll(RegExp(r'\n{2,}'), '\n')
         : 'Bu video için açıklama bulunmuyor.';
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 10.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Başlık: SABİT yükseklik (2 satır payı), her zaman aynı ──
-          SizedBox(
-            height: _titleBoxHeight,
-            width: double.infinity,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                video.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _titleFontSize,
-                  fontWeight: FontWeight.w700,
-                  height: _titleLineHeight,
-                ),
-              ),
-            ),
+      padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          descriptionText,
+          overflow: TextOverflow.fade,
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: 11.5.sp,
+            height: 1.45,
+            fontStyle: hasDescription ? FontStyle.normal : FontStyle.italic,
           ),
-          SizedBox(height: 6.h),
-
-          // ── Açıklama kutusu: Expanded -> kalan TÜM alanı kaplar ──
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AppTheme.isDark(context)
-                    ? Colors.white.withOpacity(0.04)
-                    : AppTheme.primaryColor.withOpacity(0.045),
-                borderRadius: BorderRadius.circular(10.r),
-                border: Border.all(
-                  color: AppTheme.textSec(context).withOpacity(0.08),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.notes_rounded,
-                        size: 12.sp,
-                        color: AppTheme.textSec(context),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        'Açıklama',
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 4.h),
-                  // Kalan alanı dolduran, üstten hizalı, 4 satır max metin.
-                  // Expanded olduğu için 1 satırlık açıklama da 4 satırlık
-                  // açıklama da KUTUYU AYNI YÜKSEKLİKTE tutar.
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        descriptionText,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: 11.sp,
-                          height: 1.4,
-                          fontStyle: hasDescription
-                              ? FontStyle.normal
-                              : FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
