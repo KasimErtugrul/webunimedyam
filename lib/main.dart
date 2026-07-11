@@ -1,6 +1,7 @@
 // lib/main.dart
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io' as io;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -121,13 +122,32 @@ void main() async {
   // İzin ister, token kaydeder, tüm FCM dinleyicilerini kurar.
   await NotificationService.instance.initialize();
 
-  runApp(MyApp(initialTheme: savedTheme));
+  // ── Başlangıç rotası ────────────────────────────────────────────────────
+  // BUG FIX: Önceden ayrı bir SplashScreen vardı (2sn yapay bekleme + spinner),
+  // native açılış ekranı (uygulama logosu) kaybolduktan sonra bile kullanıcı
+  // bir de Flutter tarafında boş bir splash görüyordu. Artık onboarding
+  // durumunu main() içinde (native logo hâlâ ekrandayken) kontrol edip
+  // uygulamayı doğrudan doğru sayfada açıyoruz — native logo ekranından
+  // sonra ayrı bir splash geçişi yok.
+  String initialRoute;
+  try {
+    final onboardingCompleted =
+        await Get.find<AuthRepository>().isOnboardingCompleted();
+    initialRoute = onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
+  } catch (e, stacktrace) {
+    // Fail-safe: bir şey ters giderse kullanıcıyı boş ekranda bırakma, Home'a gönder.
+    log('Başlangıç rotası belirlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+    initialRoute = AppRoutes.home;
+  }
+
+  runApp(MyApp(initialTheme: savedTheme, initialRoute: initialRoute));
 }
 
 // ─── App Widget ────────────────────────────────────────────────────────────
 class MyApp extends StatefulWidget {
   final String initialTheme;
-  const MyApp({super.key, required this.initialTheme});
+  final String initialRoute;
+  const MyApp({super.key, required this.initialTheme, required this.initialRoute});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -173,7 +193,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           theme:                      AppTheme.lightTheme,
           darkTheme:                  AppTheme.darkTheme,
           themeMode: widget.initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
-          initialRoute: AppRoutes.splash,
+          initialRoute: widget.initialRoute,
           getPages:     AppPages.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
         );

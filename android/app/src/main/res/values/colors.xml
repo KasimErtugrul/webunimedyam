@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mevcut ic_launcher.png içindeki krem/bej arka plandan örneklendi (#E1DAD5),
+         adaptive icon'un arka planı bununla birebir aynı görünsün diye. -->
+    <color name="ic_launcher_background">#E1DAD5</color>
+</resources>

@@ -1,7 +1,6 @@
 // lib/app/routes/app_routes.dart
 
 abstract class AppRoutes {
-  static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const player = '/player';

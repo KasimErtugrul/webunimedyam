@@ -12,7 +12,6 @@ import '../../presentation/screens/radio/radio_page.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
-import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
@@ -20,7 +19,6 @@ import '../../presentation/screens/university_detail/university_detail_screen.da
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
 import '../bindings/onboarding_bindings.dart';
-import '../bindings/splash_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/player_binding.dart';
@@ -36,11 +34,6 @@ import 'app_routes.dart';
 
 abstract class AppPages {
   static final pages = [
-    GetPage(
-      name: AppRoutes.splash,
-      page: () => const SplashScreen(),
-      binding: SplashBinding(),
-    ),
     GetPage(
       name: AppRoutes.onboarding,
       page: () => const OnboardingScreen(),

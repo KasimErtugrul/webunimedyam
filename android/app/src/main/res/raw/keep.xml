@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    BUG FIX: build.gradle.kts içindeki `isShrinkResources = true` ayarı,
+    release APK'da bazı cihazlarda `launch_background` drawable'ını (zemin
+    rengi + logo) ve ikon kaynaklarını "kullanılmıyor" sanıp APK'dan
+    siliyordu. Emülatörde (debug build, shrink kapalı) sorun görünmüyor,
+    ama gerçek cihazda kurulan release APK'da açılış ekranı düz beyaza
+    dönüp logo kayboluyordu. Bu dosya, R8'in kaynak küçültücüsüne bu
+    kaynakları KESİNLİKLE silmemesini söyler.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/launch_background,@drawable/ic_stat_notify,@mipmap/ic_launcher,@mipmap/ic_launcher_round,@mipmap/ic_launcher_foreground,@color/ic_launcher_background" />

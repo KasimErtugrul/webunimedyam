@@ -38,9 +38,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
   static const double _miniPad = 14.0;
   static const Duration _animDur = Duration(milliseconds: 280);
   static const Curve _animCurve = Curves.easeInOutCubic;
+  // Sürükleme mi yoksa dokunma mı olduğunu ayırt etmek için eşik değeri (px)
+  static const double _dragTapThreshold = 6.0;
 
   double _bigH = 0;
   bool _isMini = false;
+
+  // Kullanıcının mini player'ı sürükleyerek taşıdığı özel konum.
+  // null => varsayılan (sağ-alt) konum kullanılır.
+  Offset? _miniPosition;
+  double _dragTotal = 0;
+  bool _isPanningMini = false;
 
   @override
   void initState() {
@@ -90,8 +98,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
         miniPad: _miniPad,
         animDur: _animDur,
         animCurve: _animCurve,
+        miniPosition: _miniPosition,
+        isDragging: _dragTotal > _dragTapThreshold,
+        isPanning: _isPanningMini,
         onBack: () => Get.back(),
-        onExpand: _scrollToTop,
+        onPanStart: _onMiniPanStart,
+        onPanUpdate: _onMiniPanUpdate,
+        onPanEnd: _onMiniPanEnd,
       ),
     );
     Overlay.of(context).insert(_overlayEntry!);
@@ -101,10 +114,68 @@ class _PlayerScreenState extends State<PlayerScreen> {
     if (_bigH == 0) return;
     final shouldBeMini = _scrollController.offset >= _bigH;
     if (shouldBeMini != _isMini) {
-      setState(() => _isMini = shouldBeMini);
+      setState(() {
+        _isMini = shouldBeMini;
+        if (_isMini) {
+          // Küçültülen her seferinde varsayılan (sağ-alt) konumdan başlar,
+          // kullanıcı sonrasında istediği yere sürükleyebilir.
+          _miniPosition = null;
+        }
+      });
       // Overlay'i de yeniden çiz
       _overlayEntry?.markNeedsBuild();
     }
+  }
+
+  double _defaultMiniLeft(double screenW) => screenW - _miniW - _miniPad;
+
+  double _defaultMiniTop(double screenH, double botPad) =>
+      screenH - _miniH - _miniPad - botPad - 56;
+
+  void _onMiniPanStart(DragStartDetails details) {
+    if (!_isMini) return;
+    _dragTotal = 0;
+    _isPanningMini = true;
+    if (_miniPosition == null) {
+      final mq = MediaQuery.of(context);
+      _miniPosition = Offset(
+        _defaultMiniLeft(mq.size.width),
+        _defaultMiniTop(mq.size.height, mq.padding.bottom),
+      );
+    }
+  }
+
+  void _onMiniPanUpdate(DragUpdateDetails details) {
+    if (!_isMini || _miniPosition == null) return;
+    _dragTotal += details.delta.distance;
+
+    final mq = MediaQuery.of(context);
+    final screenW = mq.size.width;
+    final screenH = mq.size.height;
+    final topPad = mq.padding.top;
+    final botPad = mq.padding.bottom;
+
+    final newX = (_miniPosition!.dx + details.delta.dx)
+        .clamp(0.0, screenW - _miniW);
+    final newY = (_miniPosition!.dy + details.delta.dy)
+        .clamp(topPad, screenH - _miniH - botPad);
+
+    setState(() {
+      _miniPosition = Offset(newX, newY);
+    });
+    _overlayEntry?.markNeedsBuild();
+  }
+
+  void _onMiniPanEnd(DragEndDetails details) {
+    if (!_isMini) return;
+    // Kullanıcı neredeyse hiç sürüklemediyse bunu bir "dokunma" say
+    // ve player'ı büyüt (eski onTap davranışının yerine geçer).
+    if (_dragTotal < _dragTapThreshold) {
+      _scrollToTop();
+    }
+    _dragTotal = 0;
+    _isPanningMini = false;
+    _overlayEntry?.markNeedsBuild();
   }
 
   void _scrollToTop() {
@@ -148,9 +219,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final botPad = mq.padding.bottom;
     final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
-    final double targetLeft = _isMini ? screenW - _miniW - _miniPad : 0;
+    final double targetLeft = _isMini
+        ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW))
+        : 0;
     final double targetTop = _isMini
-        ? screenH - _miniH - _miniPad - botPad - 56
+        ? (_miniPosition?.dy ?? _defaultMiniTop(screenH, botPad))
         : topPad;
     final double targetW = _isMini ? _miniW : screenW;
     final double targetH = _isMini ? _miniH : bigH;
@@ -179,35 +252,32 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
         // ── Player — sadece video, butonlar Overlay'de ──────────────────
         AnimatedPositioned(
-          duration: _animDur,
+          duration: _isPanningMini ? Duration.zero : _animDur,
           curve: _animCurve,
           left: targetLeft,
           top: targetTop,
           width: targetW,
           height: targetH,
-          child: GestureDetector(
-            onTap: _isMini ? _scrollToTop : null,
-            child: AnimatedContainer(
-              duration: _animDur,
-              curve: _animCurve,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
-                boxShadow: _isMini
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.45),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
-                child: YoutubePlayer(
-                  controller: _controller.youtubeController!,
-                  aspectRatio: 16 / 9,
-                ),
+          child: AnimatedContainer(
+            duration: _animDur,
+            curve: _animCurve,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
+              boxShadow: _isMini
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : [],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(_isMini ? 10 : 0),
+              child: YoutubePlayer(
+                controller: _controller.youtubeController!,
+                aspectRatio: 16 / 9,
               ),
             ),
           ),
@@ -427,7 +497,12 @@ class _OverlayButtons extends StatelessWidget {
     required this.animDur,
     required this.animCurve,
     required this.onBack,
-    required this.onExpand,
+    this.miniPosition,
+    this.isDragging = false,
+    this.isPanning = false,
+    this.onPanStart,
+    this.onPanUpdate,
+    this.onPanEnd,
   });
 
   final bool isMini;
@@ -438,7 +513,13 @@ class _OverlayButtons extends StatelessWidget {
   final Duration animDur;
   final Curve animCurve;
   final VoidCallback onBack;
-  final VoidCallback onExpand;
+  // Kullanıcının sürükleyerek belirlediği özel mini konum (varsa)
+  final Offset? miniPosition;
+  final bool isDragging;
+  final bool isPanning;
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragUpdateCallback? onPanUpdate;
+  final GestureDragEndCallback? onPanEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -448,11 +529,13 @@ class _OverlayButtons extends StatelessWidget {
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
 
-    final double targetLeft = isMini ? screenW - miniW - miniPad : 0;
-    final double targetTop = isMini
-        ? screenH - miniH - miniPad - botPad - 56
-        : topPad;
+    final double defaultLeft = screenW - miniW - miniPad;
+    final double defaultTop = screenH - miniH - miniPad - botPad - 56;
+
+    final double targetLeft = isMini ? (miniPosition?.dx ?? defaultLeft) : 0;
+    final double targetTop = isMini ? (miniPosition?.dy ?? defaultTop) : topPad;
     final double targetW = isMini ? miniW : screenW;
+    final Duration effectiveDur = isPanning ? Duration.zero : animDur;
 
     return IgnorePointer(
       ignoring: false,
@@ -461,7 +544,7 @@ class _OverlayButtons extends StatelessWidget {
           if (!isMini)
             // ── Büyük mod: geri butonu ──────────────────────────────────
             AnimatedPositioned(
-              duration: animDur,
+              duration: effectiveDur,
               curve: animCurve,
               left: targetLeft + 4,
               top: targetTop + 8,
@@ -486,54 +569,27 @@ class _OverlayButtons extends StatelessWidget {
               ),
             )
           else
-            // ── Mini mod: üst bar ───────────────────────────────────────
+            // ── Mini mod: sadece sürükleme/dokunma yakalayıcısı ──────────
+            // Not: youtube_player_iframe native bir WebView (platform view)
+            // kullanır ve dokunuşları doğrudan kendisi yutar. Sadece
+            // Flutter'ın gerçek Overlay katmanı (bu widget) WebView'ın
+            // GERÇEKTEN üzerinde durduğu için dokunuşları yakalayabilir.
+            // Görünür buton yok — tüm miniH x miniW alanı görünmez bir
+            // sürükleme/dokunma yakalayıcısı. Az hareketle bırakılırsa
+            // (bkz. _onMiniPanEnd) dokunma sayılır ve player büyür.
             AnimatedPositioned(
-              duration: animDur,
+              duration: effectiveDur,
               curve: animCurve,
               left: targetLeft,
               top: targetTop,
               width: targetW,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.65),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onExpand,
-                      child: const Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.open_in_full_rounded,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onBack,
-                      child: const Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                          size: 15,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              height: miniH,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanStart: onPanStart,
+                onPanUpdate: onPanUpdate,
+                onPanEnd: onPanEnd,
+                child: const ColoredBox(color: Colors.transparent),
               ),
             ),
         ],

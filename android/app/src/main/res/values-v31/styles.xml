@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    BUG FIX: Android 12 (API 31) ile birlikte gelen sistem SplashScreen API'si,
+    eski `android:windowBackground` drawable yöntemini (layer-list + bitmap)
+    ARTIK KULLANMIYOR. Bu dosya olmadan, API 31+ cihazlarda sistem kendi
+    varsayılan açılış ekranını gösteriyor: sadece zemin rengi, logo YOK.
+    Emülatörde sorun görünmemesinin sebebi muhtemelen emülatörün API 31
+    altında olması. Aşağıdaki iki satır, sistemin kendi splash ekranında
+    hangi ikonu ve hangi zemin rengini kullanacağını açıkça belirtiyor.
+-->
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <!-- Splash kapanıp Flutter ilk frame'i çizene kadarki ara an için de
+             aynı zemin + logoyu göstermeye devam et. -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
