@@ -1,5 +1,6 @@
 // lib/main.dart
 
+import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -52,7 +53,25 @@ void main() async {
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    // BUG FIX: youtube_player_iframe paketi, WebView içindeki YouTube iframe'i
+    // JS köprüsü 30 saniye içinde "hazır" sinyali vermezse (kötü/kopuk internet,
+    // WebView'in embed'i geç açması vb.) kendi içinde bir TimeoutException
+    // fırlatıyor. Bu Future bizim kodumuzun dışında olduğundan try-catch ile
+    // yakalanamıyor ve buraya "fatal" olarak düşüyor; oysa bu uygulamayı
+    // gerçekten çökertmiyor, sadece video oynatıcı açılamıyor. Bu durumu
+    // ayırt edip fatal olmayan bir hata olarak kaydediyoruz ki Crashlytics'teki
+    // "fatal crash" oranımız bu paket kaynaklı, aslında kurtarılabilir
+    // durumlarla şişmesin.
+    final isYoutubePlayerInitTimeout =
+        error is TimeoutException &&
+        stack.toString().contains('js_bridge.dart');
+
+    FirebaseCrashlytics.instance.recordError(
+      error,
+      stack,
+      fatal: !isYoutubePlayerInitTimeout,
+      reason: isYoutubePlayerInitTimeout ? 'youtube_player_init_timeout' : null,
+    );
     return true;
   };
 

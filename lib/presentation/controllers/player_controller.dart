@@ -24,7 +24,8 @@ class PlayerController extends GetxController {
   final EngagementRepository engagementRepository;
   final AuthRepository authRepository;
   final VideoRepository videoRepository; // ← YENİ
-  final WatchProgressRepository watchProgressRepository; // ← YENİ: İzlemeye Devam Et
+  final WatchProgressRepository
+  watchProgressRepository; // ← YENİ: İzlemeye Devam Et
 
   PlayerController({
     required this.favoritesRepository,
@@ -42,6 +43,17 @@ class PlayerController extends GetxController {
   final isLiked = false.obs;
   final isPlayerReady = false.obs;
   final isCommentsLoading = false.obs;
+
+  // BUG FIX: youtube_player_iframe paketi, WebView içindeki YouTube iframe'i
+  // 30 saniye içinde hazır olmazsa kendi içinde bir TimeoutException
+  // fırlatıyor (js_bridge.dart) ve bu bizim try-catch'imizin dışında kalıp
+  // "fatal" bir çökme gibi görünüyor. Kullanıcıyı 30 saniye boyunca boş bir
+  // ekranda bırakmamak için kendi kısa süreli (12sn) bekleyişimizi ekliyoruz:
+  // bu süre içinde player hazır olmazsa kullanıcıya "video açılamadı, tekrar
+  // dene" ekranı gösterilir.
+  final hasPlayerError = false.obs;
+  Timer? _initWatchdog;
+  static const _playerInitWatchdogDuration = Duration(seconds: 12);
 
   final isLikeLoading = false.obs;
   final isFavoriteLoading = false.obs;
@@ -85,7 +97,9 @@ class PlayerController extends GetxController {
     currentVideo.value = Get.arguments as VideoModel?;
 
     if (currentVideo.value != null) {
+      _startInitWatchdog();
       _initPlayer().then((_) async {
+        _initWatchdog?.cancel();
         isPlayerReady.value = true;
         loadComments();
         _loadInitialState();
@@ -117,7 +131,8 @@ class PlayerController extends GetxController {
       );
       if (saved == null) return;
       if (saved.isNearlyFinished) return;
-      if (saved.positionSeconds < 2) return; // çok az izlenmişse baştan başlasın
+      if (saved.positionSeconds < 2)
+        return; // çok az izlenmişse baştan başlasın
 
       // BUG FIX: _initPlayer() tamamlandığında YoutubePlayerController
       // sadece OLUŞTURULMUŞ olur; YouTube iframe'i videoyu henüz yüklemiş
@@ -259,6 +274,48 @@ class PlayerController extends GetxController {
     }
   }
 
+  /// Player, kendi içindeki 30sn'lik paket zaman aşımından ÖNCE, daha kısa
+  /// bir sürede (12sn) hazır olmazsa kullanıcıya "video açılamadı" durumunu
+  /// gösterir. Player normal şekilde hazır olursa onInit() içindeki
+  /// `_initWatchdog?.cancel()` bu timer'ı zaten iptal eder.
+  void _startInitWatchdog() {
+    _initWatchdog?.cancel();
+    hasPlayerError.value = false;
+    _initWatchdog = Timer(_playerInitWatchdogDuration, () {
+      if (!isPlayerReady.value) {
+        hasPlayerError.value = true;
+        AnalyticsService.instance.recordError(
+          TimeoutException(
+            'YouTube player $_playerInitWatchdogDuration içinde hazır olmadı (watchdog)',
+          ),
+          StackTrace.current,
+          reason: 'youtube_player_init_watchdog',
+        );
+      }
+    });
+  }
+
+  /// Kullanıcı "tekrar dene" butonuna bastığında çağrılır: eski controller'ı
+  /// temizler, hata durumunu sıfırlar ve player'ı yeniden başlatmayı dener.
+  Future<void> retryInitPlayer() async {
+    if (currentVideo.value == null) return;
+    hasPlayerError.value = false;
+    isPlayerReady.value = false;
+    youtubeController?.close();
+    youtubeController = null;
+
+    _startInitWatchdog();
+    await _initPlayer();
+    _initWatchdog?.cancel();
+    if (youtubeController != null) {
+      isPlayerReady.value = true;
+      await _restoreSavedProgress();
+      _startProgressTracking();
+    } else {
+      hasPlayerError.value = true;
+    }
+  }
+
   // lib/presentation/controllers/player_controller.dart — _initPlayer düzeltmesi
   Future<void> _initPlayer() async {
     try {
@@ -286,7 +343,11 @@ class PlayerController extends GetxController {
         error: e,
         stackTrace: stacktrace,
       );
-      AnalyticsService.instance.recordError(e, stacktrace, reason: 'player_init_failed');
+      AnalyticsService.instance.recordError(
+        e,
+        stacktrace,
+        reason: 'player_init_failed',
+      );
     }
   }
 
@@ -390,7 +451,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'like'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'like'},
+      );
       return;
     }
     if (isLikeLoading.value) return;
@@ -439,7 +503,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'favorite'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'favorite'},
+      );
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -554,7 +621,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit', parameters: {'action': 'comment'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'comment'},
+      );
       return;
     }
     if (content.trim().isEmpty) return;
@@ -594,8 +664,14 @@ class PlayerController extends GetxController {
       if (currentVideo.value != null && Get.isRegistered<HomeController>()) {
         final home = Get.find<HomeController>();
         home.syncLikeFromPlayer(currentVideo.value!.videoId, isLiked.value);
-        home.syncFavoriteFromPlayer(currentVideo.value!.videoId, isFavorite.value);
-        home.syncViewCountFromPlayer(currentVideo.value!.videoId, appViewCount.value);
+        home.syncFavoriteFromPlayer(
+          currentVideo.value!.videoId,
+          isFavorite.value,
+        );
+        home.syncViewCountFromPlayer(
+          currentVideo.value!.videoId,
+          appViewCount.value,
+        );
       }
     } catch (_) {}
 
@@ -609,6 +685,7 @@ class PlayerController extends GetxController {
     // aksi halde "oynat tuşuna basmadan hemen geri dön" senaryosunda video
     // yine de listeye düşer. Zaten var olan bir kaydı güncellemek serbest.
     _progressTimer?.cancel();
+    _initWatchdog?.cancel();
     final shouldPersistOnClose =
         _firstProgressSaveDone ||
         _lastPositionSeconds >= _minSecondsForFirstSave;
