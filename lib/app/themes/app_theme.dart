@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 abstract class AppTheme {
   // ─── Renkler (sabit) ────────────────────────────────────────────────────────
@@ -44,12 +45,42 @@ abstract class AppTheme {
   static bool isDark(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark;
 
+  // ─── Font Eşleştirmesi (Google Fonts) ──────────────────────────────────────
+  // Başlıklar (display/headline/title → AppBar başlıkları, dialog başlıkları,
+  // Theme.of(context).textTheme.titleX gibi kullanımlar) için Poppins;
+  // gövde metni ve buton yazıları (body/label) için Inter kullanılıyor.
+  //
+  // NOT: Uygulamadaki metinlerin büyük çoğunluğu doğrudan `TextStyle(...)`
+  // ile yazılıyor (fontFamily belirtmeden). Flutter, bir Text widget'ına
+  // verilen style'da fontFamily boşsa bunu en yakın DefaultTextStyle'dan
+  // (nihayetinde buradaki textTheme'den) miras alır. Yani bu tek değişiklik,
+  // tek tek dosyalara dokunmadan uygulamanın geneline yayılıyor.
+  static TextTheme _buildTextTheme(TextTheme base) {
+    final headingFont = GoogleFonts.poppinsTextTheme(base);
+    final bodyFont = GoogleFonts.interTextTheme(base);
+
+    return bodyFont.copyWith(
+      displayLarge: headingFont.displayLarge,
+      displayMedium: headingFont.displayMedium,
+      displaySmall: headingFont.displaySmall,
+      headlineLarge: headingFont.headlineLarge,
+      headlineMedium: headingFont.headlineMedium,
+      headlineSmall: headingFont.headlineSmall,
+      titleLarge: headingFont.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+      titleMedium: headingFont.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+      titleSmall: headingFont.titleSmall?.copyWith(fontWeight: FontWeight.w500),
+    );
+  }
+
   // ─── Dark ThemeData ────────────────────────────────────────────────────────
   static final darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackground,
     primaryColor: primaryColor,
+    textTheme: _buildTextTheme(
+      ThemeData(brightness: Brightness.dark, useMaterial3: true).textTheme,
+    ),
     colorScheme: const ColorScheme.dark(
       primary: primaryColor,
       secondary: secondaryColor,
@@ -113,6 +144,9 @@ abstract class AppTheme {
     brightness: Brightness.light,
     scaffoldBackgroundColor: lightBackground,
     primaryColor: primaryColor,
+    textTheme: _buildTextTheme(
+      ThemeData(brightness: Brightness.light, useMaterial3: true).textTheme,
+    ),
     colorScheme: const ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
@@ -178,40 +212,40 @@ abstract class AppTheme {
 // ─── Responsive Text Styles Extension (ScreenUtil için) ─────────────────────
 extension ResponsiveTextStyle on TextTheme {
   TextStyle get displayLarge =>
-      TextStyle(fontSize: 57.sp, fontWeight: FontWeight.bold);
+      GoogleFonts.poppins(fontSize: 57.sp, fontWeight: FontWeight.bold);
   TextStyle get displayMedium =>
-      TextStyle(fontSize: 45.sp, fontWeight: FontWeight.bold);
+      GoogleFonts.poppins(fontSize: 45.sp, fontWeight: FontWeight.bold);
   TextStyle get displaySmall =>
-      TextStyle(fontSize: 36.sp, fontWeight: FontWeight.bold);
+      GoogleFonts.poppins(fontSize: 36.sp, fontWeight: FontWeight.bold);
 
   TextStyle get headlineLarge =>
-      TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold);
+      GoogleFonts.poppins(fontSize: 32.sp, fontWeight: FontWeight.bold);
   TextStyle get headlineMedium =>
-      TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.poppins(fontSize: 28.sp, fontWeight: FontWeight.w600);
   TextStyle get headlineSmall =>
-      TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.poppins(fontSize: 24.sp, fontWeight: FontWeight.w600);
 
   TextStyle get titleLarge =>
-      TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w600);
   TextStyle get titleMedium =>
-      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500);
+      GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w500);
   TextStyle get titleSmall =>
-      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500);
+      GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500);
 
-  TextStyle get bodyLarge => TextStyle(fontSize: 16.sp);
-  TextStyle get bodyMedium => TextStyle(fontSize: 14.sp);
-  TextStyle get bodySmall => TextStyle(fontSize: 12.sp);
+  TextStyle get bodyLarge => GoogleFonts.inter(fontSize: 16.sp);
+  TextStyle get bodyMedium => GoogleFonts.inter(fontSize: 14.sp);
+  TextStyle get bodySmall => GoogleFonts.inter(fontSize: 12.sp);
 
   TextStyle get labelLarge =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.inter(fontSize: 14.sp, fontWeight: FontWeight.w600);
   TextStyle get labelMedium =>
-      TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500);
+      GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w500);
   TextStyle get labelSmall =>
-      TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500);
+      GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w500);
 }
 
 // ─── AppBar Title için Responsive Helper ────────────────────────────────────
 extension ResponsiveAppBar on AppBarTheme {
   static TextStyle get titleStyle =>
-      TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold);
+      GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.bold);
 }
