@@ -4,14 +4,20 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/stats_repository.dart';
 import '../../data/models/profile_model.dart';
+import '../../data/models/user_stats_model.dart';
 import '../../services/analytics_service.dart';
 import 'settings_controller.dart';
 
 class ProfileController extends GetxController {
   final AuthRepository authRepository;
+  final StatsRepository statsRepository;
 
-  ProfileController({required this.authRepository});
+  ProfileController({
+    required this.authRepository,
+    required this.statsRepository,
+  });
 
   // ─── Profil & Ayarlar ─────────────────────────────────────────────────────
   final profile = Rxn<ProfileModel>();
@@ -21,6 +27,13 @@ class ProfileController extends GetxController {
   final errorMessage = RxnString();
 
   final isUploadingAvatar = false.obs;
+  final isSavingProfile = false.obs;
+
+  // ─── Özet İstatistikler (profil başlığı) ───────────────────────────────────
+  // Sadece kendi profilimizde doldurulur (get_my_stats RPC'si auth.uid()
+  // üzerinden çalışır, başka kullanıcı için veri döndürmez).
+  final stats = Rxn<UserStatsModel>();
+  final isLoadingStats = false.obs;
 
   // ─── Kimlik ───────────────────────────────────────────────────────────────
 
@@ -54,6 +67,12 @@ class ProfileController extends GetxController {
         'own_profile': isOwnProfile.toString(),
       });
     });
+
+    // İstatistik şeridi yalnızca kendi profilimizde anlamlı; başkasının
+    // profilinde gösterilmiyor, bu yüzden orada boşuna istek atmıyoruz.
+    if (isOwnProfile) {
+      loadStats();
+    }
   }
 
   /// Kendi profilimiz mi görüntülüyoruz?
@@ -103,22 +122,43 @@ class ProfileController extends GetxController {
     }
   }
 
+  // ─── Özet İstatistikleri Yükleme ───────────────────────────────────────────
+
+  Future<void> loadStats({bool forceRefresh = false}) async {
+    if (!isOwnProfile) return;
+    try {
+      isLoadingStats.value = true;
+      stats.value = await statsRepository.getUserStats(
+        forceRefresh: forceRefresh,
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Profil istatistikleri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      isLoadingStats.value = false;
+    }
+  }
+
   // ─── Profil Güncelleme ────────────────────────────────────────────────────
 
-  Future<void> updateProfile({
+  Future<bool> updateProfile({
     String? username,
     String? fullName,
     String? avatarUrl,
   }) async {
     if (!isOwnProfile) {
       errorMessage.value = 'Bu profili düzenleme yetkiniz yok.';
-      return;
+      return false;
     }
 
     final current = profile.value;
-    if (current == null) return;
+    if (current == null) return false;
 
     try {
+      isSavingProfile.value = true;
       final updated = current.copyWith(
         username: username,
         fullName: fullName,
@@ -138,6 +178,7 @@ class ProfileController extends GetxController {
         'avatar_changed':
             (avatarUrl != null && avatarUrl != current.avatarUrl).toString(),
       });
+      return true;
     } catch (e, stacktrace) {
       log(
         'Profil güncellenirken hata oluştu: $e',
@@ -145,6 +186,9 @@ class ProfileController extends GetxController {
         stackTrace: stacktrace,
       );
       errorMessage.value = 'Profil güncellenemedi.';
+      return false;
+    } finally {
+      isSavingProfile.value = false;
     }
   }
 
@@ -216,6 +260,9 @@ class ProfileController extends GetxController {
   Future<void> refreshProfile() async {
     try {
       await loadProfile();
+      if (isOwnProfile) {
+        await loadStats(forceRefresh: true);
+      }
     } catch (e, stacktrace) {
       log(
         'Profil yenilenirken hata oluştu: $e',

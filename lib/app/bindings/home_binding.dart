@@ -10,6 +10,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/engagement_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/profile_activity_repository.dart';
+import '../../data/repositories/stats_repository.dart';
 import '../../data/repositories/university_stats_repository.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/favorites_controller.dart';
@@ -96,6 +97,19 @@ class HomeBinding extends Bindings {
       );
     }
 
+    // Profil başlığındaki özet istatistik şeridi için (bkz. profile_binding.dart'taki
+    // aynı kayıt — burada da gerekli çünkü HomeBinding kendi ProfileController
+    // örneklerini oluşturuyor).
+    if (!Get.isRegistered<StatsRepository>()) {
+      Get.lazyPut(
+        () => StatsRepository(
+          supabaseDataSource: Get.find(),
+          localDataSource: Get.find(),
+        ),
+        fenix: true,
+      );
+    }
+
     // ── Controllers ────────────────────────────────────────────────────────
 
     Get.lazyPut(
@@ -121,7 +135,7 @@ class HomeBinding extends Bindings {
       Get.lazyPut(
         () => ProfileController(
           authRepository: Get.find(),
-         
+          statsRepository: Get.find(),
         ),
         fenix: true,
       );
@@ -134,8 +148,7 @@ class HomeBinding extends Bindings {
       Get.lazyPut(
         () => ProfileController(
           authRepository: Get.find(),
-        
-
+          statsRepository: Get.find(),
         ),
         tag: currentUserId,
         fenix: true,

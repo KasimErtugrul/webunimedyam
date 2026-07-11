@@ -6,6 +6,7 @@ import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/player/player_screen.dart';
 import '../../presentation/screens/player/video_viewers_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/edit_profile_screen.dart';
 import '../../presentation/screens/profile_activity_list/profile_activity_list_screen.dart';
 import '../../presentation/screens/followed_universities_list/followed_universities_list_screen.dart';
 import '../../presentation/screens/radio/radio_page.dart';
@@ -57,6 +58,10 @@ abstract class AppPages {
       page: () => const ProfileScreen(),
       binding: ProfileBinding(),
       preventDuplicates: false,
+    ),
+    GetPage(
+      name: AppRoutes.editProfile,
+      page: () => const EditProfileScreen(),
     ),
     GetPage(
       name: AppRoutes.profileActivityList,

@@ -36,4 +36,9 @@ abstract class AppRoutes {
   /// Takip edilen üniversiteler listesi
   /// Argüman: {'userId': String, 'isOwnProfile': bool}
   static const followedUniversitiesList = '/followed-universities-list';
+
+  /// Profili düzenleme ekranı (yalnızca kendi profilin için).
+  /// Argüman gerekmez — ekran mevcut kullanıcının zaten kayıtlı olan
+  /// ProfileController örneğini (aynı tag ile) bulur.
+  static const editProfile = '/edit-profile';
 }
