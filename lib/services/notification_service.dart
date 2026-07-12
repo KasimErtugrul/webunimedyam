@@ -138,6 +138,15 @@ class NotificationService {
     }
   }
 
+  // FIX: ConnectivityService, internet OFF → ON geçişini yakaladığında bu
+  // metodu çağırır. Bağlantı yokken sessizce başarısız olmuş olabilecek
+  // token güncellemesini, internet geri gelir gelmez tekrar dener.
+  // Kullanıcı login değilse _saveTokenIfLoggedIn zaten no-op olarak çıkar,
+  // yani her bağlantı geldiğinde gereksiz bir istek atılmaz.
+  Future<void> retryTokenSyncIfNeeded() async {
+    await _saveTokenIfLoggedIn();
+  }
+
   // ─── Mesaj İşleyiciler ────────────────────────────────────────────────────
 
   void _handleForegroundMessage(RemoteMessage message) {

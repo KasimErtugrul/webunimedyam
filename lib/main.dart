@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'services/connectivity_service.dart';
 
 import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
@@ -31,14 +32,14 @@ import 'services/notification_service.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
- 
+
   // Sistem bildirimi OS tarafından otomatik gösterilir.
   // Ek işlem gerekmiyorsa boş bırakılır.
 }
 
 // ─── main ──────────────────────────────────────────────────────────────────
 void main() async {
-   if (kDebugMode) {
+  if (kDebugMode) {
     io.HttpClient.enableTimelineLogging = true;
   }
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,9 @@ void main() async {
   // Flutter framework hatalarını (build/layout vb.) otomatik Crashlytics'e
   // yönlendir. Debug modda Crashlytics raporlamayı kapatıyoruz ki geliştirme
   // sırasındaki hatalar prod istatistiklerini kirletmesin.
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+    !kDebugMode,
+  );
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (error, stack) {
     // BUG FIX: youtube_player_iframe paketi, WebView içindeki YouTube iframe'i
@@ -76,10 +79,13 @@ void main() async {
     return true;
   };
 
+  await ConnectivityService.init();
+
   // ── Supabase ──────────────────────────────────────────────────────────────
   await Supabase.initialize(
-    url:     'https://ftqjpfqzjuthoifkyqgl.supabase.co',
-    publishableKey : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
+    url: 'https://ftqjpfqzjuthoifkyqgl.supabase.co',
+    publishableKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
   );
 
   // ── Analytics ──────────────────────────────────────────────────────────────
@@ -96,8 +102,7 @@ void main() async {
   await Hive.openBox(AppCacheBox.name);
 
   // ── Tema ──────────────────────────────────────────────────────────────────
-  final savedTheme =
-      (AppCacheBox.instance.get('theme') as String?) ?? 'dark';
+  final savedTheme = (AppCacheBox.instance.get('theme') as String?) ?? 'dark';
 
   await ScreenUtil.ensureScreenSize();
 
@@ -112,7 +117,7 @@ void main() async {
   await Get.putAsync<SettingsController>(() async {
     final ctrl = SettingsController(
       authRepository: Get.find(),
-      supabase:       Get.find(),
+      supabase: Get.find(),
     );
     await ctrl.loadSettings();
     return ctrl;
@@ -131,12 +136,16 @@ void main() async {
   // sonra ayrı bir splash geçişi yok.
   String initialRoute;
   try {
-    final onboardingCompleted =
-        await Get.find<AuthRepository>().isOnboardingCompleted();
+    final onboardingCompleted = await Get.find<AuthRepository>()
+        .isOnboardingCompleted();
     initialRoute = onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
   } catch (e, stacktrace) {
     // Fail-safe: bir şey ters giderse kullanıcıyı boş ekranda bırakma, Home'a gönder.
-    log('Başlangıç rotası belirlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+    log(
+      'Başlangıç rotası belirlenirken hata oluştu: $e',
+      error: e,
+      stackTrace: stacktrace,
+    );
     initialRoute = AppRoutes.home;
   }
 
@@ -147,7 +156,11 @@ void main() async {
 class MyApp extends StatefulWidget {
   final String initialTheme;
   final String initialRoute;
-  const MyApp({super.key, required this.initialTheme, required this.initialRoute});
+  const MyApp({
+    super.key,
+    required this.initialTheme,
+    required this.initialRoute,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -183,19 +196,50 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize:      const Size(375, 812),
-      minTextAdapt:    true,
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
-          title:                      'Uni TV',
+          title: 'Uni TV',
           debugShowCheckedModeBanner: false,
-          theme:                      AppTheme.lightTheme,
-          darkTheme:                  AppTheme.darkTheme,
-          themeMode: widget.initialTheme == 'light' ? ThemeMode.light : ThemeMode.dark,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: widget.initialTheme == 'light'
+              ? ThemeMode.light
+              : ThemeMode.dark,
           initialRoute: widget.initialRoute,
-          getPages:     AppPages.pages,
+          getPages: AppPages.pages,
           navigatorObservers: [AnalyticsService.instance.observer],
+          builder: (context, child) {
+            return Column(
+              children: [
+                Obx(
+                  () => ConnectivityService.instance.isOnline.value
+                      ? const SizedBox.shrink()
+                      : Material(
+                          color: Colors.red.shade700,
+                          child: SafeArea(
+                            bottom: false,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Center(
+                                child: Text(
+                                  'İnternet bağlantısı yok',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.sp,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+                Expanded(child: child ?? const SizedBox.shrink()),
+              ],
+            );
+          },
         );
       },
     );
