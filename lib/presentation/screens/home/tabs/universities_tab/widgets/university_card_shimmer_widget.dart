@@ -5,14 +5,74 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../core/responsive.dart';
+
+// ═══════════════════════════════════════════════════════════
+// KURAL 3 — SABİTLER
+// ═══════════════════════════════════════════════════════════
+
+class _PhoneSizes {
+  static const double bottomPadding = 10;
+  static const double paddingLeft = 12;
+  static const double paddingTop = 14;
+  static const double paddingRight = 12;
+  static const double paddingBottom = 12;
+  static const double logoSize = 48;
+  static const double logoSpacing = 12;
+  static const double nameHeight = 14;
+  static const double nameBorderRadius = 4;
+  static const double subHeight = 10;
+  static const double subWidth = 120;
+  static const double spacingSmall = 6;
+  static const double spacingMedium = 8;
+  static const double chipHeight = 18;
+  static const double chipWidth = 55;
+  static const double chipSpacing = 6;
+  static const double chipBorderRadius = 6;
+  static const double chipWidthSmall = 45;
+  static const double arrowSize = 32;
+  static const double arrowSpacing = 8;
+}
+
+class _TabletSizes {
+  static const double bottomPadding = 12;
+  static const double paddingLeft = 16;
+  static const double paddingTop = 16;
+  static const double paddingRight = 16;
+  static const double paddingBottom = 16;
+  static const double logoSize = 56;
+  static const double logoSpacing = 14;
+  static const double nameHeight = 16;
+  static const double nameBorderRadius = 5;
+  static const double subHeight = 12;
+  static const double subWidth = 140;
+  static const double spacingSmall = 8;
+  static const double spacingMedium = 10;
+  static const double chipHeight = 20;
+  static const double chipWidth = 65;
+  static const double chipSpacing = 8;
+  static const double chipBorderRadius = 7;
+  static const double chipWidthSmall = 55;
+  static const double arrowSize = 36;
+  static const double arrowSpacing = 10;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANA WIDGET
+// ═══════════════════════════════════════════════════════════
 
 class UniversityCardShimmerWidget extends StatelessWidget {
   const UniversityCardShimmerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
+   // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.only(
+        bottom: isTablet ? _TabletSizes.bottomPadding : _PhoneSizes.bottomPadding.h,
+      ),
       child: Shimmer.fromColors(
         baseColor: AppTheme.isDark(context)
             ? const Color(0xFF2A2A2A)
@@ -21,74 +81,92 @@ class UniversityCardShimmerWidget extends StatelessWidget {
             ? const Color(0xFF3A3A3A)
             : const Color(0xFFF5F5F5),
         child: Container(
-          padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 12.h),
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? _TabletSizes.paddingLeft : _PhoneSizes.paddingLeft.w,
+            isTablet ? _TabletSizes.paddingTop : _PhoneSizes.paddingTop.h,
+            isTablet ? _TabletSizes.paddingRight : _PhoneSizes.paddingRight.w,
+            isTablet ? _TabletSizes.paddingBottom : _PhoneSizes.paddingBottom.h,
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Logo placeholder (daire)
               Container(
-                width: 48.w,
-                height: 48.w,
+                width: isTablet ? _TabletSizes.logoSize : _PhoneSizes.logoSize.w,
+                height: isTablet ? _TabletSizes.logoSize : _PhoneSizes.logoSize.w,
                 decoration: BoxDecoration(
                   color: AppTheme.card(context),
                   shape: BoxShape.circle,
                 ),
               ),
-
-              SizedBox(width: 12.w),
-
-              // Metin placeholder'ları
+              SizedBox(
+                width: isTablet ? _TabletSizes.logoSpacing : _PhoneSizes.logoSpacing.w,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // İsim
                     Container(
-                      height: 14.h,
+                      height: isTablet ? _TabletSizes.nameHeight : _PhoneSizes.nameHeight.h,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: AppTheme.card(context),
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: BorderRadius.circular(
+                          isTablet ? _TabletSizes.nameBorderRadius : _PhoneSizes.nameBorderRadius.r,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 6.h),
-                    // Şehir + yıl
+                    SizedBox(
+                      height: isTablet ? _TabletSizes.spacingSmall : _PhoneSizes.spacingSmall.h,
+                    ),
                     Container(
-                      height: 10.h,
-                      width: 120.w,
+                      height: isTablet ? _TabletSizes.subHeight : _PhoneSizes.subHeight.h,
+                      width: isTablet ? _TabletSizes.subWidth : _PhoneSizes.subWidth.w,
                       decoration: BoxDecoration(
                         color: AppTheme.card(context),
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: BorderRadius.circular(
+                          isTablet ? _TabletSizes.nameBorderRadius : _PhoneSizes.nameBorderRadius.r,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 8.h),
-                    // Stat chip'ler
+                    SizedBox(
+                      height: isTablet ? _TabletSizes.spacingMedium : _PhoneSizes.spacingMedium.h,
+                    ),
                     Row(
                       children: [
                         Container(
-                          height: 18.h,
-                          width: 55.w,
+                          height: isTablet ? _TabletSizes.chipHeight : _PhoneSizes.chipHeight.h,
+                          width: isTablet ? _TabletSizes.chipWidth : _PhoneSizes.chipWidth.w,
                           decoration: BoxDecoration(
                             color: AppTheme.card(context),
-                            borderRadius: BorderRadius.circular(6.r),
+                            borderRadius: BorderRadius.circular(
+                              isTablet ? _TabletSizes.chipBorderRadius : _PhoneSizes.chipBorderRadius.r,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 6.w),
+                        SizedBox(
+                          width: isTablet ? _TabletSizes.chipSpacing : _PhoneSizes.chipSpacing.w,
+                        ),
                         Container(
-                          height: 18.h,
-                          width: 55.w,
+                          height: isTablet ? _TabletSizes.chipHeight : _PhoneSizes.chipHeight.h,
+                          width: isTablet ? _TabletSizes.chipWidth : _PhoneSizes.chipWidth.w,
                           decoration: BoxDecoration(
                             color: AppTheme.card(context),
-                            borderRadius: BorderRadius.circular(6.r),
+                            borderRadius: BorderRadius.circular(
+                              isTablet ? _TabletSizes.chipBorderRadius : _PhoneSizes.chipBorderRadius.r,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 6.w),
+                        SizedBox(
+                          width: isTablet ? _TabletSizes.chipSpacing : _PhoneSizes.chipSpacing.w,
+                        ),
                         Container(
-                          height: 18.h,
-                          width: 45.w,
+                          height: isTablet ? _TabletSizes.chipHeight : _PhoneSizes.chipHeight.h,
+                          width: isTablet ? _TabletSizes.chipWidthSmall : _PhoneSizes.chipWidthSmall.w,
                           decoration: BoxDecoration(
                             color: AppTheme.card(context),
-                            borderRadius: BorderRadius.circular(6.r),
+                            borderRadius: BorderRadius.circular(
+                              isTablet ? _TabletSizes.chipBorderRadius : _PhoneSizes.chipBorderRadius.r,
+                            ),
                           ),
                         ),
                       ],
@@ -96,13 +174,12 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                   ],
                 ),
               ),
-
-              SizedBox(width: 8.w),
-
-              // Ok placeholder
+              SizedBox(
+                width: isTablet ? _TabletSizes.arrowSpacing : _PhoneSizes.arrowSpacing.w,
+              ),
               Container(
-                width: 32.w,
-                height: 32.w,
+                width: isTablet ? _TabletSizes.arrowSize : _PhoneSizes.arrowSize.w,
+                height: isTablet ? _TabletSizes.arrowSize : _PhoneSizes.arrowSize.w,
                 decoration: BoxDecoration(
                   color: AppTheme.card(context),
                   shape: BoxShape.circle,

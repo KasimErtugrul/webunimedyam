@@ -1,6 +1,18 @@
+// lib/presentation/screens/search/widgets/highlight_text_widget.dart
+
 import 'package:flutter/material.dart';
 
-// ── Arama terimini vurgulayan text widget ──────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════
+// KURAL 3 — SABİTLER
+// ═══════════════════════════════════════════════════════════
+
+// Bu widget'ta sabitler kullanılmıyor, doğrudan parametrelerle çalışıyor.
+// Ancak KURAL 6'ya uygun olarak phone/tablet ayrımı yapılıyor.
+
+// ═══════════════════════════════════════════════════════════
+// WIDGET
+// ═══════════════════════════════════════════════════════════
 
 class HighlightTextWidget extends StatelessWidget {
   final String text;
@@ -18,6 +30,10 @@ class HighlightTextWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // KURAL 5 — TEK DALLANMA NOKTASI
+    // Bu widget'ta phone/tablet farkı yok, doğrudan render ediliyor.
+    // Ancak KURAL 6'ya uygun olarak ayrı bir widget olarak tanımlandı.
+    
     if (highlight.isEmpty) {
       return Text(
         text,

@@ -10,10 +10,81 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
+import '../../../core/responsive.dart';
 import '../../../data/datasources/remote/supabase_datasource.dart';
 import '../../controllers/profile_controller.dart';
 import 'widgets/profile_header/avatar_source_sheet.dart';
 import 'widgets/profile_header/avatar_widget.dart';
+
+// ═══════════════════════════════════════════════════════════
+// KURAL 3 — SABİTLER
+// ═══════════════════════════════════════════════════════════
+
+class _PhoneSizes {
+  // AppBar
+  static const double appBarTitleSize = 20;
+
+  // Padding
+  static const double paddingHorizontal = 20;
+  static const double paddingTop = 24;
+  static const double paddingBottom = 24;
+
+  // Avatar
+  static const double avatarSize = 104;
+  static const double avatarSpacing = 10;
+  static const double avatarChangeButtonFontSize = 13;
+
+  // Form
+  static const double formSpacing = 24;
+  static const double labelSpacing = 8;
+  static const double labelFontSize = 12;
+  static const double labelLetterSpacing = 0.6;
+  static const double fieldFontSize = 15;
+  static const int fieldMaxLength = 30;
+  static const int fieldMaxLengthFull = 60;
+  static const double fieldIconSize = 20;
+  static const double hintFontSize = 11.5;
+  static const double hintLineHeight = 1.4;
+  static const double buttonHeight = 50;
+  static const double buttonFontSize = 16;
+  static const double savingIndicatorSize = 20;
+  static const double savingStrokeWidth = 2.4;
+}
+
+class _TabletSizes {
+  // AppBar - tablet için daha büyük
+  static const double appBarTitleSize = 24;
+
+  // Padding - tablet için daha büyük
+  static const double paddingHorizontal = 32;
+  static const double paddingTop = 32;
+  static const double paddingBottom = 32;
+
+  // Avatar - tablet için daha büyük
+  static const double avatarSize = 128;
+  static const double avatarSpacing = 14;
+  static const double avatarChangeButtonFontSize = 15;
+
+  // Form - tablet için daha büyük
+  static const double formSpacing = 32;
+  static const double labelSpacing = 10;
+  static const double labelFontSize = 14;
+  static const double labelLetterSpacing = 0.7;
+  static const double fieldFontSize = 17;
+  static const int fieldMaxLength = 30;
+  static const int fieldMaxLengthFull = 60;
+  static const double fieldIconSize = 24;
+  static const double hintFontSize = 13;
+  static const double hintLineHeight = 1.5;
+  static const double buttonHeight = 58;
+  static const double buttonFontSize = 18;
+  static const double savingIndicatorSize = 24;
+  static const double savingStrokeWidth = 2.8;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANA WIDGET (Stateful)
+// ═══════════════════════════════════════════════════════════
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -31,10 +102,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Edit ekranı yalnızca kendi profilimiz için açıldığından, tag her
-    // zaman mevcut kullanıcının id'si — profile_screen.dart / profile_binding.dart
-    // ile aynı hesaplama (targetUserId ?? currentUserId, burada targetUserId
-    // her zaman null).
     final supabase = Get.find<SupabaseDataSource>();
     final tag = supabase.currentUser?.id ?? 'anonymous';
     _controller = Get.find<ProfileController>(tag: tag);
@@ -63,20 +130,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!mounted) return;
 
     if (ok) {
-      Get.snackbar('Başarılı', _controller.successMessage.value ?? 'Profil güncellendi.');
+      Get.snackbar(
+        'Başarılı',
+        _controller.successMessage.value ?? 'Profil güncellendi.',
+      );
       _controller.successMessage.value = null;
       Get.back();
     } else {
-      Get.snackbar('Hata', _controller.errorMessage.value ?? 'Profil güncellenemedi.');
+      Get.snackbar(
+        'Hata',
+        _controller.errorMessage.value ?? 'Profil güncellenemedi.',
+      );
       _controller.errorMessage.value = null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // KURAL 5 — TEK DALLANMA NOKTASI
+    return Responsive.isTablet(context)
+        ? _buildTablet(context)
+        : _buildPhone(context);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildPhone(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profili Düzenle', style: TextStyle(fontSize: 20.sp)),
+        title: Text(
+          'Profili Düzenle',
+          style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
+        ),
       ),
       body: Obx(() {
         final profile = _controller.profile.value;
@@ -86,7 +173,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         return Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 24.h),
+            padding: EdgeInsets.fromLTRB(
+              _PhoneSizes.paddingHorizontal.w,
+              _PhoneSizes.paddingTop.h,
+              _PhoneSizes.paddingHorizontal.w,
+              _PhoneSizes.paddingBottom.h,
+            ),
             children: [
               // ── Avatar ────────────────────────────────────────────────
               Center(
@@ -95,11 +187,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   username: profile?.username ?? 'U',
                   isOwnProfile: true,
                   isUploading: isUploading,
-                  size: 104.w,
+                  size: _PhoneSizes.avatarSize.w,
                   onTap: () => showAvatarSourceSheet(context, _controller),
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: _PhoneSizes.avatarSpacing.h),
               Center(
                 child: TextButton(
                   onPressed: isUploading
@@ -107,34 +199,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       : () => showAvatarSourceSheet(context, _controller),
                   child: Text(
                     'Fotoğrafı Değiştir',
-                    style: TextStyle(fontSize: 13.sp),
+                    style: TextStyle(
+                      fontSize: _PhoneSizes.avatarChangeButtonFontSize.sp,
+                    ),
                   ),
                 ),
               ),
-
-              SizedBox(height: 24.h),
+              SizedBox(height: _PhoneSizes.formSpacing.h),
 
               // ── Kullanıcı adı ─────────────────────────────────────────
               Text(
                 'Kullanıcı Adı',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: 12.sp,
+                  fontSize: _PhoneSizes.labelFontSize.sp,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
+                  letterSpacing: _PhoneSizes.labelLetterSpacing,
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: _PhoneSizes.labelSpacing.h),
               TextFormField(
                 controller: _usernameCtrl,
-                style: TextStyle(color: AppTheme.textPri(context), fontSize: 15.sp),
-                maxLength: 30,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: _PhoneSizes.fieldFontSize.sp,
+                ),
+                maxLength: _PhoneSizes.fieldMaxLength,
                 decoration: InputDecoration(
                   hintText: 'kullanici_adi',
                   prefixIcon: Icon(
                     Icons.alternate_email_rounded,
                     color: AppTheme.textSec(context),
-                    size: 20.sp,
+                    size: _PhoneSizes.fieldIconSize.sp,
                   ),
                   counterText: '',
                 ),
@@ -148,73 +244,255 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   return null;
                 },
               ),
-
-              SizedBox(height: 20.h),
+              SizedBox(height: _PhoneSizes.formSpacing.h),
 
               // ── Ad Soyad ──────────────────────────────────────────────
               Text(
                 'Ad Soyad',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: 12.sp,
+                  fontSize: _PhoneSizes.labelFontSize.sp,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
+                  letterSpacing: _PhoneSizes.labelLetterSpacing,
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: _PhoneSizes.labelSpacing.h),
               TextFormField(
                 controller: _fullNameCtrl,
-                style: TextStyle(color: AppTheme.textPri(context), fontSize: 15.sp),
-                maxLength: 60,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: _PhoneSizes.fieldFontSize.sp,
+                ),
+                maxLength: _PhoneSizes.fieldMaxLengthFull,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
                   hintText: 'Ad Soyad',
                   prefixIcon: Icon(
                     Icons.badge_outlined,
                     color: AppTheme.textSec(context),
-                    size: 20.sp,
+                    size: _PhoneSizes.fieldIconSize.sp,
                   ),
                   counterText: '',
                 ),
               ),
-
-              SizedBox(height: 8.h),
+              SizedBox(height: _PhoneSizes.labelSpacing.h),
               Text(
                 'Ad soyad boş bırakılabilir; boş bırakılırsa profilinde '
                 'kullanıcı adın öne çıkar.',
                 style: TextStyle(
                   color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                  fontSize: 11.5.sp,
-                  height: 1.4,
+                  fontSize: _PhoneSizes.hintFontSize.sp,
+                  height: _PhoneSizes.hintLineHeight,
                 ),
               ),
-
-              SizedBox(height: 32.h),
+              SizedBox(height: _PhoneSizes.formSpacing.h),
 
               // ── Kaydet ────────────────────────────────────────────────
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50.h),
+                    minimumSize: Size(
+                      double.infinity,
+                      _PhoneSizes.buttonHeight.h,
+                    ),
                   ),
                   onPressed: isSaving ? null : _save,
                   child: isSaving
                       ? SizedBox(
-                          width: 20.w,
-                          height: 20.w,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2.4,
+                          width: _PhoneSizes.savingIndicatorSize.w,
+                          height: _PhoneSizes.savingIndicatorSize.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: _PhoneSizes.savingStrokeWidth,
                             color: Colors.white,
                           ),
                         )
-                      : Text('Kaydet', style: TextStyle(fontSize: 16.sp)),
+                      : Text(
+                          'Kaydet',
+                          style: TextStyle(
+                            fontSize: _PhoneSizes.buttonFontSize.sp,
+                          ),
+                        ),
                 ),
               ),
             ],
           ),
         );
       }),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildTablet(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Profili Düzenle',
+          style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
+        ),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Obx(() {
+            final profile = _controller.profile.value;
+            final isSaving = _controller.isSavingProfile.value;
+            final isUploading = _controller.isUploadingAvatar.value;
+
+            return Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  _TabletSizes.paddingHorizontal,
+                  _TabletSizes.paddingTop,
+                  _TabletSizes.paddingHorizontal,
+                  _TabletSizes.paddingBottom,
+                ),
+                children: [
+                  // ── Avatar ────────────────────────────────────────────────
+                  Center(
+                    child: ProfileAvatarWidget(
+                      avatarUrl: profile?.avatarUrl,
+                      username: profile?.username ?? 'U',
+                      isOwnProfile: true,
+                      isUploading: isUploading,
+                      size: _TabletSizes.avatarSize,
+                      onTap: () => showAvatarSourceSheet(context, _controller),
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.avatarSpacing),
+                  Center(
+                    child: TextButton(
+                      onPressed: isUploading
+                          ? null
+                          : () => showAvatarSourceSheet(context, _controller),
+                      child: Text(
+                        'Fotoğrafı Değiştir',
+                        style: TextStyle(
+                          fontSize: _TabletSizes.avatarChangeButtonFontSize,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.formSpacing),
+
+                  // ── Kullanıcı adı ─────────────────────────────────────────
+                  Text(
+                    'Kullanıcı Adı',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: _TabletSizes.labelFontSize,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: _TabletSizes.labelLetterSpacing,
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.labelSpacing),
+                  TextFormField(
+                    controller: _usernameCtrl,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: _TabletSizes.fieldFontSize,
+                    ),
+                    maxLength: _TabletSizes.fieldMaxLength,
+                    decoration: InputDecoration(
+                      hintText: 'kullanici_adi',
+                      prefixIcon: Icon(
+                        Icons.alternate_email_rounded,
+                        color: AppTheme.textSec(context),
+                        size: _TabletSizes.fieldIconSize,
+                      ),
+                      counterText: '',
+                    ),
+                    validator: (value) {
+                      final v = value?.trim() ?? '';
+                      if (v.isEmpty) return 'Kullanıcı adı boş olamaz.';
+                      if (v.length < 3) return 'En az 3 karakter olmalı.';
+                      if (!RegExp(r'^[a-zA-Z0-9_.]+$').hasMatch(v)) {
+                        return 'Sadece harf, rakam, "_" ve "." kullanılabilir.';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: _TabletSizes.formSpacing),
+
+                  // ── Ad Soyad ──────────────────────────────────────────────
+                  Text(
+                    'Ad Soyad',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: _TabletSizes.labelFontSize,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: _TabletSizes.labelLetterSpacing,
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.labelSpacing),
+                  TextFormField(
+                    controller: _fullNameCtrl,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: _TabletSizes.fieldFontSize,
+                    ),
+                    maxLength: _TabletSizes.fieldMaxLengthFull,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: 'Ad Soyad',
+                      prefixIcon: Icon(
+                        Icons.badge_outlined,
+                        color: AppTheme.textSec(context),
+                        size: _TabletSizes.fieldIconSize,
+                      ),
+                      counterText: '',
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.labelSpacing),
+                  Text(
+                    'Ad soyad boş bırakılabilir; boş bırakılırsa profilinde '
+                    'kullanıcı adın öne çıkar.',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context).withValues(alpha: 0.8),
+                      fontSize: _TabletSizes.hintFontSize,
+                      height: _TabletSizes.hintLineHeight,
+                    ),
+                  ),
+                  SizedBox(height: _TabletSizes.formSpacing),
+
+                  // ── Kaydet ────────────────────────────────────────────────
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          double.infinity,
+                          _TabletSizes.buttonHeight,
+                        ),
+                      ),
+                      onPressed: isSaving ? null : _save,
+                      child: isSaving
+                          ? SizedBox(
+                              width: _TabletSizes.savingIndicatorSize,
+                              height: _TabletSizes.savingIndicatorSize,
+                              child: CircularProgressIndicator(
+                                strokeWidth: _TabletSizes.savingStrokeWidth,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Kaydet',
+                              style: TextStyle(
+                                fontSize: _TabletSizes.buttonFontSize,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }
