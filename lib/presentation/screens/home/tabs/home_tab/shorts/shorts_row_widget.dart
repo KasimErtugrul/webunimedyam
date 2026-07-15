@@ -24,7 +24,7 @@ import '../../../../../../data/models/shorts_model.dart';
 import '../../../../../controllers/shorts_controller.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
-//  SABİTLER — burayı değiştir, kodun geri kalanına dokunma
+//  KURAL 3 — SABİTLER
 // ═══════════════════════════════════════════════════════════════════════
 
 /// Phone için sabitler. Bunlar ScreenUtil (.w/.h/.sp) ile çarpılıyor,
@@ -44,6 +44,20 @@ class _PhoneSizes {
   static const double listHorizontalPadding = 12;
   static const double spacingAfterAvatar = 5;
   static const double spacingAfterName = 2;
+
+  // Shimmer
+  static const double shimmerHeight = 140;
+  static const int shimmerItemCount = 6; // ✅ int olarak değiştirildi
+  static const double shimmerAvatarSize = 64;
+  static const double shimmerItemSpacing = 6;
+  static const double shimmerNameWidth = 56;
+  static const double shimmerNameHeight = 10;
+  static const double shimmerSpacing = 6;
+
+  // Load more
+  static const double loadMoreWidth = 48;
+  static const double loadMoreIndicatorSize = 22;
+  static const double loadMoreStrokeWidth = 2;
 }
 
 /// Tablet için sabitler. ScreenUtil'e HİÇ dokunmuyor — direkt piksel.
@@ -63,6 +77,20 @@ class _TabletSizes {
   static const double listHorizontalPadding = 24;
   static const double spacingAfterAvatar = 4;
   static const double spacingAfterName = 2;
+
+  // Shimmer
+  static const double shimmerHeight = 122;
+  static const int shimmerItemCount = 8; // ✅ int olarak değiştirildi
+  static const double shimmerAvatarSize = 56;
+  static const double shimmerItemSpacing = 5;
+  static const double shimmerNameWidth = 62;
+  static const double shimmerNameHeight = 9;
+  static const double shimmerSpacing = 5;
+
+  // Load more
+  static const double loadMoreWidth = 42;
+  static const double loadMoreIndicatorSize = 18;
+  static const double loadMoreStrokeWidth = 2;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -100,13 +128,16 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 5 — TEK DALLANMA NOKTASI
+  // ═══════════════════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ShortsController>();
 
     return Obx(() {
       if (controller.isLoading.value) {
-        // ── TEK DALLANMA NOKTASI ────────────────────────────────────
         return Responsive.isTablet(context)
             ? _buildTabletShimmer(context)
             : _buildPhoneShimmer(context);
@@ -117,13 +148,16 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       }
 
       return Responsive.isTablet(context)
-          ? _tablet(context, controller)
-          : _phone(context, controller);
+          ? _buildTablet(context, controller)
+          : _buildPhone(context, controller);
     });
   }
 
-  // ── PHONE — mevcut tasarımın birebir aynısı, dokunulmadı ──────────────
-  Widget _phone(BuildContext context, ShortsController controller) {
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildPhone(BuildContext context, ShortsController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -155,34 +189,37 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     );
   }
 
+  // ── Phone Shimmer ──
   Widget _buildPhoneShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: 140.h,
+        height: _PhoneSizes.shimmerHeight.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
             horizontal: _PhoneSizes.listHorizontalPadding.w,
           ),
-          itemCount: 6,
+          itemCount: _PhoneSizes.shimmerItemCount, // ✅ artık int
           itemBuilder: (_, __) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            padding: EdgeInsets.symmetric(
+              horizontal: _PhoneSizes.shimmerItemSpacing.w,
+            ),
             child: Column(
               children: [
                 Container(
-                  width: 64.w,
-                  height: 64.w,
+                  width: _PhoneSizes.shimmerAvatarSize.w,
+                  height: _PhoneSizes.shimmerAvatarSize.w,
                   decoration: BoxDecoration(
                     color: AppTheme.surface(context),
                     shape: BoxShape.circle,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: _PhoneSizes.shimmerSpacing.h),
                 Container(
-                  width: 56.w,
-                  height: 10.h,
+                  width: _PhoneSizes.shimmerNameWidth.w,
+                  height: _PhoneSizes.shimmerNameHeight.h,
                   color: AppTheme.surface(context),
                 ),
               ],
@@ -193,8 +230,11 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     );
   }
 
-  // ── TABLET — ayrı, sabit sayılarla, ScreenUtil'siz ─────────────────────
-  Widget _tablet(BuildContext context, ShortsController controller) {
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildTablet(BuildContext context, ShortsController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -226,34 +266,37 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     );
   }
 
+  // ── Tablet Shimmer ──
   Widget _buildTabletShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: _TabletSizes.rowHeight + 30,
+        height: _TabletSizes.shimmerHeight,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(
             horizontal: _TabletSizes.listHorizontalPadding,
           ),
-          itemCount: 8,
+          itemCount: _TabletSizes.shimmerItemCount, // ✅ artık int
           itemBuilder: (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(
+              horizontal: _TabletSizes.shimmerItemSpacing,
+            ),
             child: Column(
               children: [
                 Container(
-                  width: _TabletSizes.avatarSize,
-                  height: _TabletSizes.avatarSize,
+                  width: _TabletSizes.shimmerAvatarSize,
+                  height: _TabletSizes.shimmerAvatarSize,
                   decoration: BoxDecoration(
                     color: AppTheme.surface(context),
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: _TabletSizes.shimmerSpacing),
                 Container(
-                  width: _TabletSizes.nameWidth,
-                  height: 9,
+                  width: _TabletSizes.shimmerNameWidth,
+                  height: _TabletSizes.shimmerNameHeight,
                   color: AppTheme.surface(context),
                 ),
               ],
@@ -266,7 +309,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  SAYFALAMA YÜKLENİYOR GÖSTERGESİ — phone / tablet ayrı
+// KURAL 6 — ALT SEVİYE WIDGET'LAR (PHONE)
 // ═══════════════════════════════════════════════════════════════════════
 
 class _PhoneLoadMoreIndicator extends StatelessWidget {
@@ -276,14 +319,14 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 48.w,
+      width: _PhoneSizes.loadMoreWidth.w,
       child: Center(
         child: isLoading
             ? SizedBox(
-                width: 22.w,
-                height: 22.w,
+                width: _PhoneSizes.loadMoreIndicatorSize.w,
+                height: _PhoneSizes.loadMoreIndicatorSize.w,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: _PhoneSizes.loadMoreStrokeWidth,
                   color: AppTheme.primaryColor,
                 ),
               )
@@ -292,34 +335,6 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
     );
   }
 }
-
-class _TabletLoadMoreIndicator extends StatelessWidget {
-  final bool isLoading;
-  const _TabletLoadMoreIndicator({required this.isLoading});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 42,
-      child: Center(
-        child: isLoading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppTheme.primaryColor,
-                ),
-              )
-            : const SizedBox.shrink(),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-//  TEK BİR SHORTS ÖĞESİ — PHONE (mevcut tasarımın birebir aynısı)
-// ═══════════════════════════════════════════════════════════════════════
 
 class _ShortsThumbItemPhone extends StatelessWidget {
   final ShortsModel shorts;
@@ -464,8 +479,32 @@ class _ShortsThumbItemPhone extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  TEK BİR SHORTS ÖĞESİ — TABLET (ayrı, sabit sayılarla, ScreenUtil yok)
+// KURAL 6 — ALT SEVİYE WIDGET'LAR (TABLET)
 // ═══════════════════════════════════════════════════════════════════════
+
+class _TabletLoadMoreIndicator extends StatelessWidget {
+  final bool isLoading;
+  const _TabletLoadMoreIndicator({required this.isLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _TabletSizes.loadMoreWidth,
+      child: Center(
+        child: isLoading
+            ? SizedBox(
+                width: _TabletSizes.loadMoreIndicatorSize,
+                height: _TabletSizes.loadMoreIndicatorSize,
+                child: CircularProgressIndicator(
+                  strokeWidth: _TabletSizes.loadMoreStrokeWidth,
+                  color: AppTheme.primaryColor,
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
 
 class _ShortsThumbItemTablet extends StatelessWidget {
   final ShortsModel shorts;

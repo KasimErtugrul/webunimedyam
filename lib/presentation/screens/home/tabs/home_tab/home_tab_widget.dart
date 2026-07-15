@@ -9,6 +9,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/responsive.dart';
 
 import '../../../../controllers/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
@@ -17,6 +18,116 @@ import 'shorts/shorts_row_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
 import 'widgets/continue_watching_section_widget.dart';
+
+// ═══════════════════════════════════════════════════════════
+// KURAL 3 — SABİTLER
+// ═══════════════════════════════════════════════════════════
+
+class _PhoneSizes {
+  // AppBar
+  static const double titleIconSize = 30;
+  static const double titleIconBorderRadius = 8;
+  static const double titleIconInnerSize = 18;
+  static const double titleSpacing = 8;
+  static const double titleFontSize = 22;
+  static const double titleLetterSpacing = -0.5;
+  
+  // Shorts
+  static const double shortsAreaHeight = 115;
+  
+  // Spacing
+  static const double titleSpacingLarge = 16;
+  static const double bottomSpacing = 24;
+  static const double shimmerItemSpacingVertical = 7;
+  static const double shimmerItemSpacingHorizontal = 14;
+  static const double shimmerBorderRadius = 16;
+  static const double shimmerImageHeight = 196;
+  static const double shimmerAvatarSize = 42;
+  static const double shimmerAvatarSpacing = 12;
+  static const double shimmerAvatarRadius = 10;
+  static const double shimmerTitleHeight = 14;
+  static const double shimmerTitleWidth = 160;
+  static const double shimmerSubtitleHeight = 11;
+  static const double shimmerSubtitleWidth = 100;
+  static const double shimmerSpacingSmall = 6;
+  static const double shimmerSpacingMedium = 8;
+  static const double shimmerPaddingTop = 12;
+  static const double shimmerPaddingBottom = 14;
+  static const double shimmerPaddingLeft = 14;
+  static const double shimmerPaddingRight = 14;
+  static const int shimmerShimmerCount = 4;  // ✅ int olarak düzeltildi
+  
+  // Error
+  static const double errorPadding = 32;
+  static const double errorIconSize = 48;
+  static const double errorSpacing = 16;
+  static const double errorFontSize = 14;
+  static const double errorButtonWidth = 100;
+  static const double errorButtonHeight = 40;
+  
+  // Empty
+  static const double emptyPadding = 32;
+  static const double emptyFontSize = 14;
+  
+  // Auth Dialog
+  static const double dialogBorderRadius = 16;
+  static const double dialogButtonRadius = 8;
+}
+
+class _TabletSizes {
+  // AppBar - tablet için daha büyük
+  static const double titleIconSize = 36;
+  static const double titleIconBorderRadius = 10;
+  static const double titleIconInnerSize = 22;
+  static const double titleSpacing = 10;
+  static const double titleFontSize = 26;
+  static const double titleLetterSpacing = -0.5;
+  
+  // Shorts - tablet için daha kompakt
+  static const double shortsAreaHeight = 100;
+  
+  // Spacing - tablet için daha geniş
+  static const double titleSpacingLarge = 20;
+  static const double bottomSpacing = 30;
+  static const double shimmerItemSpacingVertical = 10;
+  static const double shimmerItemSpacingHorizontal = 18;
+  static const double shimmerBorderRadius = 20;
+  static const double shimmerImageHeight = 240;
+  static const double shimmerAvatarSize = 48;
+  static const double shimmerAvatarSpacing = 14;
+  static const double shimmerAvatarRadius = 12;
+  static const double shimmerTitleHeight = 16;
+  static const double shimmerTitleWidth = 200;
+  static const double shimmerSubtitleHeight = 13;
+  static const double shimmerSubtitleWidth = 120;
+  static const double shimmerSpacingSmall = 8;
+  static const double shimmerSpacingMedium = 10;
+  static const double shimmerPaddingTop = 14;
+  static const double shimmerPaddingBottom = 16;
+  static const double shimmerPaddingLeft = 16;
+  static const double shimmerPaddingRight = 16;
+  static const int shimmerShimmerCount = 3;  // ✅ int olarak düzeltildi
+  
+  // Error
+  static const double errorPadding = 40;
+  static const double errorIconSize = 56;
+  static const double errorSpacing = 20;
+  static const double errorFontSize = 16;
+  static const double errorButtonWidth = 120;
+  static const double errorButtonHeight = 48;
+  
+  // Empty
+  static const double emptyPadding = 40;
+  static const double emptyFontSize = 16;
+  
+  // Auth Dialog - tablet için daha büyük
+  static const double dialogBorderRadius = 20;
+  static const double dialogButtonRadius = 10;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANA WIDGET (Stateful)
+// ═══════════════════════════════════════════════════════════
 
 class HomeTabWidget extends StatefulWidget {
   const HomeTabWidget({super.key});
@@ -32,14 +143,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
   // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
   // SliverAppBar'ın expandedHeight'ı bu değere göre hesaplanır.
-  double get _shortsAreaHeight => 115.h;
+  double get _shortsAreaHeight {
+    return Responsive.isTablet(context)
+        ? _TabletSizes.shortsAreaHeight
+        : _PhoneSizes.shortsAreaHeight.h;
+  }
 
   @override
   void initState() {
     super.initState();
 
-    // IndexedStack tüm tab'ları aynı anda build eder, bu yüzden
-    // ilk frame render olduktan sonra shorts yükle — ekran görünürken başlasın.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Get.find<ShortsController>().loadShorts();
     });
@@ -62,17 +175,9 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     }
   }
 
-  // BUG FIX: Sayfa boyu (ör. sadece 5-6 video) ekranı tam doldurmuyorsa
-  // scroll extent 0'a yakın kalıyor ve kullanıcı hiç aşağı kaydıramadığı
-  // için _onScroll asla tetiklenmiyordu — "10'lu pagination çalışmıyor"
-  // hissi buradan geliyordu. Her frame sonunda içerik hâlâ sığıyor mu diye
-  // kontrol edip gerekiyorsa otomatik bir sayfa daha çekiyoruz.
   void _maybeAutoLoadMore() {
     if (!mounted) return;
     if (!_scrollController.hasClients) return;
-    // Wheel görünümünde bu "kısa ekran" auto-load mantığı uygulanmaz —
-    // wheel artık kendi sayfalamasını HomeFeedWheelWidget içinde,
-    // wheel index'i sona yaklaştıkça tetikliyor (bkz. home_feed_wheel_widget.dart).
     if (controller.isWheelView.value) return;
     if (!controller.hasMoreVideos.value || controller.isLoadingMore.value) {
       return;
@@ -90,6 +195,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     super.dispose();
   }
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 5 — TEK DALLANMA NOKTASI
+  // ═══════════════════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeAutoLoadMore());
@@ -101,9 +210,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           color: Theme.of(context).colorScheme.primary,
           onRefresh: () async {
             await controller.refreshVideos();
-            // FIX: loadVideoSections() burada hiç çağrılmıyordu, bu yüzden
-            // Trend/En Çok İzlenen/Keşfedilmemiş gibi bölümler pull-to-refresh
-            // ile asla yenilenmiyordu (sadece ilk açılışta bir kez yükleniyordu).
             await controller.loadVideoSections();
             await controller.loadPlaylists();
             await controller.loadUniversityStats();
@@ -113,7 +219,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // ── Üst Bar — Logo + Shorts (sabit/scroll appbar) ────────
+              // ── Üst Bar — Logo + Shorts ────────────────────────────────
               SliverAppBar(
                 pinned: false,
                 floating: true,
@@ -122,7 +228,9 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 scrolledUnderElevation: 0,
                 backgroundColor: AppTheme.bg(context),
                 automaticallyImplyLeading: false,
-                titleSpacing: 16.w,
+                titleSpacing: Responsive.isTablet(context)
+                    ? _TabletSizes.titleSpacingLarge
+                    : _PhoneSizes.titleSpacingLarge.w,
                 toolbarHeight: kToolbarHeight,
                 expandedHeight: kToolbarHeight + _shortsAreaHeight,
                 actions: [
@@ -139,11 +247,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                       onPressed: controller.toggleWheelView,
                     ),
                   ),
-                  /*  IconButton(
-                    icon: const Icon(Icons.view_carousel_rounded),
-                    tooltip: 'Üniversite Radarı',
-                    onPressed: () => Get.toNamed(AppRoutes.universityWheel),
-                  ), */
                   IconButton(
                     icon: const Icon(Icons.radio_rounded),
                     onPressed: () => Get.toNamed(AppRoutes.radio),
@@ -152,78 +255,85 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 title: Row(
                   children: [
                     Container(
-                      width: 30.w,
-                      height: 30.w,
+                      width: Responsive.isTablet(context)
+                          ? _TabletSizes.titleIconSize
+                          : _PhoneSizes.titleIconSize.w,
+                      height: Responsive.isTablet(context)
+                          ? _TabletSizes.titleIconSize
+                          : _PhoneSizes.titleIconSize.w,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(8.r),
+                        borderRadius: BorderRadius.circular(
+                          Responsive.isTablet(context)
+                              ? _TabletSizes.titleIconBorderRadius
+                              : _PhoneSizes.titleIconBorderRadius.r,
+                        ),
                       ),
                       child: Icon(
                         Icons.play_arrow_rounded,
                         color: Colors.white,
-                        size: 18.sp,
+                        size: Responsive.isTablet(context)
+                            ? _TabletSizes.titleIconInnerSize
+                            : _PhoneSizes.titleIconInnerSize.sp,
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(
+                      width: Responsive.isTablet(context)
+                          ? _TabletSizes.titleSpacing
+                          : _PhoneSizes.titleSpacing.w,
+                    ),
                     Text(
                       'ÜniTV',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 22.sp,
-                        letterSpacing: -0.5,
+                        fontSize: Responsive.isTablet(context)
+                            ? _TabletSizes.titleFontSize
+                            : _PhoneSizes.titleFontSize.sp,
+                        letterSpacing: Responsive.isTablet(context)
+                            ? _TabletSizes.titleLetterSpacing
+                            : _PhoneSizes.titleLetterSpacing,
                       ),
                     ),
                   ],
                 ),
                 flexibleSpace: FlexibleSpaceBar(
                   background: Padding(
-                    padding: EdgeInsets.only(top: kToolbarHeight),
+                    padding: Responsive.isTablet(context)
+                        ? EdgeInsets.only(top: kToolbarHeight)
+                        : EdgeInsets.only(top: kToolbarHeight),
                     child: const ShortsRowWidget(),
                   ),
                 ),
               ),
 
-              /* // ── Ayraç ─────────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Container(
-                  height: 8.h,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface(context).withValues(alpha: 0.35),
-                  ),
-                ),
-              ), */
-
-              // ── İzlemeye Devam Et (Continue Watching) — TAMAMEN LOCAL ──
+              // ── İzlemeye Devam Et ──
               SliverToBoxAdapter(
                 child: Obx(() {
-                  // BUG FIX: Obx yalnızca kendi builder'ı İÇİNDE, senkron
-                  // olarak yapılan reactive okumaları izler. RxList referansı
-                  // doğrudan bir child widget'a parametre olarak geçilip
-                  // liste erişimi (isEmpty/iterasyon) o widget'ın KENDİ
-                  // build()'inde yapılırsa, bu okuma Obx'in izleme
-                  // penceresinin DIŞINDA kalır ve "hiç observable yok" hatası
-                  // fırlatılır. Bu yüzden listeyi burada, closure içinde
-                  // somut bir List'e çeviriyoruz (gerçek bir okuma tetikler).
-
                   final items = controller.continueWatching.toList();
                   return !controller.isWheelView.value
                       ? ContinueWatchingSectionWidget(
                           items: items,
                           onRemove: controller.removeFromContinueWatching,
                         )
-                      : SizedBox.shrink();
+                      : const SizedBox.shrink();
                 }),
               ),
 
-              // ── İçerik Alanı ───────────────────────────────────────
+              // ── İçerik Alanı ─────────────────────────────────────────────
               Obx(() => _buildContentSliver(context)),
 
-              // ── Alt Boşluk ───────────────────────────────────────────
-              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+              // ── Alt Boşluk ──────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: Responsive.isTablet(context)
+                      ? _TabletSizes.bottomSpacing
+                      : _PhoneSizes.bottomSpacing.h,
+                ),
+              ),
             ],
           ),
         ),
@@ -231,23 +341,37 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // ═══════════════════════════════════════════════════════════════════════
+
   Widget _buildContentSliver(BuildContext context) {
     if (controller.isLoading.value) {
-      return SliverToBoxAdapter(child: _buildVideoShimmer(context));
+      return SliverToBoxAdapter(
+        child: Responsive.isTablet(context)
+            ? _buildVideoShimmerTablet(context)
+            : _buildVideoShimmerPhone(context),
+      );
     }
 
     if (controller.errorMessage.isNotEmpty) {
-      return SliverToBoxAdapter(child: _buildErrorWidget(context));
+      return SliverToBoxAdapter(
+        child: Responsive.isTablet(context)
+            ? _buildErrorWidgetTablet(context)
+            : _buildErrorWidgetPhone(context),
+      );
     }
 
     final nonShorts = controller.videos.where((v) => !v.isShorts).toList();
 
     if (nonShorts.isEmpty) {
-      return SliverToBoxAdapter(child: _buildEmptyWidget(context));
+      return SliverToBoxAdapter(
+        child: Responsive.isTablet(context)
+            ? _buildEmptyWidgetTablet(context)
+            : _buildEmptyWidgetPhone(context),
+      );
     }
 
-    // ── Wheel görünümü: aynı veriyi (nonShorts) farklı bir arayüzle
-    // gösterir. Ekstra ağ isteği yapılmaz, ekstra video çekilmez.
     if (controller.isWheelView.value) {
       return SliverToBoxAdapter(
         child: HomeFeedWheelWidget(
@@ -258,10 +382,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     }
 
     final showLoader = controller.hasMoreVideos.value;
-    // BUG FIX: isLoadingMore burada (Obx'in senkron build çağrısı içinde)
-    // okunmazsa, sadece aşağıdaki lazy SliverChildBuilderDelegate builder'ı
-    // içinde okunduğu için Obx bunu bir bağımlılık olarak izleyemiyordu —
-    // alt kısımdaki yükleniyor göstergesi hiç güncellenmiyordu.
     final isLoadingMore = controller.isLoadingMore.value;
 
     return SliverList(
@@ -282,49 +402,325 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  Widget _buildErrorWidget(BuildContext context) {
+  // ── Phone Error Widget ──
+  Widget _buildErrorWidgetPhone(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(32.w),
+      padding: EdgeInsets.all(_PhoneSizes.errorPadding.w),
       child: Column(
         children: [
           Icon(
             Icons.error_outline_rounded,
             color: AppTheme.textSec(context),
-            size: 48.sp,
+            size: _PhoneSizes.errorIconSize.sp,
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: _PhoneSizes.errorSpacing.h),
           Text(
             controller.errorMessage.value,
-            style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: _PhoneSizes.errorFontSize.sp,
+            ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: _PhoneSizes.errorSpacing.h),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(minimumSize: Size(100.w, 40.h)),
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(
+                _PhoneSizes.errorButtonWidth.w,
+                _PhoneSizes.errorButtonHeight.h,
+              ),
+            ),
             onPressed: controller.loadVideos,
-            child: Text('Tekrar Dene', style: TextStyle(fontSize: 14.sp)),
+            child: Text(
+              'Tekrar Dene',
+              style: TextStyle(fontSize: _PhoneSizes.errorFontSize.sp),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyWidget(BuildContext context) {
+  // ── Phone Empty Widget ──
+  Widget _buildEmptyWidgetPhone(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(32.w),
+      padding: EdgeInsets.all(_PhoneSizes.emptyPadding.w),
       child: Center(
         child: Text(
           'Henüz video yok.',
-          style: TextStyle(color: AppTheme.textSec(context), fontSize: 14.sp),
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: _PhoneSizes.emptyFontSize.sp,
+          ),
         ),
       ),
     );
   }
 
+  // ── Phone Shimmer ──
+  Widget _buildVideoShimmerPhone(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
+      child: Column(
+        children: List.generate(
+          _PhoneSizes.shimmerShimmerCount,
+          (_) => Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: _PhoneSizes.shimmerItemSpacingHorizontal.w,
+              vertical: _PhoneSizes.shimmerItemSpacingVertical.h,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface(context),
+                borderRadius: BorderRadius.circular(
+                  _PhoneSizes.shimmerBorderRadius.r,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: _PhoneSizes.shimmerImageHeight.h,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(
+                          _PhoneSizes.shimmerBorderRadius.r,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      _PhoneSizes.shimmerPaddingLeft.w,
+                      _PhoneSizes.shimmerPaddingTop.h,
+                      _PhoneSizes.shimmerPaddingRight.w,
+                      _PhoneSizes.shimmerPaddingBottom.h,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: _PhoneSizes.shimmerAvatarSize.w,
+                          height: _PhoneSizes.shimmerAvatarSize.w,
+                          margin: EdgeInsets.only(
+                            right: _PhoneSizes.shimmerAvatarSpacing.w,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surface(context),
+                            borderRadius: BorderRadius.circular(
+                              _PhoneSizes.shimmerAvatarRadius.r,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: _PhoneSizes.shimmerTitleHeight.h,
+                                color: AppTheme.surface(context),
+                              ),
+                              SizedBox(
+                                height: _PhoneSizes.shimmerSpacingSmall.h,
+                              ),
+                              Container(
+                                height: _PhoneSizes.shimmerTitleHeight.h,
+                                width: _PhoneSizes.shimmerTitleWidth.w,
+                                color: AppTheme.surface(context),
+                              ),
+                              SizedBox(
+                                height: _PhoneSizes.shimmerSpacingMedium.h,
+                              ),
+                              Container(
+                                height: _PhoneSizes.shimmerSubtitleHeight.h,
+                                width: _PhoneSizes.shimmerSubtitleWidth.w,
+                                color: AppTheme.surface(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ── Tablet Error Widget ──
+  Widget _buildErrorWidgetTablet(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(_TabletSizes.errorPadding),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: AppTheme.textSec(context),
+            size: _TabletSizes.errorIconSize,
+          ),
+          SizedBox(height: _TabletSizes.errorSpacing),
+          Text(
+            controller.errorMessage.value,
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: _TabletSizes.errorFontSize,
+            ),
+          ),
+          SizedBox(height: _TabletSizes.errorSpacing),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(
+                _TabletSizes.errorButtonWidth,
+                _TabletSizes.errorButtonHeight,
+              ),
+            ),
+            onPressed: controller.loadVideos,
+            child: Text(
+              'Tekrar Dene',
+              style: TextStyle(fontSize: _TabletSizes.errorFontSize),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Tablet Empty Widget ──
+  Widget _buildEmptyWidgetTablet(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(_TabletSizes.emptyPadding),
+      child: Center(
+        child: Text(
+          'Henüz video yok.',
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: _TabletSizes.emptyFontSize,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Tablet Shimmer ──
+  Widget _buildVideoShimmerTablet(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
+      child: Column(
+        children: List.generate(
+          _TabletSizes.shimmerShimmerCount,
+          (_) => Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: _TabletSizes.shimmerItemSpacingHorizontal,
+              vertical: _TabletSizes.shimmerItemSpacingVertical,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface(context),
+                borderRadius: BorderRadius.circular(
+                  _TabletSizes.shimmerBorderRadius,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: _TabletSizes.shimmerImageHeight,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(
+                          _TabletSizes.shimmerBorderRadius,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      _TabletSizes.shimmerPaddingLeft,
+                      _TabletSizes.shimmerPaddingTop,
+                      _TabletSizes.shimmerPaddingRight,
+                      _TabletSizes.shimmerPaddingBottom,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: _TabletSizes.shimmerAvatarSize,
+                          height: _TabletSizes.shimmerAvatarSize,
+                          margin: EdgeInsets.only(
+                            right: _TabletSizes.shimmerAvatarSpacing,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surface(context),
+                            borderRadius: BorderRadius.circular(
+                              _TabletSizes.shimmerAvatarRadius,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: _TabletSizes.shimmerTitleHeight,
+                                color: AppTheme.surface(context),
+                              ),
+                              SizedBox(
+                                height: _TabletSizes.shimmerSpacingSmall,
+                              ),
+                              Container(
+                                height: _TabletSizes.shimmerTitleHeight,
+                                width: _TabletSizes.shimmerTitleWidth,
+                                color: AppTheme.surface(context),
+                              ),
+                              SizedBox(
+                                height: _TabletSizes.shimmerSpacingMedium,
+                              ),
+                              Container(
+                                height: _TabletSizes.shimmerSubtitleHeight,
+                                width: _TabletSizes.shimmerSubtitleWidth,
+                                color: AppTheme.surface(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ORTAK METODLAR
+  // ═══════════════════════════════════════════════════════════════════════
+
   void _showAuthDialog() {
     Get.dialog(
       AlertDialog(
         backgroundColor: const Color(0xFF1E1E2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            Responsive.isTablet(context)
+                ? _TabletSizes.dialogBorderRadius
+                : _PhoneSizes.dialogBorderRadius.r,
+          ),
+        ),
         title: const Text(
           'Giriş Gerekiyor',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -346,7 +742,11 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(
+                  Responsive.isTablet(context)
+                      ? _TabletSizes.dialogButtonRadius
+                      : _PhoneSizes.dialogButtonRadius.r,
+                ),
               ),
             ),
             onPressed: () {
@@ -356,81 +756,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             child: const Text('Giriş Yap'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildVideoShimmer(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.surface(context),
-      highlightColor: AppTheme.card(context),
-      child: Column(
-        children: List.generate(
-          4,
-          (_) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 196.h,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface(context),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16.r),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 14.h),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 42.w,
-                          height: 42.h,
-                          margin: EdgeInsets.only(right: 12.w),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface(context),
-                            borderRadius: BorderRadius.circular(10.r),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 14.h,
-                                color: AppTheme.surface(context),
-                              ),
-                              SizedBox(height: 6.h),
-                              Container(
-                                height: 14.h,
-                                width: 160.w,
-                                color: AppTheme.surface(context),
-                              ),
-                              SizedBox(height: 8.h),
-                              Container(
-                                height: 11.h,
-                                width: 100.w,
-                                color: AppTheme.surface(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
