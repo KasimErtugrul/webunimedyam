@@ -5,8 +5,19 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../../data/models/university_stats_model.dart';
-import 'university_horizontal_card_widget.dart';
 import 'university_horizontal_section_widget.dart';
+
+// ═══════════════════════════════════════════════════════════
+// SABİTLER
+// ═══════════════════════════════════════════════════════════
+
+class _PhoneSizes {
+  static const double sectionSpacing = 24;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG SINIFI
+// ═══════════════════════════════════════════════════════════
 
 class UniSectionConfig {
   final String title;
@@ -14,7 +25,6 @@ class UniSectionConfig {
   final String Function(UniversityStatsModel) statLabelBuilder;
   final IconData statIcon;
   final bool showLogoLarge;
-  /// Başlık yanındaki ℹ️ butonuna basınca gösterilecek açıklama
   final String description;
 
   const UniSectionConfig({
@@ -26,6 +36,26 @@ class UniSectionConfig {
     this.showLogoLarge = false,
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// FORMATLAMA FONKSİYONLARI
+// ═══════════════════════════════════════════════════════════
+
+String formatStatNumber(int n) {
+  if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+  if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
+  return n.toString();
+}
+
+String formatDuration(int totalSec) {
+  final h = totalSec ~/ 3600;
+  if (h >= 1000) return '${(h / 1000).toStringAsFixed(1)}k s';
+  return '$h s';
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG LİSTESİ
+// ═══════════════════════════════════════════════════════════
 
 final List<UniSectionConfig> uniSectionConfigs = [
   // 1. En Çok İzlenen
@@ -121,34 +151,10 @@ final List<UniSectionConfig> uniSectionConfigs = [
   ),
 ];
 
-/// Controller'daki 8 RxList ile config'i eşleştirir.
-List<_SectionBundle> buildSectionBundles({
-  required List<UniSectionConfig> configs,
-  required List<List<UniversityStatsModel>> allItems,
-  required bool isLoading,
-}) {
-  return List.generate(
-    configs.length,
-    (i) => _SectionBundle(
-      config: configs[i],
-      items: allItems[i],
-      isLoading: isLoading,
-    ),
-  );
-}
+// ═══════════════════════════════════════════════════════════
+// BUILD HELPER
+// ═══════════════════════════════════════════════════════════
 
-class _SectionBundle {
-  final UniSectionConfig config;
-  final List<UniversityStatsModel> items;
-  final bool isLoading;
-  const _SectionBundle({
-    required this.config,
-    required this.items,
-    required this.isLoading,
-  });
-}
-
-/// home_tab_widget.dart'ta çağrılacak helper — 8 seksiyon widget listesi döner.
 List<Widget> buildUniversitySections({
   required List<UniSectionConfig> configs,
   required List<List<UniversityStatsModel>> allItems,
@@ -169,7 +175,7 @@ List<Widget> buildUniversitySections({
         showLogoLarge: cfg.showLogoLarge,
       ),
     );
-    widgets.add(SizedBox(height: 24));
+    widgets.add(SizedBox(height: _PhoneSizes.sectionSpacing));
   }
   return widgets;
 }
