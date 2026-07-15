@@ -139,7 +139,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                       onPressed: controller.toggleWheelView,
                     ),
                   ),
-                 /*  IconButton(
+                  /*  IconButton(
                     icon: const Icon(Icons.view_carousel_rounded),
                     tooltip: 'Üniversite Radarı',
                     onPressed: () => Get.toNamed(AppRoutes.universityWheel),

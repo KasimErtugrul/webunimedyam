@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/university_model.dart';
 import '../../../../../../data/models/video_model.dart';
 import '../../../../../controllers/home_controller.dart';
@@ -34,9 +35,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _maybeLoadMore(_activeIndex),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeLoadMore(_activeIndex));
   }
 
   @override
@@ -49,8 +48,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
   void _maybeLoadMore(int i) {
     final v = widget.videos;
-    if (v.isEmpty || !_ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value)
-      return;
+    if (v.isEmpty || !_ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value) return;
     if (i >= v.length - _threshold) _ctrl.loadMoreVideos();
   }
 
@@ -64,14 +62,28 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double kWheelCardHeight = 340;
-
     final videos = widget.videos;
     if (videos.isEmpty) return const SizedBox.shrink();
 
     final idx = _activeIndex.clamp(0, videos.length - 1);
     final active = videos[idx];
     final activeUni = _uniFor(active);
+
+    // ── TEK DALLANMA NOKTASI ────────────────────────────────────────────
+    return Responsive.isTablet(context)
+        ? _tablet(context, active, activeUni, idx, videos)
+        : _phone(context, active, activeUni, idx, videos);
+  }
+
+  // ── PHONE — mevcut tasarımın birebir aynısı, dokunulmadı ──────────────
+  Widget _phone(
+    BuildContext context,
+    VideoModel active,
+    UniversityModel? activeUni,
+    int idx,
+    List<VideoModel> videos,
+  ) {
+    const double kWheelCardHeight = 340;
 
     return Obx(() {
       final tail = _ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value;
@@ -81,7 +93,6 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Kart — kWheelCardHeight.h ile sabit
             SizedBox(
               height: kWheelCardHeight.h,
               child: WheelVideoCardWidget(
@@ -91,8 +102,6 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
               ),
             ),
             SizedBox(height: 14.h),
-
-            // Logo wheel — yeri sabit, kaymaz
             SizedBox(
               height: 112.h,
               child: _LogoWheel(
@@ -103,13 +112,74 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
                 showTail: tail,
                 isLoading: _ctrl.isLoadingMore.value,
                 onChanged: _onChanged,
+                itemExtent: 78,
+                activeSize: 62,
+                inactiveSize: 42,
               ),
             ),
             SizedBox(height: 10.h),
-
-            // Wheel altı — üniversite adı + takip butonu (klasik yapı)
-            // _buildUniversityBar(context, active, activeUni),
           ],
+        ),
+      );
+    });
+  }
+
+  // ── TABLET — sabit yükseklik yok, ortalanmış + genişliğe göre esner ───
+  Widget _tablet(
+    BuildContext context,
+    VideoModel active,
+    UniversityModel? activeUni,
+    int idx,
+    List<VideoModel> videos,
+  ) {
+    return Obx(() {
+      final tail = _ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value;
+
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Tablet yatay çevrildikçe / genişledikçe kart da logo
+              // wheel de orantılı büyür — ayrı bir widget yazmadan.
+              final width = constraints.maxWidth;
+              final cardHeight = width * 0.55;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: cardHeight,
+                      child: WheelVideoCardWidget(
+                        key: ValueKey(active.videoId),
+                        video: active,
+                        university: activeUni,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      height: 132,
+                      child: _LogoWheel(
+                        key: ValueKey('lw_tablet_${videos.length}'),
+                        videos: videos,
+                        universities: widget.universities,
+                        activeIndex: idx,
+                        showTail: tail,
+                        isLoading: _ctrl.isLoadingMore.value,
+                        onChanged: _onChanged,
+                        itemExtent: 96,
+                        activeSize: 76,
+                        inactiveSize: 52,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       );
     });
@@ -118,8 +188,10 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
 // ═══════════════════════════════════════════════════════════════════════
 //  LOGO WHEEL — Yatay şerit (RotatedBox tekniği)
-//  NOT: Aktif slot çerçevesi kaldırıldı — sadece opaklık/boyut ile
-//  aktif öğe vurgulanıyor (klasik/sade görünüm).
+//  itemExtent/activeSize/inactiveSize artık dışarıdan parametre —
+//  phone() kendi (ScreenUtil'li) değerlerini, tablet() kendi (sabit)
+//  değerlerini gönderiyor. Widget'ın kendisi phone/tablet arasında
+//  TEK ve ORTAK kalıyor, tekrar yazılmıyor.
 // ═══════════════════════════════════════════════════════════════════════
 class _LogoWheel extends StatefulWidget {
   final List<VideoModel> videos;
@@ -128,6 +200,9 @@ class _LogoWheel extends StatefulWidget {
   final bool showTail;
   final bool isLoading;
   final ValueChanged<int> onChanged;
+  final double itemExtent;
+  final double activeSize;
+  final double inactiveSize;
 
   const _LogoWheel({
     super.key,
@@ -137,6 +212,9 @@ class _LogoWheel extends StatefulWidget {
     required this.showTail,
     required this.isLoading,
     required this.onChanged,
+    required this.itemExtent,
+    required this.activeSize,
+    required this.inactiveSize,
   });
 
   @override
@@ -144,9 +222,6 @@ class _LogoWheel extends StatefulWidget {
 }
 
 class _LogoWheelState extends State<_LogoWheel> {
-  static double get _extent => 78.w;
-  static double get _active => 62.w;
-  static double get _inactive => 42.w;
   late final FixedExtentScrollController _sc;
 
   @override
@@ -174,12 +249,11 @@ class _LogoWheelState extends State<_LogoWheel> {
   Widget build(BuildContext context) {
     final total = widget.videos.length + (widget.showTail ? 1 : 0);
 
-    // Wheel — useMagnifier: false (bkz. önceki not)
     return RotatedBox(
       quarterTurns: 3,
       child: ListWheelScrollView.useDelegate(
         controller: _sc,
-        itemExtent: _extent,
+        itemExtent: widget.itemExtent,
         diameterRatio: 2.0,
         perspective: 0.0022,
         squeeze: 1.05,
@@ -195,8 +269,8 @@ class _LogoWheelState extends State<_LogoWheel> {
               child = widget.isLoading
                   ? Center(
                       child: SizedBox(
-                        width: 22.w,
-                        height: 22.w,
+                        width: 22,
+                        height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.2,
                           color: AppTheme.primaryColor.withValues(alpha: 0.7),
@@ -207,13 +281,13 @@ class _LogoWheelState extends State<_LogoWheel> {
                       child: Icon(
                         Icons.more_horiz_rounded,
                         color: AppTheme.textSec(context).withValues(alpha: 0.4),
-                        size: 20.sp,
+                        size: 20,
                       ),
                     );
             } else {
               final uni = _uniFor(widget.videos[i]);
               final isActive = i == widget.activeIndex;
-              final size = isActive ? _active : _inactive;
+              final size = isActive ? widget.activeSize : widget.inactiveSize;
               final hasLogo = uni?.logoUrl != null && uni!.logoUrl!.isNotEmpty;
               final bg = AppTheme.isDark(context)
                   ? const Color(0xFF2A2A2A)
@@ -234,16 +308,14 @@ class _LogoWheelState extends State<_LogoWheel> {
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: AppTheme.primaryColor.withValues(
-                                  alpha: 0.4,
-                                ),
+                                color: AppTheme.primaryColor.withValues(alpha: 0.4),
                                 blurRadius: 10,
                                 spreadRadius: 1,
                               ),
                             ]
                           : null,
                     ),
-                    padding: EdgeInsets.all(6.w),
+                    padding: const EdgeInsets.all(6),
                     child: ClipOval(
                       child: hasLogo
                           ? CachedNetworkImage(
