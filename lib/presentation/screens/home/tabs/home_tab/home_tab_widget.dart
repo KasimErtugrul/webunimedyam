@@ -442,57 +442,93 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       const double gridSpacing = 16;
       const int crossAxisCount = 3;
 
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
-        sliver: SliverMainAxisGroup(
-          slivers: [
-            SliverLayoutBuilder(
-              builder: (context, constraints) {
-                final availableWidth = constraints.crossAxisExtent;
-                final itemWidth =
-                    (availableWidth - (crossAxisCount - 1) * gridSpacing) /
-                    crossAxisCount;
-
-                // Küçük resim yüksekliği (16:9)
-                final thumbHeight = itemWidth * 9 / 16;
-
-                // Gövde yüksekliği — VideoGridCardWidget'taki gerçek
-                // değerlerin toplamı + güvenlik payı:
-                // bodyPad(12+12) + avatar/başlık satırı(~54, 2 satır
-                // başlık dahil) + actionRowTopSpacing(10) +
-                // aksiyon satırı(~20) + güvenlik payı(20)
-                const double bodyHeight = 152;
-
-                final mainAxisExtent = thumbHeight + bodyHeight;
-
-                return SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: gridSpacing,
-                    mainAxisSpacing: gridSpacing,
-                    mainAxisExtent: mainAxisExtent,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) =>
-                        VideoGridCardWidget(video: nonShorts[index]),
-                    childCount: nonShorts.length,
-                  ),
-                );
-              },
-            ),
-            if (showLoader)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: isLoadingMore
-                        ? const CircularProgressIndicator()
-                        : const SizedBox.shrink(),
-                  ),
-                ),
+      return SliverMainAxisGroup(
+        slivers: [
+          // ── Bölüm Başlığı ──────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                horizontalPadding,
+                20,
+                horizontalPadding,
+                12,
               ),
-          ],
-        ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Son Videolar',
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                SliverLayoutBuilder(
+                  builder: (context, constraints) {
+                    final availableWidth = constraints.crossAxisExtent;
+                    final itemWidth =
+                        (availableWidth - (crossAxisCount - 1) * gridSpacing) /
+                        crossAxisCount;
+
+                    // Küçük resim yüksekliği (16:9)
+                    final thumbHeight = itemWidth * 9 / 16;
+
+                    // Gövde yüksekliği — VideoGridCardWidget'taki gerçek
+                    // değerlerin toplamı + güvenlik payı:
+                    // bodyPad(12+12) + avatar/başlık satırı(~54, 2 satır
+                    // başlık dahil) + actionRowTopSpacing(10) +
+                    // aksiyon satırı(~20) + güvenlik payı(20)
+                    const double bodyHeight = 152;
+
+                    final mainAxisExtent = thumbHeight + bodyHeight;
+
+                    return SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: gridSpacing,
+                        mainAxisSpacing: gridSpacing,
+                        mainAxisExtent: mainAxisExtent,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            VideoGridCardWidget(video: nonShorts[index]),
+                        childCount: nonShorts.length,
+                      ),
+                    );
+                  },
+                ),
+                if (showLoader)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: isLoadingMore
+                            ? const CircularProgressIndicator()
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       );
     }
 
