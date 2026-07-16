@@ -522,7 +522,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                     child: CachedNetworkImage(
                                       imageUrl: uni.logoUrl!,
                                       fit: BoxFit.contain,
-                                      errorWidget: (_, __, ___) => Icon(
+                                      errorWidget: (_, _, _) => Icon(
                                         Icons.school_rounded,
                                         size: _PhoneSizes.appBarLogoIconSize.sp,
                                         color: AppTheme.primaryColor,
@@ -676,7 +676,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                     child: CachedNetworkImage(
                                       imageUrl: uni.logoUrl!,
                                       fit: BoxFit.contain,
-                                      errorWidget: (_, __, ___) => Icon(
+                                      errorWidget: (_, _, _) => Icon(
                                         Icons.school_rounded,
                                         size: _TabletSizes.appBarLogoIconSize,
                                         color: AppTheme.primaryColor,
@@ -932,10 +932,12 @@ class _HeaderPhone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final uni = controller.university.value;
-      if (uni == null) return Container(
+      if (uni == null) {
+        return Container(
         color: Colors.transparent,
         child: const Center(child: CircularProgressIndicator()),
       );
+      }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
 
       return Container(
@@ -992,7 +994,7 @@ class _HeaderPhone extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: uni.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => Center(
+                            placeholder: (_, _) => Center(
                               child: SizedBox(
                                 width: 22.w,
                                 height: 22.w,
@@ -1002,7 +1004,7 @@ class _HeaderPhone extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.school_rounded,
                               color: AppTheme.primaryColor,
                               size: _PhoneSizes.headerLogoInnerSize.sp * 0.4,
@@ -1745,20 +1747,23 @@ class _VideosTabPhone extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
-      if (isLoading)
+      if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: 6,
-          itemBuilder: (_, __) => _VideoShimmerPhone(),
+          itemBuilder: (_, _) => _VideoShimmerPhone(),
         );
-      if (error.isNotEmpty)
+      }
+      if (error.isNotEmpty) {
         return _ErrorViewPhone(error: error, onRetry: controller.loadVideos);
-      if (videoList.isEmpty)
+      }
+      if (videoList.isEmpty) {
         return _EmptyViewPhone(
           icon: Icons.videocam_off_rounded,
           title: 'Henüz video yok',
           subtitle: 'Bu üniversiteye ait video bulunamadı.',
         );
+      }
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -1805,20 +1810,23 @@ class _ShortsTabPhone extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
-      if (isLoading)
+      if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: 6,
-          itemBuilder: (_, __) => const _ShortsListShimmerPhone(),
+          itemBuilder: (_, _) => const _ShortsListShimmerPhone(),
         );
-      if (error.isNotEmpty)
+      }
+      if (error.isNotEmpty) {
         return _ErrorViewPhone(error: error, onRetry: controller.loadVideos);
-      if (shortsList.isEmpty)
+      }
+      if (shortsList.isEmpty) {
         return _EmptyViewPhone(
           icon: Icons.movie_filter_outlined,
           title: 'Henüz Shorts yok',
           subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
         );
+      }
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -1826,7 +1834,7 @@ class _ShortsTabPhone extends StatelessWidget {
         child: ListView.separated(
           padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
           itemCount: shortsList.length,
-          separatorBuilder: (_, __) => SizedBox(height: _PhoneSizes.shortsListSeparator.h),
+          separatorBuilder: (_,  _) => SizedBox(height: _PhoneSizes.shortsListSeparator.h),
           itemBuilder: (_, i) => _ShortsListCardPhone(
             video: shortsList[i],
             onTap: () => _openShortsPlayer(shortsList, i),
@@ -1962,10 +1970,10 @@ class _ShortsListCardPhone extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: video.bestThumbnail,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
+              placeholder: (_,  _) => Container(
                 color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
               ),
-              errorWidget: (_, __, ___) => Container(
+              errorWidget: (_, _, _) => Container(
                 color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
                 child: Icon(
                   Icons.play_circle_outline_rounded,
@@ -2333,10 +2341,12 @@ class _HeaderTablet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final uni = controller.university.value;
-      if (uni == null) return Container(
+      if (uni == null) {
+        return Container(
         color: Colors.transparent,
         child: const Center(child: CircularProgressIndicator()),
       );
+      }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
 
       return Container(
@@ -2393,7 +2403,7 @@ class _HeaderTablet extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: uni.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => Center(
+                            placeholder: (_,  _) => Center(
                               child: SizedBox(
                                 width: 26,
                                 height: 26,
@@ -2403,7 +2413,7 @@ class _HeaderTablet extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.school_rounded,
                               color: AppTheme.primaryColor,
                               size: _TabletSizes.headerLogoInnerSize * 0.4,
@@ -3146,20 +3156,23 @@ class _VideosTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
-      if (isLoading)
+      if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 10),
           itemCount: 6,
-          itemBuilder: (_, __) => _VideoShimmerTablet(),
+          itemBuilder: (_,  _) => _VideoShimmerTablet(),
         );
-      if (error.isNotEmpty)
+      }
+      if (error.isNotEmpty) {
         return _ErrorViewTablet(error: error, onRetry: controller.loadVideos);
-      if (videoList.isEmpty)
+      }
+      if (videoList.isEmpty) {
         return _EmptyViewTablet(
           icon: Icons.videocam_off_rounded,
           title: 'Henüz video yok',
           subtitle: 'Bu üniversiteye ait video bulunamadı.',
         );
+      }
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -3206,20 +3219,23 @@ class _ShortsTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
-      if (isLoading)
+      if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 10),
           itemCount: 6,
-          itemBuilder: (_, __) => const _ShortsListShimmerTablet(),
+          itemBuilder: (_,  _) => const _ShortsListShimmerTablet(),
         );
-      if (error.isNotEmpty)
+      }
+      if (error.isNotEmpty) {
         return _ErrorViewTablet(error: error, onRetry: controller.loadVideos);
-      if (shortsList.isEmpty)
+      }
+      if (shortsList.isEmpty) {
         return _EmptyViewTablet(
           icon: Icons.movie_filter_outlined,
           title: 'Henüz Shorts yok',
           subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
         );
+      }
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -3227,7 +3243,7 @@ class _ShortsTabTablet extends StatelessWidget {
         child: ListView.separated(
           padding: EdgeInsets.only(top: 10, bottom: 40),
           itemCount: shortsList.length,
-          separatorBuilder: (_, __) => SizedBox(height: _TabletSizes.shortsListSeparator),
+          separatorBuilder: (_,  _) => SizedBox(height: _TabletSizes.shortsListSeparator),
           itemBuilder: (_, i) => _ShortsListCardTablet(
             video: shortsList[i],
             onTap: () => _openShortsPlayer(shortsList, i),
@@ -3363,10 +3379,10 @@ class _ShortsListCardTablet extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: video.bestThumbnail,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
+              placeholder: (_,  _) => Container(
                 color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
               ),
-              errorWidget: (_, __, ___) => Container(
+              errorWidget: (_, _, _) => Container(
                 color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
                 child: Icon(
                   Icons.play_circle_outline_rounded,
