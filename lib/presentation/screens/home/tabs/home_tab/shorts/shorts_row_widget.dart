@@ -1,14 +1,13 @@
-// lib/presentation/screens/home/widgets/tabs/home_tab/shorts/shorts_row_widget.dart
+// lib/presentation/screens/home/tabs/home_tab/shorts/shorts_row_widget.dart
 //
-// FIX: Shorts artık yayınlanma tarihine göre gösterilir (en yeni önce).
-// Her üniversitenin en son yüklediği short önce gelir.
-// Sonsuz döngüyü önlemek için cache kullanılmaz — her açılışta taze veri.
+// TASARIM DEĞİŞİKLİĞİ: Instagram Story tarzı (yuvarlak avatar + halka)
+// yerine TikTok/Shorts benzeri DİKEY KART tasarımına geçildi.
+// Her kart: tam kaplayan thumbnail + alt kısımda gradient üzerine
+// üniversite logosu + başlık + yayın tarihi.
 //
-// RESPONSIVE NOT:
-// Phone ve tablet için TAMAMEN AYRI iki widget/build yolu var.
-// Aralarında hiçbir otomatik ölçekleme YOK — her ikisi de kendi sabit
-// sayılarıyla çalışıyor. Sayıları aşağıdaki _PhoneSizes / _TabletSizes
-// sınıflarından değiştirebilirsin, kod içinde arama yapmana gerek yok.
+// RESPONSIVE NOT: Phone ve tablet için TAMAMEN AYRI sabitler ve kart
+// widget'ları var (_PhoneSizes / _TabletSizes, _ShortsThumbItemPhone /
+// _ShortsThumbItemTablet). ScreenUtil SADECE phone tarafında kullanılıyor.
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -23,79 +22,81 @@ import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/shorts_model.dart';
 import '../../../../../controllers/shorts_controller.dart';
 
-// ═══════════════════════════════════════════════════════════════════════
-//  KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// KURAL 3 — SABİTLER
+// ═══════════════════════════════════════════════════════════
 
-/// Phone için sabitler. Bunlar ScreenUtil (.w/.h/.sp) ile çarpılıyor,
-/// yani telefon-içi farklı ekran boyutlarına (küçük/büyük telefon) hâlâ
-/// orantılı uyum sağlıyor — sadece MUTLAK sayılar burada.
+/// Phone için sabitler. ScreenUtil (.w/.h/.sp) ile çarpılıyor.
 class _PhoneSizes {
-  static const double rowHeight = 110;
-  static const double avatarSize = 68;
-  static const double ringPadding = 2.5;
-  static const double innerPadding = 2;
-  static const double logoSize = 22;
-  static const double logoBorder = 1.5;
-  static const double nameWidth = 72;
-  static const double nameFontSize = 9.5;
-  static const double dateFontSize = 8;
-  static const double itemHorizontalPadding = 6;
-  static const double listHorizontalPadding = 12;
-  static const double spacingAfterAvatar = 5;
-  static const double spacingAfterName = 2;
+  // Satır / kart
+  static const double rowHeight = 185;
+  static const double cardWidth = 104;
+  static const double cardHeight = 185;
+  static const double cardMarginRight = 10;
+  static const double cardBorderRadius = 12;
+  static const double listPaddingHorizontal = 12;
 
-  // Shimmer
-  static const double shimmerHeight = 140;
-  static const int shimmerItemCount = 6; // ✅ int olarak değiştirildi
-  static const double shimmerAvatarSize = 64;
-  static const double shimmerItemSpacing = 6;
-  static const double shimmerNameWidth = 56;
-  static const double shimmerNameHeight = 10;
-  static const double shimmerSpacing = 6;
+  // Gradient + üst rozet
+  static const double gradientHeight = 72;
+  static const double durationTop = 6;
+  static const double durationRight = 6;
+  static const double durationPaddingHorizontal = 5;
+  static const double durationPaddingVertical = 2;
+  static const double durationBorderRadius = 4;
+  static const double durationFontSize = 8;
 
-  // Load more
-  static const double loadMoreWidth = 48;
-  static const double loadMoreIndicatorSize = 22;
-  static const double loadMoreStrokeWidth = 2;
+  // Alt içerik (logo + başlık + tarih)
+  static const double contentPaddingHorizontal = 7;
+  static const double contentPaddingBottom = 7;
+  static const double logoSize = 18;
+  static const double logoBorder = 1.2;
+  static const double logoTitleSpacing = 5;
+  static const double uniNameFontSize = 8;
+  static const double rowToTitleSpacing = 4;
+  static const double titleFontSize = 9.5;
+  static const double titleLineHeight = 1.2;
+  static const double titleToTimeSpacing = 3;
+  static const double timeAgoFontSize = 7.5;
+
+  // Placeholder
+  static const double placeholderIconSize = 26;
 }
 
 /// Tablet için sabitler. ScreenUtil'e HİÇ dokunmuyor — direkt piksel.
-/// Phone'dan biraz küçük tutuldu (senin isteğin), istediğin gibi
-/// büyüt/küçült.
 class _TabletSizes {
-  static const double rowHeight = 92;
-  static const double avatarSize = 56;
-  static const double ringPadding = 2;
-  static const double innerPadding = 1.5;
-  static const double logoSize = 17;
-  static const double logoBorder = 1.2;
-  static const double nameWidth = 62;
-  static const double nameFontSize = 8.5;
-  static const double dateFontSize = 7;
-  static const double itemHorizontalPadding = 5;
-  static const double listHorizontalPadding = 24;
-  static const double spacingAfterAvatar = 4;
-  static const double spacingAfterName = 2;
+  static const double rowHeight = 220;
+  static const double cardWidth = 124;
+  static const double cardHeight = 220;
+  static const double cardMarginRight = 12;
+  static const double cardBorderRadius = 14;
+  static const double listPaddingHorizontal = 24;
 
-  // Shimmer
-  static const double shimmerHeight = 122;
-  static const int shimmerItemCount = 8; // ✅ int olarak değiştirildi
-  static const double shimmerAvatarSize = 56;
-  static const double shimmerItemSpacing = 5;
-  static const double shimmerNameWidth = 62;
-  static const double shimmerNameHeight = 9;
-  static const double shimmerSpacing = 5;
+  static const double gradientHeight = 86;
+  static const double durationTop = 8;
+  static const double durationRight = 8;
+  static const double durationPaddingHorizontal = 6;
+  static const double durationPaddingVertical = 3;
+  static const double durationBorderRadius = 5;
+  static const double durationFontSize = 9;
 
-  // Load more
-  static const double loadMoreWidth = 42;
-  static const double loadMoreIndicatorSize = 18;
-  static const double loadMoreStrokeWidth = 2;
+  static const double contentPaddingHorizontal = 9;
+  static const double contentPaddingBottom = 9;
+  static const double logoSize = 22;
+  static const double logoBorder = 1.4;
+  static const double logoTitleSpacing = 6;
+  static const double uniNameFontSize = 9.5;
+  static const double rowToTitleSpacing = 5;
+  static const double titleFontSize = 11.5;
+  static const double titleLineHeight = 1.25;
+  static const double titleToTimeSpacing = 4;
+  static const double timeAgoFontSize = 9;
+
+  static const double placeholderIconSize = 30;
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  ANA WIDGET
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// ANA WIDGET (Stateful)
+// ═══════════════════════════════════════════════════════════
 
 class ShortsRowWidget extends StatefulWidget {
   const ShortsRowWidget({super.key});
@@ -128,16 +129,13 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     }
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 5 — TEK DALLANMA NOKTASI
-  // ═══════════════════════════════════════════════════════════════════════
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ShortsController>();
 
     return Obx(() {
       if (controller.isLoading.value) {
+        // ── TEK DALLANMA NOKTASI ────────────────────────────────────
         return Responsive.isTablet(context)
             ? _buildTabletShimmer(context)
             : _buildPhoneShimmer(context);
@@ -148,81 +146,62 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       }
 
       return Responsive.isTablet(context)
-          ? _buildTablet(context, controller)
-          : _buildPhone(context, controller);
+          ? _tablet(context, controller)
+          : _phone(context, controller);
     });
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // KURAL 1 — PHONE TASARIMI
   // ═══════════════════════════════════════════════════════════════════════
 
-  Widget _buildPhone(BuildContext context, ShortsController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: _PhoneSizes.rowHeight.h,
-          child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: _PhoneSizes.listHorizontalPadding.w,
-            ),
-            itemCount:
-                controller.shorts.length + (controller.hasMore.value ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index >= controller.shorts.length) {
-                return _PhoneLoadMoreIndicator(
-                  isLoading: controller.isLoadingMore.value,
-                );
-              }
-              return _ShortsThumbItemPhone(
-                shorts: controller.shorts[index],
-                initialIndex: index,
-                allShorts: controller.shorts,
-              );
-            },
-          ),
+  Widget _phone(BuildContext context, ShortsController controller) {
+    return SizedBox(
+      height: _PhoneSizes.rowHeight.h,
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: _PhoneSizes.listPaddingHorizontal.w,
         ),
-      ],
+        itemCount: controller.shorts.length + (controller.hasMore.value ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= controller.shorts.length) {
+            return _PhoneLoadMoreIndicator(
+              isLoading: controller.isLoadingMore.value,
+            );
+          }
+          return _ShortsThumbItemPhone(
+            shorts: controller.shorts[index],
+            initialIndex: index,
+            allShorts: controller.shorts,
+          );
+        },
+      ),
     );
   }
 
-  // ── Phone Shimmer ──
   Widget _buildPhoneShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: _PhoneSizes.shimmerHeight.h,
+        height: _PhoneSizes.rowHeight.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
-            horizontal: _PhoneSizes.listHorizontalPadding.w,
+            horizontal: _PhoneSizes.listPaddingHorizontal.w,
           ),
-          itemCount: _PhoneSizes.shimmerItemCount, // ✅ artık int
-          itemBuilder: (_, __) => Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _PhoneSizes.shimmerItemSpacing.w,
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: _PhoneSizes.shimmerAvatarSize.w,
-                  height: _PhoneSizes.shimmerAvatarSize.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface(context),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                SizedBox(height: _PhoneSizes.shimmerSpacing.h),
-                Container(
-                  width: _PhoneSizes.shimmerNameWidth.w,
-                  height: _PhoneSizes.shimmerNameHeight.h,
-                  color: AppTheme.surface(context),
-                ),
-              ],
+          itemCount: 6,
+          itemBuilder: (_, __) => Container(
+            width: _PhoneSizes.cardWidth.w,
+            height: _PhoneSizes.cardHeight.h,
+            margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
+            decoration: BoxDecoration(
+              color: AppTheme.surface(context),
+              borderRadius: BorderRadius.circular(
+                _PhoneSizes.cardBorderRadius.r,
+              ),
             ),
           ),
         ),
@@ -234,72 +213,53 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
   // ═══════════════════════════════════════════════════════════════════════
 
-  Widget _buildTablet(BuildContext context, ShortsController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: _TabletSizes.rowHeight,
-          child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: _TabletSizes.listHorizontalPadding,
-            ),
-            itemCount:
-                controller.shorts.length + (controller.hasMore.value ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index >= controller.shorts.length) {
-                return _TabletLoadMoreIndicator(
-                  isLoading: controller.isLoadingMore.value,
-                );
-              }
-              return _ShortsThumbItemTablet(
-                shorts: controller.shorts[index],
-                initialIndex: index,
-                allShorts: controller.shorts,
-              );
-            },
-          ),
+  Widget _tablet(BuildContext context, ShortsController controller) {
+    return SizedBox(
+      height: _TabletSizes.rowHeight,
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: _TabletSizes.listPaddingHorizontal,
         ),
-      ],
+        itemCount: controller.shorts.length + (controller.hasMore.value ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= controller.shorts.length) {
+            return _TabletLoadMoreIndicator(
+              isLoading: controller.isLoadingMore.value,
+            );
+          }
+          return _ShortsThumbItemTablet(
+            shorts: controller.shorts[index],
+            initialIndex: index,
+            allShorts: controller.shorts,
+          );
+        },
+      ),
     );
   }
 
-  // ── Tablet Shimmer ──
   Widget _buildTabletShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: _TabletSizes.shimmerHeight,
+        height: _TabletSizes.rowHeight,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(
-            horizontal: _TabletSizes.listHorizontalPadding,
+            horizontal: _TabletSizes.listPaddingHorizontal,
           ),
-          itemCount: _TabletSizes.shimmerItemCount, // ✅ artık int
-          itemBuilder: (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: _TabletSizes.shimmerItemSpacing,
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: _TabletSizes.shimmerAvatarSize,
-                  height: _TabletSizes.shimmerAvatarSize,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface(context),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                SizedBox(height: _TabletSizes.shimmerSpacing),
-                Container(
-                  width: _TabletSizes.shimmerNameWidth,
-                  height: _TabletSizes.shimmerNameHeight,
-                  color: AppTheme.surface(context),
-                ),
-              ],
+          itemCount: 8,
+          itemBuilder: (_, __) => Container(
+            width: _TabletSizes.cardWidth,
+            height: _TabletSizes.cardHeight,
+            margin: const EdgeInsets.only(right: _TabletSizes.cardMarginRight),
+            decoration: BoxDecoration(
+              color: AppTheme.surface(context),
+              borderRadius: BorderRadius.circular(
+                _TabletSizes.cardBorderRadius,
+              ),
             ),
           ),
         ),
@@ -309,7 +269,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT SEVİYE WIDGET'LAR (PHONE)
+// SAYFALAMA YÜKLENİYOR GÖSTERGESİ — phone / tablet ayrı
 // ═══════════════════════════════════════════════════════════════════════
 
 class _PhoneLoadMoreIndicator extends StatelessWidget {
@@ -319,14 +279,14 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: _PhoneSizes.loadMoreWidth.w,
+      width: 56.w,
       child: Center(
         child: isLoading
             ? SizedBox(
-                width: _PhoneSizes.loadMoreIndicatorSize.w,
-                height: _PhoneSizes.loadMoreIndicatorSize.w,
+                width: 22.w,
+                height: 22.w,
                 child: CircularProgressIndicator(
-                  strokeWidth: _PhoneSizes.loadMoreStrokeWidth,
+                  strokeWidth: 2,
                   color: AppTheme.primaryColor,
                 ),
               )
@@ -335,6 +295,34 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
     );
   }
 }
+
+class _TabletLoadMoreIndicator extends StatelessWidget {
+  final bool isLoading;
+  const _TabletLoadMoreIndicator({required this.isLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 64,
+      child: Center(
+        child: isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.primaryColor,
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TEK BİR SHORTS KARTI — PHONE (Dikey kart, TikTok/Shorts tarzı)
+// ═══════════════════════════════════════════════════════════════════════
 
 class _ShortsThumbItemPhone extends StatelessWidget {
   final ShortsModel shorts;
@@ -347,128 +335,153 @@ class _ShortsThumbItemPhone extends StatelessWidget {
     required this.allShorts,
   });
 
-  String _shortName(String name) {
-    return name
-        .replaceAll('Üniversitesi', 'Üni.')
-        .replaceAll('Teknik Üniversitesi', 'T.Ü.')
-        .replaceAll('Vakıf Üniversitesi', 'V.Ü.');
-  }
-
   @override
   Widget build(BuildContext context) {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
     final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
 
     return GestureDetector(
-      onTap: () {
-        Get.toNamed(
-          AppRoutes.shortsPlayer,
-          arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
-        );
-      },
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.itemHorizontalPadding.w,
+      onTap: () => Get.toNamed(
+        AppRoutes.shortsPlayer,
+        arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
+      ),
+      child: Container(
+        width: _PhoneSizes.cardWidth.w,
+        height: _PhoneSizes.cardHeight.h,
+        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            SizedBox(
-              width: _PhoneSizes.avatarSize.w,
-              height: _PhoneSizes.avatarSize.w,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: _PhoneSizes.avatarSize.w,
-                    height: _PhoneSizes.avatarSize.w,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1DB954), Color(0xFF0A84FF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    padding: EdgeInsets.all(_PhoneSizes.ringPadding),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.bg(context),
-                      ),
-                      padding: EdgeInsets.all(_PhoneSizes.innerPadding),
-                      child: ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: shorts.bestThumbnail,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => Container(
-                            color: const Color(0xFF1A1A1A),
-                            child: const Icon(
-                              Icons.play_circle_outline,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        ),
-                      ),
+            CachedNetworkImage(
+              imageUrl: shorts.bestThumbnail,
+              fit: BoxFit.cover,
+              errorWidget: (_, __, ___) => _placeholder(context),
+              placeholder: (_, __) => _shimmerBox(context),
+            ),
+
+            // Alt gradient (metin okunabilirliği için)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: _PhoneSizes.gradientHeight.h,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Süre rozeti — sağ üst
+            if (shorts.duration.isNotEmpty)
+              Positioned(
+                top: _PhoneSizes.durationTop.h,
+                right: _PhoneSizes.durationRight.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _PhoneSizes.durationPaddingHorizontal.w,
+                    vertical: _PhoneSizes.durationPaddingVertical.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(
+                      _PhoneSizes.durationBorderRadius.r,
                     ),
                   ),
-                  if (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
+                  child: Text(
+                    _formatDuration(shorts.duration),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: _PhoneSizes.durationFontSize.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+
+            // Alt içerik: logo + üniversite adı + başlık + tarih
+            Positioned(
+              left: _PhoneSizes.contentPaddingHorizontal.w,
+              right: _PhoneSizes.contentPaddingHorizontal.w,
+              bottom: _PhoneSizes.contentPaddingBottom.h,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
                         width: _PhoneSizes.logoSize.w,
                         height: _PhoneSizes.logoSize.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                           border: Border.all(
-                            color: AppTheme.bg(context),
+                            color: Colors.white,
                             width: _PhoneSizes.logoBorder,
                           ),
                         ),
                         child: ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: shorts.logoUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) =>
-                                const Icon(Icons.school, size: 12),
+                          child: (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
+                              ? CachedNetworkImage(
+                                  imageUrl: shorts.logoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, __, ___) =>
+                                      const Icon(Icons.school, size: 10),
+                                )
+                              : const Icon(Icons.school, size: 10),
+                        ),
+                      ),
+                      SizedBox(width: _PhoneSizes.logoTitleSpacing.w),
+                      Expanded(
+                        child: Text(
+                          shorts.universityName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: _PhoneSizes.uniNameFontSize.sp,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  SizedBox(height: _PhoneSizes.rowToTitleSpacing.h),
+                  Text(
+                    shorts.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: _PhoneSizes.titleFontSize.sp,
+                      fontWeight: FontWeight.w700,
+                      height: _PhoneSizes.titleLineHeight,
                     ),
+                  ),
+                  SizedBox(height: _PhoneSizes.titleToTimeSpacing.h),
+                  Text(
+                    timeAgo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.65),
+                      fontSize: _PhoneSizes.timeAgoFontSize.sp,
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            SizedBox(height: _PhoneSizes.spacingAfterAvatar.h),
-            SizedBox(
-              width: _PhoneSizes.nameWidth.w,
-              child: Text(
-                _shortName(shorts.universityName),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _PhoneSizes.nameFontSize.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textSec(context),
-                  height: 1.2,
-                ),
-              ),
-            ),
-            SizedBox(height: _PhoneSizes.spacingAfterName.h),
-            SizedBox(
-              width: _PhoneSizes.nameWidth.w,
-              child: Text(
-                timeAgo,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _PhoneSizes.dateFontSize.sp,
-                  color: AppTheme.textSec(context).withOpacity(0.6),
-                  height: 1.2,
-                ),
               ),
             ),
           ],
@@ -476,35 +489,23 @@ class _ShortsThumbItemPhone extends StatelessWidget {
       ),
     );
   }
+
+  Widget _placeholder(BuildContext context) => Container(
+    color: AppTheme.surface(context),
+    child: Icon(
+      Icons.play_circle_outline_rounded,
+      color: AppTheme.textSec(context),
+      size: _PhoneSizes.placeholderIconSize.sp,
+    ),
+  );
+
+  Widget _shimmerBox(BuildContext context) =>
+      Container(color: AppTheme.surface(context));
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT SEVİYE WIDGET'LAR (TABLET)
+// TEK BİR SHORTS KARTI — TABLET (ayrı, sabit sayılarla)
 // ═══════════════════════════════════════════════════════════════════════
-
-class _TabletLoadMoreIndicator extends StatelessWidget {
-  final bool isLoading;
-  const _TabletLoadMoreIndicator({required this.isLoading});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: _TabletSizes.loadMoreWidth,
-      child: Center(
-        child: isLoading
-            ? SizedBox(
-                width: _TabletSizes.loadMoreIndicatorSize,
-                height: _TabletSizes.loadMoreIndicatorSize,
-                child: CircularProgressIndicator(
-                  strokeWidth: _TabletSizes.loadMoreStrokeWidth,
-                  color: AppTheme.primaryColor,
-                ),
-              )
-            : const SizedBox.shrink(),
-      ),
-    );
-  }
-}
 
 class _ShortsThumbItemTablet extends StatelessWidget {
   final ShortsModel shorts;
@@ -517,128 +518,147 @@ class _ShortsThumbItemTablet extends StatelessWidget {
     required this.allShorts,
   });
 
-  String _shortName(String name) {
-    return name
-        .replaceAll('Üniversitesi', 'Üni.')
-        .replaceAll('Teknik Üniversitesi', 'T.Ü.')
-        .replaceAll('Vakıf Üniversitesi', 'V.Ü.');
-  }
-
   @override
   Widget build(BuildContext context) {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
     final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
 
     return GestureDetector(
-      onTap: () {
-        Get.toNamed(
-          AppRoutes.shortsPlayer,
-          arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: _TabletSizes.itemHorizontalPadding,
+      onTap: () => Get.toNamed(
+        AppRoutes.shortsPlayer,
+        arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
+      ),
+      child: Container(
+        width: _TabletSizes.cardWidth,
+        height: _TabletSizes.cardHeight,
+        margin: const EdgeInsets.only(right: _TabletSizes.cardMarginRight),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            SizedBox(
-              width: _TabletSizes.avatarSize,
-              height: _TabletSizes.avatarSize,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: _TabletSizes.avatarSize,
-                    height: _TabletSizes.avatarSize,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1DB954), Color(0xFF0A84FF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    padding: EdgeInsets.all(_TabletSizes.ringPadding),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.bg(context),
-                      ),
-                      padding: EdgeInsets.all(_TabletSizes.innerPadding),
-                      child: ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: shorts.bestThumbnail,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => Container(
-                            color: const Color(0xFF1A1A1A),
-                            child: const Icon(
-                              Icons.play_circle_outline,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        ),
-                      ),
+            CachedNetworkImage(
+              imageUrl: shorts.bestThumbnail,
+              fit: BoxFit.cover,
+              errorWidget: (_, __, ___) => _placeholder(context),
+              placeholder: (_, __) => _shimmerBox(context),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: _TabletSizes.gradientHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (shorts.duration.isNotEmpty)
+              Positioned(
+                top: _TabletSizes.durationTop,
+                right: _TabletSizes.durationRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: _TabletSizes.durationPaddingHorizontal,
+                    vertical: _TabletSizes.durationPaddingVertical,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(
+                      _TabletSizes.durationBorderRadius,
                     ),
                   ),
-                  if (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
+                  child: Text(
+                    _formatDuration(shorts.duration),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: _TabletSizes.durationFontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              left: _TabletSizes.contentPaddingHorizontal,
+              right: _TabletSizes.contentPaddingHorizontal,
+              bottom: _TabletSizes.contentPaddingBottom,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
                         width: _TabletSizes.logoSize,
                         height: _TabletSizes.logoSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                           border: Border.all(
-                            color: AppTheme.bg(context),
+                            color: Colors.white,
                             width: _TabletSizes.logoBorder,
                           ),
                         ),
                         child: ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: shorts.logoUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) =>
-                                const Icon(Icons.school, size: 10),
+                          child: (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
+                              ? CachedNetworkImage(
+                                  imageUrl: shorts.logoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, __, ___) =>
+                                      const Icon(Icons.school, size: 12),
+                                )
+                              : const Icon(Icons.school, size: 12),
+                        ),
+                      ),
+                      SizedBox(width: _TabletSizes.logoTitleSpacing),
+                      Expanded(
+                        child: Text(
+                          shorts.universityName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: _TabletSizes.uniNameFontSize,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  SizedBox(height: _TabletSizes.rowToTitleSpacing),
+                  Text(
+                    shorts.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: _TabletSizes.titleFontSize,
+                      fontWeight: FontWeight.w700,
+                      height: _TabletSizes.titleLineHeight,
                     ),
+                  ),
+                  SizedBox(height: _TabletSizes.titleToTimeSpacing),
+                  Text(
+                    timeAgo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.65),
+                      fontSize: _TabletSizes.timeAgoFontSize,
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            SizedBox(height: _TabletSizes.spacingAfterAvatar),
-            SizedBox(
-              width: _TabletSizes.nameWidth,
-              child: Text(
-                _shortName(shorts.universityName),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _TabletSizes.nameFontSize,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textSec(context),
-                  height: 1.2,
-                ),
-              ),
-            ),
-            SizedBox(height: _TabletSizes.spacingAfterName),
-            SizedBox(
-              width: _TabletSizes.nameWidth,
-              child: Text(
-                timeAgo,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: _TabletSizes.dateFontSize,
-                  color: AppTheme.textSec(context).withOpacity(0.6),
-                  height: 1.2,
-                ),
               ),
             ),
           ],
@@ -646,4 +666,33 @@ class _ShortsThumbItemTablet extends StatelessWidget {
       ),
     );
   }
+
+  Widget _placeholder(BuildContext context) => Container(
+    color: AppTheme.surface(context),
+    child: Icon(
+      Icons.play_circle_outline_rounded,
+      color: AppTheme.textSec(context),
+      size: _TabletSizes.placeholderIconSize,
+    ),
+  );
+
+  Widget _shimmerBox(BuildContext context) =>
+      Container(color: AppTheme.surface(context));
+}
+
+// ─── ISO 8601 süreyi "MM:SS" formatına çevirir ───────────────────────────────
+
+String _formatDuration(String iso) {
+  final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?');
+  final match = regex.firstMatch(iso);
+  if (match == null) return '';
+
+  final h = int.tryParse(match.group(1) ?? '') ?? 0;
+  final m = int.tryParse(match.group(2) ?? '') ?? 0;
+  final s = int.tryParse(match.group(3) ?? '') ?? 0;
+
+  if (h > 0) {
+    return '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+  return '$m:${s.toString().padLeft(2, '0')}';
 }

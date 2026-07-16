@@ -32,9 +32,6 @@ class _PhoneSizes {
   static const double titleFontSize = 22;
   static const double titleLetterSpacing = -0.5;
   
-  // Shorts
-  static const double shortsAreaHeight = 115;
-  
   // Spacing
   static const double titleSpacingLarge = 16;
   static const double bottomSpacing = 24;
@@ -82,9 +79,6 @@ class _TabletSizes {
   static const double titleSpacing = 10;
   static const double titleFontSize = 26;
   static const double titleLetterSpacing = -0.5;
-  
-  // Shorts - tablet için daha kompakt
-  static const double shortsAreaHeight = 100;
   
   // Spacing - tablet için daha geniş
   static const double titleSpacingLarge = 20;
@@ -140,14 +134,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   final controller = Get.find<HomeController>();
   final ScrollController _scrollController = ScrollController();
   Worker? _authWorker;
-
-  // Shorts satırının (yatay liste + ayraç) gerçek yüksekliği.
-  // SliverAppBar'ın expandedHeight'ı bu değere göre hesaplanır.
-  double get _shortsAreaHeight {
-    return Responsive.isTablet(context)
-        ? _TabletSizes.shortsAreaHeight
-        : _PhoneSizes.shortsAreaHeight.h;
-  }
 
   @override
   void initState() {
@@ -219,11 +205,14 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // ── Üst Bar — Logo + Shorts ────────────────────────────────
+              // ── Üst Bar — Sadece Logo/Aksiyonlar (Shorts YOK) ──────────
               // KURAL 5 — TEK DALLANMA NOKTASI
               Responsive.isTablet(context)
                   ? _buildAppBarTablet(context)
                   : _buildAppBarPhone(context),
+
+              // ── Shorts — artık listenin en üstünde, ayrı bir sliver ────
+              const SliverToBoxAdapter(child: ShortsRowWidget()),
 
               // ── İzlemeye Devam Et ──
               SliverToBoxAdapter(
@@ -271,7 +260,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       automaticallyImplyLeading: false,
       titleSpacing: _PhoneSizes.titleSpacingLarge.w,
       toolbarHeight: kToolbarHeight,
-      expandedHeight: kToolbarHeight + _shortsAreaHeight,
       actions: [
         Obx(
           () => IconButton(
@@ -323,12 +311,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           ),
         ],
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Padding(
-          padding: const EdgeInsets.only(top: kToolbarHeight),
-          child: const ShortsRowWidget(),
-        ),
-      ),
     );
   }
 
@@ -347,7 +329,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       automaticallyImplyLeading: false,
       titleSpacing: _TabletSizes.titleSpacingLarge,
       toolbarHeight: kToolbarHeight,
-      expandedHeight: kToolbarHeight + _shortsAreaHeight,
       actions: [
         Obx(
           () => IconButton(
@@ -382,10 +363,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 _TabletSizes.titleIconBorderRadius,
               ),
             ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              color: Colors.white,
-              size: _TabletSizes.titleIconInnerSize,
+            child:Image.asset(
+              'assets/logo/logo.png',
+              width: _TabletSizes.titleIconInnerSize,
+              height: _TabletSizes.titleIconInnerSize,
             ),
           ),
           SizedBox(width: _TabletSizes.titleSpacing),
@@ -398,12 +379,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             ),
           ),
         ],
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Padding(
-          padding: const EdgeInsets.only(top: kToolbarHeight),
-          child: const ShortsRowWidget(),
-        ),
       ),
     );
   }
