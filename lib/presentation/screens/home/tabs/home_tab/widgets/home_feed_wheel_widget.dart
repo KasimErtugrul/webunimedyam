@@ -42,13 +42,15 @@ class _PhoneSizes {
 }
 
 class _TabletSizes {
-  // Wheel kart - tablet için orantılı
+  // Wheel kart — artık SABİT, genişliğe göre hesaplanmıyor.
+  // Beğenmezsen sadece bu sayıyı değiştir.
+  static const double wheelCardHeight = 400;
   static const double maxWidth = 720;
   static const double horizontalPadding = 24;
   static const double cardBottomSpacing = 18;
   static const double wheelBottomSpacing = 12;
 
-  // Logo wheel - tablet için daha büyük
+  // Logo wheel — tablet için daha büyük
   static const double logoWheelHeight = 132;
   static const double logoWheelItemExtent = 96;
   static const double logoWheelActiveSize = 76;
@@ -104,8 +106,9 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
   void _maybeLoadMore(int i) {
     final v = widget.videos;
-    if (v.isEmpty || !_ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value)
+    if (v.isEmpty || !_ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value) {
       return;
+    }
     if (i >= v.length - _threshold) _ctrl.loadMoreVideos();
   }
 
@@ -198,49 +201,43 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
     return Obx(() {
       final tail = _ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value;
 
+      // NOT: LayoutBuilder ve genişliğe bağlı hesaplama kaldırıldı.
+      // Kart yüksekliği artık _TabletSizes.wheelCardHeight — sabit.
+      // Beğenmezsen sadece bu sayıyı değiştir, kod tarafına dokunma.
       return Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _TabletSizes.maxWidth),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Tablet yatay çevrildikçe / genişledikçe kart da logo
-              // wheel de orantılı büyür.
-              final width = constraints.maxWidth;
-              final cardHeight = width * 0.55;
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: _TabletSizes.horizontalPadding,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: _TabletSizes.horizontalPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: _TabletSizes.wheelCardHeight,
+                  child: WheelVideoCardWidget(
+                    key: ValueKey(active.videoId),
+                    video: active,
+                    university: activeUni,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      height: cardHeight,
-                      child: WheelVideoCardWidget(
-                        key: ValueKey(active.videoId),
-                        video: active,
-                        university: activeUni,
-                      ),
-                    ),
-                    const SizedBox(height: _TabletSizes.cardBottomSpacing),
-                    SizedBox(
-                      height: _TabletSizes.logoWheelHeight,
-                      child: _LogoWheelTablet(
-                        key: ValueKey('lw_tablet_${videos.length}'),
-                        videos: videos,
-                        universities: widget.universities,
-                        activeIndex: idx,
-                        showTail: tail,
-                        isLoading: _ctrl.isLoadingMore.value,
-                        onChanged: _onChanged,
-                      ),
-                    ),
-                    const SizedBox(height: _TabletSizes.wheelBottomSpacing),
-                  ],
+                const SizedBox(height: _TabletSizes.cardBottomSpacing),
+                SizedBox(
+                  height: _TabletSizes.logoWheelHeight,
+                  child: _LogoWheelTablet(
+                    key: ValueKey('lw_tablet_${videos.length}'),
+                    videos: videos,
+                    universities: widget.universities,
+                    activeIndex: idx,
+                    showTail: tail,
+                    isLoading: _ctrl.isLoadingMore.value,
+                    onChanged: _onChanged,
+                  ),
                 ),
-              );
-            },
+                const SizedBox(height: _TabletSizes.wheelBottomSpacing),
+              ],
+            ),
           ),
         ),
       );

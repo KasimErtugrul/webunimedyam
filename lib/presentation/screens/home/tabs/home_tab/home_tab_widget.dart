@@ -220,95 +220,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             controller: _scrollController,
             slivers: [
               // ── Üst Bar — Logo + Shorts ────────────────────────────────
-              SliverAppBar(
-                pinned: false,
-                floating: true,
-                snap: true,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                backgroundColor: AppTheme.bg(context),
-                automaticallyImplyLeading: false,
-                titleSpacing: Responsive.isTablet(context)
-                    ? _TabletSizes.titleSpacingLarge
-                    : _PhoneSizes.titleSpacingLarge.w,
-                toolbarHeight: kToolbarHeight,
-                expandedHeight: kToolbarHeight + _shortsAreaHeight,
-                actions: [
-                  Obx(
-                    () => IconButton(
-                      icon: Icon(
-                        controller.isWheelView.value
-                            ? Icons.view_list_rounded
-                            : Icons.blur_circular_rounded,
-                      ),
-                      tooltip: controller.isWheelView.value
-                          ? 'Liste Görünümü'
-                          : 'Wheel Görünümü',
-                      onPressed: controller.toggleWheelView,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.radio_rounded),
-                    onPressed: () => Get.toNamed(AppRoutes.radio),
-                  ),
-                ],
-                title: Row(
-                  children: [
-                    Container(
-                      width: Responsive.isTablet(context)
-                          ? _TabletSizes.titleIconSize
-                          : _PhoneSizes.titleIconSize.w,
-                      height: Responsive.isTablet(context)
-                          ? _TabletSizes.titleIconSize
-                          : _PhoneSizes.titleIconSize.w,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          Responsive.isTablet(context)
-                              ? _TabletSizes.titleIconBorderRadius
-                              : _PhoneSizes.titleIconBorderRadius.r,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: Responsive.isTablet(context)
-                            ? _TabletSizes.titleIconInnerSize
-                            : _PhoneSizes.titleIconInnerSize.sp,
-                      ),
-                    ),
-                    SizedBox(
-                      width: Responsive.isTablet(context)
-                          ? _TabletSizes.titleSpacing
-                          : _PhoneSizes.titleSpacing.w,
-                    ),
-                    Text(
-                      'ÜniTV',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: Responsive.isTablet(context)
-                            ? _TabletSizes.titleFontSize
-                            : _PhoneSizes.titleFontSize.sp,
-                        letterSpacing: Responsive.isTablet(context)
-                            ? _TabletSizes.titleLetterSpacing
-                            : _PhoneSizes.titleLetterSpacing,
-                      ),
-                    ),
-                  ],
-                ),
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Padding(
-                    padding: Responsive.isTablet(context)
-                        ? EdgeInsets.only(top: kToolbarHeight)
-                        : EdgeInsets.only(top: kToolbarHeight),
-                    child: const ShortsRowWidget(),
-                  ),
-                ),
-              ),
+              // KURAL 5 — TEK DALLANMA NOKTASI
+              Responsive.isTablet(context)
+                  ? _buildAppBarTablet(context)
+                  : _buildAppBarPhone(context),
 
               // ── İzlemeye Devam Et ──
               SliverToBoxAdapter(
@@ -336,6 +251,158 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI) — AppBar
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildAppBarPhone(BuildContext context) {
+    return SliverAppBar(
+      pinned: false,
+      floating: true,
+      snap: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: AppTheme.bg(context),
+      automaticallyImplyLeading: false,
+      titleSpacing: _PhoneSizes.titleSpacingLarge.w,
+      toolbarHeight: kToolbarHeight,
+      expandedHeight: kToolbarHeight + _shortsAreaHeight,
+      actions: [
+        Obx(
+          () => IconButton(
+            icon: Icon(
+              controller.isWheelView.value
+                  ? Icons.view_list_rounded
+                  : Icons.blur_circular_rounded,
+            ),
+            tooltip: controller.isWheelView.value
+                ? 'Liste Görünümü'
+                : 'Wheel Görünümü',
+            onPressed: controller.toggleWheelView,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.radio_rounded),
+          onPressed: () => Get.toNamed(AppRoutes.radio),
+        ),
+      ],
+      title: Row(
+        children: [
+          Container(
+            width: _PhoneSizes.titleIconSize.w,
+            height: _PhoneSizes.titleIconSize.w,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(
+                _PhoneSizes.titleIconBorderRadius.r,
+              ),
+            ),
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: _PhoneSizes.titleIconInnerSize.sp,
+            ),
+          ),
+          SizedBox(width: _PhoneSizes.titleSpacing.w),
+          Text(
+            'ÜniTV',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: _PhoneSizes.titleFontSize.sp,
+              letterSpacing: _PhoneSizes.titleLetterSpacing,
+            ),
+          ),
+        ],
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Padding(
+          padding: const EdgeInsets.only(top: kToolbarHeight),
+          child: const ShortsRowWidget(),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ) — AppBar
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildAppBarTablet(BuildContext context) {
+    return SliverAppBar(
+      pinned: false,
+      floating: true,
+      snap: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: AppTheme.bg(context),
+      automaticallyImplyLeading: false,
+      titleSpacing: _TabletSizes.titleSpacingLarge,
+      toolbarHeight: kToolbarHeight,
+      expandedHeight: kToolbarHeight + _shortsAreaHeight,
+      actions: [
+        Obx(
+          () => IconButton(
+            icon: Icon(
+              controller.isWheelView.value
+                  ? Icons.view_list_rounded
+                  : Icons.blur_circular_rounded,
+            ),
+            tooltip: controller.isWheelView.value
+                ? 'Liste Görünümü'
+                : 'Wheel Görünümü',
+            onPressed: controller.toggleWheelView,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.radio_rounded),
+          onPressed: () => Get.toNamed(AppRoutes.radio),
+        ),
+      ],
+      title: Row(
+        children: [
+          Container(
+            width: _TabletSizes.titleIconSize,
+            height: _TabletSizes.titleIconSize,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(
+                _TabletSizes.titleIconBorderRadius,
+              ),
+            ),
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: _TabletSizes.titleIconInnerSize,
+            ),
+          ),
+          SizedBox(width: _TabletSizes.titleSpacing),
+          Text(
+            'ÜniTV',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: _TabletSizes.titleFontSize,
+              letterSpacing: _TabletSizes.titleLetterSpacing,
+            ),
+          ),
+        ],
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Padding(
+          padding: const EdgeInsets.only(top: kToolbarHeight),
+          child: const ShortsRowWidget(),
         ),
       ),
     );
