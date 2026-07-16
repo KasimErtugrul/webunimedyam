@@ -17,6 +17,7 @@ import '../../../../controllers/shorts_controller.dart';
 import 'shorts/shorts_row_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
+import 'widgets/video_grid_card_widget.dart';
 import 'widgets/continue_watching_section_widget.dart';
 
 // ═══════════════════════════════════════════════════════════
@@ -31,7 +32,7 @@ class _PhoneSizes {
   static const double titleSpacing = 8;
   static const double titleFontSize = 22;
   static const double titleLetterSpacing = -0.5;
-  
+
   // Spacing
   static const double titleSpacingLarge = 16;
   static const double bottomSpacing = 24;
@@ -52,8 +53,8 @@ class _PhoneSizes {
   static const double shimmerPaddingBottom = 14;
   static const double shimmerPaddingLeft = 14;
   static const double shimmerPaddingRight = 14;
-  static const int shimmerShimmerCount = 4;  // ✅ int olarak düzeltildi
-  
+  static const int shimmerShimmerCount = 4; // ✅ int olarak düzeltildi
+
   // Error
   static const double errorPadding = 32;
   static const double errorIconSize = 48;
@@ -61,11 +62,11 @@ class _PhoneSizes {
   static const double errorFontSize = 14;
   static const double errorButtonWidth = 100;
   static const double errorButtonHeight = 40;
-  
+
   // Empty
   static const double emptyPadding = 32;
   static const double emptyFontSize = 14;
-  
+
   // Auth Dialog
   static const double dialogBorderRadius = 16;
   static const double dialogButtonRadius = 8;
@@ -79,7 +80,7 @@ class _TabletSizes {
   static const double titleSpacing = 10;
   static const double titleFontSize = 26;
   static const double titleLetterSpacing = -0.5;
-  
+
   // Spacing - tablet için daha geniş
   static const double titleSpacingLarge = 20;
   static const double bottomSpacing = 30;
@@ -100,8 +101,8 @@ class _TabletSizes {
   static const double shimmerPaddingBottom = 16;
   static const double shimmerPaddingLeft = 16;
   static const double shimmerPaddingRight = 16;
-  static const int shimmerShimmerCount = 3;  // ✅ int olarak düzeltildi
-  
+  static const int shimmerShimmerCount = 3; // ✅ int olarak düzeltildi
+
   // Error
   static const double errorPadding = 40;
   static const double errorIconSize = 56;
@@ -109,11 +110,11 @@ class _TabletSizes {
   static const double errorFontSize = 16;
   static const double errorButtonWidth = 120;
   static const double errorButtonHeight = 48;
-  
+
   // Empty
   static const double emptyPadding = 40;
   static const double emptyFontSize = 16;
-  
+
   // Auth Dialog - tablet için daha büyük
   static const double dialogBorderRadius = 20;
   static const double dialogButtonRadius = 10;
@@ -363,7 +364,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 _TabletSizes.titleIconBorderRadius,
               ),
             ),
-            child:Image.asset(
+            child: Image.asset(
               'assets/logo/logo.png',
               width: _TabletSizes.titleIconInnerSize,
               height: _TabletSizes.titleIconInnerSize,
@@ -426,6 +427,76 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     final showLoader = controller.hasMoreVideos.value;
     final isLoadingMore = controller.isLoadingMore.value;
 
+    // ── TABLET: Grid görünümü (sabit 3 sütun) ───────────────────────────
+    // Tek bir kartın tüm ekranı kaplamasını önlemek için üniversitelerin
+    // son videoları burada yatayda her zaman 3 sütunlu bir grid'de
+    // gösterilir.
+    //
+    // NOT: childAspectRatio ile TAHMİNİ yükseklik vermek yerine, kartın
+    // gerçek içerik yüksekliğini (küçük resim + gövde) piksel piksel
+    // hesaplayıp mainAxisExtent olarak veriyoruz. Böylece hiçbir zaman
+    // "RenderFlex overflowed" (sarı-siyah şerit) hatası oluşmaz —
+    // yükseklik tahmine değil, gerçek layout matematiğine dayanıyor.
+    if (Responsive.isTablet(context)) {
+      const double horizontalPadding = 16;
+      const double gridSpacing = 16;
+      const int crossAxisCount = 3;
+
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+        sliver: SliverMainAxisGroup(
+          slivers: [
+            SliverLayoutBuilder(
+              builder: (context, constraints) {
+                final availableWidth = constraints.crossAxisExtent;
+                final itemWidth =
+                    (availableWidth - (crossAxisCount - 1) * gridSpacing) /
+                    crossAxisCount;
+
+                // Küçük resim yüksekliği (16:9)
+                final thumbHeight = itemWidth * 9 / 16;
+
+                // Gövde yüksekliği — VideoGridCardWidget'taki gerçek
+                // değerlerin toplamı + güvenlik payı:
+                // bodyPad(12+12) + avatar/başlık satırı(~54, 2 satır
+                // başlık dahil) + actionRowTopSpacing(10) +
+                // aksiyon satırı(~20) + güvenlik payı(20)
+                const double bodyHeight = 152;
+
+                final mainAxisExtent = thumbHeight + bodyHeight;
+
+                return SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: gridSpacing,
+                    mainAxisSpacing: gridSpacing,
+                    mainAxisExtent: mainAxisExtent,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                        VideoGridCardWidget(video: nonShorts[index]),
+                    childCount: nonShorts.length,
+                  ),
+                );
+              },
+            ),
+            if (showLoader)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    // ── PHONE: Tam genişlik liste görünümü (BİREBİR AYNI) ───────────────
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         if (index >= nonShorts.length) {
@@ -526,9 +597,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     decoration: BoxDecoration(
                       color: AppTheme.surface(context),
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(
-                          _PhoneSizes.shimmerBorderRadius.r,
-                        ),
+                        top: Radius.circular(_PhoneSizes.shimmerBorderRadius.r),
                       ),
                     ),
                   ),
@@ -680,9 +749,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     decoration: BoxDecoration(
                       color: AppTheme.surface(context),
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(
-                          _TabletSizes.shimmerBorderRadius,
-                        ),
+                        top: Radius.circular(_TabletSizes.shimmerBorderRadius),
                       ),
                     ),
                   ),

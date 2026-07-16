@@ -54,7 +54,7 @@ class _TabletSizes {
   static const int shimmerItemCount = 4;
 
   // Liste - tablet için daha büyük
-  static const double listHeight = 220;
+  static const double listHeight = 230;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -120,9 +120,8 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: controller.suggestedVideos.length,
-              itemBuilder: (_, i) => SuggestedVideoCard(
-                video: controller.suggestedVideos[i],
-              ),
+              itemBuilder: (_, i) =>
+                  SuggestedVideoCard(video: controller.suggestedVideos[i]),
             ),
           ),
         ],
@@ -139,7 +138,9 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
           height: _PhoneSizes.shimmerTitleHeight.h,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(_PhoneSizes.shimmerTitleRadius.r),
+            borderRadius: BorderRadius.circular(
+              _PhoneSizes.shimmerTitleRadius.r,
+            ),
           ),
         ),
         SizedBox(height: _PhoneSizes.shimmerTitleSpacing.h),
@@ -151,7 +152,9 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             itemCount: _PhoneSizes.shimmerItemCount,
             itemBuilder: (_, __) => Container(
               width: _PhoneSizes.shimmerCardWidth.w,
-              margin: EdgeInsets.only(right: _PhoneSizes.shimmerCardMarginRight.w),
+              margin: EdgeInsets.only(
+                right: _PhoneSizes.shimmerCardMarginRight.w,
+              ),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
                 borderRadius: BorderRadius.circular(
@@ -213,9 +216,8 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: controller.suggestedVideos.length,
-              itemBuilder: (_, i) => SuggestedVideoCard(
-                video: controller.suggestedVideos[i],
-              ),
+              itemBuilder: (_, i) =>
+                  SuggestedVideoCard(video: controller.suggestedVideos[i]),
             ),
           ),
         ],
@@ -232,7 +234,9 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
           height: _TabletSizes.shimmerTitleHeight,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(_TabletSizes.shimmerTitleRadius),
+            borderRadius: BorderRadius.circular(
+              _TabletSizes.shimmerTitleRadius,
+            ),
           ),
         ),
         SizedBox(height: _TabletSizes.shimmerTitleSpacing),
@@ -244,7 +248,9 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             itemCount: _TabletSizes.shimmerItemCount,
             itemBuilder: (_, __) => Container(
               width: _TabletSizes.shimmerCardWidth,
-              margin: EdgeInsets.only(right: _TabletSizes.shimmerCardMarginRight),
+              margin: EdgeInsets.only(
+                right: _TabletSizes.shimmerCardMarginRight,
+              ),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
                 borderRadius: BorderRadius.circular(
