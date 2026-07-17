@@ -427,10 +427,12 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     final showLoader = controller.hasMoreVideos.value;
     final isLoadingMore = controller.isLoadingMore.value;
 
-    // ── TABLET: Grid görünümü (sabit 3 sütun) ───────────────────────────
+    // ── TABLET: Grid görünümü (dikeyde 2, yatayda 3 sütun) ───────────────
     // Tek bir kartın tüm ekranı kaplamasını önlemek için üniversitelerin
-    // son videoları burada yatayda her zaman 3 sütunlu bir grid'de
-    // gösterilir.
+    // son videoları burada her zaman bir grid'de gösterilir. Kolon sayısı
+    // ekran yönüne göre değişir: dikey (portrait) konumda kartların çok
+    // küçülmemesi için 2, yatay (landscape) konumda ekstra genişlikten
+    // yararlanmak için 3 sütun kullanılır.
     //
     // NOT: childAspectRatio ile TAHMİNİ yükseklik vermek yerine, kartın
     // gerçek içerik yüksekliğini (küçük resim + gövde) piksel piksel
@@ -440,7 +442,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     if (Responsive.isTablet(context)) {
       const double horizontalPadding = 16;
       const double gridSpacing = 16;
-      const int crossAxisCount = 3;
+      final Orientation orientation = MediaQuery.orientationOf(context);
+      final int crossAxisCount = orientation == Orientation.portrait ? 2 : 3;
 
       return SliverMainAxisGroup(
         slivers: [
@@ -491,13 +494,9 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     final thumbHeight = itemWidth * 9 / 16;
 
                     // Gövde yüksekliği — VideoGridCardWidget'taki gerçek
-                    // değerlerin toplamı + güvenlik payı:
-                    // bodyPad(12+12) + avatar/başlık satırı(~54, 2 satır
-                    // başlık dahil) + actionRowTopSpacing(10) +
-                    // aksiyon satırı(~20) + güvenlik payı(20)
-                    const double bodyHeight = 152;
-
-                    final mainAxisExtent = thumbHeight + bodyHeight;
+                    // değerlerin toplamı (bkz. kGridCardBodyHeight sabiti,
+                    // kart dosyasında tanımlıdır ve tek kaynak odur).
+                    final mainAxisExtent = thumbHeight + kGridCardBodyHeight;
 
                     return SliverGrid(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

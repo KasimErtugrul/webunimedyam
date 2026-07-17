@@ -26,9 +26,9 @@ import '../../../../../controllers/home_controller.dart';
 // ═══════════════════════════════════════════════════════════════════════
 
 class _Sizes {
-  static const double cardBorderRadius = 16;
-  static const double thumbBadgeTop = 8;
-  static const double thumbBadgeLeft = 8;
+  static const double cardBorderRadius = 18;
+  static const double thumbBadgeTop = 10;
+  static const double thumbBadgeLeft = 10;
   static const double badgePadH = 8;
   static const double badgePadV = 4;
   static const double badgeBorderRadius = 6;
@@ -36,33 +36,35 @@ class _Sizes {
   static const double badgeDotSpacing = 4;
   static const double badgeFontSize = 10;
 
-  static const double durationBottom = 8;
-  static const double durationRight = 8;
+  static const double durationBottom = 10;
+  static const double durationRight = 10;
   static const double durationPadH = 6;
   static const double durationPadV = 3;
   static const double durationBorderRadius = 5;
   static const double durationFontSize = 11;
 
-  static const double bodyPad = 12;
-  static const double avatarSize = 34;
+  static const double bodyPad = 14;
+  static const double avatarSize = 30;
   static const double avatarSpacing = 10;
-  static const double titleFontSize = 14;
-  static const double titleLineHeight = 1.3;
-  static const double metaSpacing = 3;
+  static const double titleFontSize = 14.5;
+  static const double titleLineHeight = 1.28;
+  static const double titleToChannelSpacing = 10;
+  static const double channelRowSpacing = 12;
   static const double metaFontSize = 12;
-  static const double menuIconSize = 20;
+  static const double menuIconSize = 19;
 
-  static const double actionRowSpacing = 10;
-  static const double actionIconSize = 17;
+  static const double actionRowSpacing = 14;
+  static const double actionIconSize = 16.5;
   static const double actionTextFontSize = 11.5;
-  static const double actionIconTextSpacing = 3;
-  static const double actionRowTopSpacing = 10;
-
-/*   static const double followPadH = 10;
-  static const double followPadV = 4;
-  static const double followFontSize = 11.5;
-  static const double followCheckSize = 16; */
+  static const double actionIconTextSpacing = 4;
+  static const double dividerHeight = 1;
 }
+
+// Gövde yüksekliği — kartın gerçek içerik yüksekliğinin toplamı:
+// bodyPad(14+14) + başlık(2 satır, ~37) + boşluk(10) + kanal satırı
+// (avatar 30) + boşluk(12) + ayırıcı(1) + boşluk(12) + istatistik
+// satırı(~19) + güvenlik payı.
+const double kGridCardBodyHeight = 172;
 
 String _formatCount(int count) {
   if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
@@ -109,6 +111,19 @@ class VideoGridCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.card(context),
         borderRadius: BorderRadius.circular(_Sizes.cardBorderRadius),
+        border: Border.all(
+          color: AppTheme.textSec(context).withValues(alpha: 0.08),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: AppTheme.isDark(context) ? 0.28 : 0.06,
+            ),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -160,17 +175,43 @@ class VideoGridCardWidget extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 40,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0),
+                              Colors.black.withValues(alpha: 0.45),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   if (isLive)
                     Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
-                      child: _Badge(label: 'CANLI', color: const Color(0xFFE53935)),
+                      child: _Badge(
+                        label: 'CANLI',
+                        color: const Color(0xFFE53935),
+                      ),
                     ),
                   if (isUpcoming)
                     Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
-                      child: _Badge(label: 'YAKINDA', color: const Color(0xFF5C6BC0)),
+                      child: _Badge(
+                        label: 'YAKINDA',
+                        color: const Color(0xFF5C6BC0),
+                      ),
                     ),
                   if (!isLive)
                     Positioned(
@@ -202,15 +243,30 @@ class VideoGridCardWidget extends StatelessWidget {
             ),
           ),
 
-          // ── Gövde: Avatar + Başlık + Meta + Aksiyonlar ─────
+          // ── Gövde: Başlık → Kanal Satırı → Ayırıcı → İstatistikler ─────
           Padding(
             padding: const EdgeInsets.all(_Sizes.bodyPad),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Başlık — kartın en üstünde, tam genişlikte, öne çıkan öge.
+                Text(
+                  video.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: _Sizes.titleFontSize,
+                    fontWeight: FontWeight.w700,
+                    height: _Sizes.titleLineHeight,
+                  ),
+                ),
+                SizedBox(height: _Sizes.titleToChannelSpacing),
+
+                // Kanal satırı: avatar + üniversite adı/zaman + üç nokta menü.
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
                       onTap: () => _navigateToUniversityDetail(controller),
@@ -224,37 +280,21 @@ class VideoGridCardWidget extends StatelessWidget {
                     ),
                     SizedBox(width: _Sizes.avatarSpacing),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            video.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppTheme.textPri(context),
-                              fontSize: _Sizes.titleFontSize,
-                              fontWeight: FontWeight.w700,
-                              height: _Sizes.titleLineHeight,
-                            ),
+                      child: GestureDetector(
+                        onTap: () => _navigateToUniversityDetail(controller),
+                        child: Text(
+                          '${video.universityName ?? video.channelTitle} • ${timeago.format(video.publishedAt, locale: 'tr')}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppTheme.textSec(context),
+                            fontSize: _Sizes.metaFontSize,
+                            fontWeight: FontWeight.w500,
                           ),
-                          SizedBox(height: _Sizes.metaSpacing),
-                          GestureDetector(
-                            onTap: () =>
-                                _navigateToUniversityDetail(controller),
-                            child: Text(
-                              '${video.universityName ?? video.channelTitle} • ${timeago.format(video.publishedAt, locale: 'tr')}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppTheme.textSec(context),
-                                fontSize: _Sizes.metaFontSize,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
+                    SizedBox(width: _Sizes.avatarSpacing / 2),
                     GestureDetector(
                       onTap: () => _showVideoOptionsSheet(context, controller),
                       child: Icon(
@@ -265,7 +305,16 @@ class VideoGridCardWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: _Sizes.actionRowTopSpacing),
+
+                SizedBox(height: _Sizes.channelRowSpacing),
+                Container(
+                  height: _Sizes.dividerHeight,
+                  color: AppTheme.textSec(context).withValues(alpha: 0.12),
+                ),
+                SizedBox(height: _Sizes.channelRowSpacing),
+
+                // İstatistik satırı: görüntülenme, beğeni, yorum ve
+                // en sağda kaydet — eşit boşluklarla, sabit sıralı.
                 Row(
                   children: [
                     Obx(() {
@@ -274,7 +323,8 @@ class VideoGridCardWidget extends StatelessWidget {
                       final liveVideo = controller.videos.firstWhereOrNull(
                         (v) => v.videoId == video.videoId,
                       );
-                      final viewCount = override ??
+                      final viewCount =
+                          override ??
                           liveVideo?.appViewCount ??
                           video.appViewCount;
                       return _MiniStat(
@@ -285,8 +335,9 @@ class VideoGridCardWidget extends StatelessWidget {
                     }),
                     SizedBox(width: _Sizes.actionRowSpacing),
                     Obx(() {
-                      final liked =
-                          controller.likedVideoIds.contains(video.videoId);
+                      final liked = controller.likedVideoIds.contains(
+                        video.videoId,
+                      );
                       final liveVideo = controller.videos.firstWhereOrNull(
                         (v) => v.videoId == video.videoId,
                       );
@@ -309,12 +360,11 @@ class VideoGridCardWidget extends StatelessWidget {
                     GestureDetector(
                       onTap: _openPlayer,
                       child: Obx(() {
-                        final hasCommented =
-                            controller.commentedVideoIds.contains(
+                        final hasCommented = controller.commentedVideoIds
+                            .contains(video.videoId);
+                        final extra = controller.extraCommentCountFor(
                           video.videoId,
                         );
-                        final extra =
-                            controller.extraCommentCountFor(video.videoId);
                         return _MiniStat(
                           icon: hasCommented
                               ? Icons.mode_comment_rounded
@@ -322,16 +372,15 @@ class VideoGridCardWidget extends StatelessWidget {
                           color: hasCommented
                               ? Theme.of(context).colorScheme.primary
                               : AppTheme.textSec(context),
-                          text: _formatCount(
-                            video.appCommentCount + extra,
-                          ),
+                          text: _formatCount(video.appCommentCount + extra),
                         );
                       }),
                     ),
                     const Spacer(),
                     Obx(() {
-                      final isFav =
-                          controller.favoriteIds.contains(video.videoId);
+                      final isFav = controller.favoriteIds.contains(
+                        video.videoId,
+                      );
                       return GestureDetector(
                         onTap: () => controller.toggleFavorite(video.videoId),
                         child: Icon(
@@ -374,10 +423,7 @@ class VideoGridCardWidget extends StatelessWidget {
     });
   }
 
-  void _showVideoOptionsSheet(
-    BuildContext context,
-    HomeController controller,
-  ) {
+  void _showVideoOptionsSheet(BuildContext context, HomeController controller) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.card(context),
@@ -488,7 +534,11 @@ class _MiniStat extends StatelessWidget {
   final Color color;
   final String text;
 
-  const _MiniStat({required this.icon, required this.color, required this.text});
+  const _MiniStat({
+    required this.icon,
+    required this.color,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +552,7 @@ class _MiniStat extends StatelessWidget {
           style: TextStyle(
             color: color,
             fontSize: _Sizes.actionTextFontSize,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
