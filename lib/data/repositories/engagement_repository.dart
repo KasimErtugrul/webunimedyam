@@ -105,6 +105,9 @@ class EngagementRepository {
       // tekrar gitmiyoruz — aynı beğeniyi doğrudan yerel istatistik
       // kopyasına da yansıtıyoruz (mirror).
       await _local.recordLocalLikeChange(added: true, video: video);
+      // FIX: liked_video_ids cache'i de mirror'la — TTL dolmadan da
+      // getLikedVideoIds() güncel sonucu local'den dönebilsin.
+      await _local.addLocalLikedId(videoId);
     } catch (e, stacktrace) {
       log(
         'Beğeni eklenirken hata oluştu: $e',
@@ -120,6 +123,7 @@ class EngagementRepository {
     try {
       await _supabase.removeLike(userId, videoId);
       await _local.recordLocalLikeChange(added: false, video: video);
+      await _local.removeLocalLikedId(videoId);
     } catch (e, stacktrace) {
       log(
         'Beğeni silinirken hata oluştu: $e',
@@ -142,9 +146,28 @@ class EngagementRepository {
   /// doldurulmaz, _likeCache boş kalır → video listesinde tüm kalpler
   /// boş görünür; ilk beğeni tıklamasında isLiked() DB sorgusu atılır
   /// (gereksiz round-trip).
+  /// FIX: local-first + TTL cache eklendi.
+  ///
+  /// Önceki davranış: her çağrıda (yani her app açılışında, HomeController
+  /// onReady() üzerinden) doğrudan Supabase'e gidip `likes` tablosundan
+  /// TÜM satırları (limit yok) çekiyordu. Kullanıcının beğeni sayısı
+  /// binlere çıktıkça bu, her cold start'ta gereksiz büyük bir network
+  /// isteğine dönüşüyordu.
+  ///
+  /// Yeni davranış: 30 dk TTL'li local cache önce kontrol edilir (bkz.
+  /// LocalDataSource.isLikedIdsCacheValid). Cache geçerliyse Supabase'e
+  /// hiç gidilmez. Cache süresi dolmuşsa/yoksa Supabase'den tam liste
+  /// çekilir ve cache yeniden yazılır. Kullanıcı beğeni/beğeni-kaldırma
+  /// yaptıkça cache, addLike()/removeLike() içinde ayrıca mirror'lanır —
+  /// yani TTL dolmadan da güncel kalır.
   Future<Set<String>> getLikedVideoIds(String userId) async {
     try {
+      if (await _local.isLikedIdsCacheValid()) {
+        return await _local.getCachedLikedVideoIds();
+      }
+
       final ids = await _supabase.getLikedVideoIds(userId);
+      await _local.cacheLikedVideoIds(ids);
       return ids;
     } catch (e, stacktrace) {
       log(
@@ -152,7 +175,10 @@ class EngagementRepository {
         error: e,
         stackTrace: stacktrace,
       );
-      return {}; // Boş set dön; controller gracefully devam eder
+      // Network hatasında son çare: elimizdeki (muhtemelen bayat) cache'i
+      // dön — boş dönüp tüm kalpleri sıfırlamaktan daha iyi bir UX.
+      final stale = await _local.getCachedLikedVideoIds();
+      return stale;
     }
   }
 

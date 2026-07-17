@@ -89,6 +89,11 @@ class AuthRepository {
         _local.clearVideoSectionCache(),
         _local.clearProfile(),
         _local.clearUniversities(),
+        // FIX: yeni eklenen hafif id-set cache'leri de temizlenmeli,
+        // yoksa aynı cihazda çıkış yapıp başka hesapla giren kullanıcı
+        // bir önceki kullanıcının beğeni/favori id'lerini görebilir.
+        _local.clearLikedVideoIds(),
+        _local.clearFavoriteVideoIds(),
       ]);
       await _supabase.signOut();
       await AnalyticsService.instance.logLogout();
@@ -178,6 +183,10 @@ class AuthRepository {
         _local.clearCache(),
         _local.clearUserStats(),
         _local.clearVideoSectionCache(),
+        // FIX: manuel "önbelleği temizle" ayarı yeni id-set cache'lerini
+        // atlıyordu; kullanıcı "temizle" dediğinde gerçekten hepsi silinsin.
+        _local.clearLikedVideoIds(),
+        _local.clearFavoriteVideoIds(),
       ]);
     } catch (e, stacktrace) {
       log(

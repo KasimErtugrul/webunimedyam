@@ -25,7 +25,10 @@ class UniversityDetailBinding extends Bindings {
     }
     if (!Get.isRegistered<UniversityFavoritesRepository>()) {
       Get.lazyPut(
-        () => UniversityFavoritesRepository(supabase: Get.find()),
+        () => UniversityFavoritesRepository(
+          supabase: Get.find(),
+          local: Get.find(),
+        ),
         fenix: true,
       );
     }

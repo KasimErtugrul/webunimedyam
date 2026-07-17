@@ -12,8 +12,47 @@ import 'tabs/discovery_tab/discover_tab_widget.dart';
 import 'tabs/home_tab/home_tab_widget.dart';
 import 'tabs/universities_tab/universities_tab_widget.dart';
 
-class HomeScreen extends StatelessWidget {
+// FIX: StatelessWidget -> StatefulWidget.
+//
+// Önceki kodda IndexedStack'in `children` listesi TÜM 5 sekme widget'ını
+// (HomeTabWidget, DiscoverTabWidget, UniversitiesTabWidget, SearchScreen,
+// ProfileScreen) HomeScreen ilk build edildiği anda inşa ediyordu. IndexedStack
+// sadece görünürlüğü index'e göre gizler, ama seçili olmayan child'ları da
+// widget ağacından ÇIKARMAZ — hepsi anında mount olur, initState()'leri
+// (dolayısıyla GetX controller'larının onInit()'leri) hemen tetiklenir.
+//
+// Sonuç: kullanıcı hâlâ "Ana Sayfa" sekmesindeyken bile Profil ve Keşfet
+// sekmelerinin controller'ları (ProfileController, ShortsController vb.)
+// zaten oluşturulmuş oluyordu ve bu da kullanıcı o sekmelere hiç girmeden
+// get_my_stats / get_shorts_per_university gibi gereksiz Supabase
+// isteklerine yol açıyordu.
+//
+// Çözüm: her sekme yalnızca en az BİR KEZ seçildiğinde gerçek widget'ıyla
+// inşa edilir (_builtIndices). Henüz ziyaret edilmemiş sekmeler için ucuz
+// bir placeholder (SizedBox.shrink) döner — bottomNavigationBar'a tıklayıp
+// o sekmeye ilk kez girildiğinde gerçek widget mount olur ve verisini o an
+// çeker. Bir sekme bir kez ziyaret edildikten sonra IndexedStack sayesinde
+// "canlı" kalmaya devam eder (geri dönüldüğünde yeniden fetch atmaz).
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Ana Sayfa (index 0) uygulama açılışında zaten görünür sekme olduğu
+  // için baştan "ziyaret edilmiş" sayılır; diğerleri kullanıcı sekmeye
+  // dokununca bu sete eklenir.
+  final Set<int> _builtIndices = {0};
+
+  static const List<Widget> _tabs = [
+    HomeTabWidget(),
+    DiscoverTabWidget(),
+    UniversitiesTabWidget(),
+    SearchScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +66,24 @@ class HomeScreen extends StatelessWidget {
     // Bu sayede bottomNavigationBar her zaman görünür kalır.
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      body: Obx(
-        () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: const [
-            HomeTabWidget(),
-            DiscoverTabWidget(),
-            UniversitiesTabWidget(),
-            SearchScreen(),
-            ProfileScreen(),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        final index = controller.selectedIndex.value;
+        // Seçilen sekme "ziyaret edildi" olarak işaretlenir; bir sonraki
+        // build'de o index artık placeholder değil gerçek widget'ı döner.
+        _builtIndices.add(index);
+
+        return IndexedStack(
+          index: index,
+          children: List.generate(_tabs.length, (i) {
+            if (!_builtIndices.contains(i)) {
+              // Henüz hiç ziyaret edilmemiş sekme: controller'ı KURMA,
+              // veri çekme — kullanıcı gerçekten o sekmeye geçene kadar.
+              return const SizedBox.shrink();
+            }
+            return _tabs[i];
+          }),
+        );
+      }),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           type: BottomNavigationBarType.fixed,

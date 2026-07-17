@@ -112,14 +112,27 @@ class FavoritesRepository extends GetxService {
     }
   }
 
+  /// FIX: Önceki kod local'e "bakıyor" gibi görünüyordu ama aslında
+  /// yanlış cache'e bakıyordu: getFavoriteVideos() sadece favoriler
+  /// EKRANI için tutulan, OOM koruması amacıyla en fazla 100 kayıtla
+  /// SINIRLI tam VideoModel listesiydi. Kullanıcının 100'den fazla
+  /// favorisi varsa bu id listesi zaten eksikti; üstelik Supabase'e
+  /// fallback yapıldığında sonuç HİÇ local'e yazılmıyordu — yani cache
+  /// asla ısınmıyor, her cold start'ta favorites tablosundan TÜM
+  /// satırlar (limit yok) tekrar çekiliyordu.
+  ///
+  /// Yeni davranış: ayrı, hafif (sadece id string'leri) ve sınırsız bir
+  /// cache kullanılıyor (bkz. LocalDataSource.*FavoriteVideoIds), 30 dk
+  /// TTL ile. addFavorite()/removeFavorite() bu cache'i anında
+  /// mirror'lar, böylece TTL dolmadan da güncel kalır.
   Future<List<String>> getFavoriteVideoIds(String userId) async {
     try {
-      final localVideos = await _local.getFavoriteVideos();
-      if (localVideos.isNotEmpty) {
-        return localVideos.map((v) => v.videoId).toList();
+      if (await _local.isFavoriteIdsCacheValid()) {
+        return (await _local.getCachedFavoriteVideoIds()).toList();
       }
 
       final ids = await _supabase.getFavoriteVideoIds(userId);
+      await _local.cacheFavoriteVideoIds(ids.toSet());
       return ids;
     } catch (e, stacktrace) {
       log(
@@ -127,7 +140,10 @@ class FavoritesRepository extends GetxService {
         error: e,
         stackTrace: stacktrace,
       );
-      return [];
+      // Network hatasında son çare: elimizdeki (muhtemelen bayat) cache'i
+      // dön — boş dönüp tüm favori ikonlarını sıfırlamaktan daha iyi.
+      final stale = await _local.getCachedFavoriteVideoIds();
+      return stale.toList();
     }
   }
 
@@ -183,6 +199,8 @@ class FavoritesRepository extends GetxService {
       await _supabase.addFavorite(userId, videoId);
       // GÜNCELLEME: totalFavorited'i doğrudan yerelde de +1 yapıyoruz.
       await _local.recordLocalFavoriteChange(added: true);
+      // FIX: favorite_video_ids cache'ini de mirror'la.
+      await _local.addLocalFavoriteId(videoId);
     } catch (e, stacktrace) {
       log(
         'Favori eklenirken hata oluştu: $e',
@@ -197,6 +215,7 @@ class FavoritesRepository extends GetxService {
     try {
       await _supabase.removeFavorite(userId, videoId);
       await _local.recordLocalFavoriteChange(added: false);
+      await _local.removeLocalFavoriteId(videoId);
     } catch (e, stacktrace) {
       log(
         'Favori silinirken hata oluştu: $e',

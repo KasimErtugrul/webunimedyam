@@ -417,9 +417,17 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
     if (controller.isWheelView.value) {
       return SliverToBoxAdapter(
-        child: HomeFeedWheelWidget(
-          videos: nonShorts,
-          universities: controller.universities,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeFeedWheelWidget(
+                videos: nonShorts,
+                universities: controller.universities,
+              ),
+            ],
+          ),
         ),
       );
     }

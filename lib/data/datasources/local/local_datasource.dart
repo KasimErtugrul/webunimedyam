@@ -458,6 +458,230 @@ class LocalDataSource {
     }
   }
 
+  // ─── Beğenilen Video ID Cache (TTL: 30 dk) ───────────────────────────────
+  //
+  // NOT: getFavoriteVideos() gibi TAM VideoModel nesneleri değil, sadece
+  // videoId string'leri tutulur — bir kullanıcının binlerce beğenisi olsa
+  // bile bu cache hafif kalır (sadece string listesi). Amaç: her cold
+  // start'ta likes tablosundan TÜM satırları tekrar çekmemek.
+  //
+  // Cache, addLike/removeLike ile aynı anda (add/removeLocalLikedId)
+  // mirror'lanır; böylece TTL dolmadan da güncel kalır. TTL sadece
+  // "hiç senkron olmamış / çok bayatlamış" durumunu yakalamak için var.
+
+  static const _likedVideoIdsKey = 'liked_video_ids';
+  static const _likedVideoIdsTimeKey = 'liked_video_ids_time';
+  static const _idSetTtlMinutes = 30;
+
+  Future<bool> isLikedIdsCacheValid() async {
+    try {
+      final cacheTime = _box.get(_likedVideoIdsTimeKey) as DateTime?;
+      if (cacheTime == null) return false;
+      return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+          _idSetTtlMinutes;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Set<String>> getCachedLikedVideoIds() async {
+    try {
+      final raw = _box.get(_likedVideoIdsKey) as List?;
+      if (raw == null) return {};
+      return raw.map((e) => e.toString()).toSet();
+    } catch (e) {
+      return {};
+    }
+  }
+
+  Future<void> cacheLikedVideoIds(Set<String> ids) async {
+    try {
+      await _box.put(_likedVideoIdsKey, ids.toList());
+      await _box.put(_likedVideoIdsTimeKey, DateTime.now().toUtc());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  /// addLike() başarılı olduğunda çağrılır; cache zaten kuruluysa (daha önce
+  /// en az bir kez Supabase'den senkronlanmışsa) id'yi anında ekler. Cache
+  /// hiç kurulmamışsa dokunmaz — bir sonraki getLikedVideoIds() zaten
+  /// Supabase'den taze/tam listeyi çekip cache'i kuracaktır.
+  Future<void> addLocalLikedId(String videoId) async {
+    try {
+      final raw = _box.get(_likedVideoIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e.toString()).toSet()..add(videoId);
+      await _box.put(_likedVideoIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> removeLocalLikedId(String videoId) async {
+    try {
+      final raw = _box.get(_likedVideoIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e.toString()).toSet()..remove(videoId);
+      await _box.put(_likedVideoIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> clearLikedVideoIds() async {
+    try {
+      await _box.delete(_likedVideoIdsKey);
+      await _box.delete(_likedVideoIdsTimeKey);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // ─── Favori Video ID Cache (TTL: 30 dk) ──────────────────────────────────
+  //
+  // getFavoriteVideos()/saveFavoriteVideo() ile karıştırma: o cache TAM
+  // VideoModel nesnelerini tutar ve OOM'a karşı en fazla 100 kayıtla
+  // sınırlıdır (favoriler ekranı için). Bu cache ise SADECE id string'lerini
+  // tutar, sınırsızdır (hafif) ve "bu video favori mi?" sorusuna app
+  // genelinde anında cevap vermek için kullanılır.
+
+  static const _favoriteVideoIdsKey = 'favorite_video_ids';
+  static const _favoriteVideoIdsTimeKey = 'favorite_video_ids_time';
+
+  Future<bool> isFavoriteIdsCacheValid() async {
+    try {
+      final cacheTime = _box.get(_favoriteVideoIdsTimeKey) as DateTime?;
+      if (cacheTime == null) return false;
+      return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+          _idSetTtlMinutes;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Set<String>> getCachedFavoriteVideoIds() async {
+    try {
+      final raw = _box.get(_favoriteVideoIdsKey) as List?;
+      if (raw == null) return {};
+      return raw.map((e) => e.toString()).toSet();
+    } catch (e) {
+      return {};
+    }
+  }
+
+  Future<void> cacheFavoriteVideoIds(Set<String> ids) async {
+    try {
+      await _box.put(_favoriteVideoIdsKey, ids.toList());
+      await _box.put(_favoriteVideoIdsTimeKey, DateTime.now().toUtc());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> addLocalFavoriteId(String videoId) async {
+    try {
+      final raw = _box.get(_favoriteVideoIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e.toString()).toSet()..add(videoId);
+      await _box.put(_favoriteVideoIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> removeLocalFavoriteId(String videoId) async {
+    try {
+      final raw = _box.get(_favoriteVideoIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e.toString()).toSet()..remove(videoId);
+      await _box.put(_favoriteVideoIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> clearFavoriteVideoIds() async {
+    try {
+      await _box.delete(_favoriteVideoIdsKey);
+      await _box.delete(_favoriteVideoIdsTimeKey);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // ─── Favori Üniversite ID Cache (TTL: 30 dk) ─────────────────────────────
+  //
+  // Önceden UniversityFavoritesRepository bu veriyi sadece RAM'de
+  // (in-memory Set) tutuyordu — her cold start'ta sıfırdan Supabase'e
+  // gidiyordu. Üniversite sayısı sınırlı olduğu için likes/favorites kadar
+  // ağır değil, ama aynı gereksiz-network-isteği pattern'i burada da vardı.
+  // Aynı TTL + mirror yaklaşımı burada da uygulanıyor.
+
+  static const _favoriteUniversityIdsKey = 'favorite_university_ids';
+  static const _favoriteUniversityIdsTimeKey = 'favorite_university_ids_time';
+
+  Future<bool> isFavoriteUniversityIdsCacheValid() async {
+    try {
+      final cacheTime = _box.get(_favoriteUniversityIdsTimeKey) as DateTime?;
+      if (cacheTime == null) return false;
+      return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
+          _idSetTtlMinutes;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Set<int>> getCachedFavoriteUniversityIds() async {
+    try {
+      final raw = _box.get(_favoriteUniversityIdsKey) as List?;
+      if (raw == null) return {};
+      return raw.map((e) => e as int).toSet();
+    } catch (e) {
+      return {};
+    }
+  }
+
+  Future<void> cacheFavoriteUniversityIds(Set<int> ids) async {
+    try {
+      await _box.put(_favoriteUniversityIdsKey, ids.toList());
+      await _box.put(_favoriteUniversityIdsTimeKey, DateTime.now().toUtc());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> addLocalFavoriteUniversityId(int universityId) async {
+    try {
+      final raw = _box.get(_favoriteUniversityIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e as int).toSet()..add(universityId);
+      await _box.put(_favoriteUniversityIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> removeLocalFavoriteUniversityId(int universityId) async {
+    try {
+      final raw = _box.get(_favoriteUniversityIdsKey) as List?;
+      if (raw == null) return;
+      final ids = raw.map((e) => e as int).toSet()..remove(universityId);
+      await _box.put(_favoriteUniversityIdsKey, ids.toList());
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  Future<void> clearFavoriteUniversityIds() async {
+    try {
+      await _box.delete(_favoriteUniversityIdsKey);
+      await _box.delete(_favoriteUniversityIdsTimeKey);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
   // ─── Üniversite Cache (TTL: 30 dk) ───────────────────────────────────────
 
   static const _universityKey = 'cached_universities';

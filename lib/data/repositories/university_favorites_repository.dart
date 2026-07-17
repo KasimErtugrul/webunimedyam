@@ -26,6 +26,7 @@ import 'dart:developer';
 import 'dart:async';
 import 'package:get/get.dart';
 
+import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/university_model.dart';
 
@@ -44,6 +45,7 @@ class UniversityFavoriteChange {
 
 class UniversityFavoritesRepository extends GetxService {
   final SupabaseDataSource _supabase;
+  final LocalDataSource _local;
 
   final _changeController =
       StreamController<UniversityFavoriteChange>.broadcast();
@@ -57,8 +59,11 @@ class UniversityFavoritesRepository extends GetxService {
   bool _isCacheLoading = false;
   String? _cachedUserId;
 
-  UniversityFavoritesRepository({required SupabaseDataSource supabase})
-    : _supabase = supabase;
+  UniversityFavoritesRepository({
+    required SupabaseDataSource supabase,
+    required LocalDataSource local,
+  }) : _supabase = supabase,
+       _local = local;
 
   // ─── Cache Yönetimi ──────────────────────────────────────────────────────
 
@@ -66,6 +71,11 @@ class UniversityFavoritesRepository extends GetxService {
   /// Önceki halde iki eş zamanlı çağrı (örn: HomeController + UniversityDetailController
   /// aynı anda init olunca) her ikisi de _isCacheLoaded == false görüp
   /// iki kez Supabase'e gidiyordu.
+  ///
+  /// FIX: Artık disk'e (Hive, 30 dk TTL) yazılan bir cache de var. Önceden
+  /// bu cache SADECE RAM'de tutuluyordu; app her cold start'ta (RAM
+  /// sıfırlandığı için) Supabase'e gidiyordu. Şimdi önce disk cache'e
+  /// bakılıyor, geçerliyse Supabase'e hiç gidilmiyor.
   Future<void> _ensureCache(String userId) async {
     if (_isCacheLoaded && _cachedUserId == userId) return;
     if (_isCacheLoading) {
@@ -77,12 +87,23 @@ class UniversityFavoritesRepository extends GetxService {
     }
     _isCacheLoading = true;
     try {
+      if (await _local.isFavoriteUniversityIdsCacheValid()) {
+        final cached = await _local.getCachedFavoriteUniversityIds();
+        _cachedFavoriteIds
+          ..clear()
+          ..addAll(cached);
+        _cachedUserId = userId;
+        _isCacheLoaded = true;
+        return;
+      }
+
       final ids = await _supabase.getFavoriteUniversityIds(userId);
       _cachedFavoriteIds
         ..clear()
         ..addAll(ids);
       _cachedUserId = userId;
       _isCacheLoaded = true;
+      await _local.cacheFavoriteUniversityIds(_cachedFavoriteIds);
     } catch (e, stacktrace) {
       log(
         'Üniversite favori ID\'leri cache\'e yüklenirken hata oluştu: $e',
@@ -99,6 +120,10 @@ class UniversityFavoritesRepository extends GetxService {
     _isCacheLoading = false;
     _cachedUserId = null;
     _cachedFavoriteIds.clear();
+    // FIX: disk cache de temizlenmeli, yoksa clearCache() (örn. signOut'ta)
+    // sadece RAM'i temizler, bir sonraki kullanıcı disk'teki eski id'leri
+    // görmeye devam eder.
+    _local.clearFavoriteUniversityIds();
   }
 
   // ─── OKUMA ──────────────────────────────────────────────────────────────
@@ -161,10 +186,14 @@ class UniversityFavoritesRepository extends GetxService {
 
     try {
       await _supabase.addUniversityFavorite(userId, universityId);
+      // FIX: disk cache'i de mirror'la — bir sonraki cold start'ta,
+      // TTL dolmadıysa, Supabase'e gitmeden bu id de dönebilsin.
+      await _local.addLocalFavoriteUniversityId(universityId);
       return true;
     } catch (e, stacktrace) {
       // Rollback: cache'den geri çıkar, event'i geri al
       _cachedFavoriteIds.remove(universityId);
+      await _local.removeLocalFavoriteUniversityId(universityId);
       _changeController.add(
         UniversityFavoriteChange(universityId: universityId, isFavorite: false),
       );
@@ -191,10 +220,12 @@ class UniversityFavoritesRepository extends GetxService {
 
     try {
       await _supabase.removeUniversityFavorite(userId, universityId);
+      await _local.removeLocalFavoriteUniversityId(universityId);
       return true;
     } catch (e, stacktrace) {
       // Rollback: cache'e geri ekle, event'i geri al
       _cachedFavoriteIds.add(universityId);
+      await _local.addLocalFavoriteUniversityId(universityId);
       _changeController.add(
         UniversityFavoriteChange(universityId: universityId, isFavorite: true),
       );

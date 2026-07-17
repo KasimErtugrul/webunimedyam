@@ -178,11 +178,21 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    // FIX: loadUniversityStats() ve loadVideoSections() burada
+    // ÇAĞRILMIYOR artık.
+    //
+    // Bu ikisinin ürettiği veri (statsMostWatched/videosTrending vb.)
+    // Ana Sayfa'da DEĞİL, Keşfet sekmesinde (channel_tab_widget.dart /
+    // video_tab_widget.dart) gösteriliyor. Önceki kodda HomeController
+    // her zaman aynı anda oluşturulduğu (Home ekranı açılır açılmaz
+    // Get.find<HomeController>() tetiklendiği) için, kullanıcı Keşfet
+    // sekmesine hiç girmese bile bu iki RPC anında ateşleniyordu — tam
+    // olarak "henüz girilmemiş sayfaların verisini açılışta çekme"
+    // sorunu. Artık bu iki yükleme changeTab() içinde, kullanıcı GERÇEKTEN
+    // Keşfet sekmesine ilk kez geçtiğinde tetikleniyor (bkz. changeTab).
     loadUniversitiesAndPlaylists();
     loadVideos().then((_) => loadLikedVideoIds());
     loadFavorites();
-    loadUniversityStats();
-    loadVideoSections();
     loadContinueWatching();
   }
 
@@ -869,7 +879,20 @@ class HomeController extends GetxController {
 
   // ─── Navigasyon ──────────────────────────────────────────────────────────
 
-  void changeTab(int index) => selectedIndex.value = index;
+  // FIX: Keşfet sekmesinin verisi (istatistikler + video bölümleri) artık
+  // onReady()'de değil, kullanıcı sekmeye GERÇEKTEN ilk kez geçtiğinde
+  // çekiliyor. Bu flag, aynı veriyi her sekme değişiminde tekrar tekrar
+  // çekmemek için "bir kez yüklendi mi" bilgisini tutar.
+  bool _discoveryTabInitialized = false;
+
+  void changeTab(int index) {
+    selectedIndex.value = index;
+    if (index == 1 && !_discoveryTabInitialized) {
+      _discoveryTabInitialized = true;
+      loadUniversityStats();
+      loadVideoSections();
+    }
+  }
 
   String get appBarTitle {
     final uni = selectedUniversity.value;
