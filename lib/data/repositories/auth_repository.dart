@@ -167,6 +167,7 @@ class AuthRepository {
       await _supabase.updateUserSettings(settings);
       await _local.cacheUserSettings(settings.toSupabase());
       await _local.setTheme(settings.theme);
+      await _local.setHomeLayout(settings.homeLayout);
     } catch (e, stacktrace) {
       log(
         'Kullanıcı ayarları güncellenirken hata oluştu: $e',
@@ -294,6 +295,50 @@ class AuthRepository {
         stackTrace: stacktrace,
       );
       rethrow;
+    }
+  }
+
+  /// Ana sayfa görünüm tercihini (liste/wheel) SADECE yerelde saklar.
+  /// Tema kaydıyla aynı mantık: giriş yapılmasa bile anında çalışır.
+  Future<void> saveHomeLayoutLocally(String layout) async {
+    try {
+      await _local.setHomeLayout(layout);
+    } catch (e, stacktrace) {
+      log(
+        'Ana sayfa görünümü kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Ana sayfa görünüm tercihini getirir.
+  ///
+  /// SIRALAMA (mutlaka bu sırayla):
+  /// 1) Bağımsız yerel anahtar (`home_layout`) — en hızlı, girişsiz de çalışır.
+  /// 2) Yerelde yoksa: tam kullanıcı ayarları (kendisi de önce cache'e,
+  ///    sonra Supabase'e bakar — bkz. getUserSettings()).
+  /// 3) O da yoksa: varsayılan 'list'.
+  ///
+  /// Supabase'den/ayarlardan bulunan değer, bir sonraki açılışta adım 1'in
+  /// hemen cevap verebilmesi için yerel anahtara da yazılır.
+  Future<String> getHomeLayout() async {
+    try {
+      final local = await _local.getHomeLayoutRaw();
+      if (local != null) return local;
+
+      final settings = await getUserSettings();
+      final layout = settings?.homeLayout ?? 'list';
+      await _local.setHomeLayout(layout);
+      return layout;
+    } catch (e, stacktrace) {
+      log(
+        'Ana sayfa görünümü getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return 'list';
     }
   }
 

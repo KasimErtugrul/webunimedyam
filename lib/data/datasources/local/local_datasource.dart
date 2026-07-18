@@ -14,6 +14,7 @@ class LocalDataSource {
   static const _cacheTimeKey = 'cache_time';
   static const _themeKey = 'theme';
   static const _languageKey = 'language';
+  static const _homeLayoutKey = 'home_layout';
 
   Box get _box => AppCacheBox.instance;
 
@@ -113,6 +114,29 @@ class LocalDataSource {
   Future<void> setTheme(String theme) async {
     try {
       await _box.put(_themeKey, theme);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // Home Layout (Ana sayfa: liste mi wheel mi?)
+  //
+  // NOT: theme'de olduğu gibi bağımsız bir anahtar olarak tutulur — bu
+  // sayede giriş yapmamış (misafir) kullanıcılar için de anında, Supabase'e
+  // hiç gitmeden çalışır. `null` dönmesi "hiç ayarlanmamış" anlamına gelir;
+  // bu durumda çağıran taraf (AuthRepository.getHomeLayout) tam kullanıcı
+  // ayarlarına (cache → Supabase) düşer.
+  Future<String?> getHomeLayoutRaw() async {
+    try {
+      return _box.get(_homeLayoutKey) as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> setHomeLayout(String layout) async {
+    try {
+      await _box.put(_homeLayoutKey, layout);
     } catch (e) {
       // Sessizce devam et
     }

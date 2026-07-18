@@ -47,6 +47,7 @@ class UserSettingsModel {
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
   final String theme;            // 'dark' | 'light' | 'system'
+  final String homeLayout;       // 'list' | 'wheel' — Ana sayfa besleme görünümü
 
   // ─── Oynatma ──────────────────────────────────────────────────────────────
   final bool autoplay;
@@ -76,6 +77,7 @@ class UserSettingsModel {
   const UserSettingsModel({
     required this.userId,
     this.theme = 'system',
+    this.homeLayout = 'list',
     this.autoplay = true,
     this.showSubtitles = false,
     this.videoQuality = 'auto',
@@ -97,6 +99,7 @@ class UserSettingsModel {
     return UserSettingsModel(
       userId:               json['user_id'] ?? '',
       theme:                json['theme'] ?? 'system',
+      homeLayout:           json['home_layout'] ?? 'list',
       autoplay:             json['autoplay'] ?? true,
       showSubtitles:        json['show_subtitles'] ?? false,
       videoQuality:         json['video_quality'] ?? 'auto',
@@ -120,6 +123,7 @@ class UserSettingsModel {
     return {
       'user_id':                   userId,
       'theme':                     theme,
+      'home_layout':               homeLayout,
       'autoplay':                  autoplay,
       'show_subtitles':            showSubtitles,
       'video_quality':             videoQuality,
@@ -140,6 +144,7 @@ class UserSettingsModel {
 
   UserSettingsModel copyWith({
     String? theme,
+    String? homeLayout,
     bool? autoplay,
     bool? showSubtitles,
     String? videoQuality,
@@ -159,6 +164,7 @@ class UserSettingsModel {
     return UserSettingsModel(
       userId:                userId,
       theme:                 theme ?? this.theme,
+      homeLayout:            homeLayout ?? this.homeLayout,
       autoplay:              autoplay ?? this.autoplay,
       showSubtitles:         showSubtitles ?? this.showSubtitles,
       videoQuality:          videoQuality ?? this.videoQuality,

@@ -25,6 +25,12 @@ class SettingsController extends GetxService {
   final errorMessage = RxnString();
   final profileVisibility = VisibilityOption.public.obs;
 
+  // Ana sayfa görünümü (liste/wheel). `settings.value` girişsiz kullanıcılar
+  // için null kalabildiğinden, ekranın her zaman doğru değeri gösterebilmesi
+  // için ayrı bir Rx olarak tutulur — kaynağı AuthRepository.getHomeLayout()
+  // (önce yerel, yoksa Supabase) ve senkronize kalır.
+  final homeLayout = 'list'.obs;
+
   Timer? _settingsDebounce;
   UserSettingsModel? _lastSavedSettings;
 
@@ -52,6 +58,11 @@ class SettingsController extends GetxService {
       isLoading.value = true;
       settings.value = await authRepository.getUserSettings();
       _syncProfileVisibilityFromController();
+
+      // Ana sayfa görünümü, giriş yapılmasa bile önce yerelden okunur;
+      // yerelde yoksa (ilk kurulum vb.) tam ayarlar üzerinden Supabase'e
+      // düşer (bkz. AuthRepository.getHomeLayout).
+      homeLayout.value = await authRepository.getHomeLayout();
 
       // Mevcut tema tercihini user property olarak set ediyoruz ki
       // kullanıcı hiç tema değiştirmese bile Firebase'de doğru segmentte
@@ -124,6 +135,38 @@ class SettingsController extends GetxService {
         stackTrace: stacktrace,
       );
       errorMessage.value = 'Tema değiştirilemedi.';
+    }
+  }
+
+  /// Ana sayfa besleme görünümünü değiştirir: 'list' veya 'wheel'.
+  ///
+  /// Sıralama: önce yerele YAZILIR (girişsiz kullanıcılarda da anında
+  /// çalışsın diye), sonra kullanıcı giriş yapmışsa tam ayarlar üzerinden
+  /// Supabase'e senkronize edilir (debounce'lu _updateSettings ile). Ayrıca
+  /// halihazırda açık olan Ana Sayfa varsa (HomeController) anında
+  /// güncellensin diye o da senkronize edilir.
+  Future<void> changeHomeLayout(String layout) async {
+    final old = homeLayout.value;
+    homeLayout.value = layout; // Optimistic UI
+    try {
+      await authRepository.saveHomeLayoutLocally(layout);
+
+      final current = settings.value;
+      if (current != null) {
+        await _updateSettings(current.copyWith(homeLayout: layout));
+      }
+
+      AnalyticsService.instance.logEvent('home_layout_change', parameters: {
+        'layout': layout,
+      });
+    } catch (e, stacktrace) {
+      homeLayout.value = old; // Rollback
+      log(
+        'Ana sayfa görünümü değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value = 'Ana sayfa görünümü değiştirilemedi.';
     }
   }
 

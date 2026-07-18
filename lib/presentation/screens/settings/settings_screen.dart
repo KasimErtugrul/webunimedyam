@@ -258,6 +258,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: _themeLabel(s?.theme),
               onTap: () => _showThemeDialog(context),
             ),
+            Obx(
+              () => _SettingsTilePhone(
+                icon: Icons.view_agenda_outlined,
+                title: 'Ana Sayfa Görünümü',
+                subtitle: _homeLayoutLabel(_controller.homeLayout.value),
+                onTap: () => _showHomeLayoutDialog(context),
+              ),
+            ),
 
             // ═══ OYNATMA ═══════════════════════════════════════
             _DividerPhone(),
@@ -409,6 +417,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: _themeLabel(s?.theme),
               onTap: () => _showThemeDialog(context),
             ),
+            Obx(
+              () => _SettingsTileTablet(
+                icon: Icons.view_agenda_outlined,
+                title: 'Ana Sayfa Görünümü',
+                subtitle: _homeLayoutLabel(_controller.homeLayout.value),
+                onTap: () => _showHomeLayoutDialog(context),
+              ),
+            ),
 
             // ═══ OYNATMA ═══════════════════════════════════════
             _DividerTablet(),
@@ -530,7 +546,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showThemeDialog(BuildContext context) {
     final isTablet = Responsive.isTablet(context);
-    final titleSize = isTablet ? _TabletSizes.dialogTitleFontSize : _PhoneSizes.dialogTitleFontSize.sp;
+    final titleSize = isTablet
+        ? _TabletSizes.dialogTitleFontSize
+        : _PhoneSizes.dialogTitleFontSize.sp;
 
     showDialog(
       context: context,
@@ -566,6 +584,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return 'Açık';
       default:
         return 'Sistem';
+    }
+  }
+
+  void _showHomeLayoutDialog(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
+    final titleSize = isTablet
+        ? _TabletSizes.dialogTitleFontSize
+        : _PhoneSizes.dialogTitleFontSize.sp;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          'Ana Sayfa Görünümü',
+          style: TextStyle(fontSize: titleSize),
+        ),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final layout in ['list', 'wheel'])
+                RadioListTile<String>(
+                  title: Text(_homeLayoutLabel(layout)),
+                  subtitle: Text(_homeLayoutSublabel(layout)),
+                  value: layout,
+                  groupValue: _controller.homeLayout.value,
+                  activeColor: AppTheme.primaryColor,
+                  onChanged: (v) {
+                    if (v != null) {
+                      _controller.changeHomeLayout(v);
+                      Get.back();
+                    }
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _homeLayoutLabel(String? layout) {
+    switch (layout) {
+      case 'wheel':
+        return 'Wheel Görünümü';
+      default:
+        return 'Liste Görünümü';
+    }
+  }
+
+  String _homeLayoutSublabel(String layout) {
+    switch (layout) {
+      case 'wheel':
+        return 'Videolar döner bir çark şeklinde gösterilir';
+      default:
+        return 'Videolar tam genişlikte alt alta listelenir';
     }
   }
 }
@@ -726,7 +800,8 @@ class _CeilingNotePhone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profileVisibility == VisibilityOption.public) return const SizedBox.shrink();
+    if (profileVisibility == VisibilityOption.public)
+      return const SizedBox.shrink();
 
     final isPrivate = profileVisibility == VisibilityOption.private;
     final color = isPrivate ? Colors.orange : Colors.blue;
@@ -916,15 +991,15 @@ class _VisibilityBadgePhone extends StatelessWidget {
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (option) {
       VisibilityOption.public => (
-          Icons.public_outlined,
-          Colors.green,
-          'Herkese',
-        ),
+        Icons.public_outlined,
+        Colors.green,
+        'Herkese',
+      ),
       VisibilityOption.friends => (
-          Icons.people_outlined,
-          Colors.blue,
-          'Arkadaş',
-        ),
+        Icons.people_outlined,
+        Colors.blue,
+        'Arkadaş',
+      ),
       VisibilityOption.private => (Icons.lock_outline, Colors.orange, 'Gizli'),
     };
 
@@ -1026,12 +1101,12 @@ class _VisibilityOptionRowPhone extends StatelessWidget {
                 size: _PhoneSizes.sheetOptionTrailingIconSize.sp,
               )
             : dimmed
-                ? Icon(
-                    Icons.lock_outline,
-                    color: AppTheme.textSec(context),
-                    size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
-                  )
-                : null,
+            ? Icon(
+                Icons.lock_outline,
+                color: AppTheme.textSec(context),
+                size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
+              )
+            : null,
       ),
     );
   }
@@ -1204,7 +1279,8 @@ class _CeilingNoteTablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profileVisibility == VisibilityOption.public) return const SizedBox.shrink();
+    if (profileVisibility == VisibilityOption.public)
+      return const SizedBox.shrink();
 
     final isPrivate = profileVisibility == VisibilityOption.private;
     final color = isPrivate ? Colors.orange : Colors.blue;
@@ -1394,15 +1470,15 @@ class _VisibilityBadgeTablet extends StatelessWidget {
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (option) {
       VisibilityOption.public => (
-          Icons.public_outlined,
-          Colors.green,
-          'Herkese',
-        ),
+        Icons.public_outlined,
+        Colors.green,
+        'Herkese',
+      ),
       VisibilityOption.friends => (
-          Icons.people_outlined,
-          Colors.blue,
-          'Arkadaş',
-        ),
+        Icons.people_outlined,
+        Colors.blue,
+        'Arkadaş',
+      ),
       VisibilityOption.private => (Icons.lock_outline, Colors.orange, 'Gizli'),
     };
 
@@ -1504,12 +1580,12 @@ class _VisibilityOptionRowTablet extends StatelessWidget {
                 size: _TabletSizes.sheetOptionTrailingIconSize,
               )
             : dimmed
-                ? Icon(
-                    Icons.lock_outline,
-                    color: AppTheme.textSec(context),
-                    size: _TabletSizes.sheetOptionTrailingLockSize,
-                  )
-                : null,
+            ? Icon(
+                Icons.lock_outline,
+                color: AppTheme.textSec(context),
+                size: _TabletSizes.sheetOptionTrailingLockSize,
+              )
+            : null,
       ),
     );
   }

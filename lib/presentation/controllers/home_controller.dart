@@ -20,6 +20,7 @@ import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
 import '../../data/models/video_engagement_model.dart';
 import '../../data/models/watch_progress_model.dart';
+import 'settings_controller.dart';
 
 class HomeController extends GetxController {
   final VideoRepository videoRepository;
@@ -85,9 +86,39 @@ class HomeController extends GetxController {
   // Ana sayfa besleme (feed) görünüm modu: liste mi, wheel mi?
   // Mevcut listview akışını bozmuyor; sadece aynı `videos` verisini
   // farklı bir arayüzle gösteriyor.
+  //
+  // Bu değer artık kalıcı: Ayarlar ekranındaki "Ana Sayfa Görünümü"
+  // seçeneğiyle aynı kaynağı (SettingsController.homeLayout /
+  // AuthRepository — önce yerel, yoksa Supabase) paylaşır, ikisi
+  // birbiriyle senkron kalır.
   final isWheelView = false.obs;
+  Worker? _homeLayoutWorker;
 
-  void toggleWheelView() => isWheelView.value = !isWheelView.value;
+  void toggleWheelView() {
+    final newLayout = isWheelView.value ? 'list' : 'wheel';
+    if (Get.isRegistered<SettingsController>()) {
+      Get.find<SettingsController>().changeHomeLayout(newLayout);
+    } else {
+      isWheelView.value = !isWheelView.value;
+      authRepository.saveHomeLayoutLocally(newLayout);
+    }
+  }
+
+  /// Ana sayfa görünümünü kalıcı tercihten yükler (önce yerel, yoksa
+  /// Supabase — bkz. AuthRepository.getHomeLayout) ve Ayarlar ekranıyla
+  /// aynı anda kalması için SettingsController.homeLayout'u dinlemeye başlar.
+  Future<void> _initHomeLayout() async {
+    if (Get.isRegistered<SettingsController>()) {
+      final settingsCtrl = Get.find<SettingsController>();
+      isWheelView.value = settingsCtrl.homeLayout.value == 'wheel';
+      _homeLayoutWorker = ever<String>(settingsCtrl.homeLayout, (layout) {
+        isWheelView.value = layout == 'wheel';
+      });
+    } else {
+      final layout = await authRepository.getHomeLayout();
+      isWheelView.value = layout == 'wheel';
+    }
+  }
 
   final statsMostWatched = <UniversityStatsModel>[].obs;
   final statsMostLiked = <UniversityStatsModel>[].obs;
@@ -173,6 +204,7 @@ class HomeController extends GetxController {
     // ana sayfadaki listeyi anında güncelle.
     _watchProgressSubscription = watchProgressRepository.onProgressChanged
         .listen((_) => loadContinueWatching());
+    _initHomeLayout();
   }
 
   @override
@@ -201,6 +233,7 @@ class HomeController extends GetxController {
     _favoriteSubscription.cancel();
     _uniFavSubscription.cancel();
     _watchProgressSubscription.cancel();
+    _homeLayoutWorker?.dispose();
     super.onClose();
   }
 
