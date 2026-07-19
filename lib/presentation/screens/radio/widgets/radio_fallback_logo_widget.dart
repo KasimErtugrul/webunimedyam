@@ -1,4 +1,8 @@
 // lib/presentation/screens/radio/widgets/radio_fallback_logo_widget.dart
+// ═══════════════════════════════════════════════════════════════════════════════
+// ✨ SIFIRDAN YENİDEN TASARLANMIŞ FALLBACK LOGO
+// Konsept: "Modern Gradient Fallback with Neon Glow"
+// ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,17 +12,21 @@ import '../../../../core/responsive.dart';
 import '../../../../data/models/university_model.dart';
 
 // ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
+// SABİTLER
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  static const double fontSize = 40;
-  static const double alpha = 0.1;
+  static const double fontSize = 44;
+  static const double alpha = 0.12;
+  static const double borderAlpha = 0.2;
+  static const double glowAlpha = 0.15;
 }
 
 class _TabletSizes {
-  static const double fontSize = 52;
-  static const double alpha = 0.1;
+  static const double fontSize = 56;
+  static const double alpha = 0.12;
+  static const double borderAlpha = 0.2;
+  static const double glowAlpha = 0.15;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -31,26 +39,53 @@ class RadioFallbackLogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
     return Responsive.isTablet(context)
         ? _buildTablet(context)
         : _buildPhone(context);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // PHONE - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildPhone(BuildContext context) {
     return Container(
-      color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.alpha),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.primaryColor.withValues(alpha: _PhoneSizes.alpha),
+            AppTheme.primaryColor.withValues(alpha: _PhoneSizes.alpha * 0.5),
+            AppTheme.secondaryColor.withValues(alpha: _PhoneSizes.alpha * 0.3),
+          ],
+        ),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.borderAlpha),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.glowAlpha),
+            blurRadius: 10.r,
+            spreadRadius: 2.r,
+          ),
+        ],
+      ),
       child: Center(
         child: Text(
-          uni.name!.isNotEmpty ? uni.name![0] : '?',
+          uni.name!.isNotEmpty ? uni.name![0].toUpperCase() : '?',
           style: TextStyle(
             fontSize: _PhoneSizes.fontSize.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: AppTheme.primaryColor,
+            letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.4),
+                blurRadius: 8.r,
+              ),
+            ],
           ),
         ),
       ),
@@ -58,19 +93,47 @@ class RadioFallbackLogoWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // TABLET - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildTablet(BuildContext context) {
     return Container(
-      color: AppTheme.primaryColor.withValues(alpha: _TabletSizes.alpha),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.primaryColor.withValues(alpha: _TabletSizes.alpha),
+            AppTheme.primaryColor.withValues(alpha: _TabletSizes.alpha * 0.5),
+            AppTheme.secondaryColor.withValues(alpha: _TabletSizes.alpha * 0.3),
+          ],
+        ),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: _TabletSizes.borderAlpha),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: _TabletSizes.glowAlpha),
+            blurRadius: 14,
+            spreadRadius: 3,
+          ),
+        ],
+      ),
       child: Center(
         child: Text(
-          uni.name!.isNotEmpty ? uni.name![0] : '?',
+          uni.name!.isNotEmpty ? uni.name![0].toUpperCase() : '?',
           style: TextStyle(
             fontSize: _TabletSizes.fontSize,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: AppTheme.primaryColor,
+            letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.4),
+                blurRadius: 10,
+              ),
+            ],
           ),
         ),
       ),

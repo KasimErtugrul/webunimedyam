@@ -207,32 +207,7 @@ class SupabaseDataSource {
     }
   }
 
-  /* Future<List<VideoModel>> getCachedVideos({
-    int limit = 20,
-    int offset = 0,
-  }) async {
-    try {
-      final data = await _client
-          .from('videos_cache')
-          .select('*, universities(name)')
-          .order('published_at', ascending: false)
-          .range(offset, offset + limit - 1);
 
-      return (data as List).map((e) {
-        final row = Map<String, dynamic>.from(e);
-        if (row['universities'] != null) {
-          row['university_name'] = row['universities']['name'];
-        }
-        row.remove('universities');
-        return VideoModel.fromSupabase(row);
-      }).toList();
-    } catch (e, stackTrace) {
-      log(
-        'Önbelleğe alınmış videolar getirilirken hata oluştu: $e\n$stackTrace',
-      );
-      throw Exception('Videolar yüklenemedi. Lütfen tekrar deneyin.');
-    }
-  } */
 
   /// FIX: `videos_cache` tablosunda app_view_count/app_like_count vb. kolonlar
   /// yok — bu yüzden üniversite detay sayfasındaki videolar her zaman 0
@@ -454,32 +429,36 @@ class SupabaseDataSource {
     }
   }
 
+  /// FIX: Önceden `comments` tablosundan doğrudan seçim yapıyordu — bu,
+  /// kullanıcının Ayarlar > Aktivite Görünürlüğü > "Yorumlar" ayarını
+  /// (comments_visibility) HİÇ dikkate almıyordu; profilini tamamen gizli
+  /// yapan bir kullanıcının "yorum yaptığı videolar" listesi yine de
+  /// herkese görünüyordu (favoriler/beğeniler/izleme geçmişi doğru
+  /// gizleniyordu, sadece yorumlar unutulmuştu).
+  ///
+  /// Artık get_video_viewers() ile aynı desendeki privacy kontrollü bir
+  /// RPC kullanılıyor (bkz. get_user_commented_videos migration'ı).
+  /// NOT: Bu, bir videonun ALTINDAKİ yorum akışını (getComments) etkilemez
+  /// — o halka açık kalmaya devam ediyor (YouTube yorumları gibi); sadece
+  /// profildeki aktivite listesi gizleniyor.
   Future<List<VideoModel>> getUserCommentedVideos(
     String userId, {
     int limit = 20,
     int offset = 0,
   }) async {
     try {
-      final data = await _client
-          .from('comments')
-          .select('video_id, created_at, videos_cache(*, universities(name))')
-          .eq('user_id', userId)
-          .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
+      final data = await _client.rpc(
+        'get_user_commented_videos',
+        params: {
+          'target_user_id': userId,
+          'p_limit': limit,
+          'p_offset': offset,
+        },
+      );
 
-      final seen = <String>{};
       final List<VideoModel> videos = [];
       for (final row in (data as List)) {
-        final videoData = row['videos_cache'];
-        if (videoData == null) continue;
-        final map = Map<String, dynamic>.from(videoData as Map);
-        final videoId = map['video_id'] as String? ?? '';
-        if (seen.contains(videoId)) continue;
-        seen.add(videoId);
-        if (map['universities'] != null) {
-          map['university_name'] = map['universities']['name'];
-        }
-        map.remove('universities');
+        final map = Map<String, dynamic>.from(row as Map);
         videos.add(VideoModel.fromSupabase(map));
       }
       return videos;
@@ -1460,124 +1439,7 @@ class SupabaseDataSource {
       rethrow;
     }
   }
-  /* // ─── Takip Sistemi ────────────────────────────────────────────────────────
-
-  Future<void> followUser({
-    required String followerId,
-    required String followingId,
-    bool requireApproval = false,
-  }) async {
-    await _client.from('user_follows').insert({
-      'follower_id': followerId,
-      'following_id': followingId,
-      'status': requireApproval ? 'pending' : 'accepted',
-    });
-  }
-
-  Future<void> unfollowUser({
-    required String followerId,
-    required String followingId,
-  }) async {
-    await _client
-        .from('user_follows')
-        .delete()
-        .eq('follower_id', followerId)
-        .eq('following_id', followingId);
-  }
-
-  Future<Map<String, dynamic>?> getFollowStatus({
-    required String followerId,
-    required String followingId,
-  }) async {
-    return await _client
-        .from('user_follows')
-        .select()
-        .eq('follower_id', followerId)
-        .eq('following_id', followingId)
-        .maybeSingle();
-  }
-
-  Future<List<Map<String, dynamic>>> getFollowers(
-    String userId, {
-    int limit = 50,
-    int offset = 0,
-  }) async {
-    final data = await _client
-        .from('user_follows')
-        .select('''
-          id, follower_id, following_id, status, created_at,
-          follower_profile:profiles!follower_id (
-            id, username, full_name, avatar_url, profile_visibility
-          )
-        ''')
-        .eq('following_id', userId)
-        .eq('status', 'accepted')
-        .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1);
-
-    return (data as List).cast<Map<String, dynamic>>();
-  }
-
-  Future<List<Map<String, dynamic>>> getFollowing(
-    String userId, {
-    int limit = 50,
-    int offset = 0,
-  }) async {
-    final data = await _client
-        .from('user_follows')
-        .select('''
-          id, follower_id, following_id, status, created_at,
-          following_profile:profiles!following_id (
-            id, username, full_name, avatar_url, profile_visibility
-          )
-        ''')
-        .eq('follower_id', userId)
-        .eq('status', 'accepted')
-        .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1);
-
-    return (data as List).cast<Map<String, dynamic>>();
-  }
-
-  Future<Map<String, dynamic>?> getFollowCounts(String userId) async {
-    return await _client
-        .from('user_follow_counts')
-        .select()
-        .eq('user_id', userId)
-        .maybeSingle();
-  }
-
-  Future<List<Map<String, dynamic>>> getPendingFollowRequests(
-    String userId, {
-    int limit = 50,
-  }) async {
-    final data = await _client
-        .from('user_follows')
-        .select('''
-          id, follower_id, following_id, status, created_at,
-          follower_profile:profiles!follower_id (
-            id, username, full_name, avatar_url
-          )
-        ''')
-        .eq('following_id', userId)
-        .eq('status', 'pending')
-        .order('created_at', ascending: false)
-        .limit(limit);
-
-    return (data as List).cast<Map<String, dynamic>>();
-  }
-
-  Future<void> acceptFollowRequest(String followId) async {
-    await _client
-        .from('user_follows')
-        .update({'status': 'accepted'})
-        .eq('id', followId);
-  }
-
-  Future<void> rejectFollowRequest(String followId) async {
-    await _client.from('user_follows').delete().eq('id', followId);
-  } */
-
+  
   Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
     try {
       return await _client

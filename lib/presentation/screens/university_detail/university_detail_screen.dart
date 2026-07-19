@@ -418,8 +418,7 @@ class UniversityDetailScreen extends StatefulWidget {
   const UniversityDetailScreen({super.key});
 
   @override
-  State<UniversityDetailScreen> createState() =>
-      _UniversityDetailScreenState();
+  State<UniversityDetailScreen> createState() => _UniversityDetailScreenState();
 }
 
 class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
@@ -459,7 +458,10 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
     } else if (offset >= fadeEnd) {
       newOpacity = 1.0;
     } else {
-      newOpacity = ((offset - fadeStart) / (fadeEnd - fadeStart)).clamp(0.0, 1.0);
+      newOpacity = ((offset - fadeStart) / (fadeEnd - fadeStart)).clamp(
+        0.0,
+        1.0,
+      );
     }
     if (newOpacity != _titleOpacity) {
       setState(() => _titleOpacity = newOpacity);
@@ -507,7 +509,8 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                       child: Obx(() {
                         final uni = controller.university.value;
                         if (uni == null) return const SizedBox.shrink();
-                        final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+                        final hasLogo =
+                            uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -561,7 +564,9 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                         final isFav = controller.isFavorite.value;
                         final isLoading = controller.isFavoriteLoading.value;
                         return Padding(
-                          padding: EdgeInsets.only(right: _PhoneSizes.appBarActionPaddingRight.w),
+                          padding: EdgeInsets.only(
+                            right: _PhoneSizes.appBarActionPaddingRight.w,
+                          ),
                           child: isLoading
                               ? SizedBox(
                                   width: 44.w,
@@ -578,11 +583,16 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                   ),
                                 )
                               : IconButton(
-                                  tooltip: isFav ? 'Favorilerden çıkar' : 'Favorilere ekle',
+                                  tooltip: isFav
+                                      ? 'Favorilerden çıkar'
+                                      : 'Favorilere ekle',
                                   icon: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 250),
                                     transitionBuilder: (child, anim) =>
-                                        ScaleTransition(scale: anim, child: child),
+                                        ScaleTransition(
+                                          scale: anim,
+                                          child: child,
+                                        ),
                                     child: Icon(
                                       isFav
                                           ? Icons.bookmark_rounded
@@ -661,7 +671,8 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                       child: Obx(() {
                         final uni = controller.university.value;
                         if (uni == null) return const SizedBox.shrink();
-                        final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
+                        final hasLogo =
+                            uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -715,7 +726,9 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                         final isFav = controller.isFavorite.value;
                         final isLoading = controller.isFavoriteLoading.value;
                         return Padding(
-                          padding: EdgeInsets.only(right: _TabletSizes.appBarActionPaddingRight),
+                          padding: EdgeInsets.only(
+                            right: _TabletSizes.appBarActionPaddingRight,
+                          ),
                           child: isLoading
                               ? SizedBox(
                                   width: 52,
@@ -732,11 +745,16 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                   ),
                                 )
                               : IconButton(
-                                  tooltip: isFav ? 'Favorilerden çıkar' : 'Favorilere ekle',
+                                  tooltip: isFav
+                                      ? 'Favorilerden çıkar'
+                                      : 'Favorilere ekle',
                                   icon: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 250),
                                     transitionBuilder: (child, anim) =>
-                                        ScaleTransition(scale: anim, child: child),
+                                        ScaleTransition(
+                                          scale: anim,
+                                          child: child,
+                                        ),
                                     child: Icon(
                                       isFav
                                           ? Icons.bookmark_rounded
@@ -798,12 +816,15 @@ class _RadioMiniPlayerPhone extends StatelessWidget {
       if (!radioController.isRadioActive) return const SizedBox.shrink();
 
       final meta = radioController.metadata.value;
-      final titleText = meta?.title ?? radioController.currentPlayingName.value ?? 'Yayın';
+      final titleText =
+          meta?.title ?? radioController.currentPlayingName.value ?? 'Yayın';
       final artistText = meta?.artist ?? 'Canlı Yayın';
 
       return Container(
         decoration: BoxDecoration(
-          color: AppTheme.isDark(context) ? const Color(0xFF1E1E1E) : Colors.white,
+          color: AppTheme.isDark(context)
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -831,7 +852,9 @@ class _RadioMiniPlayerPhone extends StatelessWidget {
                   width: _PhoneSizes.miniPlayerLogoSize.w,
                   height: _PhoneSizes.miniPlayerLogoSize.w,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(_PhoneSizes.miniPlayerLogoRadius.r),
+                    borderRadius: BorderRadius.circular(
+                      _PhoneSizes.miniPlayerLogoRadius.r,
+                    ),
                     color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -934,9 +957,9 @@ class _HeaderPhone extends StatelessWidget {
       final uni = controller.university.value;
       if (uni == null) {
         return Container(
-        color: Colors.transparent,
-        child: const Center(child: CircularProgressIndicator()),
-      );
+          color: Colors.transparent,
+          child: const Center(child: CircularProgressIndicator()),
+        );
       }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
 
@@ -1000,7 +1023,9 @@ class _HeaderPhone extends StatelessWidget {
                                 height: 22.w,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.w,
-                                  color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                                  color: AppTheme.primaryColor.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1021,7 +1046,9 @@ class _HeaderPhone extends StatelessWidget {
             ),
             SizedBox(height: _PhoneSizes.headerBadgeSpacing.h),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.headerPaddingHorizontal.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: _PhoneSizes.headerPaddingHorizontal.w,
+              ),
               child: Text(
                 uni.name ?? '',
                 style: TextStyle(
@@ -1066,7 +1093,9 @@ class _HeaderPhone extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(_PhoneSizes.headerBadgeBorderRadius.r),
+                  borderRadius: BorderRadius.circular(
+                    _PhoneSizes.headerBadgeBorderRadius.r,
+                  ),
                   border: Border.all(
                     color: AppTheme.primaryColor.withValues(alpha: 0.3),
                   ),
@@ -1111,21 +1140,36 @@ class _TabBarDelegatePhone extends SliverPersistentHeaderDelegate {
   double get maxExtent => _PhoneSizes.tabBarHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: AppTheme.bg(context),
-      child: TabBar(
-        labelColor: AppTheme.primaryColor,
-        unselectedLabelColor: AppTheme.textSec(context),
-        indicatorColor: AppTheme.primaryColor,
-        indicatorWeight: _PhoneSizes.tabBarIndicatorWeight,
-        labelStyle: TextStyle(fontSize: _PhoneSizes.tabBarLabelFontSize.sp, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: _PhoneSizes.tabBarUnselectedLabelFontSize.sp, fontWeight: FontWeight.w500),
-        tabs: const [
-          Tab(text: 'Hakkında'),
-          Tab(text: 'Videolar'),
-          Tab(text: 'Shorts'),
-        ],
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox.expand(
+        child: Container(
+          color: AppTheme.bg(context),
+          child: TabBar(
+            labelColor: AppTheme.primaryColor,
+            unselectedLabelColor: AppTheme.textSec(context),
+            indicatorColor: AppTheme.primaryColor,
+            indicatorWeight: _PhoneSizes.tabBarIndicatorWeight,
+            labelStyle: TextStyle(
+              fontSize: _PhoneSizes.tabBarLabelFontSize.sp,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: _PhoneSizes.tabBarUnselectedLabelFontSize.sp,
+              fontWeight: FontWeight.w500,
+            ),
+            tabs: const [
+              Tab(text: 'Hakkında'),
+              Tab(text: 'Videolar'),
+              Tab(text: 'Shorts'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1139,7 +1183,10 @@ class _TabBarDelegatePhone extends SliverPersistentHeaderDelegate {
 class _AboutTabPhone extends StatelessWidget {
   final UniversityDetailController controller;
   final UniversityRadioController radioController;
-  const _AboutTabPhone({required this.controller, required this.radioController});
+  const _AboutTabPhone({
+    required this.controller,
+    required this.radioController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1172,7 +1219,11 @@ class _AboutTabPhone extends StatelessWidget {
               _SectionTitlePhone(title: 'Bağlantılar'),
               SizedBox(height: _PhoneSizes.aboutSectionTitleSpacing.h),
               if (uni.websiteUrl != null && uni.websiteUrl!.isNotEmpty)
-                _LinkButtonPhone(icon: Icons.language_rounded, label: 'Resmi Web Sitesi', url: uni.websiteUrl!),
+                _LinkButtonPhone(
+                  icon: Icons.language_rounded,
+                  label: 'Resmi Web Sitesi',
+                  url: uni.websiteUrl!,
+                ),
               if (uni.customUrl != null && uni.customUrl!.isNotEmpty) ...[
                 SizedBox(height: 8.h),
                 _LinkButtonPhone(
@@ -1220,25 +1271,41 @@ class _FavoriteButtonPhone extends StatelessWidget {
               ? SizedBox(
                   width: _PhoneSizes.favButtonLoadingSize.w,
                   height: _PhoneSizes.favButtonLoadingSize.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
               : Icon(
-                  isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  isFav
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
                   size: _PhoneSizes.favButtonIconSize.sp,
                 ),
           label: Text(
             isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
-            style: TextStyle(fontSize: _PhoneSizes.favButtonFontSize.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: _PhoneSizes.favButtonFontSize.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: isFav ? AppTheme.card(context) : AppTheme.primaryColor,
+            backgroundColor: isFav
+                ? AppTheme.card(context)
+                : AppTheme.primaryColor,
             foregroundColor: isFav ? AppTheme.primaryColor : Colors.white,
             elevation: 0,
-            padding: EdgeInsets.symmetric(vertical: _PhoneSizes.favButtonPaddingVertical.h),
+            padding: EdgeInsets.symmetric(
+              vertical: _PhoneSizes.favButtonPaddingVertical.h,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(_PhoneSizes.favButtonBorderRadius.r),
+              borderRadius: BorderRadius.circular(
+                _PhoneSizes.favButtonBorderRadius.r,
+              ),
               side: isFav
-                  ? BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5))
+                  ? BorderSide(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                    )
                   : BorderSide.none,
             ),
           ),
@@ -1259,7 +1326,9 @@ class _DescriptionCardPhone extends StatelessWidget {
       padding: EdgeInsets.all(_PhoneSizes.aboutCardPadding.w),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.aboutCardBorderRadius.r,
+        ),
         border: Border.all(
           color: AppTheme.isDark(context)
               ? Colors.white.withValues(alpha: 0.06)
@@ -1307,7 +1376,9 @@ class _InfoCardPhone extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.aboutCardBorderRadius.r,
+        ),
         border: Border.all(
           color: AppTheme.isDark(context)
               ? Colors.white.withValues(alpha: 0.06)
@@ -1335,7 +1406,9 @@ class _InfoCardPhone extends StatelessWidget {
           _InfoRowPhone(
             icon: Icons.people_rounded,
             label: 'Abone Sayısı',
-            value: uni.subscriberCount != null ? controller.formattedSubscriberCount : '—',
+            value: uni.subscriberCount != null
+                ? controller.formattedSubscriberCount
+                : '—',
           ),
           _InfoRowPhone(
             icon: Icons.visibility_rounded,
@@ -1358,7 +1431,9 @@ class _ChannelCardPhone extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.aboutCardBorderRadius.r,
+        ),
         border: Border.all(
           color: AppTheme.isDark(context)
               ? Colors.white.withValues(alpha: 0.06)
@@ -1426,9 +1501,15 @@ class _InfoRowPhone extends StatelessWidget {
                 height: _PhoneSizes.infoRowIconSize.w,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(_PhoneSizes.infoRowIconRadius.r),
+                  borderRadius: BorderRadius.circular(
+                    _PhoneSizes.infoRowIconRadius.r,
+                  ),
                 ),
-                child: Icon(icon, size: _PhoneSizes.infoRowIconInnerSize.sp, color: AppTheme.primaryColor),
+                child: Icon(
+                  icon,
+                  size: _PhoneSizes.infoRowIconInnerSize.sp,
+                  color: AppTheme.primaryColor,
+                ),
               ),
               SizedBox(width: _PhoneSizes.infoRowIconSpacing.w),
               Expanded(
@@ -1491,7 +1572,8 @@ class _LinkButtonPhone extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (await canLaunchUrl(uri))
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       },
       borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
       child: Container(
@@ -1501,7 +1583,9 @@ class _LinkButtonPhone extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
+          borderRadius: BorderRadius.circular(
+            _PhoneSizes.aboutCardBorderRadius.r,
+          ),
           border: Border.all(
             color: AppTheme.isDark(context)
                 ? Colors.white.withValues(alpha: 0.06)
@@ -1515,9 +1599,15 @@ class _LinkButtonPhone extends StatelessWidget {
               height: _PhoneSizes.linkButtonIconSize.w,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(_PhoneSizes.linkButtonIconRadius.r),
+                borderRadius: BorderRadius.circular(
+                  _PhoneSizes.linkButtonIconRadius.r,
+                ),
               ),
-              child: Icon(icon, size: _PhoneSizes.linkButtonIconInnerSize.sp, color: iconColor),
+              child: Icon(
+                icon,
+                size: _PhoneSizes.linkButtonIconInnerSize.sp,
+                color: iconColor,
+              ),
             ),
             SizedBox(width: _PhoneSizes.linkButtonIconSpacing.w),
             Expanded(
@@ -1555,7 +1645,8 @@ class _RadioInlineCardPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final bool isThisPlaying = radioController.currentPlayingUrl.value == university.radioLink;
+      final bool isThisPlaying =
+          radioController.currentPlayingUrl.value == university.radioLink;
       final bool buffering = isThisPlaying && radioController.isBuffering;
       final bool playing = isThisPlaying && radioController.isPlaying;
 
@@ -1572,13 +1663,15 @@ class _RadioInlineCardPhone extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(_PhoneSizes.radioCardBorderRadius.r),
+          borderRadius: BorderRadius.circular(
+            _PhoneSizes.radioCardBorderRadius.r,
+          ),
           border: Border.all(
             color: isThisPlaying
                 ? const Color(0xFF8B5CF6).withValues(alpha: 0.4)
                 : AppTheme.isDark(context)
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.black.withValues(alpha: 0.06),
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
           ),
         ),
         child: Row(
@@ -1588,16 +1681,21 @@ class _RadioInlineCardPhone extends StatelessWidget {
               height: _PhoneSizes.radioIconContainerSize.w,
               decoration: BoxDecoration(
                 color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(_PhoneSizes.radioIconContainerRadius.r),
+                borderRadius: BorderRadius.circular(
+                  _PhoneSizes.radioIconContainerRadius.r,
+                ),
               ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  if (playing || buffering) _RadioWaveAnimationPhone(isActive: playing),
+                  if (playing || buffering)
+                    _RadioWaveAnimationPhone(isActive: playing),
                   Icon(
                     buffering
                         ? Icons.hdr_weak_rounded
-                        : (playing ? Icons.equalizer_rounded : Icons.radio_rounded),
+                        : (playing
+                              ? Icons.equalizer_rounded
+                              : Icons.radio_rounded),
                     color: const Color(0xFF8B5CF6),
                     size: _PhoneSizes.radioIconSize.sp,
                   ),
@@ -1621,12 +1719,16 @@ class _RadioInlineCardPhone extends StatelessWidget {
                   Text(
                     isThisPlaying
                         ? (playing
-                            ? 'Canlı Yayın Dinleniyor...'
-                            : (buffering ? 'Yayına Bağlanılıyor...' : 'Yayın Duraklatıldı'))
+                              ? 'Canlı Yayın Dinleniyor...'
+                              : (buffering
+                                    ? 'Yayına Bağlanılıyor...'
+                                    : 'Yayın Duraklatıldı'))
                         : 'Canlı yayını dinlemek için tıklayın',
                     style: TextStyle(
                       fontSize: _PhoneSizes.radioSubtitleFontSize.sp,
-                      color: isThisPlaying ? const Color(0xFF8B5CF6) : AppTheme.textSec(context),
+                      color: isThisPlaying
+                          ? const Color(0xFF8B5CF6)
+                          : AppTheme.textSec(context),
                     ),
                   ),
                 ],
@@ -1635,7 +1737,9 @@ class _RadioInlineCardPhone extends StatelessWidget {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(_PhoneSizes.radioPlayButtonRadius.r),
+                borderRadius: BorderRadius.circular(
+                  _PhoneSizes.radioPlayButtonRadius.r,
+                ),
                 onTap: () {
                   radioController.togglePlayPause(
                     url: university.radioLink,
@@ -1654,7 +1758,9 @@ class _RadioInlineCardPhone extends StatelessWidget {
                     boxShadow: isThisPlaying
                         ? [
                             BoxShadow(
-                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: Offset(0, 4.h),
                             ),
@@ -1671,8 +1777,12 @@ class _RadioInlineCardPhone extends StatelessWidget {
                           ),
                         )
                       : Icon(
-                          playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: isThisPlaying ? Colors.white : const Color(0xFF8B5CF6),
+                          playing
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          color: isThisPlaying
+                              ? Colors.white
+                              : const Color(0xFF8B5CF6),
                           size: _PhoneSizes.radioPlayIconSize.sp,
                         ),
                 ),
@@ -1692,7 +1802,9 @@ class _RadioWaveAnimationPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(_PhoneSizes.radioIconContainerRadius.r),
+      borderRadius: BorderRadius.circular(
+        _PhoneSizes.radioIconContainerRadius.r,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (index) {
@@ -1700,12 +1812,21 @@ class _RadioWaveAnimationPhone extends StatelessWidget {
             duration: Duration(milliseconds: 400 + (index * 150)),
             width: _PhoneSizes.radioWaveBarWidth.w,
             height: isActive
-                ? (_PhoneSizes.radioWaveBarMaxHeight.h + (index % 2 == 0 ? _PhoneSizes.radioWaveBarMaxHeight.h / 2 : 0))
+                ? (_PhoneSizes.radioWaveBarMaxHeight.h +
+                      (index % 2 == 0
+                          ? _PhoneSizes.radioWaveBarMaxHeight.h / 2
+                          : 0))
                 : _PhoneSizes.radioWaveBarMinHeight.h,
-            margin: EdgeInsets.symmetric(horizontal: _PhoneSizes.radioWaveBarSpacing.w),
+            margin: EdgeInsets.symmetric(
+              horizontal: _PhoneSizes.radioWaveBarSpacing.w,
+            ),
             decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withValues(alpha: _PhoneSizes.radioWaveBarAlpha),
-              borderRadius: BorderRadius.circular(_PhoneSizes.radioWaveBarBorderRadius.r),
+              color: const Color(
+                0xFF8B5CF6,
+              ).withValues(alpha: _PhoneSizes.radioWaveBarAlpha),
+              borderRadius: BorderRadius.circular(
+                _PhoneSizes.radioWaveBarBorderRadius.r,
+              ),
             ),
           );
         }),
@@ -1784,13 +1905,19 @@ class _VideoShimmerPhone extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       child: Shimmer.fromColors(
-        baseColor: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
-        highlightColor: AppTheme.isDark(context) ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5),
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
         child: Container(
           height: _PhoneSizes.shimmerVideoHeight.h,
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(_PhoneSizes.shimmerVideoBorderRadius.r),
+            borderRadius: BorderRadius.circular(
+              _PhoneSizes.shimmerVideoBorderRadius.r,
+            ),
           ),
         ),
       ),
@@ -1834,7 +1961,8 @@ class _ShortsTabPhone extends StatelessWidget {
         child: ListView.separated(
           padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
           itemCount: shortsList.length,
-          separatorBuilder: (_,  _) => SizedBox(height: _PhoneSizes.shortsListSeparator.h),
+          separatorBuilder: (_, _) =>
+              SizedBox(height: _PhoneSizes.shortsListSeparator.h),
           itemBuilder: (_, i) => _ShortsListCardPhone(
             video: shortsList[i],
             onTap: () => _openShortsPlayer(shortsList, i),
@@ -1863,11 +1991,15 @@ class _ShortsListCardPhone extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 14.w),
       child: Material(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.shortsCardBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.shortsCardBorderRadius.r,
+        ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(_PhoneSizes.shortsCardBorderRadius.r),
+          borderRadius: BorderRadius.circular(
+            _PhoneSizes.shortsCardBorderRadius.r,
+          ),
           child: Container(
             padding: EdgeInsets.all(_PhoneSizes.shortsCardPadding.w),
             child: Row(
@@ -1886,7 +2018,9 @@ class _ShortsListCardPhone extends StatelessWidget {
                             _ShortsBadgePhone(),
                             if (video.formattedDuration.isNotEmpty) ...[
                               SizedBox(width: 6.w),
-                              _DurationChipPhone(duration: video.formattedDuration),
+                              _DurationChipPhone(
+                                duration: video.formattedDuration,
+                              ),
                             ],
                           ],
                         ),
@@ -1970,11 +2104,15 @@ class _ShortsListCardPhone extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: video.bestThumbnail,
               fit: BoxFit.cover,
-              placeholder: (_,  _) => Container(
-                color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
+              placeholder: (_, _) => Container(
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
               ),
               errorWidget: (_, _, _) => Container(
-                color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
                 child: Icon(
                   Icons.play_circle_outline_rounded,
                   color: AppTheme.textSec(context),
@@ -2014,7 +2152,9 @@ class _ShortsBadgePhone extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFFF0000),
-        borderRadius: BorderRadius.circular(_PhoneSizes.shortsBadgeBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.shortsBadgeBorderRadius.r,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -2055,7 +2195,9 @@ class _DurationChipPhone extends StatelessWidget {
         color: AppTheme.isDark(context)
             ? Colors.white.withValues(alpha: 0.12)
             : Colors.black.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(_PhoneSizes.shortsDurationChipBorderRadius.r),
+        borderRadius: BorderRadius.circular(
+          _PhoneSizes.shortsDurationChipBorderRadius.r,
+        ),
       ),
       child: Text(
         duration,
@@ -2077,13 +2219,19 @@ class _ShortsListShimmerPhone extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 14.w),
       child: Shimmer.fromColors(
-        baseColor: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
-        highlightColor: AppTheme.isDark(context) ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5),
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
         child: Container(
           height: _PhoneSizes.shimmerShortsHeight.h,
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(_PhoneSizes.shimmerShortsBorderRadius.r),
+            borderRadius: BorderRadius.circular(
+              _PhoneSizes.shimmerShortsBorderRadius.r,
+            ),
           ),
         ),
       ),
@@ -2114,14 +2262,23 @@ class _ErrorViewPhone extends StatelessWidget {
             SizedBox(height: _PhoneSizes.errorSpacingLarge.h),
             Text(
               error,
-              style: TextStyle(fontSize: _PhoneSizes.errorFontSize.sp, color: AppTheme.textSec(context)),
+              style: TextStyle(
+                fontSize: _PhoneSizes.errorFontSize.sp,
+                color: AppTheme.textSec(context),
+              ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: _PhoneSizes.errorSpacingSmall.h),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: Icon(Icons.refresh_rounded, size: _PhoneSizes.errorIconSize.sp * 0.4),
-              label: Text('Tekrar Dene', style: TextStyle(fontSize: _PhoneSizes.errorFontSize.sp - 1)),
+              icon: Icon(
+                Icons.refresh_rounded,
+                size: _PhoneSizes.errorIconSize.sp * 0.4,
+              ),
+              label: Text(
+                'Tekrar Dene',
+                style: TextStyle(fontSize: _PhoneSizes.errorFontSize.sp - 1),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
@@ -2164,7 +2321,11 @@ class _EmptyViewPhone extends StatelessWidget {
                 color: AppTheme.card(context),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: _PhoneSizes.emptyIconSize.sp, color: AppTheme.textSec(context)),
+              child: Icon(
+                icon,
+                size: _PhoneSizes.emptyIconSize.sp,
+                color: AppTheme.textSec(context),
+              ),
             ),
             SizedBox(height: _PhoneSizes.emptySpacingLarge.h),
             Text(
@@ -2207,12 +2368,15 @@ class _RadioMiniPlayerTablet extends StatelessWidget {
       if (!radioController.isRadioActive) return const SizedBox.shrink();
 
       final meta = radioController.metadata.value;
-      final titleText = meta?.title ?? radioController.currentPlayingName.value ?? 'Yayın';
+      final titleText =
+          meta?.title ?? radioController.currentPlayingName.value ?? 'Yayın';
       final artistText = meta?.artist ?? 'Canlı Yayın';
 
       return Container(
         decoration: BoxDecoration(
-          color: AppTheme.isDark(context) ? const Color(0xFF1E1E1E) : Colors.white,
+          color: AppTheme.isDark(context)
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -2240,7 +2404,9 @@ class _RadioMiniPlayerTablet extends StatelessWidget {
                   width: _TabletSizes.miniPlayerLogoSize,
                   height: _TabletSizes.miniPlayerLogoSize,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(_TabletSizes.miniPlayerLogoRadius),
+                    borderRadius: BorderRadius.circular(
+                      _TabletSizes.miniPlayerLogoRadius,
+                    ),
                     color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -2343,9 +2509,9 @@ class _HeaderTablet extends StatelessWidget {
       final uni = controller.university.value;
       if (uni == null) {
         return Container(
-        color: Colors.transparent,
-        child: const Center(child: CircularProgressIndicator()),
-      );
+          color: Colors.transparent,
+          child: const Center(child: CircularProgressIndicator()),
+        );
       }
       final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
 
@@ -2403,13 +2569,15 @@ class _HeaderTablet extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: uni.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_,  _) => Center(
+                            placeholder: (_, _) => Center(
                               child: SizedBox(
                                 width: 26,
                                 height: 26,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                                  color: AppTheme.primaryColor.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -2430,7 +2598,9 @@ class _HeaderTablet extends StatelessWidget {
             ),
             SizedBox(height: _TabletSizes.headerBadgeSpacing),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: _TabletSizes.headerPaddingHorizontal),
+              padding: EdgeInsets.symmetric(
+                horizontal: _TabletSizes.headerPaddingHorizontal,
+              ),
               child: Text(
                 uni.name ?? '',
                 style: TextStyle(
@@ -2475,7 +2645,9 @@ class _HeaderTablet extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(_TabletSizes.headerBadgeBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    _TabletSizes.headerBadgeBorderRadius,
+                  ),
                   border: Border.all(
                     color: AppTheme.primaryColor.withValues(alpha: 0.3),
                   ),
@@ -2520,21 +2692,36 @@ class _TabBarDelegateTablet extends SliverPersistentHeaderDelegate {
   double get maxExtent => _TabletSizes.tabBarHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: AppTheme.bg(context),
-      child: TabBar(
-        labelColor: AppTheme.primaryColor,
-        unselectedLabelColor: AppTheme.textSec(context),
-        indicatorColor: AppTheme.primaryColor,
-        indicatorWeight: _TabletSizes.tabBarIndicatorWeight,
-        labelStyle: TextStyle(fontSize: _TabletSizes.tabBarLabelFontSize, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: _TabletSizes.tabBarUnselectedLabelFontSize, fontWeight: FontWeight.w500),
-        tabs: const [
-          Tab(text: 'Hakkında'),
-          Tab(text: 'Videolar'),
-          Tab(text: 'Shorts'),
-        ],
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox.expand(
+        child: Container(
+          color: AppTheme.bg(context),
+          child: TabBar(
+            labelColor: AppTheme.primaryColor,
+            unselectedLabelColor: AppTheme.textSec(context),
+            indicatorColor: AppTheme.primaryColor,
+            indicatorWeight: _TabletSizes.tabBarIndicatorWeight,
+            labelStyle: TextStyle(
+              fontSize: _TabletSizes.tabBarLabelFontSize,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: _TabletSizes.tabBarUnselectedLabelFontSize,
+              fontWeight: FontWeight.w500,
+            ),
+            tabs: const [
+              Tab(text: 'Hakkında'),
+              Tab(text: 'Videolar'),
+              Tab(text: 'Shorts'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -2548,7 +2735,10 @@ class _TabBarDelegateTablet extends SliverPersistentHeaderDelegate {
 class _AboutTabTablet extends StatelessWidget {
   final UniversityDetailController controller;
   final UniversityRadioController radioController;
-  const _AboutTabTablet({required this.controller, required this.radioController});
+  const _AboutTabTablet({
+    required this.controller,
+    required this.radioController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2581,7 +2771,11 @@ class _AboutTabTablet extends StatelessWidget {
               _SectionTitleTablet(title: 'Bağlantılar'),
               SizedBox(height: _TabletSizes.aboutSectionTitleSpacing),
               if (uni.websiteUrl != null && uni.websiteUrl!.isNotEmpty)
-                _LinkButtonTablet(icon: Icons.language_rounded, label: 'Resmi Web Sitesi', url: uni.websiteUrl!),
+                _LinkButtonTablet(
+                  icon: Icons.language_rounded,
+                  label: 'Resmi Web Sitesi',
+                  url: uni.websiteUrl!,
+                ),
               if (uni.customUrl != null && uni.customUrl!.isNotEmpty) ...[
                 SizedBox(height: 10),
                 _LinkButtonTablet(
@@ -2629,25 +2823,41 @@ class _FavoriteButtonTablet extends StatelessWidget {
               ? SizedBox(
                   width: _TabletSizes.favButtonLoadingSize,
                   height: _TabletSizes.favButtonLoadingSize,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
                 )
               : Icon(
-                  isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  isFav
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
                   size: _TabletSizes.favButtonIconSize,
                 ),
           label: Text(
             isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
-            style: TextStyle(fontSize: _TabletSizes.favButtonFontSize, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: _TabletSizes.favButtonFontSize,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: isFav ? AppTheme.card(context) : AppTheme.primaryColor,
+            backgroundColor: isFav
+                ? AppTheme.card(context)
+                : AppTheme.primaryColor,
             foregroundColor: isFav ? AppTheme.primaryColor : Colors.white,
             elevation: 0,
-            padding: EdgeInsets.symmetric(vertical: _TabletSizes.favButtonPaddingVertical),
+            padding: EdgeInsets.symmetric(
+              vertical: _TabletSizes.favButtonPaddingVertical,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(_TabletSizes.favButtonBorderRadius),
+              borderRadius: BorderRadius.circular(
+                _TabletSizes.favButtonBorderRadius,
+              ),
               side: isFav
-                  ? BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5))
+                  ? BorderSide(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                    )
                   : BorderSide.none,
             ),
           ),
@@ -2744,7 +2954,9 @@ class _InfoCardTablet extends StatelessWidget {
           _InfoRowTablet(
             icon: Icons.people_rounded,
             label: 'Abone Sayısı',
-            value: uni.subscriberCount != null ? controller.formattedSubscriberCount : '—',
+            value: uni.subscriberCount != null
+                ? controller.formattedSubscriberCount
+                : '—',
           ),
           _InfoRowTablet(
             icon: Icons.visibility_rounded,
@@ -2835,9 +3047,15 @@ class _InfoRowTablet extends StatelessWidget {
                 height: _TabletSizes.infoRowIconSize,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(_TabletSizes.infoRowIconRadius),
+                  borderRadius: BorderRadius.circular(
+                    _TabletSizes.infoRowIconRadius,
+                  ),
                 ),
-                child: Icon(icon, size: _TabletSizes.infoRowIconInnerSize, color: AppTheme.primaryColor),
+                child: Icon(
+                  icon,
+                  size: _TabletSizes.infoRowIconInnerSize,
+                  color: AppTheme.primaryColor,
+                ),
               ),
               SizedBox(width: _TabletSizes.infoRowIconSpacing),
               Expanded(
@@ -2900,7 +3118,8 @@ class _LinkButtonTablet extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (await canLaunchUrl(uri))
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       },
       borderRadius: BorderRadius.circular(_TabletSizes.aboutCardBorderRadius),
       child: Container(
@@ -2910,7 +3129,9 @@ class _LinkButtonTablet extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_TabletSizes.aboutCardBorderRadius),
+          borderRadius: BorderRadius.circular(
+            _TabletSizes.aboutCardBorderRadius,
+          ),
           border: Border.all(
             color: AppTheme.isDark(context)
                 ? Colors.white.withValues(alpha: 0.06)
@@ -2924,9 +3145,15 @@ class _LinkButtonTablet extends StatelessWidget {
               height: _TabletSizes.linkButtonIconSize,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(_TabletSizes.linkButtonIconRadius),
+                borderRadius: BorderRadius.circular(
+                  _TabletSizes.linkButtonIconRadius,
+                ),
               ),
-              child: Icon(icon, size: _TabletSizes.linkButtonIconInnerSize, color: iconColor),
+              child: Icon(
+                icon,
+                size: _TabletSizes.linkButtonIconInnerSize,
+                color: iconColor,
+              ),
             ),
             SizedBox(width: _TabletSizes.linkButtonIconSpacing),
             Expanded(
@@ -2964,7 +3191,8 @@ class _RadioInlineCardTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final bool isThisPlaying = radioController.currentPlayingUrl.value == university.radioLink;
+      final bool isThisPlaying =
+          radioController.currentPlayingUrl.value == university.radioLink;
       final bool buffering = isThisPlaying && radioController.isBuffering;
       final bool playing = isThisPlaying && radioController.isPlaying;
 
@@ -2981,13 +3209,15 @@ class _RadioInlineCardTablet extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(_TabletSizes.radioCardBorderRadius),
+          borderRadius: BorderRadius.circular(
+            _TabletSizes.radioCardBorderRadius,
+          ),
           border: Border.all(
             color: isThisPlaying
                 ? const Color(0xFF8B5CF6).withValues(alpha: 0.4)
                 : AppTheme.isDark(context)
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.black.withValues(alpha: 0.06),
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06),
           ),
         ),
         child: Row(
@@ -2997,16 +3227,21 @@ class _RadioInlineCardTablet extends StatelessWidget {
               height: _TabletSizes.radioIconContainerSize,
               decoration: BoxDecoration(
                 color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(_TabletSizes.radioIconContainerRadius),
+                borderRadius: BorderRadius.circular(
+                  _TabletSizes.radioIconContainerRadius,
+                ),
               ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  if (playing || buffering) _RadioWaveAnimationTablet(isActive: playing),
+                  if (playing || buffering)
+                    _RadioWaveAnimationTablet(isActive: playing),
                   Icon(
                     buffering
                         ? Icons.hdr_weak_rounded
-                        : (playing ? Icons.equalizer_rounded : Icons.radio_rounded),
+                        : (playing
+                              ? Icons.equalizer_rounded
+                              : Icons.radio_rounded),
                     color: const Color(0xFF8B5CF6),
                     size: _TabletSizes.radioIconSize,
                   ),
@@ -3030,12 +3265,16 @@ class _RadioInlineCardTablet extends StatelessWidget {
                   Text(
                     isThisPlaying
                         ? (playing
-                            ? 'Canlı Yayın Dinleniyor...'
-                            : (buffering ? 'Yayına Bağlanılıyor...' : 'Yayın Duraklatıldı'))
+                              ? 'Canlı Yayın Dinleniyor...'
+                              : (buffering
+                                    ? 'Yayına Bağlanılıyor...'
+                                    : 'Yayın Duraklatıldı'))
                         : 'Canlı yayını dinlemek için tıklayın',
                     style: TextStyle(
                       fontSize: _TabletSizes.radioSubtitleFontSize,
-                      color: isThisPlaying ? const Color(0xFF8B5CF6) : AppTheme.textSec(context),
+                      color: isThisPlaying
+                          ? const Color(0xFF8B5CF6)
+                          : AppTheme.textSec(context),
                     ),
                   ),
                 ],
@@ -3044,7 +3283,9 @@ class _RadioInlineCardTablet extends StatelessWidget {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(_TabletSizes.radioPlayButtonRadius),
+                borderRadius: BorderRadius.circular(
+                  _TabletSizes.radioPlayButtonRadius,
+                ),
                 onTap: () {
                   radioController.togglePlayPause(
                     url: university.radioLink,
@@ -3063,7 +3304,9 @@ class _RadioInlineCardTablet extends StatelessWidget {
                     boxShadow: isThisPlaying
                         ? [
                             BoxShadow(
-                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 14,
                               offset: Offset(0, 5),
                             ),
@@ -3080,8 +3323,12 @@ class _RadioInlineCardTablet extends StatelessWidget {
                           ),
                         )
                       : Icon(
-                          playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: isThisPlaying ? Colors.white : const Color(0xFF8B5CF6),
+                          playing
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          color: isThisPlaying
+                              ? Colors.white
+                              : const Color(0xFF8B5CF6),
                           size: _TabletSizes.radioPlayIconSize,
                         ),
                 ),
@@ -3101,7 +3348,9 @@ class _RadioWaveAnimationTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(_TabletSizes.radioIconContainerRadius),
+      borderRadius: BorderRadius.circular(
+        _TabletSizes.radioIconContainerRadius,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (index) {
@@ -3109,12 +3358,21 @@ class _RadioWaveAnimationTablet extends StatelessWidget {
             duration: Duration(milliseconds: 400 + (index * 150)),
             width: _TabletSizes.radioWaveBarWidth,
             height: isActive
-                ? (_TabletSizes.radioWaveBarMaxHeight + (index % 2 == 0 ? _TabletSizes.radioWaveBarMaxHeight / 2 : 0))
+                ? (_TabletSizes.radioWaveBarMaxHeight +
+                      (index % 2 == 0
+                          ? _TabletSizes.radioWaveBarMaxHeight / 2
+                          : 0))
                 : _TabletSizes.radioWaveBarMinHeight,
-            margin: EdgeInsets.symmetric(horizontal: _TabletSizes.radioWaveBarSpacing),
+            margin: EdgeInsets.symmetric(
+              horizontal: _TabletSizes.radioWaveBarSpacing,
+            ),
             decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withValues(alpha: _TabletSizes.radioWaveBarAlpha),
-              borderRadius: BorderRadius.circular(_TabletSizes.radioWaveBarBorderRadius),
+              color: const Color(
+                0xFF8B5CF6,
+              ).withValues(alpha: _TabletSizes.radioWaveBarAlpha),
+              borderRadius: BorderRadius.circular(
+                _TabletSizes.radioWaveBarBorderRadius,
+              ),
             ),
           );
         }),
@@ -3156,11 +3414,19 @@ class _VideosTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
+      final crossAxisCount =
+          MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
       if (isLoading) {
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 10),
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
           itemCount: 6,
-          itemBuilder: (_,  _) => _VideoShimmerTablet(),
+          itemBuilder: (_, _) => _VideoShimmerTablet(),
         );
       }
       if (error.isNotEmpty) {
@@ -3177,8 +3443,14 @@ class _VideosTabTablet extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: ListView.builder(
-          padding: EdgeInsets.only(top: 10, bottom: 40),
+        child: GridView.builder(
+          padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
           itemCount: videoList.length,
           itemBuilder: (_, i) => VideoCardWidget(video: videoList[i]),
         ),
@@ -3193,13 +3465,19 @@ class _VideoShimmerTablet extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       child: Shimmer.fromColors(
-        baseColor: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
-        highlightColor: AppTheme.isDark(context) ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5),
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
         child: Container(
           height: _TabletSizes.shimmerVideoHeight,
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(_TabletSizes.shimmerVideoBorderRadius),
+            borderRadius: BorderRadius.circular(
+              _TabletSizes.shimmerVideoBorderRadius,
+            ),
           ),
         ),
       ),
@@ -3219,11 +3497,19 @@ class _ShortsTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
+      final crossAxisCount =
+          MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
       if (isLoading) {
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 10),
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisExtent: 168,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
           itemCount: 6,
-          itemBuilder: (_,  _) => const _ShortsListShimmerTablet(),
+          itemBuilder: (_, _) => const _ShortsListShimmerTablet(),
         );
       }
       if (error.isNotEmpty) {
@@ -3240,10 +3526,15 @@ class _ShortsTabTablet extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: ListView.separated(
-          padding: EdgeInsets.only(top: 10, bottom: 40),
+        child: GridView.builder(
+          padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisExtent: 168,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
           itemCount: shortsList.length,
-          separatorBuilder: (_,  _) => SizedBox(height: _TabletSizes.shortsListSeparator),
           itemBuilder: (_, i) => _ShortsListCardTablet(
             video: shortsList[i],
             onTap: () => _openShortsPlayer(shortsList, i),
@@ -3272,11 +3563,15 @@ class _ShortsListCardTablet extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 18),
       child: Material(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_TabletSizes.shortsCardBorderRadius),
+        borderRadius: BorderRadius.circular(
+          _TabletSizes.shortsCardBorderRadius,
+        ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(_TabletSizes.shortsCardBorderRadius),
+          borderRadius: BorderRadius.circular(
+            _TabletSizes.shortsCardBorderRadius,
+          ),
           child: Container(
             padding: EdgeInsets.all(_TabletSizes.shortsCardPadding),
             child: Row(
@@ -3295,7 +3590,9 @@ class _ShortsListCardTablet extends StatelessWidget {
                             _ShortsBadgeTablet(),
                             if (video.formattedDuration.isNotEmpty) ...[
                               SizedBox(width: 8),
-                              _DurationChipTablet(duration: video.formattedDuration),
+                              _DurationChipTablet(
+                                duration: video.formattedDuration,
+                              ),
                             ],
                           ],
                         ),
@@ -3379,11 +3676,15 @@ class _ShortsListCardTablet extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: video.bestThumbnail,
               fit: BoxFit.cover,
-              placeholder: (_,  _) => Container(
-                color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
+              placeholder: (_, _) => Container(
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
               ),
               errorWidget: (_, _, _) => Container(
-                color: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8),
+                color: AppTheme.isDark(context)
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE8E8E8),
                 child: Icon(
                   Icons.play_circle_outline_rounded,
                   color: AppTheme.textSec(context),
@@ -3423,7 +3724,9 @@ class _ShortsBadgeTablet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFFF0000),
-        borderRadius: BorderRadius.circular(_TabletSizes.shortsBadgeBorderRadius),
+        borderRadius: BorderRadius.circular(
+          _TabletSizes.shortsBadgeBorderRadius,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -3464,7 +3767,9 @@ class _DurationChipTablet extends StatelessWidget {
         color: AppTheme.isDark(context)
             ? Colors.white.withValues(alpha: 0.12)
             : Colors.black.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(_TabletSizes.shortsDurationChipBorderRadius),
+        borderRadius: BorderRadius.circular(
+          _TabletSizes.shortsDurationChipBorderRadius,
+        ),
       ),
       child: Text(
         duration,
@@ -3486,13 +3791,19 @@ class _ShortsListShimmerTablet extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 18),
       child: Shimmer.fromColors(
-        baseColor: AppTheme.isDark(context) ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
-        highlightColor: AppTheme.isDark(context) ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5),
+        baseColor: AppTheme.isDark(context)
+            ? const Color(0xFF2A2A2A)
+            : const Color(0xFFE0E0E0),
+        highlightColor: AppTheme.isDark(context)
+            ? const Color(0xFF3A3A3A)
+            : const Color(0xFFF5F5F5),
         child: Container(
           height: _TabletSizes.shimmerShortsHeight,
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(_TabletSizes.shimmerShortsBorderRadius),
+            borderRadius: BorderRadius.circular(
+              _TabletSizes.shimmerShortsBorderRadius,
+            ),
           ),
         ),
       ),
@@ -3523,14 +3834,23 @@ class _ErrorViewTablet extends StatelessWidget {
             SizedBox(height: _TabletSizes.errorSpacingLarge),
             Text(
               error,
-              style: TextStyle(fontSize: _TabletSizes.errorFontSize, color: AppTheme.textSec(context)),
+              style: TextStyle(
+                fontSize: _TabletSizes.errorFontSize,
+                color: AppTheme.textSec(context),
+              ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: _TabletSizes.errorSpacingSmall),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: Icon(Icons.refresh_rounded, size: _TabletSizes.errorIconSize * 0.4),
-              label: Text('Tekrar Dene', style: TextStyle(fontSize: _TabletSizes.errorFontSize - 1)),
+              icon: Icon(
+                Icons.refresh_rounded,
+                size: _TabletSizes.errorIconSize * 0.4,
+              ),
+              label: Text(
+                'Tekrar Dene',
+                style: TextStyle(fontSize: _TabletSizes.errorFontSize - 1),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
@@ -3573,7 +3893,11 @@ class _EmptyViewTablet extends StatelessWidget {
                 color: AppTheme.card(context),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: _TabletSizes.emptyIconSize, color: AppTheme.textSec(context)),
+              child: Icon(
+                icon,
+                size: _TabletSizes.emptyIconSize,
+                color: AppTheme.textSec(context),
+              ),
             ),
             SizedBox(height: _TabletSizes.emptySpacingLarge),
             Text(

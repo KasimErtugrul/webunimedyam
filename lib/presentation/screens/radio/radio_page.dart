@@ -1,9 +1,16 @@
 // lib/presentation/screens/radio/radio_page.dart
+// ═══════════════════════════════════════════════════════════════════════════════
+// ✨ SIFIRDAN YENİDEN TASARLANMIŞ RADYO SAYFASI
+// Konsept: "Modern Glassmorphism Radio Player"
+// Özellikler korundu: liste, oynatma, görselleştirici, dalga, dot indicator
+// ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import 'package:radio_player/radio_player.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
@@ -12,16 +19,13 @@ import 'widgets/radio_card_widget.dart';
 import 'widgets/radio_dot_indicator_widget.dart';
 
 // ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
+// SABİTLER
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // AppBar
   static const double appBarTitleSize = 18;
   static const double listIconSize = 22;
-
-  // Sheet
-  static const double sheetBorderRadius = 16;
+  static const double sheetBorderRadius = 20;
   static const double sheetTitlePaddingVertical = 12;
   static const double sheetTitleFontSize = 16;
   static const double sheetDividerHeight = 1;
@@ -29,32 +33,17 @@ class _PhoneSizes {
   static const double sheetAvatarIconSize = 20;
   static const double sheetTitleFontSizeList = 14;
   static const double sheetCheckIconSize = 20;
-
-  // Empty state
   static const double emptyFontSize = 15;
-
-  // Navigation arrows
   static const double chevronSize = 32;
-
-  // Dot indicator
   static const double dotIndicatorPaddingVertical = 12;
-
-  // Bottom hint
   static const double hintPaddingBottom = 20;
   static const double hintFontSize = 12;
-
-  // Body
-  //static const double bodyPaddingHorizontal = 0;
- // static const double bodyPaddingVertical = 0;
 }
 
 class _TabletSizes {
-  // AppBar - tablet için daha büyük
   static const double appBarTitleSize = 22;
   static const double listIconSize = 26;
-
-  // Sheet - tablet için daha büyük
-  static const double sheetBorderRadius = 20;
+  static const double sheetBorderRadius = 24;
   static const double sheetTitlePaddingVertical = 16;
   static const double sheetTitleFontSize = 20;
   static const double sheetDividerHeight = 1.5;
@@ -62,38 +51,15 @@ class _TabletSizes {
   static const double sheetAvatarIconSize = 24;
   static const double sheetTitleFontSizeList = 16;
   static const double sheetCheckIconSize = 24;
-
-  // Empty state - tablet için daha büyük
   static const double emptyFontSize = 18;
-
-  // Navigation arrows - tablet için daha büyük
-  static const double chevronSize = 40;
-
-  // Dot indicator - tablet için daha büyük
   static const double dotIndicatorPaddingVertical = 16;
-
-  // Bottom hint - tablet için daha büyük
   static const double hintPaddingBottom = 24;
   static const double hintFontSize = 14;
-
-  // Body
- // static const double bodyPaddingHorizontal = 0;
- // static const double bodyPaddingVertical = 0;
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-//
-// NOT: Bu sayfa artık PageView KULLANMIYOR. RadioVisualizer (radio_player
-// paketinin native FFT görselleştiricisi), PageView'ın swipe sırasında
-// widget'ları sürekli dispose/recreate etmesiyle temelden uyumsuzdu —
-// native stream callback'i defunct olmuş bir Element'e ulaşmaya çalışınca
-// "_lifecycleState != defunct" assertion hatası fırlatıyordu.
-//
-// Çözüm: Ekranda HER ZAMAN tek bir RadioCardWidget var. Üniversite
-// değişimi swipe ile değil, üstteki liste (☰) veya ileri/geri okları ile
-// yapılıyor. Böylece RadioVisualizer hiçbir zaman dispose edilmiyor;
-// sadece çalınan istasyon (uni) değişiyor. Geçiş hissi için AnimatedSwitcher
-// kullanıldı.
+// ═══════════════════════════════════════════════════════════
+// ANA SAYFA
+// ═══════════════════════════════════════════════════════════
 
 class RadioPage extends StatefulWidget {
   const RadioPage({super.key});
@@ -130,13 +96,10 @@ class _RadioPageState extends State<RadioPage> {
   Future<void> _leave() async {
     if (_isLeaving) return;
     _isLeaving = true;
-
     await _ctrl.stopEverything();
-
     if (Get.isRegistered<RadioPageController>()) {
       Get.delete<RadioPageController>(force: true);
     }
-
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -164,6 +127,7 @@ class _RadioPageState extends State<RadioPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
       ),
@@ -174,9 +138,22 @@ class _RadioPageState extends State<RadioPage> {
           minChildSize: 0.3,
           expand: false,
           builder: (context, scrollController) {
-            return isTablet
-                ? _buildUniversityListTablet(context, unis, scrollController)
-                : _buildUniversityListPhone(context, unis, scrollController);
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.surface(context).withValues(alpha: 0.95),
+                    AppTheme.bg(context).withValues(alpha: 0.98),
+                  ],
+                ),
+              ),
+              child: isTablet
+                  ? _buildUniversityListTablet(context, unis, scrollController)
+                  : _buildUniversityListPhone(context, unis, scrollController),
+            );
           },
         );
       },
@@ -190,74 +167,135 @@ class _RadioPageState extends State<RadioPage> {
   ) {
     return Column(
       children: [
+        SizedBox(height: 8.h),
+        Container(
+          width: 40.w,
+          height: 4.h,
+          decoration: BoxDecoration(
+            color: AppTheme.textSec(context).withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(2.r),
+          ),
+        ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: _PhoneSizes.sheetTitlePaddingVertical.h),
           child: Text(
             'Tüm Radyolar',
             style: TextStyle(
               fontSize: _PhoneSizes.sheetTitleFontSize.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               color: AppTheme.textPri(context),
+              letterSpacing: 0.5,
             ),
           ),
+        ),
+        Divider(
+          height: 1,
+          color: AppTheme.isDark(context) ? Colors.grey[800] : Colors.grey[200],
         ),
         Expanded(
           child: ListView.separated(
             controller: scrollController,
+            padding: EdgeInsets.symmetric(vertical: 8.h),
             itemCount: unis.length,
             separatorBuilder: (_, __) => Divider(
               height: _PhoneSizes.sheetDividerHeight,
-              color: AppTheme.isDark(context)
-                  ? Colors.grey[800]
-                  : Colors.grey[300],
+              indent: 64.w,
+              color: AppTheme.isDark(context) ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200],
             ),
             itemBuilder: (ctx, index) {
               final uni = unis[index];
               final isSelected = index == _currentIndex;
-              return ListTile(
-                leading: ClipOval(
-                  child: Container(
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: ListTile(
+                  leading: Container(
                     width: _PhoneSizes.sheetAvatarSize.r,
                     height: _PhoneSizes.sheetAvatarSize.r,
-                    color: AppTheme.surface(context),
-                    child: uni.logoUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: uni.logoUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) => Icon(
-                              Icons.radio,
-                              color: AppTheme.primaryColor,
-                              size: _PhoneSizes.sheetAvatarIconSize.sp,
-                            ),
-                          )
-                        : Icon(
-                            Icons.radio,
-                            color: AppTheme.primaryColor,
-                            size: _PhoneSizes.sheetAvatarIconSize.sp,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppTheme.primaryColor
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: Container(
+                        color: AppTheme.surface(context),
+                        child: uni.logoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: uni.logoUrl!,
+                                fit: BoxFit.cover,
+                                errorWidget: (_, __, ___) => Icon(
+                                  Icons.radio,
+                                  color: AppTheme.primaryColor,
+                                  size: _PhoneSizes.sheetAvatarIconSize.sp,
+                                ),
+                              )
+                            : Icon(
+                                Icons.radio,
+                                color: AppTheme.primaryColor,
+                                size: _PhoneSizes.sheetAvatarIconSize.sp,
+                              ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    uni.name!,
+                    style: TextStyle(
+                      fontSize: _PhoneSizes.sheetTitleFontSizeList.sp,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.textPri(context),
+                    ),
+                  ),
+                  subtitle: isSelected
+                      ? Text(
+                          'Şu an çalıyor',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: AppTheme.primaryColor.withValues(alpha: 0.7),
                           ),
-                  ),
+                        )
+                      : null,
+                  trailing: isSelected
+                      ? Container(
+                          width: 24.r,
+                          height: 24.r,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.primaryColor,
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: _PhoneSizes.sheetCheckIconSize.sp * 0.7,
+                          ),
+                        )
+                      : null,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _goToIndex(index);
+                  },
                 ),
-                title: Text(
-                  uni.name!,
-                  style: TextStyle(
-                    fontSize: _PhoneSizes.sheetTitleFontSizeList.sp,
-                    fontWeight: isSelected ? FontWeight.w600 : null,
-                    color: isSelected
-                        ? AppTheme.primaryColor
-                        : AppTheme.textPri(context),
-                  ),
-                ),
-                trailing: isSelected
-                    ? Icon(
-                        Icons.check_circle,
-                        color: AppTheme.primaryColor,
-                        size: _PhoneSizes.sheetCheckIconSize.sp,
-                      )
-                    : null,
-                onTap: () {
-                  Navigator.pop(context);
-                  _goToIndex(index);
-                },
               );
             },
           ),
@@ -273,74 +311,135 @@ class _RadioPageState extends State<RadioPage> {
   ) {
     return Column(
       children: [
+        SizedBox(height: 8.h),
+        Container(
+          width: 40.w,
+          height: 4.h,
+          decoration: BoxDecoration(
+            color: AppTheme.textSec(context).withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(2.r),
+          ),
+        ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: _TabletSizes.sheetTitlePaddingVertical),
           child: Text(
             'Tüm Radyolar',
             style: TextStyle(
               fontSize: _TabletSizes.sheetTitleFontSize,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               color: AppTheme.textPri(context),
+              letterSpacing: 0.5,
             ),
           ),
+        ),
+        Divider(
+          height: 1,
+          color: AppTheme.isDark(context) ? Colors.grey[800] : Colors.grey[200],
         ),
         Expanded(
           child: ListView.separated(
             controller: scrollController,
+            padding: EdgeInsets.symmetric(vertical: 8.h),
             itemCount: unis.length,
             separatorBuilder: (_, __) => Divider(
               height: _TabletSizes.sheetDividerHeight,
-              color: AppTheme.isDark(context)
-                  ? Colors.grey[800]
-                  : Colors.grey[300],
+              indent: 80,
+              color: AppTheme.isDark(context) ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200],
             ),
             itemBuilder: (ctx, index) {
               final uni = unis[index];
               final isSelected = index == _currentIndex;
-              return ListTile(
-                leading: ClipOval(
-                  child: Container(
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: Container(
                     width: _TabletSizes.sheetAvatarSize,
                     height: _TabletSizes.sheetAvatarSize,
-                    color: AppTheme.surface(context),
-                    child: uni.logoUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: uni.logoUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) => Icon(
-                              Icons.radio,
-                              color: AppTheme.primaryColor,
-                              size: _TabletSizes.sheetAvatarIconSize,
-                            ),
-                          )
-                        : Icon(
-                            Icons.radio,
-                            color: AppTheme.primaryColor,
-                            size: _TabletSizes.sheetAvatarIconSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppTheme.primaryColor
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: Container(
+                        color: AppTheme.surface(context),
+                        child: uni.logoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: uni.logoUrl!,
+                                fit: BoxFit.cover,
+                                errorWidget: (_, __, ___) => Icon(
+                                  Icons.radio,
+                                  color: AppTheme.primaryColor,
+                                  size: _TabletSizes.sheetAvatarIconSize,
+                                ),
+                              )
+                            : Icon(
+                                Icons.radio,
+                                color: AppTheme.primaryColor,
+                                size: _TabletSizes.sheetAvatarIconSize,
+                              ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    uni.name!,
+                    style: TextStyle(
+                      fontSize: _TabletSizes.sheetTitleFontSizeList,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.textPri(context),
+                    ),
+                  ),
+                  subtitle: isSelected
+                      ? Text(
+                          'Şu an çalıyor',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.primaryColor.withValues(alpha: 0.7),
                           ),
-                  ),
+                        )
+                      : null,
+                  trailing: isSelected
+                      ? Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.primaryColor,
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: _TabletSizes.sheetCheckIconSize * 0.7,
+                          ),
+                        )
+                      : null,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _goToIndex(index);
+                  },
                 ),
-                title: Text(
-                  uni.name!,
-                  style: TextStyle(
-                    fontSize: _TabletSizes.sheetTitleFontSizeList,
-                    fontWeight: isSelected ? FontWeight.w600 : null,
-                    color: isSelected
-                        ? AppTheme.primaryColor
-                        : AppTheme.textPri(context),
-                  ),
-                ),
-                trailing: isSelected
-                    ? Icon(
-                        Icons.check_circle,
-                        color: AppTheme.primaryColor,
-                        size: _TabletSizes.sheetCheckIconSize,
-                      )
-                    : null,
-                onTap: () {
-                  Navigator.pop(context);
-                  _goToIndex(index);
-                },
               );
             },
           ),
@@ -351,14 +450,13 @@ class _RadioPageState extends State<RadioPage> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
     return Responsive.isTablet(context)
         ? _buildTablet(context)
         : _buildPhone(context);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // PHONE TASARIMI - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildPhone(BuildContext context) {
@@ -370,40 +468,74 @@ class _RadioPageState extends State<RadioPage> {
       },
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: Text(
             'Üniversite Radyoları',
-            style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
+            style: TextStyle(
+              fontSize: _PhoneSizes.appBarTitleSize.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
           centerTitle: true,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Container(
+              padding: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+            ),
             onPressed: _leave,
           ),
           actions: [
-            IconButton(
-              icon: Icon(
-                Icons.list_rounded,
-                size: _PhoneSizes.listIconSize.sp,
+            Container(
+              margin: EdgeInsets.only(right: 8.w),
+              child: IconButton(
+                icon: Container(
+                  padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.list_rounded,
+                    size: _PhoneSizes.listIconSize.sp,
+                    color: Colors.white,
+                  ),
+                ),
+                tooltip: 'Radyo Listesi',
+                onPressed: () => _showUniversityList(context),
               ),
-              tooltip: 'Radyo Listesi',
-              onPressed: () => _showUniversityList(context),
             ),
           ],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
         body: Obx(() {
           if (_ctrl.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
           final unis = _ctrl.universities;
           if (unis.isEmpty) {
             return Center(
-              child: Text(
-                'Radyo yayını bulunamadı.',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.emptyFontSize.sp,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.radio_outlined, size: 64.sp, color: Colors.white38),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Radyo yayını bulunamadı.',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: _PhoneSizes.emptyFontSize.sp,
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -411,58 +543,139 @@ class _RadioPageState extends State<RadioPage> {
           final safeIndex = _currentIndex.clamp(0, unis.length - 1);
           final currentUni = unis[safeIndex];
 
-          return Column(
+          return Stack(
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.chevron_left,
-                        size: _PhoneSizes.chevronSize.sp,
-                      ),
-                      onPressed: unis.length > 1 ? _goPrevious : null,
-                      color: AppTheme.textSec(context),
+              // ✨ Dinamik gradient arka plan
+              Obx(() {
+                final playing = _ctrl.playbackState.value == PlaybackState.playing;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 1000),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: playing
+                          ? [
+                              AppTheme.primaryColor.withValues(alpha: 0.4),
+                              AppTheme.primaryColor.withValues(alpha: 0.1),
+                              AppTheme.bg(context),
+                              AppTheme.bg(context),
+                            ]
+                          : [
+                              AppTheme.primaryColor.withValues(alpha: 0.2),
+                              AppTheme.primaryColor.withValues(alpha: 0.05),
+                              AppTheme.bg(context),
+                              AppTheme.bg(context),
+                            ],
+                      stops: const [0.0, 0.2, 0.5, 1.0],
                     ),
+                  ),
+                );
+              }),
+
+              // ✨ Arka plan parçacık efekti (dekoratif daireler)
+              ...List.generate(6, (i) {
+                return Positioned(
+                  top: 80.h + (i * 60).h,
+                  left: (i % 2 == 0 ? -20 : 40).w,
+                  child: Container(
+                    width: (80 + i * 20).r,
+                    height: (80 + i * 20).r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.primaryColor.withValues(alpha: 0.03 + i * 0.01),
+                    ),
+                  ),
+                );
+              }),
+
+              // Ana içerik
+              SafeArea(
+                child: Column(
+                  children: [
+                    // Üst boşluk
+                    SizedBox(height: 20.h),
+
+                    // Ana kart alanı
                     Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: RadioCardWidget(
-                          key: ValueKey(currentUni.id),
-                          uni: currentUni,
-                          ctrl: _ctrl,
-                          isActive: true,
+                      child: Row(
+                        children: [
+                          // Sol ok
+                          _buildNavArrow(
+                            icon: Icons.chevron_left,
+                            onPressed: unis.length > 1 ? _goPrevious : null,
+                          ),
+                          // Kart
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: RadioCardWidget(
+                                key: ValueKey(currentUni.id),
+                                uni: currentUni,
+                                ctrl: _ctrl,
+                                isActive: true,
+                              ),
+                            ),
+                          ),
+                          // Sağ ok
+                          _buildNavArrow(
+                            icon: Icons.chevron_right,
+                            onPressed: unis.length > 1 ? _goNext : null,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Dot indicator
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: _PhoneSizes.dotIndicatorPaddingVertical.h,
+                      ),
+                      child: RadioDotIndicatorWidget(
+                        count: unis.length,
+                        current: safeIndex,
+                      ),
+                    ),
+
+                    // Alt ipucu
+                    Padding(
+                      padding: EdgeInsets.only(bottom: _PhoneSizes.hintPaddingBottom.h),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.swipe_rounded,
+                              size: 14.sp,
+                              color: Colors.white38,
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              'ok tuşları veya listeden radyo seç',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: _PhoneSizes.hintFontSize.sp,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.chevron_right,
-                        size: _PhoneSizes.chevronSize.sp,
-                      ),
-                      onPressed: unis.length > 1 ? _goNext : null,
-                      color: AppTheme.textSec(context),
-                    ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: _PhoneSizes.dotIndicatorPaddingVertical.h,
-                ),
-                child: RadioDotIndicatorWidget(
-                  count: unis.length,
-                  current: safeIndex,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: _PhoneSizes.hintPaddingBottom.h),
-                child: Text(
-                  'ok tuşları veya listeden radyo seç',
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: _PhoneSizes.hintFontSize.sp,
-                  ),
                 ),
               ),
             ],
@@ -472,8 +685,41 @@ class _RadioPageState extends State<RadioPage> {
     );
   }
 
+  Widget _buildNavArrow({
+    required IconData icon,
+    VoidCallback? onPressed,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 44.r,
+          height: 44.r,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: onPressed != null
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.white.withValues(alpha: 0.03),
+            border: Border.all(
+              color: onPressed != null
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.white.withValues(alpha: 0.05),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            size: _PhoneSizes.chevronSize.sp,
+            color: onPressed != null ? Colors.white70 : Colors.white24,
+          ),
+        ),
+      ),
+    );
+  }
+
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // TABLET TASARIMI - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildTablet(BuildContext context) {
@@ -485,40 +731,74 @@ class _RadioPageState extends State<RadioPage> {
       },
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: Text(
             'Üniversite Radyoları',
-            style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
+            style: TextStyle(
+              fontSize: _TabletSizes.appBarTitleSize,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
           centerTitle: true,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+            ),
             onPressed: _leave,
           ),
           actions: [
-            IconButton(
-              icon: Icon(
-                Icons.list_rounded,
-                size: _TabletSizes.listIconSize,
+            Container(
+              margin: EdgeInsets.only(right: 8),
+              child: IconButton(
+                icon: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.list_rounded,
+                    size: _TabletSizes.listIconSize,
+                    color: Colors.white,
+                  ),
+                ),
+                tooltip: 'Radyo Listesi',
+                onPressed: () => _showUniversityList(context),
               ),
-              tooltip: 'Radyo Listesi',
-              onPressed: () => _showUniversityList(context),
             ),
           ],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
         body: Obx(() {
           if (_ctrl.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
           final unis = _ctrl.universities;
           if (unis.isEmpty) {
             return Center(
-              child: Text(
-                'Radyo yayını bulunamadı.',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _TabletSizes.emptyFontSize,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.radio_outlined, size: 80, color: Colors.white38),
+                  SizedBox(height: 16),
+                  Text(
+                    'Radyo yayını bulunamadı.',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: _TabletSizes.emptyFontSize,
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -526,58 +806,125 @@ class _RadioPageState extends State<RadioPage> {
           final safeIndex = _currentIndex.clamp(0, unis.length - 1);
           final currentUni = unis[safeIndex];
 
-          return Column(
+          return Stack(
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.chevron_left,
-                        size: _TabletSizes.chevronSize,
-                      ),
-                      onPressed: unis.length > 1 ? _goPrevious : null,
-                      color: AppTheme.textSec(context),
+              // ✨ Dinamik gradient arka plan
+              Obx(() {
+                final playing = _ctrl.playbackState.value == PlaybackState.playing;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 1000),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: playing
+                          ? [
+                              AppTheme.primaryColor.withValues(alpha: 0.4),
+                              AppTheme.primaryColor.withValues(alpha: 0.1),
+                              AppTheme.bg(context),
+                              AppTheme.bg(context),
+                            ]
+                          : [
+                              AppTheme.primaryColor.withValues(alpha: 0.2),
+                              AppTheme.primaryColor.withValues(alpha: 0.05),
+                              AppTheme.bg(context),
+                              AppTheme.bg(context),
+                            ],
+                      stops: const [0.0, 0.2, 0.5, 1.0],
                     ),
+                  ),
+                );
+              }),
+
+              // ✨ Arka plan dekoratif daireler
+              ...List.generate(8, (i) {
+                return Positioned(
+                  top: 100 + (i * 80),
+                  left: (i % 2 == 0 ? -30 : 60).toDouble(),
+                  child: Container(
+                    width: (100 + i * 30).toDouble(),
+                    height: (100 + i * 30).toDouble(),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.primaryColor.withValues(alpha: 0.03 + i * 0.008),
+                    ),
+                  ),
+                );
+              }),
+
+              // Ana içerik
+              SafeArea(
+                child: Column(
+                  children: [
+                    SizedBox(height: 30),
                     Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: RadioCardWidget(
-                          key: ValueKey(currentUni.id),
-                          uni: currentUni,
-                          ctrl: _ctrl,
-                          isActive: true,
+                      child: Row(
+                        children: [
+                          _buildNavArrow(
+                            icon: Icons.chevron_left,
+                            onPressed: unis.length > 1 ? _goPrevious : null,
+                          ),
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: RadioCardWidget(
+                                key: ValueKey(currentUni.id),
+                                uni: currentUni,
+                                ctrl: _ctrl,
+                                isActive: true,
+                              ),
+                            ),
+                          ),
+                          _buildNavArrow(
+                            icon: Icons.chevron_right,
+                            onPressed: unis.length > 1 ? _goNext : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: _TabletSizes.dotIndicatorPaddingVertical,
+                      ),
+                      child: RadioDotIndicatorWidget(
+                        count: unis.length,
+                        current: safeIndex,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: _TabletSizes.hintPaddingBottom),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.swipe_rounded, size: 16, color: Colors.white38),
+                            SizedBox(width: 8),
+                            Text(
+                              'ok tuşları veya listeden radyo seç',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: _TabletSizes.hintFontSize,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.chevron_right,
-                        size: _TabletSizes.chevronSize,
-                      ),
-                      onPressed: unis.length > 1 ? _goNext : null,
-                      color: AppTheme.textSec(context),
-                    ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: _TabletSizes.dotIndicatorPaddingVertical,
-                ),
-                child: RadioDotIndicatorWidget(
-                  count: unis.length,
-                  current: safeIndex,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: _TabletSizes.hintPaddingBottom),
-                child: Text(
-                  'ok tuşları veya listeden radyo seç',
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: _TabletSizes.hintFontSize,
-                  ),
                 ),
               ),
             ],

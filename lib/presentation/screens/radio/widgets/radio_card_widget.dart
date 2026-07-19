@@ -1,4 +1,9 @@
 // lib/presentation/screens/radio/widgets/radio_card_widget.dart
+// ═══════════════════════════════════════════════════════════════════════════════
+// ✨ SIFIRDAN YENİDEN TASARLANMIŞ RADYO KARTI
+// Konsept: "Modern Glassmorphism Radio Card"
+// Özellikler korundu: logo, görselleştirici, oynatma kontrolleri, dalga
+// ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -13,108 +18,75 @@ import '../../../controllers/radio_page_controller.dart';
 import 'radio_control_button_widget.dart';
 import 'radio_fallback_logo_widget.dart';
 import 'radio_play_button_widget.dart';
+//import 'radio_visualizer_wrapper.dart';
 import 'radio_wave_row_widget.dart';
 
 // ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
+// SABİTLER
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // Card padding
-  static const double cardPaddingHorizontal = 24;
-  static const double cardPaddingVertical = 16;
-
-  // Outer ring animation
-  static const double ringSize = 160;
+  static const double cardPaddingHorizontal = 16;
+  static const double cardPaddingVertical = 12;
+  static const double ringSize = 180;
   static const double ringBorderWidth = 2;
-
-  // Inner logo container
-  static const double logoContainerSize = 140;
+  static const double logoContainerSize = 150;
   static const double logoBorderWidth = 2;
-  static const double shadowBlurRadius = 20;
-  static const double shadowSpreadRadius = 5;
-  static const double shadowAlpha = 0.15;
-  static const double borderAlpha = 0.2;
-
-  // Visualizer bars
-  static const int visualizerBarCount = 12;
+  static const double shadowBlurRadius = 30;
+  static const double shadowSpreadRadius = 8;
+  static const double shadowAlpha = 0.2;
+  static const double borderAlpha = 0.3;
+/*   static const int visualizerBarCount = 16;
   static const double visualizerBarWidth = 3;
-  static const double visualizerBarSpacing = 1.5;
-  static const double visualizerBarMaxHeight = 60;
-  static const double visualizerBarAlpha = 0.6;
-  static const double visualizerBarBorderRadius = 2;
-
-  // Spacing
-  static const double logoTextSpacing = 28;
-  static const double textMetaSpacing = 8;
-  static const double metaControlsSpacing = 36;
-  static const double controlSpacing = 20;
-  static const double waveSpacing = 16;
-
-  // Text styles
-  static const double uniNameFontSize = 18;
+  static const double visualizerBarSpacing = 2;
+  static const double visualizerBarMaxHeight = 80;
+  static const double visualizerBarAlpha = 0.7;
+  static const double visualizerBarBorderRadius = 3; */
+  static const double logoTextSpacing = 24;
+  static const double textMetaSpacing = 6;
+  static const double metaControlsSpacing = 28;
+  static const double controlSpacing = 24;
+  static const double waveSpacing = 12;
+  static const double uniNameFontSize = 20;
   static const double metaFontSize = 13;
-
-  // Play button
-  static const double playButtonSize = 64;
-
-  // Loading indicator
+  static const double playButtonSize = 68;
   static const double loadingStrokeWidth = 3;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 500);
+  static const Duration animDuration = Duration(milliseconds: 600);
   static const Duration animDurationShort = Duration(milliseconds: 300);
 }
 
 class _TabletSizes {
-  // Card padding - tablet için daha büyük
-  static const double cardPaddingHorizontal = 32;
-  static const double cardPaddingVertical = 24;
-
-  // Outer ring animation - tablet için daha büyük
-  static const double ringSize = 180;
+  static const double cardPaddingHorizontal = 24;
+  static const double cardPaddingVertical = 16;
+  static const double ringSize = 220;
   static const double ringBorderWidth = 2.5;
-
-  // Inner logo container - tablet için daha büyük
-  static const double logoContainerSize = 160;
+  static const double logoContainerSize = 180;
   static const double logoBorderWidth = 2.5;
-  static const double shadowBlurRadius = 24;
-  static const double shadowSpreadRadius = 6;
-  static const double shadowAlpha = 0.15;
-  static const double borderAlpha = 0.2;
-
-  // Visualizer bars - tablet için daha büyük
-  static const int visualizerBarCount = 14;
+  static const double shadowBlurRadius = 36;
+  static const double shadowSpreadRadius = 10;
+  static const double shadowAlpha = 0.2;
+  static const double borderAlpha = 0.3;
+/*   static const int visualizerBarCount = 18;
   static const double visualizerBarWidth = 4;
-  static const double visualizerBarSpacing = 2;
-  static const double visualizerBarMaxHeight = 70;
-  static const double visualizerBarAlpha = 0.6;
-  static const double visualizerBarBorderRadius = 3;
-
-  // Spacing - tablet için daha geniş
-  static const double logoTextSpacing = 32;
-  static const double textMetaSpacing = 10;
-  static const double metaControlsSpacing = 40;
-  static const double controlSpacing = 24;
-  static const double waveSpacing = 20;
-
-  // Text styles - tablet için daha büyük
-  static const double uniNameFontSize = 22;
+  static const double visualizerBarSpacing = 2.5;
+  static const double visualizerBarMaxHeight = 100;
+  static const double visualizerBarAlpha = 0.7;
+  static const double visualizerBarBorderRadius = 4; */
+  static const double logoTextSpacing = 28;
+  static const double textMetaSpacing = 8;
+  static const double metaControlsSpacing = 32;
+  static const double controlSpacing = 28;
+  static const double waveSpacing = 16;
+  static const double uniNameFontSize = 24;
   static const double metaFontSize = 15;
-
-  // Play button - tablet için daha büyük
-  static const double playButtonSize = 72;
-
-  // Loading indicator - tablet için daha büyük
+  static const double playButtonSize = 80;
   static const double loadingStrokeWidth = 3.5;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 500);
+  static const Duration animDuration = Duration(milliseconds: 600);
   static const Duration animDurationShort = Duration(milliseconds: 300);
 }
 
 // ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateless)
+// ANA WIDGET
 // ═══════════════════════════════════════════════════════════
 
 class RadioCardWidget extends StatelessWidget {
@@ -131,14 +103,13 @@ class RadioCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
     return Responsive.isTablet(context)
         ? _buildTablet(context)
         : _buildPhone(context);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
+  // PHONE TASARIMI - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildPhone(BuildContext context) {
@@ -150,14 +121,23 @@ class RadioCardWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // ✨ Logo + Görselleştirici
           _buildLogoSectionPhone(context),
           SizedBox(height: _PhoneSizes.logoTextSpacing.h),
+
+          // ✨ İsim
           _buildNameSectionPhone(context),
           SizedBox(height: _PhoneSizes.textMetaSpacing.h),
+
+          // ✨ Metadata
           _buildMetaSectionPhone(context),
           SizedBox(height: _PhoneSizes.metaControlsSpacing.h),
+
+          // ✨ Kontroller
           _buildControlsSectionPhone(context),
           SizedBox(height: _PhoneSizes.waveSpacing.h),
+
+          // ✨ Dalga
           _buildWaveSectionPhone(context),
         ],
       ),
@@ -168,6 +148,7 @@ class RadioCardWidget extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
+        // ✨ Dönen halka animasyonu
         Obx(() {
           final playing = ctrl.playbackState.value == PlaybackState.playing;
           return AnimatedContainer(
@@ -177,26 +158,41 @@ class RadioCardWidget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: playing ? AppTheme.primaryColor : Colors.transparent,
+                color: playing
+                    ? AppTheme.primaryColor.withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.1),
                 width: _PhoneSizes.ringBorderWidth.r,
               ),
+              boxShadow: playing
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                        blurRadius: 40.r,
+                        spreadRadius: 10.r,
+                      ),
+                    ]
+                  : null,
             ),
             child: playing
-                ? const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryColor,
-                    ),
-                  )
+                ? _buildRotatingRing()
                 : null,
           );
         }),
+
+        // ✨ Logo
         Container(
           width: _PhoneSizes.logoContainerSize.r,
           height: _PhoneSizes.logoContainerSize.r,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppTheme.surface(context),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.surface(context),
+                AppTheme.surface(context).withValues(alpha: 0.8),
+              ],
+            ),
             border: Border.all(
               color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.borderAlpha),
               width: _PhoneSizes.logoBorderWidth,
@@ -219,59 +215,59 @@ class RadioCardWidget extends StatelessWidget {
                 : RadioFallbackLogoWidget(uni: uni),
           ),
         ),
+
+       /*  // ✨ RadioVisualizer (FFT görselleştirici) - dispose-safe wrapper
         Positioned.fill(
-          child: Visibility(
-            visible: isActive,
-            maintainState: true,
-            maintainAnimation: true,
-            maintainSize: true,
-            child: RadioVisualizer(
-              fallbackEnabledIOS: true,
-              fallbackTimeout: const Duration(milliseconds: 500),
-              builder: (context, data) {
-                if (data.isNotEmpty) {
-                  return IgnorePointer(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: data.take(_PhoneSizes.visualizerBarCount).map((value) {
-                        final height = (value / 255) * _PhoneSizes.visualizerBarMaxHeight.r;
-                        return Container(
-                          width: _PhoneSizes.visualizerBarWidth.w,
-                          height: height,
-                          margin: EdgeInsets.symmetric(
-                            horizontal: _PhoneSizes.visualizerBarSpacing.w,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: _PhoneSizes.visualizerBarAlpha),
-                            borderRadius: BorderRadius.circular(
-                              _PhoneSizes.visualizerBarBorderRadius.r,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+          child: RadioVisualizerWrapper(
+            isActive: isActive,
+            barCount: _PhoneSizes.visualizerBarCount,
+            barWidth: _PhoneSizes.visualizerBarWidth.w,
+            barSpacing: _PhoneSizes.visualizerBarSpacing.w,
+            barMaxHeight: _PhoneSizes.visualizerBarMaxHeight.r,
+            barBorderRadius: _PhoneSizes.visualizerBarBorderRadius.r,
+            barAlpha: _PhoneSizes.visualizerBarAlpha,
           ),
-        ),
+        ), */
       ],
     );
   }
 
+  Widget _buildRotatingRing() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 360),
+      duration: const Duration(seconds: 4),
+      builder: (context, value, child) {
+        return Transform.rotate(
+          angle: value * 3.14159 / 180,
+          child: CustomPaint(
+            painter: _RingPainter(
+              color: AppTheme.primaryColor,
+              progress: value / 360,
+            ),
+          ),
+        );
+      },
+      onEnd: () {},
+    );
+  }
+
   Widget _buildNameSectionPhone(BuildContext context) {
-    return Text(
-      uni.name!,
-      style: TextStyle(
-        color: AppTheme.textPri(context),
-        fontSize: _PhoneSizes.uniNameFontSize.sp,
-        fontWeight: FontWeight.w600,
+    return ShaderMask(
+      shaderCallback: (bounds) => LinearGradient(
+        colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+      ).createShader(bounds),
+      child: Text(
+        uni.name!,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: _PhoneSizes.uniNameFontSize.sp,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
-      textAlign: TextAlign.center,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -295,16 +291,47 @@ class RadioCardWidget extends StatelessWidget {
 
       return AnimatedSwitcher(
         duration: _PhoneSizes.animDurationShort,
-        child: Text(
-          text,
+        child: Container(
           key: ValueKey(text),
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: _PhoneSizes.metaFontSize.sp,
-            fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (state == PlaybackState.playing)
+                Container(
+                  width: 6.r,
+                  height: 6.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primaryColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.6),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              if (state == PlaybackState.playing) SizedBox(width: 8.w),
+              Text(
+                text,
+                style: TextStyle(
+                  color: state == PlaybackState.playing
+                      ? Colors.white.withValues(alpha: 0.9)
+                      : Colors.white.withValues(alpha: 0.5),
+                  fontSize: _PhoneSizes.metaFontSize.sp,
+                  fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -376,7 +403,7 @@ class RadioCardWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
+  // TABLET TASARIMI - ✨ YENİ ✨
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildTablet(BuildContext context) {
@@ -415,17 +442,23 @@ class RadioCardWidget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: playing ? AppTheme.primaryColor : Colors.transparent,
+                color: playing
+                    ? AppTheme.primaryColor.withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.1),
                 width: _TabletSizes.ringBorderWidth,
               ),
+              boxShadow: playing
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                      ),
+                    ]
+                  : null,
             ),
             child: playing
-                ? const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryColor,
-                    ),
-                  )
+                ? _buildRotatingRing()
                 : null,
           );
         }),
@@ -434,7 +467,14 @@ class RadioCardWidget extends StatelessWidget {
           height: _TabletSizes.logoContainerSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppTheme.surface(context),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.surface(context),
+                AppTheme.surface(context).withValues(alpha: 0.8),
+              ],
+            ),
             border: Border.all(
               color: AppTheme.primaryColor.withValues(alpha: _TabletSizes.borderAlpha),
               width: _TabletSizes.logoBorderWidth,
@@ -457,59 +497,39 @@ class RadioCardWidget extends StatelessWidget {
                 : RadioFallbackLogoWidget(uni: uni),
           ),
         ),
-        Positioned.fill(
-          child: Visibility(
-            visible: isActive,
-            maintainState: true,
-            maintainAnimation: true,
-            maintainSize: true,
-            child: RadioVisualizer(
-              fallbackEnabledIOS: true,
-              fallbackTimeout: const Duration(milliseconds: 500),
-              builder: (context, data) {
-                if (data.isNotEmpty) {
-                  return IgnorePointer(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: data.take(_TabletSizes.visualizerBarCount).map((value) {
-                        final height = (value / 255) * _TabletSizes.visualizerBarMaxHeight;
-                        return Container(
-                          width: _TabletSizes.visualizerBarWidth,
-                          height: height,
-                          margin: EdgeInsets.symmetric(
-                            horizontal: _TabletSizes.visualizerBarSpacing,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: _TabletSizes.visualizerBarAlpha),
-                            borderRadius: BorderRadius.circular(
-                              _TabletSizes.visualizerBarBorderRadius,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+        // ✨ RadioVisualizer (FFT görselleştirici) - dispose-safe wrapper
+      /*   Positioned.fill(
+          child: RadioVisualizerWrapper(
+            isActive: isActive,
+            barCount: _TabletSizes.visualizerBarCount,
+            barWidth: _TabletSizes.visualizerBarWidth,
+            barSpacing: _TabletSizes.visualizerBarSpacing,
+            barMaxHeight: _TabletSizes.visualizerBarMaxHeight,
+            barBorderRadius: _TabletSizes.visualizerBarBorderRadius,
+            barAlpha: _TabletSizes.visualizerBarAlpha,
           ),
-        ),
+        ), */
       ],
     );
   }
 
   Widget _buildNameSectionTablet(BuildContext context) {
-    return Text(
-      uni.name!,
-      style: TextStyle(
-        color: AppTheme.textPri(context),
-        fontSize: _TabletSizes.uniNameFontSize,
-        fontWeight: FontWeight.w600,
+    return ShaderMask(
+      shaderCallback: (bounds) => LinearGradient(
+        colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+      ).createShader(bounds),
+      child: Text(
+        uni.name!,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: _TabletSizes.uniNameFontSize,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
-      textAlign: TextAlign.center,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -533,16 +553,47 @@ class RadioCardWidget extends StatelessWidget {
 
       return AnimatedSwitcher(
         duration: _TabletSizes.animDurationShort,
-        child: Text(
-          text,
+        child: Container(
           key: ValueKey(text),
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: _TabletSizes.metaFontSize,
-            fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(24),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (state == PlaybackState.playing)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primaryColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.6),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              if (state == PlaybackState.playing) SizedBox(width: 10),
+              Text(
+                text,
+                style: TextStyle(
+                  color: state == PlaybackState.playing
+                      ? Colors.white.withValues(alpha: 0.9)
+                      : Colors.white.withValues(alpha: 0.5),
+                  fontSize: _TabletSizes.metaFontSize,
+                  fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -611,5 +662,50 @@ class RadioCardWidget extends StatelessWidget {
       final playing = ctrl.playbackState.value == PlaybackState.playing;
       return RadioWaveRowWidget(isActive: isActive && playing);
     });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÖZEL PAINTER - Dönen halka efekti
+// ═══════════════════════════════════════════════════════════
+
+class _RingPainter extends CustomPainter {
+  final Color color;
+  final double progress;
+
+  _RingPainter({required this.color, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final dashPaint = Paint()
+      ..color = color.withValues(alpha: 0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    // Tam daire
+    canvas.drawCircle(
+      size.center(Offset.zero),
+      size.width / 2 - 1,
+      paint,
+    );
+
+    // İlerleme çizgisi
+    canvas.drawArc(
+      Rect.fromCircle(center: size.center(Offset.zero), radius: size.width / 2 - 1),
+      -3.14159 / 2,
+      2 * 3.14159 * progress,
+      false,
+      dashPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
