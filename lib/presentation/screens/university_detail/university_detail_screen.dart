@@ -1868,6 +1868,8 @@ class _VideosTabPhone extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
+      final isLoadingMore = controller.isLoadingMore.value;
+      final hasMore = controller.hasMoreVideos.value;
       if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -1889,10 +1891,38 @@ class _VideosTabPhone extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: ListView.builder(
-          padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-          itemCount: videoList.length,
-          itemBuilder: (_, i) => VideoCardWidget(video: videoList[i]),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (hasMore &&
+                !isLoadingMore &&
+                notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 400) {
+              controller.loadMoreVideos();
+            }
+            return false;
+          },
+          child: ListView.builder(
+            padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+            itemCount: videoList.length + (hasMore ? 1 : 0),
+            itemBuilder: (_, i) {
+              if (i >= videoList.length) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return VideoCardWidget(video: videoList[i]);
+            },
+          ),
         ),
       );
     });
@@ -1937,6 +1967,8 @@ class _ShortsTabPhone extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
+      final isLoadingMore = controller.isLoadingMore.value;
+      final hasMore = controller.hasMoreVideos.value;
       if (isLoading) {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -1958,14 +1990,42 @@ class _ShortsTabPhone extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: ListView.separated(
-          padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-          itemCount: shortsList.length,
-          separatorBuilder: (_, _) =>
-              SizedBox(height: _PhoneSizes.shortsListSeparator.h),
-          itemBuilder: (_, i) => _ShortsListCardPhone(
-            video: shortsList[i],
-            onTap: () => _openShortsPlayer(shortsList, i),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (hasMore &&
+                !isLoadingMore &&
+                notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 400) {
+              controller.loadMoreVideos();
+            }
+            return false;
+          },
+          child: ListView.separated(
+            padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+            itemCount: shortsList.length + (hasMore ? 1 : 0),
+            separatorBuilder: (_, _) =>
+                SizedBox(height: _PhoneSizes.shortsListSeparator.h),
+            itemBuilder: (_, i) {
+              if (i >= shortsList.length) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return _ShortsListCardPhone(
+                video: shortsList[i],
+                onTap: () => _openShortsPlayer(shortsList, i),
+              );
+            },
           ),
         ),
       );
@@ -3414,6 +3474,8 @@ class _VideosTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final videoList = controller.videoOnly;
+      final isLoadingMore = controller.isLoadingMore.value;
+      final hasMore = controller.hasMoreVideos.value;
       final crossAxisCount =
           MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
       if (isLoading) {
@@ -3443,16 +3505,51 @@ class _VideosTabTablet extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: GridView.builder(
-          padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.72,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (hasMore &&
+                !isLoadingMore &&
+                notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 400) {
+              controller.loadMoreVideos();
+            }
+            return false;
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(12, 10, 12, hasMore ? 0 : 40),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: 0.72,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => VideoCardWidget(video: videoList[i]),
+                    childCount: videoList.length,
+                  ),
+                ),
+              ),
+              if (hasMore)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.6,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          itemCount: videoList.length,
-          itemBuilder: (_, i) => VideoCardWidget(video: videoList[i]),
         ),
       );
     });
@@ -3497,6 +3594,8 @@ class _ShortsTabTablet extends StatelessWidget {
       final isLoading = controller.isLoading.value;
       final error = controller.errorMessage.value;
       final shortsList = controller.shortsOnly;
+      final isLoadingMore = controller.isLoadingMore.value;
+      final hasMore = controller.hasMoreVideos.value;
       final crossAxisCount =
           MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
       if (isLoading) {
@@ -3526,18 +3625,53 @@ class _ShortsTabTablet extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
-        child: GridView.builder(
-          padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisExtent: 168,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: shortsList.length,
-          itemBuilder: (_, i) => _ShortsListCardTablet(
-            video: shortsList[i],
-            onTap: () => _openShortsPlayer(shortsList, i),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (hasMore &&
+                !isLoadingMore &&
+                notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 400) {
+              controller.loadMoreVideos();
+            }
+            return false;
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(12, 10, 12, hasMore ? 0 : 40),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisExtent: 168,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => _ShortsListCardTablet(
+                      video: shortsList[i],
+                      onTap: () => _openShortsPlayer(shortsList, i),
+                    ),
+                    childCount: shortsList.length,
+                  ),
+                ),
+              ),
+              if (hasMore)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.6,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       );
@@ -3629,11 +3763,15 @@ class _ShortsListCardTablet extends StatelessWidget {
                               color: AppTheme.textSec(context),
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              video.formattedViewCount,
-                              style: TextStyle(
-                                fontSize: _TabletSizes.shortsMetaFontSize,
-                                color: AppTheme.textSec(context),
+                            Flexible(
+                              child: Text(
+                                video.formattedViewCount,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: _TabletSizes.shortsMetaFontSize,
+                                  color: AppTheme.textSec(context),
+                                ),
                               ),
                             ),
                             SizedBox(width: _TabletSizes.shortsMetaSpacing),
@@ -3643,11 +3781,15 @@ class _ShortsListCardTablet extends StatelessWidget {
                               color: AppTheme.textSec(context),
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              timeago.format(video.publishedAt, locale: 'tr'),
-                              style: TextStyle(
-                                fontSize: _TabletSizes.shortsMetaFontSize,
-                                color: AppTheme.textSec(context),
+                            Flexible(
+                              child: Text(
+                                timeago.format(video.publishedAt, locale: 'tr'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: _TabletSizes.shortsMetaFontSize,
+                                  color: AppTheme.textSec(context),
+                                ),
                               ),
                             ),
                           ],

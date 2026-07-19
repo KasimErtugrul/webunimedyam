@@ -34,7 +34,12 @@ class UniversityDetailController extends GetxController {
   final university = Rxn<UniversityModel>();
   final videos = <VideoModel>[].obs;
   final isLoading = true.obs;
+  final isLoadingMore = false.obs;
+  final hasMoreVideos = true.obs;
   final errorMessage = ''.obs;
+
+  static const int _pageSize = 10;
+  int _offset = 0;
 
   final isFavorite = false.obs;
   final isFavoriteLoading = false.obs;
@@ -141,7 +146,17 @@ class UniversityDetailController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      videos.value = await videoRepository.getVideosByUniversity(id);
+      _offset = 0;
+      _autoFillAttempts = 0;
+      hasMoreVideos.value = true;
+      final result = await videoRepository.getVideosByUniversity(
+        id,
+        limit: _pageSize,
+        offset: _offset,
+      );
+      videos.value = result;
+      _offset = result.length;
+      if (result.length < _pageSize) hasMoreVideos.value = false;
     } catch (e, stacktrace) {
       log(
         'Üniversite videoları yüklenirken hata oluştu: $e',
@@ -152,6 +167,65 @@ class UniversityDetailController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    // Video/Shorts sekmeleri aynı karışık listeden client-side filtreleniyor.
+    // Bir sayfa (10 kayıt) tamamen tek türde gelirse (ör. hepsi shorts),
+    // diğer sekme boş/eksik görünür ve liste kısa olduğu için scroll hiç
+    // tetiklenmeyip "daha fazla yükle" mekanizması hiç çalışmaz. Bu yüzden
+    // her iki filtrelenmiş liste de en az bir sayfa dolana kadar arka planda
+    // otomatik olarak ek sayfalar çekiyoruz (sonsuz döngüye karşı sınırlı).
+    unawaited(_autoFillIfNeeded());
+  }
+
+  /// Sayfalama: her çağrıda 10 video daha çeker ve mevcut listeye ekler.
+  Future<void> loadMoreVideos() async {
+    final id = university.value?.id;
+    if (id == null || isLoadingMore.value || !hasMoreVideos.value) return;
+    try {
+      isLoadingMore.value = true;
+      final result = await videoRepository.getVideosByUniversity(
+        id,
+        limit: _pageSize,
+        offset: _offset,
+      );
+      if (result.isEmpty) {
+        hasMoreVideos.value = false;
+      } else {
+        videos.addAll(result);
+        _offset += result.length;
+        if (result.length < _pageSize) hasMoreVideos.value = false;
+      }
+    } catch (e, stacktrace) {
+      log(
+        'Daha fazla video yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    } finally {
+      isLoadingMore.value = false;
+    }
+  }
+
+  int _autoFillAttempts = 0;
+  static const int _maxAutoFillAttempts = 8;
+
+  /// Video ve Shorts sekmelerinden herhangi biri henüz bir sayfa kadar
+  /// (ör. 10) öğeye sahip değilse ve daha fazla veri varsa, kullanıcı hiç
+  /// scroll yapmadan da arka planda otomatik olarak sonraki sayfaları çeker.
+  /// Sonsuz/aşırı istek atmayı önlemek için deneme sayısı sınırlıdır.
+  Future<void> _autoFillIfNeeded() async {
+    if (!hasMoreVideos.value || isLoadingMore.value) return;
+    if (_autoFillAttempts >= _maxAutoFillAttempts) {
+      _autoFillAttempts = 0;
+      return;
+    }
+    final needsMore = videoOnly.length < _pageSize || shortsOnly.length < _pageSize;
+    if (!needsMore) {
+      _autoFillAttempts = 0;
+      return;
+    }
+    _autoFillAttempts++;
+    await loadMoreVideos();
+    await _autoFillIfNeeded();
   }
 
   Future<void> _loadFavoriteStatus() async {

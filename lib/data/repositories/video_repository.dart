@@ -183,10 +183,18 @@ class VideoRepository {
   }
 
   // ─── Video: Üniversiteye Göre ──────────────────────────────────────────────
-  Future<List<VideoModel>> getVideosByUniversity(int universityId) async {
+  Future<List<VideoModel>> getVideosByUniversity(
+    int universityId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
-      final videos = await _supabase.getCachedVideosByUniversity(universityId);
-      
+      final videos = await _supabase.getCachedVideosByUniversity(
+        universityId,
+        limit: limit,
+        offset: offset,
+      );
+
       return videos;
     } catch (e, stacktrace) {
       log(
@@ -199,7 +207,9 @@ class VideoRepository {
         final filtered = all
             .where((v) => v.universityId == universityId)
             .toList();
-        return filtered;
+        final start = offset.clamp(0, filtered.length);
+        final end = (offset + limit).clamp(0, filtered.length);
+        return filtered.sublist(start, end);
       } catch (staleError, staleStacktrace) {
         log(
           'Local fallback videolar okunurken hata oluştu: $staleError',
