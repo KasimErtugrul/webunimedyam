@@ -15,9 +15,6 @@ import '../../controllers/followed_universities_list_controller.dart';
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // AppBar
-  static const double appBarTitleSize = 18;
-
   // Loading
   static const double loadingStrokeWidth = 3;
 
@@ -49,9 +46,6 @@ class _PhoneSizes {
 }
 
 class _TabletSizes {
-  // AppBar - tablet için daha büyük
-  static const double appBarTitleSize = 22;
-
   // Loading - tablet için daha büyük
   static const double loadingStrokeWidth = 3.5;
 

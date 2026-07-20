@@ -25,7 +25,6 @@ class _PhoneSizes {
   static const double iconBorderRadius = 10;
   static const double iconInnerSize = 20;
   static const double iconSpacing = 12;
-  static const double titleFontSize = 22;
   static const double shadowBlurRadius = 8;
   static const double shadowOffsetY = 2;
   
@@ -111,7 +110,6 @@ class _TabletSizes {
   static const double iconBorderRadius = 12;
   static const double iconInnerSize = 24;
   static const double iconSpacing = 14;
-  static const double titleFontSize = 26;
   static const double shadowBlurRadius = 10;
   static const double shadowOffsetY = 3;
   

@@ -30,8 +30,6 @@ class _PhoneSizes {
   static const double titleIconBorderRadius = 8;
   static const double titleIconInnerSize = 18;
   static const double titleSpacing = 8;
-  static const double titleFontSize = 22;
-  static const double titleLetterSpacing = -0.5;
 
   // Spacing
   static const double titleSpacingLarge = 16;
@@ -78,8 +76,6 @@ class _TabletSizes {
   static const double titleIconBorderRadius = 10;
   static const double titleIconInnerSize = 22;
   static const double titleSpacing = 10;
-  static const double titleFontSize = 26;
-  static const double titleLetterSpacing = -0.5;
 
   // Spacing - tablet için daha geniş
   static const double titleSpacingLarge = 20;

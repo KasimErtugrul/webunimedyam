@@ -20,7 +20,6 @@ class _PhoneSizes {
   static const double loadingStrokeWidth = 3;
 
   // NotLoggedIn
-  static const double appBarTitleSize = 20;
   static const double mainPadding = 32;
   static const double avatarSize = 96;
   static const double avatarBorderWidth = 2;
@@ -43,7 +42,6 @@ class _TabletSizes {
   static const double loadingStrokeWidth = 3.5;
 
   // NotLoggedIn - tablet için daha büyük
-  static const double appBarTitleSize = 24;
   static const double mainPadding = 48;
   static const double avatarSize = 120;
   static const double avatarBorderWidth = 2.5;

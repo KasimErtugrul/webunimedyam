@@ -14,9 +14,6 @@ import '../../controllers/settings_controller.dart';
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // AppBar
-  static const double appBarTitleSize = 20;
-
   // Padding
   static const double listBottomPadding = 32;
   static const double sectionHeaderPaddingLeft = 16;
@@ -97,9 +94,6 @@ class _PhoneSizes {
 }
 
 class _TabletSizes {
-  // AppBar
-  static const double appBarTitleSize = 24;
-
   // Padding
   static const double listBottomPadding = 40;
   static const double sectionHeaderPaddingLeft = 24;
@@ -556,7 +550,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text(_themeLabel(theme)),
                 value: theme,
                 groupValue: _controller.settings.value?.theme,
-                activeColor: AppTheme.primaryColor,
                 onChanged: (v) {
                   if (v != null) {
                     _controller.changeTheme(v);
@@ -604,7 +597,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: Text(_homeLayoutSublabel(layout)),
                   value: layout,
                   groupValue: _controller.homeLayout.value,
-                  activeColor: AppTheme.primaryColor,
                   onChanged: (v) {
                     if (v != null) {
                       _controller.changeHomeLayout(v);
@@ -778,7 +770,7 @@ class _SwitchListTilePhone extends StatelessWidget {
           fontSize: _PhoneSizes.switchSubtitleFontSize.sp,
         ),
       ),
-      activeColor: AppTheme.primaryColor,
+      activeTrackColor: AppTheme.primaryColor,
       contentPadding: EdgeInsets.symmetric(
         horizontal: _PhoneSizes.tileContentPaddingHorizontal.w,
       ),
@@ -794,8 +786,9 @@ class _CeilingNotePhone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profileVisibility == VisibilityOption.public)
+    if (profileVisibility == VisibilityOption.public) {
       return const SizedBox.shrink();
+    }
 
     final isPrivate = profileVisibility == VisibilityOption.private;
     final color = isPrivate ? Colors.orange : Colors.blue;
@@ -1249,7 +1242,7 @@ class _SwitchListTileTablet extends StatelessWidget {
           fontSize: _TabletSizes.switchSubtitleFontSize,
         ),
       ),
-      activeColor: AppTheme.primaryColor,
+      activeTrackColor: AppTheme.primaryColor,
       contentPadding: EdgeInsets.symmetric(
         horizontal: _TabletSizes.tileContentPaddingHorizontal,
       ),
@@ -1265,8 +1258,9 @@ class _CeilingNoteTablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profileVisibility == VisibilityOption.public)
+    if (profileVisibility == VisibilityOption.public) {
       return const SizedBox.shrink();
+    }
 
     final isPrivate = profileVisibility == VisibilityOption.private;
     final color = isPrivate ? Colors.orange : Colors.blue;

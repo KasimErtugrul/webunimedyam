@@ -14,9 +14,6 @@ import '../../controllers/auth_controller.dart';
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // AppBar
-  static const double appBarTitleSize = 20;
-  
   // Padding
   static const double mainPadding = 24;
   static const double topSpacing = 32;
@@ -51,9 +48,6 @@ class _PhoneSizes {
 }
 
 class _TabletSizes {
-  // AppBar - tablet için daha büyük
-  static const double appBarTitleSize = 24;
-  
   // Padding - tablet için daha büyük
   static const double mainPadding = 40;
   static const double topSpacing = 48;
