@@ -37,7 +37,6 @@ class SettingsController extends GetxService {
   // ─── Tavan kontrolü ───────────────────────────────────────────────────────
   static const _order = [
     VisibilityOption.private,
-    VisibilityOption.friends,
     VisibilityOption.public,
   ];
 

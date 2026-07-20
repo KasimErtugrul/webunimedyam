@@ -150,7 +150,7 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _PhoneSizes.shimmerItemCount,
-            itemBuilder: (_, __) => Container(
+            itemBuilder: (_, _) => Container(
               width: _PhoneSizes.shimmerCardWidth.w,
               margin: EdgeInsets.only(
                 right: _PhoneSizes.shimmerCardMarginRight.w,
@@ -246,7 +246,7 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _TabletSizes.shimmerItemCount,
-            itemBuilder: (_, __) => Container(
+            itemBuilder: (_, _) => Container(
               width: _TabletSizes.shimmerCardWidth,
               margin: EdgeInsets.only(
                 right: _TabletSizes.shimmerCardMarginRight,

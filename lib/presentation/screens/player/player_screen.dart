@@ -565,7 +565,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _controller.comments.length,
-          separatorBuilder: (_, __) =>
+          separatorBuilder: (_, _) =>
               Divider(color: AppTheme.surface(context), height: 1.h),
           itemBuilder: (ctx, i) => CommentTileWidget(
             comment: _controller.comments[i],
@@ -807,7 +807,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _controller.comments.length,
-          separatorBuilder: (_, __) =>
+          separatorBuilder: (_, _) =>
               Divider(color: AppTheme.surface(context), height: 1),
           itemBuilder: (ctx, i) => CommentTileWidget(
             comment: _controller.comments[i],

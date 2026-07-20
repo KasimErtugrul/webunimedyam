@@ -197,7 +197,7 @@ class _RadioPageState extends State<RadioPage> {
             controller: scrollController,
             padding: EdgeInsets.symmetric(vertical: 8.h),
             itemCount: unis.length,
-            separatorBuilder: (_, __) => Divider(
+            separatorBuilder: (_, _) => Divider(
               height: _PhoneSizes.sheetDividerHeight,
               indent: 64.w,
               color: AppTheme.isDark(context) ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200],
@@ -243,7 +243,7 @@ class _RadioPageState extends State<RadioPage> {
                             ? CachedNetworkImage(
                                 imageUrl: uni.logoUrl!,
                                 fit: BoxFit.cover,
-                                errorWidget: (_, __, ___) => Icon(
+                                errorWidget: (_, _, _) => Icon(
                                   Icons.radio,
                                   color: AppTheme.primaryColor,
                                   size: _PhoneSizes.sheetAvatarIconSize.sp,
@@ -341,7 +341,7 @@ class _RadioPageState extends State<RadioPage> {
             controller: scrollController,
             padding: EdgeInsets.symmetric(vertical: 8.h),
             itemCount: unis.length,
-            separatorBuilder: (_, __) => Divider(
+            separatorBuilder: (_, _) => Divider(
               height: _TabletSizes.sheetDividerHeight,
               indent: 80,
               color: AppTheme.isDark(context) ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200],
@@ -387,7 +387,7 @@ class _RadioPageState extends State<RadioPage> {
                             ? CachedNetworkImage(
                                 imageUrl: uni.logoUrl!,
                                 fit: BoxFit.cover,
-                                errorWidget: (_, __, ___) => Icon(
+                                errorWidget: (_, _, _) => Icon(
                                   Icons.radio,
                                   color: AppTheme.primaryColor,
                                   size: _TabletSizes.sheetAvatarIconSize,

@@ -1,18 +1,20 @@
 // lib/data/models/user_settings_model.dart
 
 /// Aktivite ve profil görünürlük seçenekleri
+///
+/// NOT: 'friends' katmanı kalıcı olarak kaldırıldı — takip/arkadaş sistemi
+/// hiçbir zaman devreye alınmayacak. DB'deki CHECK constraint'ler de
+/// public/private ile sınırlandırıldı (bkz. drop_friends_visibility_option
+/// migration'ı).
 enum VisibilityOption {
   /// Herkese açık
   public,
-  /// Sadece takipçilere açık
-  friends,
   /// Sadece sahibine açık
   private;
 
   String get label {
     switch (this) {
       case VisibilityOption.public:  return 'Herkese açık';
-      case VisibilityOption.friends: return 'Arkadaşlara açık';
       case VisibilityOption.private: return 'Gizli';
     }
   }
@@ -20,7 +22,6 @@ enum VisibilityOption {
   String get sublabel {
     switch (this) {
       case VisibilityOption.public:  return 'Herkes görebilir';
-      case VisibilityOption.friends: return 'Sadece takipçilerin görebilir';
       case VisibilityOption.private: return 'Sadece sen görebilirsin';
     }
   }
@@ -28,14 +29,12 @@ enum VisibilityOption {
   String get value {
     switch (this) {
       case VisibilityOption.public:  return 'public';
-      case VisibilityOption.friends: return 'friends';
       case VisibilityOption.private: return 'private';
     }
   }
 
   static VisibilityOption fromString(String? s) {
     switch (s) {
-      case 'friends': return VisibilityOption.friends;
       case 'private': return VisibilityOption.private;
       default:        return VisibilityOption.public;
     }
@@ -58,7 +57,6 @@ class UserSettingsModel {
   final bool notificationsEnabled;
   final bool notifyNewVideos;
   final bool notifyCommentReplies;
-  final bool notifyFollowRequests; // Supabase: notify_follow_requests kolonu
 
   // ─── Gizlilik (geriye uyumluluk) ──────────────────────────────────────────
   final bool showWatchHistory;
@@ -84,7 +82,6 @@ class UserSettingsModel {
     this.notificationsEnabled = true,
     this.notifyNewVideos = true,
     this.notifyCommentReplies = true,
-    this.notifyFollowRequests = true,
     this.showWatchHistory = true,
     this.showFavoritesPublic = false,
     this.watchHistoryVisibility = VisibilityOption.public,
@@ -106,8 +103,6 @@ class UserSettingsModel {
       notificationsEnabled: json['notifications_enabled'] ?? true,
       notifyNewVideos:      json['notify_new_videos'] ?? true,
       notifyCommentReplies: json['notify_comment_replies'] ?? true,
-      // Supabase'de artık kolonu var (migration ile eklendi)
-      notifyFollowRequests: json['notify_follow_requests'] ?? true,
       showWatchHistory:     json['show_watch_history'] ?? true,
       showFavoritesPublic:  json['show_favorites_public'] ?? false,
       watchHistoryVisibility: VisibilityOption.fromString(json['watch_history_visibility']),
@@ -130,7 +125,6 @@ class UserSettingsModel {
       'notifications_enabled':     notificationsEnabled,
       'notify_new_videos':         notifyNewVideos,
       'notify_comment_replies':    notifyCommentReplies,
-      'notify_follow_requests':    notifyFollowRequests, // artık DB'de var
       'show_watch_history':        showWatchHistory,
       'show_favorites_public':     showFavoritesPublic,
       'watch_history_visibility':  watchHistoryVisibility.value,
@@ -151,7 +145,6 @@ class UserSettingsModel {
     bool? notificationsEnabled,
     bool? notifyNewVideos,
     bool? notifyCommentReplies,
-    bool? notifyFollowRequests,
     bool? showWatchHistory,
     bool? showFavoritesPublic,
     VisibilityOption? watchHistoryVisibility,
@@ -171,7 +164,6 @@ class UserSettingsModel {
       notificationsEnabled:  notificationsEnabled ?? this.notificationsEnabled,
       notifyNewVideos:       notifyNewVideos ?? this.notifyNewVideos,
       notifyCommentReplies:  notifyCommentReplies ?? this.notifyCommentReplies,
-      notifyFollowRequests:  notifyFollowRequests ?? this.notifyFollowRequests,
       showWatchHistory:      showWatchHistory ?? this.showWatchHistory,
       showFavoritesPublic:   showFavoritesPublic ?? this.showFavoritesPublic,
       watchHistoryVisibility: watchHistoryVisibility ?? this.watchHistoryVisibility,

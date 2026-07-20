@@ -305,7 +305,7 @@ class _TabletSizes {
   static const double shortsDurationChipFontSize = 10;
   static const double shortsPlayOverlaySize = 36;
   static const double shortsPlayIconSize = 22;
-  static const double shortsListSeparator = 10;
+  // static const double shortsListSeparator = 10;
 
   // Error View
   static const double errorIconSize = 56;
@@ -1572,8 +1572,9 @@ class _LinkButtonPhone extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri))
+        if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
       },
       borderRadius: BorderRadius.circular(_PhoneSizes.aboutCardBorderRadius.r),
       child: Container(
@@ -3178,8 +3179,9 @@ class _LinkButtonTablet extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri))
+        if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
       },
       borderRadius: BorderRadius.circular(_TabletSizes.aboutCardBorderRadius),
       child: Container(

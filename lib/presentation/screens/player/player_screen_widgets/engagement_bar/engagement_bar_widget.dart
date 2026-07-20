@@ -116,7 +116,7 @@ class EngagementBarWidget extends StatelessWidget {
             margin: EdgeInsets.symmetric(
               horizontal: _PhoneSizes.dividerHorizontalMargin.w,
             ),
-            color: AppTheme.textSec(context).withOpacity(
+            color: AppTheme.textSec(context).withValues(alpha:
               _PhoneSizes.dividerOpacity,
             ),
           ),
@@ -213,7 +213,7 @@ class EngagementBarWidget extends StatelessWidget {
             margin: EdgeInsets.symmetric(
               horizontal: _TabletSizes.dividerHorizontalMargin,
             ),
-            color: AppTheme.textSec(context).withOpacity(
+            color: AppTheme.textSec(context).withValues(alpha:
               _TabletSizes.dividerOpacity,
             ),
           ),

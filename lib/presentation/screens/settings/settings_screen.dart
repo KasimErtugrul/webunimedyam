@@ -873,7 +873,6 @@ class _VisibilityTilePhone extends StatelessWidget {
     if (ceiling == null) return true;
     const order = [
       VisibilityOption.private,
-      VisibilityOption.friends,
       VisibilityOption.public,
     ];
     return order.indexOf(option) <= order.indexOf(ceiling!);
@@ -995,11 +994,6 @@ class _VisibilityBadgePhone extends StatelessWidget {
         Colors.green,
         'Herkese',
       ),
-      VisibilityOption.friends => (
-        Icons.people_outlined,
-        Colors.blue,
-        'Arkadaş',
-      ),
       VisibilityOption.private => (Icons.lock_outline, Colors.orange, 'Gizli'),
     };
 
@@ -1115,8 +1109,6 @@ class _VisibilityOptionRowPhone extends StatelessWidget {
     switch (o) {
       case VisibilityOption.public:
         return (Icons.public_outlined, Colors.green);
-      case VisibilityOption.friends:
-        return (Icons.people_outlined, Colors.blue);
       case VisibilityOption.private:
         return (Icons.lock_outline, Colors.orange);
     }
@@ -1352,7 +1344,6 @@ class _VisibilityTileTablet extends StatelessWidget {
     if (ceiling == null) return true;
     const order = [
       VisibilityOption.private,
-      VisibilityOption.friends,
       VisibilityOption.public,
     ];
     return order.indexOf(option) <= order.indexOf(ceiling!);
@@ -1474,11 +1465,6 @@ class _VisibilityBadgeTablet extends StatelessWidget {
         Colors.green,
         'Herkese',
       ),
-      VisibilityOption.friends => (
-        Icons.people_outlined,
-        Colors.blue,
-        'Arkadaş',
-      ),
       VisibilityOption.private => (Icons.lock_outline, Colors.orange, 'Gizli'),
     };
 
@@ -1594,8 +1580,6 @@ class _VisibilityOptionRowTablet extends StatelessWidget {
     switch (o) {
       case VisibilityOption.public:
         return (Icons.public_outlined, Colors.green);
-      case VisibilityOption.friends:
-        return (Icons.people_outlined, Colors.blue);
       case VisibilityOption.private:
         return (Icons.lock_outline, Colors.orange);
     }

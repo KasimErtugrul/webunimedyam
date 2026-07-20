@@ -131,10 +131,10 @@ class CommentTileWidget extends StatelessWidget {
           vertical: _PhoneSizes.cardPaddingVertical.h,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface(context).withOpacity(_PhoneSizes.cardBackgroundOpacity),
+          color: AppTheme.surface(context).withValues(alpha:_PhoneSizes.cardBackgroundOpacity),
           borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
           border: Border.all(
-            color: AppTheme.textSec(context).withOpacity(_PhoneSizes.cardBorderOpacity),
+            color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.cardBorderOpacity),
           ),
         ),
         child: Row(
@@ -146,7 +146,7 @@ class CommentTileWidget extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                    Theme.of(context).colorScheme.primary.withValues(alpha:0.6),
                     Theme.of(context).colorScheme.primary,
                   ],
                   begin: Alignment.topLeft,
@@ -214,7 +214,7 @@ class CommentTileWidget extends StatelessWidget {
                   Text(
                     comment.content,
                     style: TextStyle(
-                      color: AppTheme.textSec(context).withOpacity(0.9),
+                      color: AppTheme.textSec(context).withValues(alpha:0.9),
                       fontSize: _PhoneSizes.commentFontSize.sp,
                       height: _PhoneSizes.commentLineHeight,
                     ),
@@ -231,7 +231,7 @@ class CommentTileWidget extends StatelessWidget {
                   onPressed: onDelete,
                   icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withOpacity(0.6),
+                    color: AppTheme.textSec(context).withValues(alpha:0.6),
                     size: _PhoneSizes.deleteIconSize.sp,
                   ),
                   splashRadius: _PhoneSizes.deleteSplashRadius.r,
@@ -267,10 +267,10 @@ class CommentTileWidget extends StatelessWidget {
           vertical: _TabletSizes.cardPaddingVertical,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface(context).withOpacity(_TabletSizes.cardBackgroundOpacity),
+          color: AppTheme.surface(context).withValues(alpha:_TabletSizes.cardBackgroundOpacity),
           borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
           border: Border.all(
-            color: AppTheme.textSec(context).withOpacity(_TabletSizes.cardBorderOpacity),
+            color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.cardBorderOpacity),
           ),
         ),
         child: Row(
@@ -282,7 +282,7 @@ class CommentTileWidget extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                    Theme.of(context).colorScheme.primary.withValues(alpha:0.6),
                     Theme.of(context).colorScheme.primary,
                   ],
                   begin: Alignment.topLeft,
@@ -350,7 +350,7 @@ class CommentTileWidget extends StatelessWidget {
                   Text(
                     comment.content,
                     style: TextStyle(
-                      color: AppTheme.textSec(context).withOpacity(0.9),
+                      color: AppTheme.textSec(context).withValues(alpha:0.9),
                       fontSize: _TabletSizes.commentFontSize,
                       height: _TabletSizes.commentLineHeight,
                     ),
@@ -367,7 +367,7 @@ class CommentTileWidget extends StatelessWidget {
                   onPressed: onDelete,
                   icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withOpacity(0.6),
+                    color: AppTheme.textSec(context).withValues(alpha:0.6),
                     size: _TabletSizes.deleteIconSize,
                   ),
                   splashRadius: _TabletSizes.deleteSplashRadius,

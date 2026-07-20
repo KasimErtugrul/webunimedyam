@@ -480,7 +480,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                         padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, 14.h),
                         sliver: SliverList(
                           delegate: SliverChildBuilderDelegate(
-                            (_, __) => const UniversityCardShimmerWidget(),
+                            (_, _) => const UniversityCardShimmerWidget(),
                             childCount: 6,
                           ),
                         ),
@@ -993,7 +993,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                         padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
                         sliver: SliverList(
                           delegate: SliverChildBuilderDelegate(
-                            (_, __) => const UniversityCardShimmerWidget(),
+                            (_, _) => const UniversityCardShimmerWidget(),
                             childCount: 6,
                           ),
                         ),

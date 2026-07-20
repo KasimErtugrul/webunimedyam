@@ -180,7 +180,7 @@ class UniversityListCardWidget extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: university.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => Center(
+                            placeholder: (_, _) => Center(
                               child: SizedBox(
                                 width: _PhoneSizes.logoLoaderSize.w,
                                 height: _PhoneSizes.logoLoaderSize.w,
@@ -193,7 +193,7 @@ class UniversityListCardWidget extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.school_rounded,
                               color: AppTheme.primaryColor,
                               size: _PhoneSizes.logoPlaceholderSize.sp,
@@ -367,7 +367,7 @@ class UniversityListCardWidget extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: university.logoUrl!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => Center(
+                            placeholder: (_, _) => Center(
                               child: SizedBox(
                                 width: _TabletSizes.logoLoaderSize,
                                 height: _TabletSizes.logoLoaderSize,
@@ -380,7 +380,7 @@ class UniversityListCardWidget extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.school_rounded,
                               color: AppTheme.primaryColor,
                               size: _TabletSizes.logoPlaceholderSize,

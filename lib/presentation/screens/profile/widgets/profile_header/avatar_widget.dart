@@ -103,7 +103,7 @@ class ProfileAvatarWidget extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: size,
                         height: size,
-                        errorWidget: (_, __, ___) =>
+                        errorWidget: (_, _, _) =>
                             _InitialLetter(username: username, size: size),
                       ),
                     )

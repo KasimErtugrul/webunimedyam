@@ -193,7 +193,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
             horizontal: _PhoneSizes.listPaddingHorizontal.w,
           ),
           itemCount: 6,
-          itemBuilder: (_, __) => Container(
+          itemBuilder: (_, _) => Container(
             width: _PhoneSizes.cardWidth.w,
             height: _PhoneSizes.cardHeight.h,
             margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
@@ -251,7 +251,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
             horizontal: _TabletSizes.listPaddingHorizontal,
           ),
           itemCount: 8,
-          itemBuilder: (_, __) => Container(
+          itemBuilder: (_, _) => Container(
             width: _TabletSizes.cardWidth,
             height: _TabletSizes.cardHeight,
             margin: const EdgeInsets.only(right: _TabletSizes.cardMarginRight),
@@ -360,8 +360,8 @@ class _ShortsThumbItemPhone extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: shorts.bestThumbnail,
               fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => _placeholder(context),
-              placeholder: (_, __) => _shimmerBox(context),
+              errorWidget: (_, _, _) => _placeholder(context),
+              placeholder: (_, _) => _shimmerBox(context),
             ),
 
             // Alt gradient (metin okunabilirliği için)
@@ -438,7 +438,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                               ? CachedNetworkImage(
                                   imageUrl: shorts.logoUrl!,
                                   fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) =>
+                                  errorWidget: (_, _, _) =>
                                       const Icon(Icons.school, size: 10),
                                 )
                               : const Icon(Icons.school, size: 10),
@@ -543,8 +543,8 @@ class _ShortsThumbItemTablet extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: shorts.bestThumbnail,
               fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => _placeholder(context),
-              placeholder: (_, __) => _shimmerBox(context),
+              errorWidget: (_, _, _) => _placeholder(context),
+              placeholder: (_, _) => _shimmerBox(context),
             ),
             Positioned(
               bottom: 0,
@@ -615,7 +615,7 @@ class _ShortsThumbItemTablet extends StatelessWidget {
                               ? CachedNetworkImage(
                                   imageUrl: shorts.logoUrl!,
                                   fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) =>
+                                  errorWidget: (_, _, _) =>
                                       const Icon(Icons.school, size: 12),
                                 )
                               : const Icon(Icons.school, size: 12),

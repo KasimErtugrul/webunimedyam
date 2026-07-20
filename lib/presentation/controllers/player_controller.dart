@@ -131,8 +131,9 @@ class PlayerController extends GetxController {
       );
       if (saved == null) return;
       if (saved.isNearlyFinished) return;
-      if (saved.positionSeconds < 2)
+      if (saved.positionSeconds < 2) {
         return; // çok az izlenmişse baştan başlasın
+      }
 
       // BUG FIX: _initPlayer() tamamlandığında YoutubePlayerController
       // sadece OLUŞTURULMUŞ olur; YouTube iframe'i videoyu henüz yüklemiş

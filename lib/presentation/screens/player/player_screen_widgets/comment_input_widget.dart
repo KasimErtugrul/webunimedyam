@@ -146,11 +146,11 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
         color: AppTheme.surface(context),
         borderRadius: BorderRadius.circular(_PhoneSizes.containerBorderRadius.r),
         border: Border.all(
-          color: AppTheme.textSec(context).withOpacity(_PhoneSizes.containerBorderOpacity),
+          color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.containerBorderOpacity),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(_PhoneSizes.containerShadowOpacity),
+            color: Colors.black.withValues(alpha:_PhoneSizes.containerShadowOpacity),
             blurRadius: _PhoneSizes.containerShadowBlur.r,
             offset: const Offset(0, 2),
           ),
@@ -191,19 +191,19 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
             child: Material(
               color: _hasText
                   ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textSec(context).withOpacity(_PhoneSizes.sendButtonDisabledAlpha),
+                  : AppTheme.textSec(context).withValues(alpha:_PhoneSizes.sendButtonDisabledAlpha),
               borderRadius: BorderRadius.circular(_PhoneSizes.sendButtonRadius.r),
               child: InkWell(
                 onTap: _handleSend,
                 borderRadius: BorderRadius.circular(_PhoneSizes.sendButtonRadius.r),
-                splashColor: Colors.white.withOpacity(_PhoneSizes.sendButtonSplashAlpha),
+                splashColor: Colors.white.withValues(alpha:_PhoneSizes.sendButtonSplashAlpha),
                 child: Padding(
                   padding: EdgeInsets.all(_PhoneSizes.sendButtonPadding.w),
                   child: Icon(
                     Icons.send_rounded,
                     color: _hasText
                         ? Theme.of(context).colorScheme.onPrimary
-                        : AppTheme.textSec(context).withOpacity(0.5),
+                        : AppTheme.textSec(context).withValues(alpha:0.5),
                     size: _PhoneSizes.sendButtonIconSize.sp,
                   ),
                 ),
@@ -230,11 +230,11 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
         color: AppTheme.surface(context),
         borderRadius: BorderRadius.circular(_TabletSizes.containerBorderRadius),
         border: Border.all(
-          color: AppTheme.textSec(context).withOpacity(_TabletSizes.containerBorderOpacity),
+          color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.containerBorderOpacity),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(_TabletSizes.containerShadowOpacity),
+            color: Colors.black.withValues(alpha:_TabletSizes.containerShadowOpacity),
             blurRadius: _TabletSizes.containerShadowBlur,
             offset: const Offset(0, 2),
           ),
@@ -275,19 +275,19 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
             child: Material(
               color: _hasText
                   ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textSec(context).withOpacity(_TabletSizes.sendButtonDisabledAlpha),
+                  : AppTheme.textSec(context).withValues(alpha:_TabletSizes.sendButtonDisabledAlpha),
               borderRadius: BorderRadius.circular(_TabletSizes.sendButtonRadius),
               child: InkWell(
                 onTap: _handleSend,
                 borderRadius: BorderRadius.circular(_TabletSizes.sendButtonRadius),
-                splashColor: Colors.white.withOpacity(_TabletSizes.sendButtonSplashAlpha),
+                splashColor: Colors.white.withValues(alpha:_TabletSizes.sendButtonSplashAlpha),
                 child: Padding(
                   padding: EdgeInsets.all(_TabletSizes.sendButtonPadding),
                   child: Icon(
                     Icons.send_rounded,
                     color: _hasText
                         ? Theme.of(context).colorScheme.onPrimary
-                        : AppTheme.textSec(context).withOpacity(0.5),
+                        : AppTheme.textSec(context).withValues(alpha:0.5),
                     size: _TabletSizes.sendButtonIconSize,
                   ),
                 ),

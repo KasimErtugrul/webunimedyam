@@ -447,9 +447,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ? CachedNetworkImage(
                   imageUrl: logoUrl,
                   fit: BoxFit.contain,
-                  placeholder: (_, __) =>
+                  placeholder: (_, _) =>
                       Container(color: AppTheme.surface(context)),
-                  errorWidget: (_, __, ___) =>
+                  errorWidget: (_, _, _) =>
                       _AvatarFallbackPhone(themeContext: context),
                 )
               : _AvatarFallbackPhone(themeContext: context),
@@ -497,7 +497,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 CachedNetworkImage(
                   imageUrl: video.bestThumbnail,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
+                  placeholder: (_, _) => Container(
                     color: AppTheme.surface(context),
                     child: Center(
                       child: CircularProgressIndicator(
@@ -506,7 +506,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                     ),
                   ),
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     color: AppTheme.surface(context),
                     child: Icon(
                       Icons.play_circle_outline_rounded,
@@ -930,9 +930,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ? CachedNetworkImage(
                   imageUrl: logoUrl,
                   fit: BoxFit.contain,
-                  placeholder: (_, __) =>
+                  placeholder: (_, _) =>
                       Container(color: AppTheme.surface(context)),
-                  errorWidget: (_, __, ___) =>
+                  errorWidget: (_, _, _) =>
                       _AvatarFallbackTablet(themeContext: context),
                 )
               : _AvatarFallbackTablet(themeContext: context),
@@ -980,7 +980,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 CachedNetworkImage(
                   imageUrl: video.bestThumbnail,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
+                  placeholder: (_, _) => Container(
                     color: AppTheme.surface(context),
                     child: Center(
                       child: CircularProgressIndicator(
@@ -989,7 +989,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                     ),
                   ),
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     color: AppTheme.surface(context),
                     child: Icon(
                       Icons.play_circle_outline_rounded,
@@ -1437,8 +1437,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                               text,
                             );
                             if (ok) {
-                              if (sheetContext.mounted)
+                              if (sheetContext.mounted) {
                                 Navigator.pop(sheetContext);
+                              }
                               Get.snackbar(
                                 'Gönderildi 🎉',
                                 'Yorumun videoya eklendi.',
@@ -1632,8 +1633,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                               text,
                             );
                             if (ok) {
-                              if (sheetContext.mounted)
+                              if (sheetContext.mounted) {
                                 Navigator.pop(sheetContext);
+                              }
                               Get.snackbar(
                                 'Gönderildi 🎉',
                                 'Yorumun videoya eklendi.',

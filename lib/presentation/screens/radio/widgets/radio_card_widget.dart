@@ -210,7 +210,7 @@ class RadioCardWidget extends StatelessWidget {
                 ? CachedNetworkImage(
                     imageUrl: uni.logoUrl!,
                     fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => RadioFallbackLogoWidget(uni: uni),
+                    errorWidget: (_, _, _) => RadioFallbackLogoWidget(uni: uni),
                   )
                 : RadioFallbackLogoWidget(uni: uni),
           ),
@@ -492,7 +492,7 @@ class RadioCardWidget extends StatelessWidget {
                 ? CachedNetworkImage(
                     imageUrl: uni.logoUrl!,
                     fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => RadioFallbackLogoWidget(uni: uni),
+                    errorWidget: (_, _, _) => RadioFallbackLogoWidget(uni: uni),
                   )
                 : RadioFallbackLogoWidget(uni: uni),
           ),

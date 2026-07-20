@@ -107,7 +107,7 @@ class CommentsHeaderWidget extends StatelessWidget {
                   color: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withOpacity(_PhoneSizes.badgeOpacity),
+                      .withValues(alpha:_PhoneSizes.badgeOpacity),
                   borderRadius: BorderRadius.circular(
                     _PhoneSizes.badgeBorderRadius.r,
                   ),
@@ -140,7 +140,7 @@ class CommentsHeaderWidget extends StatelessWidget {
         Divider(
           height: _PhoneSizes.dividerHeight,
           thickness: _PhoneSizes.dividerThickness,
-          color: AppTheme.textSec(context).withOpacity(_PhoneSizes.dividerOpacity),
+          color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.dividerOpacity),
         ),
       ],
     );
@@ -177,7 +177,7 @@ class CommentsHeaderWidget extends StatelessWidget {
                   color: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withOpacity(_TabletSizes.badgeOpacity),
+                      .withValues(alpha:_TabletSizes.badgeOpacity),
                   borderRadius: BorderRadius.circular(
                     _TabletSizes.badgeBorderRadius,
                   ),
@@ -210,7 +210,7 @@ class CommentsHeaderWidget extends StatelessWidget {
         Divider(
           height: _TabletSizes.dividerHeight,
           thickness: _TabletSizes.dividerThickness,
-          color: AppTheme.textSec(context).withOpacity(_TabletSizes.dividerOpacity),
+          color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.dividerOpacity),
         ),
       ],
     );

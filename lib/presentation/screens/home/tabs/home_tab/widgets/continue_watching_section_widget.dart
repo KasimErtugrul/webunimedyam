@@ -298,9 +298,9 @@ class _CardPhone extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.bestThumbnail,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) =>
+                    placeholder: (_, _) =>
                         Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,
@@ -479,9 +479,9 @@ class _CardTablet extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.bestThumbnail,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) =>
+                    placeholder: (_, _) =>
                         Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,

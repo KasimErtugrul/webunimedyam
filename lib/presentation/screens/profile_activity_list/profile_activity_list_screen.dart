@@ -652,12 +652,12 @@ class _VideoCardPhone extends StatelessWidget {
                     width: _PhoneSizes.listThumbnailWidth.w,
                     height: _PhoneSizes.listThumbnailHeight.h,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: _PhoneSizes.listThumbnailWidth.w,
                       height: _PhoneSizes.listThumbnailHeight.h,
                       color: AppTheme.surface(context),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: _PhoneSizes.listThumbnailWidth.w,
                       height: _PhoneSizes.listThumbnailHeight.h,
                       color: AppTheme.surface(context),
@@ -801,9 +801,9 @@ class _VideoGridCardPhone extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) =>
+                    placeholder: (_, _) =>
                         Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,
@@ -1407,12 +1407,12 @@ class _VideoCardTablet extends StatelessWidget {
                     width: _TabletSizes.listThumbnailWidth,
                     height: _TabletSizes.listThumbnailHeight,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: _TabletSizes.listThumbnailWidth,
                       height: _TabletSizes.listThumbnailHeight,
                       color: AppTheme.surface(context),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: _TabletSizes.listThumbnailWidth,
                       height: _TabletSizes.listThumbnailHeight,
                       color: AppTheme.surface(context),
@@ -1554,9 +1554,9 @@ class _VideoGridCardTablet extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) =>
+                    placeholder: (_, _) =>
                         Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,

@@ -78,14 +78,14 @@ class EngagementActionWidget extends StatelessWidget {
         : AppTheme.textSec(context);
 
     final bgColor = active
-        ? Theme.of(context).colorScheme.primary.withOpacity(0.12)
+        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.12)
         : Colors.transparent;
 
     return InkWell(
       onTap: loading ? null : onTap,
       borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
-      splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-      highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+      splashColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
+      highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.05),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
@@ -154,14 +154,14 @@ class EngagementActionWidget extends StatelessWidget {
         : AppTheme.textSec(context);
 
     final bgColor = active
-        ? Theme.of(context).colorScheme.primary.withOpacity(0.12)
+        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.12)
         : Colors.transparent;
 
     return InkWell(
       onTap: loading ? null : onTap,
       borderRadius: BorderRadius.circular(_TabletSizes.borderRadius),
-      splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-      highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+      splashColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
+      highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.05),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,

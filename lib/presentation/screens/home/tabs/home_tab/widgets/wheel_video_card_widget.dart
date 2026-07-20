@@ -235,7 +235,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
+            color: Colors.black.withValues(alpha: 
               AppTheme.isDark(context) ? 0.28 : 0.06,
             ),
             blurRadius: _PhoneSizes.shadowBlurRadius,
@@ -283,7 +283,7 @@ class WheelVideoCardWidget extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: video.bestThumbnail,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+                placeholder: (_, _) => Container(
                   color: AppTheme.surface(context),
                   child: Center(
                     child: CircularProgressIndicator(
@@ -292,7 +292,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: AppTheme.surface(context),
                   child: Icon(
                     Icons.play_circle_outline_rounded,
@@ -312,7 +312,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.55),
+                        Colors.black.withValues(alpha:0.55),
                         Colors.transparent,
                       ],
                     ),
@@ -330,10 +330,10 @@ class WheelVideoCardWidget extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(
+                        Colors.black.withValues(alpha:
                           _PhoneSizes.bottomGradientOpacity,
                         ),
-                        Colors.black.withOpacity(0.0),
+                        Colors.black.withValues(alpha:0.0),
                       ],
                     ),
                   ),
@@ -365,7 +365,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                     Text(
                       timeago.format(video.publishedAt, locale: 'tr'),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha:0.75),
                         fontSize: _PhoneSizes.timeFontSize.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -452,13 +452,13 @@ class WheelVideoCardWidget extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isFav
-                    ? Colors.white.withOpacity(0.16)
+                    ? Colors.white.withValues(alpha:0.16)
                     : AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(
                   _PhoneSizes.followButtonRadius.r,
                 ),
                 border: isFav
-                    ? Border.all(color: Colors.white.withOpacity(0.5))
+                    ? Border.all(color: Colors.white.withValues(alpha:0.5))
                     : null,
               ),
               child: Row(
@@ -498,7 +498,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_PhoneSizes.badgeRadius.r),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.45),
+            color: color.withValues(alpha:0.45),
             blurRadius: _PhoneSizes.badgeShadowBlur,
             offset: const Offset(0, 2),
           ),
@@ -538,7 +538,7 @@ class WheelVideoCardWidget extends StatelessWidget {
             : _PhoneSizes.pillPaddingVertical.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha:0.6),
         borderRadius: BorderRadius.circular(_PhoneSizes.pillRadius.r),
       ),
       child: Text(
@@ -746,7 +746,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
+            color: Colors.black.withValues(alpha:
               AppTheme.isDark(context) ? 0.28 : 0.06,
             ),
             blurRadius: _TabletSizes.shadowBlurRadius,
@@ -794,7 +794,7 @@ class WheelVideoCardWidget extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: video.bestThumbnail,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+                placeholder: (_, _) => Container(
                   color: AppTheme.surface(context),
                   child: Center(
                     child: CircularProgressIndicator(
@@ -803,7 +803,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: AppTheme.surface(context),
                   child: Icon(
                     Icons.play_circle_outline_rounded,
@@ -823,7 +823,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.55),
+                        Colors.black.withValues(alpha:0.55),
                         Colors.transparent,
                       ],
                     ),
@@ -841,10 +841,10 @@ class WheelVideoCardWidget extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(
+                        Colors.black.withValues(alpha:
                           _TabletSizes.bottomGradientOpacity,
                         ),
-                        Colors.black.withOpacity(0.0),
+                        Colors.black.withValues(alpha:0.0),
                       ],
                     ),
                   ),
@@ -876,7 +876,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                     Text(
                       timeago.format(video.publishedAt, locale: 'tr'),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha:0.75),
                         fontSize: _TabletSizes.timeFontSize,
                         fontWeight: FontWeight.w500,
                       ),
@@ -963,13 +963,13 @@ class WheelVideoCardWidget extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isFav
-                    ? Colors.white.withOpacity(0.16)
+                    ? Colors.white.withValues(alpha:0.16)
                     : AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(
                   _TabletSizes.followButtonRadius,
                 ),
                 border: isFav
-                    ? Border.all(color: Colors.white.withOpacity(0.5))
+                    ? Border.all(color: Colors.white.withValues(alpha:0.5))
                     : null,
               ),
               child: Row(
@@ -1009,7 +1009,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_TabletSizes.badgeRadius),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.45),
+            color: color.withValues(alpha:0.45),
             blurRadius: _TabletSizes.badgeShadowBlur,
             offset: const Offset(0, 2),
           ),
@@ -1049,7 +1049,7 @@ class WheelVideoCardWidget extends StatelessWidget {
             : _TabletSizes.pillPaddingVertical,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha:0.6),
         borderRadius: BorderRadius.circular(_TabletSizes.pillRadius),
       ),
       child: Text(

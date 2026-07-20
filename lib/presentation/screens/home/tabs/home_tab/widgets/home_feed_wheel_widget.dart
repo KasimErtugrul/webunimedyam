@@ -377,12 +377,12 @@ class _LogoWheelPhoneState extends State<_LogoWheelPhone> {
                               fit: BoxFit.contain,
                               fadeInDuration: Duration.zero,
                               fadeOutDuration: Duration.zero,
-                              errorWidget: (_, __, ___) => Icon(
+                              errorWidget: (_, _, _) => Icon(
                                 Icons.school_rounded,
                                 color: AppTheme.textSec(context),
                                 size: size * 0.5,
                               ),
-                              placeholder: (_, __) => Container(color: bg),
+                              placeholder: (_, _) => Container(color: bg),
                             )
                           : Icon(
                               Icons.school_rounded,
@@ -534,12 +534,12 @@ class _LogoWheelTabletState extends State<_LogoWheelTablet> {
                               fit: BoxFit.contain,
                               fadeInDuration: Duration.zero,
                               fadeOutDuration: Duration.zero,
-                              errorWidget: (_, __, ___) => Icon(
+                              errorWidget: (_, _, _) => Icon(
                                 Icons.school_rounded,
                                 color: AppTheme.textSec(context),
                                 size: size * 0.5,
                               ),
-                              placeholder: (_, __) => Container(color: bg),
+                              placeholder: (_, _) => Container(color: bg),
                             )
                           : Icon(
                               Icons.school_rounded,

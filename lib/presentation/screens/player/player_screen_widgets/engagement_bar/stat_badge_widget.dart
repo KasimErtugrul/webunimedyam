@@ -106,7 +106,7 @@ class StatBadgeWidget extends StatelessWidget {
 
   Widget _buildPhone(BuildContext context) {
     final Color iconColor = tappable
-        ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
+        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.7)
         : AppTheme.textSec(context);
 
     final Color textColor = tappable
@@ -128,7 +128,7 @@ class StatBadgeWidget extends StatelessWidget {
               height: _PhoneSizes.loadingSize.sp,
               child: CircularProgressIndicator(
                 strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
-                color: AppTheme.textSec(context).withOpacity(0.5),
+                color: AppTheme.textSec(context).withValues(alpha:0.5),
               ),
             )
           else
@@ -143,7 +143,7 @@ class StatBadgeWidget extends StatelessWidget {
               width: _PhoneSizes.skeletonWidth.w,
               height: _PhoneSizes.skeletonHeight.h,
               decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withOpacity(
+                color: AppTheme.textSec(context).withValues(alpha:
                   _PhoneSizes.skeletonOpacity,
                 ),
                 borderRadius: BorderRadius.circular(
@@ -170,7 +170,7 @@ class StatBadgeWidget extends StatelessWidget {
                   decorationColor: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withOpacity(_PhoneSizes.textDecorationOpacity),
+                      .withValues(alpha:_PhoneSizes.textDecorationOpacity),
                   decorationThickness: _PhoneSizes.textDecorationThickness,
                 ),
               ),
@@ -186,7 +186,7 @@ class StatBadgeWidget extends StatelessWidget {
 
   Widget _buildTablet(BuildContext context) {
     final Color iconColor = tappable
-        ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
+        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.7)
         : AppTheme.textSec(context);
 
     final Color textColor = tappable
@@ -208,7 +208,7 @@ class StatBadgeWidget extends StatelessWidget {
               height: _TabletSizes.loadingSize,
               child: CircularProgressIndicator(
                 strokeWidth: _TabletSizes.loadingStrokeWidth,
-                color: AppTheme.textSec(context).withOpacity(0.5),
+                color: AppTheme.textSec(context).withValues(alpha:0.5),
               ),
             )
           else
@@ -223,7 +223,7 @@ class StatBadgeWidget extends StatelessWidget {
               width: _TabletSizes.skeletonWidth,
               height: _TabletSizes.skeletonHeight,
               decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withOpacity(
+                color: AppTheme.textSec(context).withValues(alpha:
                   _TabletSizes.skeletonOpacity,
                 ),
                 borderRadius: BorderRadius.circular(
@@ -250,7 +250,7 @@ class StatBadgeWidget extends StatelessWidget {
                   decorationColor: Theme.of(context)
                       .colorScheme
                       .primary
-                      .withOpacity(_TabletSizes.textDecorationOpacity),
+                      .withValues(alpha:_TabletSizes.textDecorationOpacity),
                   decorationThickness: _TabletSizes.textDecorationThickness,
                 ),
               ),

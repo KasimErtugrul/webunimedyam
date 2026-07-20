@@ -768,7 +768,7 @@ class _VideoChipRowPhone extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : Colors.white.withOpacity(0.12),
+                    : Colors.white.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(_PhoneSizes.chipBorderRadius.r),
                 border: isSelected
                     ? null
@@ -789,7 +789,7 @@ class _VideoChipRowPhone extends StatelessWidget {
                       width: _PhoneSizes.chipThumbnailSize.w,
                       height: _PhoneSizes.chipThumbnailSize.w,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
+                      errorWidget: (_, _, _) => Icon(
                         Icons.play_circle_outline,
                         size: _PhoneSizes.chipThumbnailSize.sp * 0.6,
                         color: Colors.white,
@@ -916,7 +916,7 @@ class _VideoChipRowTablet extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : Colors.white.withOpacity(0.12),
+                    : Colors.white.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(_TabletSizes.chipBorderRadius),
                 border: isSelected
                     ? null
@@ -937,7 +937,7 @@ class _VideoChipRowTablet extends StatelessWidget {
                       width: _TabletSizes.chipThumbnailSize,
                       height: _TabletSizes.chipThumbnailSize,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
+                      errorWidget: (_, _, _) => Icon(
                         Icons.play_circle_outline,
                         size: _TabletSizes.chipThumbnailSize * 0.6,
                         color: Colors.white,

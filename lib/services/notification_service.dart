@@ -162,7 +162,7 @@ class NotificationService {
         duration: const Duration(seconds: 5),
         margin: const EdgeInsets.all(12),
         backgroundColor:
-            Get.theme.colorScheme.surfaceContainerHighest.withOpacity(0.95),
+            Get.theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.95),
         colorText: Get.theme.colorScheme.onSurface,
         onTap: (_) => _handleNotificationTap(message),
       );
@@ -178,11 +178,6 @@ class NotificationService {
       switch (type) {
         case 'new_university_video':
           await _navigateToPlayer(message.data);
-          break;
-        case 'follow_request':
-        case 'follow_accepted':
-        case 'follow_rejected':
-          await _navigateToNotifications();
           break;
         default:
           break;
@@ -211,19 +206,4 @@ class NotificationService {
     }
   }
 
-  Future<void> _navigateToNotifications() async {
-    try {
-      // Uygulama açıksa direkt git; yoksa Home üzerinden aç
-      if (Get.currentRoute == AppRoutes.notifications) return;
-      if (Get.currentRoute == AppRoutes.home) {
-        Get.toNamed(AppRoutes.notifications);
-      } else {
-        Get.offAllNamed(AppRoutes.home);
-        await Future.delayed(const Duration(milliseconds: 300));
-        Get.toNamed(AppRoutes.notifications);
-      }
-    } catch (e, stacktrace) {
-      log('Bildirimden bildirimler sayfasına yönlendirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
-    }
-  }
 }

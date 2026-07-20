@@ -176,7 +176,7 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
             children: List.generate(_barCount, (i) {
               return AnimatedBuilder(
                 animation: _animations[i],
-                builder: (_, __) {
+                builder: (_, _) {
                   final barHeight = _animations[i].value * heightScale;
                   return Container(
                     width: barWidth,

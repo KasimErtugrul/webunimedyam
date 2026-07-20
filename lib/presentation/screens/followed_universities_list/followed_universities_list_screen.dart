@@ -286,7 +286,7 @@ class _UniversityCardPhone extends StatelessWidget {
                       width: _PhoneSizes.listLogoSize.w,
                       height: _PhoneSizes.listLogoSize.w,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _logoPlaceholderPhone(context),
+                      errorBuilder: (_, _, _) => _logoPlaceholderPhone(context),
                     )
                   : _logoPlaceholderPhone(context),
             ),
@@ -438,7 +438,7 @@ class _UniversityCardTablet extends StatelessWidget {
                       width: _TabletSizes.listLogoSize,
                       height: _TabletSizes.listLogoSize,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _logoPlaceholderTablet(context),
+                      errorBuilder: (_, _, _) => _logoPlaceholderTablet(context),
                     )
                   : _logoPlaceholderTablet(context),
             ),

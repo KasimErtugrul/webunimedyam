@@ -879,7 +879,7 @@ class _UniversityChipRowPhone extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : Colors.white.withOpacity(0.12),
+                    : Colors.white.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(_PhoneSizes.chipBorderRadius.r),
                 border: isSelected
                     ? null
@@ -898,7 +898,7 @@ class _UniversityChipRowPhone extends StatelessWidget {
                         width: _PhoneSizes.chipLogoSize.w,
                         height: _PhoneSizes.chipLogoSize.w,
                         fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                        errorWidget: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),
                     SizedBox(width: _PhoneSizes.chipLogoSpacing.w),
@@ -962,8 +962,8 @@ class _NavBtnPhone extends StatelessWidget {
             height: _PhoneSizes.navBtnSize.w,
             decoration: BoxDecoration(
               color: enabled
-                  ? Colors.white.withOpacity(_PhoneSizes.navBtnEnabledAlpha)
-                  : Colors.white.withOpacity(_PhoneSizes.navBtnDisabledAlpha),
+                  ? Colors.white.withValues(alpha:_PhoneSizes.navBtnEnabledAlpha)
+                  : Colors.white.withValues(alpha:_PhoneSizes.navBtnDisabledAlpha),
               shape: BoxShape.circle,
               border: Border.all(
                 color: enabled ? Colors.white24 : Colors.white12,
@@ -1086,7 +1086,7 @@ class _UniversityChipRowTablet extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : Colors.white.withOpacity(0.12),
+                    : Colors.white.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(_TabletSizes.chipBorderRadius),
                 border: isSelected
                     ? null
@@ -1105,7 +1105,7 @@ class _UniversityChipRowTablet extends StatelessWidget {
                         width: _TabletSizes.chipLogoSize,
                         height: _TabletSizes.chipLogoSize,
                         fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                        errorWidget: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),
                     SizedBox(width: _TabletSizes.chipLogoSpacing),
@@ -1169,8 +1169,8 @@ class _NavBtnTablet extends StatelessWidget {
             height: _TabletSizes.navBtnSize,
             decoration: BoxDecoration(
               color: enabled
-                  ? Colors.white.withOpacity(_TabletSizes.navBtnEnabledAlpha)
-                  : Colors.white.withOpacity(_TabletSizes.navBtnDisabledAlpha),
+                  ? Colors.white.withValues(alpha:_TabletSizes.navBtnEnabledAlpha)
+                  : Colors.white.withValues(alpha:_TabletSizes.navBtnDisabledAlpha),
               shape: BoxShape.circle,
               border: Border.all(
                 color: enabled ? Colors.white24 : Colors.white12,

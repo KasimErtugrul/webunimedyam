@@ -157,7 +157,7 @@ class VideoGridCardWidget extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.bestThumbnail,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       color: AppTheme.surface(context),
                       child: Center(
                         child: CircularProgressIndicator(
@@ -166,7 +166,7 @@ class VideoGridCardWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,
@@ -415,9 +415,9 @@ class VideoGridCardWidget extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: logoUrl,
               fit: BoxFit.cover,
-              placeholder: (_, __) =>
+              placeholder: (_, _) =>
                   Container(color: AppTheme.surface(context)),
-              errorWidget: (_, __, ___) => _AvatarFallback(context: context),
+              errorWidget: (_, _, _) => _AvatarFallback(context: context),
             )
           : _AvatarFallback(context: context);
     });
