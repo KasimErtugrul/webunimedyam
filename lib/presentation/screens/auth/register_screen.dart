@@ -274,14 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           onPressed: () => Get.back(),
         ),
-        title: Text(
-          'Kayıt Ol',
-          style: TextStyle(
-            color: AppTheme.textPri(context),
-            fontSize: _PhoneSizes.appBarTitleSize.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Kayıt Ol'),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -568,14 +561,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           onPressed: () => Get.back(),
         ),
-        title: Text(
-          'Kayıt Ol',
-          style: TextStyle(
-            color: AppTheme.textPri(context),
-            fontSize: _TabletSizes.appBarTitleSize,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Kayıt Ol'),
       ),
       body: Center(
         child: ConstrainedBox(

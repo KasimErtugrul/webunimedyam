@@ -207,8 +207,6 @@ class SupabaseDataSource {
     }
   }
 
-
-
   /// FIX: `videos_cache` tablosunda app_view_count/app_like_count vb. kolonlar
   /// yok — bu yüzden üniversite detay sayfasındaki videolar her zaman 0
   /// görünüyordu. Artık `videos_cache_with_engagement` view'inden okunuyor
@@ -278,8 +276,6 @@ class SupabaseDataSource {
       throw Exception('Shortslar yüklenemedi. Lütfen tekrar deneyin.');
     }
   }
-
-
 
   // ─── Favoriler ────────────────────────────────────────────────────────────
   // FIX: Eskiden sabit limit=20 ile çağrılıyordu ve hiç sıralama yoktu. Bu
@@ -372,25 +368,55 @@ class SupabaseDataSource {
     }
   }
 
-  // ─── Yorumlar ─────────────────────────────────────────────────────────────
+  // ─── DEĞİŞİKLİK: getComments() artık 'comments' tablosundan doğrudan değil,
+  // get_video_comments() RPC'sinden okuyor.
+  //
+  // SEBEP: 'comments' tablosunun RLS'i artık herkese açık değil (sadece kendi
+  // yorumunu görebilirsin). Bir videonun altındaki TÜM yorumları herkese açık
+  // şekilde göstermek için bu amaca özel, video_id bazlı çalışan (kullanıcı
+  // bazlı toplu sorguya izin vermeyen) bir RPC eklendi. Böylece "yorum akışı
+  // herkese açık" davranışı korunurken, comments_visibility ayarını bypass eden
+  // güvenlik açığı kapatıldı.
+  //
+  // SupabaseDataSource içindeki eski getComments() metodunun YERİNE koyun:
+
   Future<List<CommentModel>> getComments(
     String videoId, {
     int limit = 200,
     int offset = 0,
   }) async {
     try {
-      final data = await _client
-          .from('comments')
-          .select('*, profiles(username, avatar_url)')
-          .eq('video_id', videoId)
-          .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
-      return (data as List).map((e) => CommentModel.fromSupabase(e)).toList();
+      final data = await _client.rpc(
+        'get_video_comments',
+        params: {'p_video_id': videoId, 'p_limit': limit, 'p_offset': offset},
+      );
+
+      return (data as List).map((row) {
+        final map = Map<String, dynamic>.from(row as Map);
+        // Eski embed şekliyle (profiles(username, avatar_url)) uyumlu olsun diye
+        // düz gelen username/avatar_url alanlarını 'profiles' altına topluyoruz.
+        // CommentModel.fromSupabase() değişmeden çalışmaya devam eder.
+        map['profiles'] = {
+          'username': map.remove('username'),
+          'avatar_url': map.remove('avatar_url'),
+        };
+        return CommentModel.fromSupabase(map);
+      }).toList();
     } catch (e, stackTrace) {
       log('Yorumlar getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception('Yorumlar yüklenemedi. Lütfen tekrar deneyin.');
     }
   }
+
+  // NOT: addComment(), updateComment(), deleteComment() değişmedi — onlar zaten
+  // 'comments' tablosuna auth.uid()=user_id kontrollü INSERT/UPDATE/DELETE
+  // policy'leri üzerinden çalışıyordu, bu policy'lere dokunulmadı.
+  //
+  // Eğer CommentModel.fromSupabase() içinde 'profiles' map'i farklı şekilde
+  // okunuyorsa (örn. profiles.username yerine profile_username gibi düz bir
+  // alan bekliyorsa), yukarıdaki map['profiles'] = {...} satırını o modele göre
+  // uyarlamanız gerekir — CommentModel dosyasını paylaşırsanız tam eşleşecek
+  // şekilde güncelleyebilirim.
 
   Future<void> addComment(String userId, String videoId, String content) async {
     try {
@@ -824,9 +850,7 @@ class SupabaseDataSource {
       return _attachEngagement(videos);
     } catch (e, stackTrace) {
       log('Beğenilen videolar getirilirken hata oluştu: $e\n$stackTrace');
-      throw Exception(
-        'Beğenilen videolar yüklenemedi. Lütfen tekrar deneyin.',
-      );
+      throw Exception('Beğenilen videolar yüklenemedi. Lütfen tekrar deneyin.');
     }
   }
 
@@ -1439,7 +1463,7 @@ class SupabaseDataSource {
       rethrow;
     }
   }
-  
+
   Future<Map<String, dynamic>?> getPublicProfile(String userId) async {
     try {
       return await _client

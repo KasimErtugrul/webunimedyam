@@ -302,14 +302,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             ),
           ),
           SizedBox(width: _PhoneSizes.titleSpacing.w),
-          Text(
-            'ÜniTV',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: _PhoneSizes.titleFontSize.sp,
-              letterSpacing: _PhoneSizes.titleLetterSpacing,
-            ),
-          ),
+          Text('ÜniTV'),
         ],
       ),
     );
@@ -371,14 +364,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             ),
           ),
           SizedBox(width: _TabletSizes.titleSpacing),
-          Text(
-            'ÜniTV',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: _TabletSizes.titleFontSize,
-              letterSpacing: _TabletSizes.titleLetterSpacing,
-            ),
-          ),
+          Text('ÜniTV'),
         ],
       ),
     );

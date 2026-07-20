@@ -93,17 +93,20 @@ abstract class AppTheme {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: darkBackground,
       elevation: 0,
       centerTitle: true,
-      iconTheme: IconThemeData(color: darkTextPrimary),
+      iconTheme: const IconThemeData(color: darkTextPrimary),
+      titleTextStyle: GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.bold),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: darkSurface,
       selectedItemColor: primaryColor,
       unselectedItemColor: darkTextSecondary,
       type: BottomNavigationBarType.fixed,
+      selectedLabelStyle: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w500),
+      unselectedLabelStyle: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w500),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -162,18 +165,21 @@ abstract class AppTheme {
         side: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
       ),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: lightSurface,
       elevation: 0,
       centerTitle: true,
-      iconTheme: IconThemeData(color: lightTextPrimary),
+      iconTheme: const IconThemeData(color: lightTextPrimary),
+      titleTextStyle: GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.bold),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: lightSurface,
       selectedItemColor: primaryColor,
       unselectedItemColor: lightTextSecondary,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
+      selectedLabelStyle: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w500),
+      unselectedLabelStyle: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w500),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(

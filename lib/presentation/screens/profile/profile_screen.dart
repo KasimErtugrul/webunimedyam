@@ -149,10 +149,7 @@ class _NotLoggedInViewPhone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Profil',
-          style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
-        ),
+        title: const Text('Profil'),
       ),
       body: Center(
         child: Padding(
@@ -260,10 +257,7 @@ class _NotLoggedInViewTablet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Profil',
-          style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
-        ),
+        title: const Text('Profil'),
       ),
       body: Center(
         child: ConstrainedBox(

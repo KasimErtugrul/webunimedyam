@@ -106,13 +106,7 @@ class FollowedUniversitiesListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Takip Edilen Üniversiteler',
-          style: TextStyle(
-            fontSize: _PhoneSizes.appBarTitleSize.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Takip Edilen Üniversiteler'),
         surfaceTintColor: Colors.transparent,
       ),
       body: Obx(() {
@@ -159,13 +153,7 @@ class FollowedUniversitiesListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Takip Edilen Üniversiteler',
-          style: TextStyle(
-            fontSize: _TabletSizes.appBarTitleSize,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Takip Edilen Üniversiteler'),
         surfaceTintColor: Colors.transparent,
       ),
       body: Obx(() {

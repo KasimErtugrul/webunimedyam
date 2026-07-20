@@ -275,14 +275,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _PhoneSizes.iconSpacing.w),
-                    Text(
-                      'Üniversiteler',
-                      style: TextStyle(
-                        fontSize: _PhoneSizes.titleFontSize.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPri(context),
-                      ),
-                    ),
+                    Text('Üniversiteler'),
                   ],
                 ),
               ),
@@ -793,14 +786,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _TabletSizes.iconSpacing),
-                    Text(
-                      'Üniversiteler',
-                      style: TextStyle(
-                        fontSize: _TabletSizes.titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPri(context),
-                      ),
-                    ),
+                    Text('Üniversiteler'),
                   ],
                 ),
               ),

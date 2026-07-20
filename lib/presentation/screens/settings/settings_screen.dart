@@ -233,10 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildPhone(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Ayarlar',
-          style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
-        ),
+        title: const Text('Ayarlar'),
       ),
       body: Obx(() {
         final s = _controller.settings.value;
@@ -392,10 +389,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildTablet(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Ayarlar',
-          style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
-        ),
+        title: const Text('Ayarlar'),
       ),
       body: Obx(() {
         final s = _controller.settings.value;

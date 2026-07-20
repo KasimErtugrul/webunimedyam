@@ -120,10 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Giriş Yap',
-          style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
-        ),
+        title: const Text('Giriş Yap'),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(_PhoneSizes.mainPadding.w),
@@ -317,10 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Giriş Yap',
-          style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
-        ),
+        title: const Text('Giriş Yap'),
       ),
       body: Center(
         child: ConstrainedBox(

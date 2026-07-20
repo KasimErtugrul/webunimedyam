@@ -92,12 +92,7 @@ class DiscoverTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _PhoneSizes.iconSpacing.w),
-                    Text(
-                      'Keşfet',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('Keşfet'),
                   ],
                 ),
                 bottom: TabBar(
@@ -169,12 +164,7 @@ class DiscoverTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _TabletSizes.iconSpacing),
-                    Text(
-                      'Keşfet',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('Keşfet'),
                   ],
                 ),
                 bottom: TabBar(
