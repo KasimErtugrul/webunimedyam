@@ -123,31 +123,12 @@ class _PhoneSizes {
   static const double miniPlayerStopIconSize = 28;
   static const double miniPlayerLoadingSize = 20;
 
-  // Shorts List Card
-  static const double shortsCardPadding = 10;
-  static const double shortsCardBorderRadius = 14;
-  static const double shortsThumbnailWidth = 68;
-  static const double shortsThumbnailHeight = 100;
-  static const double shortsThumbnailRadius = 10;
-  static const double shortsThumbnailSpacing = 12;
-  static const double shortsTitleFontSize = 13;
-  static const double shortsTitleLineHeight = 1.3;
-  static const double shortsDescFontSize = 11;
-  static const double shortsDescLineHeight = 1.3;
-  static const double shortsMetaFontSize = 10.5;
-  static const double shortsMetaSpacing = 10;
-  static const double shortsBadgePaddingHorizontal = 6;
-  static const double shortsBadgePaddingVertical = 2;
-  static const double shortsBadgeBorderRadius = 4;
-  static const double shortsBadgeIconSize = 10;
-  static const double shortsBadgeFontSize = 8;
-  static const double shortsDurationChipPaddingHorizontal = 5;
-  static const double shortsDurationChipPaddingVertical = 2;
-  static const double shortsDurationChipBorderRadius = 4;
-  static const double shortsDurationChipFontSize = 9;
-  static const double shortsPlayOverlaySize = 28;
-  static const double shortsPlayIconSize = 18;
-  static const double shortsListSeparator = 8;
+  // Shorts Grid Card (yeni tasarım)
+  static const double _shortsCardHeight = 280;
+  static const double _shortsCardRadius = 14;
+  static const double _shortsTitleSize = 12.5;
+  static const double _shortsDescSize = 11;
+  static const double _shortsMetaSize = 10;
 
   // Error View
   static const double errorIconSize = 48;
@@ -166,8 +147,6 @@ class _PhoneSizes {
   // Shimmer
   static const double shimmerVideoHeight = 100;
   static const double shimmerVideoBorderRadius = 16;
-  static const double shimmerShortsHeight = 120;
-  static const double shimmerShortsBorderRadius = 14;
 
   // Section Title
   static const double sectionTitleFontSize = 15;
@@ -1958,6 +1937,8 @@ class _VideoShimmerPhone extends StatelessWidget {
 
 // ─── Shorts Tab (Phone) ────────────────────────────────────────────────────
 
+// ─── Shorts Tab (Phone) — YENİDEN TASARLANDI ───────────────────────────────
+
 class _ShortsTabPhone extends StatelessWidget {
   final UniversityDetailController controller;
   const _ShortsTabPhone({required this.controller});
@@ -1970,12 +1951,9 @@ class _ShortsTabPhone extends StatelessWidget {
       final shortsList = controller.shortsOnly;
       final isLoadingMore = controller.isLoadingMore.value;
       final hasMore = controller.hasMoreVideos.value;
+
       if (isLoading) {
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          itemCount: 6,
-          itemBuilder: (_, _) => const _ShortsListShimmerPhone(),
-        );
+        return _ShortsShimmerGridPhone();
       }
       if (error.isNotEmpty) {
         return _ErrorViewPhone(error: error, onRetry: controller.loadVideos);
@@ -1987,6 +1965,7 @@ class _ShortsTabPhone extends StatelessWidget {
           subtitle: 'Bu üniversiteye ait shorts video bulunamadı.',
         );
       }
+
       return RefreshIndicator(
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
@@ -2001,32 +1980,48 @@ class _ShortsTabPhone extends StatelessWidget {
             }
             return false;
           },
-          child: ListView.separated(
-            padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-            itemCount: shortsList.length + (hasMore ? 1 : 0),
-            separatorBuilder: (_, _) =>
-                SizedBox(height: _PhoneSizes.shortsListSeparator.h),
-            itemBuilder: (_, i) {
-              if (i >= shortsList.length) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  child: Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        color: AppTheme.primaryColor,
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, hasMore ? 0 : 32.h),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisExtent: _PhoneSizes._shortsCardHeight.h,
+                    crossAxisSpacing: 10.w,
+                    mainAxisSpacing: 10.h,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) {
+                      if (i >= shortsList.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return _ShortsGridCardPhone(
+                        video: shortsList[i],
+                        onTap: () => _openShortsPlayer(shortsList, i),
+                      );
+                    },
+                    childCount: shortsList.length,
+                  ),
+                ),
+              ),
+              if (hasMore)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: Center(
+                      child: SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
                     ),
                   ),
-                );
-              }
-              return _ShortsListCardPhone(
-                video: shortsList[i],
-                onTap: () => _openShortsPlayer(shortsList, i),
-              );
-            },
+                ),
+            ],
           ),
         ),
       );
@@ -2041,159 +2036,120 @@ class _ShortsTabPhone extends StatelessWidget {
   }
 }
 
-class _ShortsListCardPhone extends StatelessWidget {
+// ─── Shorts Grid Card (Phone) — Telefon Görünümünde Dikey Kart ─────────────
+
+class _ShortsGridCardPhone extends StatelessWidget {
   final VideoModel video;
   final VoidCallback onTap;
-  const _ShortsListCardPhone({required this.video, required this.onTap});
+  const _ShortsGridCardPhone({required this.video, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      child: Material(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(
-          _PhoneSizes.shortsCardBorderRadius.r,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(
-            _PhoneSizes.shortsCardBorderRadius.r,
-          ),
-          child: Container(
-            padding: EdgeInsets.all(_PhoneSizes.shortsCardPadding.w),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildThumbnailPhone(context),
-                SizedBox(width: _PhoneSizes.shortsThumbnailSpacing.w),
-                Expanded(
-                  child: SizedBox(
-                    height: _PhoneSizes.shortsThumbnailHeight.h,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            _ShortsBadgePhone(),
-                            if (video.formattedDuration.isNotEmpty) ...[
-                              SizedBox(width: 6.w),
-                              _DurationChipPhone(
-                                duration: video.formattedDuration,
-                              ),
-                            ],
-                          ],
-                        ),
-                        SizedBox(height: 6.h),
-                        Text(
-                          video.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: _PhoneSizes.shortsTitleFontSize.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPri(context),
-                            height: _PhoneSizes.shortsTitleLineHeight,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        if (video.description.isNotEmpty)
-                          Text(
-                            video.description,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: _PhoneSizes.shortsDescFontSize.sp,
-                              color: AppTheme.textSec(context),
-                              height: _PhoneSizes.shortsDescLineHeight,
-                            ),
-                          ),
-                        const Spacer(),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.visibility_rounded,
-                              size: _PhoneSizes.shortsMetaFontSize.sp * 1.2,
-                              color: AppTheme.textSec(context),
-                            ),
-                            SizedBox(width: 3.w),
-                            Text(
-                              video.formattedViewCount,
-                              style: TextStyle(
-                                fontSize: _PhoneSizes.shortsMetaFontSize.sp,
-                                color: AppTheme.textSec(context),
-                              ),
-                            ),
-                            SizedBox(width: _PhoneSizes.shortsMetaSpacing.w),
-                            Icon(
-                              Icons.schedule_rounded,
-                              size: _PhoneSizes.shortsMetaFontSize.sp * 1.1,
-                              color: AppTheme.textSec(context),
-                            ),
-                            SizedBox(width: 3.w),
-                            Text(
-                              timeago.format(video.publishedAt, locale: 'tr'),
-                              style: TextStyle(
-                                fontSize: _PhoneSizes.shortsMetaFontSize.sp,
-                                color: AppTheme.textSec(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+    final String? thumbnailUrl = video.bestThumbnail.isNotEmpty
+        ? video.bestThumbnail
+        : null;
+    final String title = video.title.isNotEmpty ? video.title : 'Shorts';
+    final String desc = video.description;
+    final String viewCount = video.formattedViewCount;
+    final String timeAgoStr = _safeTimeAgo(video.publishedAt);
+    final String duration = video.formattedDuration;
+
+    return Material(
+      color: AppTheme.card(context),
+      borderRadius: BorderRadius.circular(_PhoneSizes._shortsCardRadius.r),
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(_PhoneSizes._shortsCardRadius.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Thumbnail alanı (esnek yükseklik) ──
+            Expanded(
+              flex: 3,
+              child: _ShortsThumbnailPhone(
+                thumbnailUrl: thumbnailUrl,
+                duration: duration,
+              ),
+            ),
+            // ── İçerik alanı (overflow korumalı, intrinsic ile) ──
+            Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 8.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title — max 2 satır, taşma korumalı
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: _PhoneSizes._shortsTitleSize.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPri(context),
+                      height: 1.3,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThumbnailPhone(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(_PhoneSizes.shortsThumbnailRadius.r),
-      child: SizedBox(
-        width: _PhoneSizes.shortsThumbnailWidth.w,
-        height: _PhoneSizes.shortsThumbnailHeight.h,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: video.bestThumbnail,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => Container(
-                color: AppTheme.isDark(context)
-                    ? const Color(0xFF2A2A2A)
-                    : const Color(0xFFE8E8E8),
-              ),
-              errorWidget: (_, _, _) => Container(
-                color: AppTheme.isDark(context)
-                    ? const Color(0xFF2A2A2A)
-                    : const Color(0xFFE8E8E8),
-                child: Icon(
-                  Icons.play_circle_outline_rounded,
-                  color: AppTheme.textSec(context),
-                  size: _PhoneSizes.shortsPlayOverlaySize.sp * 0.8,
-                ),
-              ),
-            ),
-            Center(
-              child: Container(
-                width: _PhoneSizes.shortsPlayOverlaySize.w,
-                height: _PhoneSizes.shortsPlayOverlaySize.w,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: _PhoneSizes.shortsPlayIconSize.sp,
-                ),
+                  // Description — varsa 1 satır
+                  if (desc.isNotEmpty) ...[
+                    SizedBox(height: 3.h),
+                    Text(
+                      desc,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: _PhoneSizes._shortsDescSize.sp,
+                        color: AppTheme.textSec(context),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 6.h),
+                  // Meta bilgiler — Flexible ile overflow korumalı
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.visibility_rounded,
+                        size: _PhoneSizes._shortsMetaSize.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                      SizedBox(width: 3.w),
+                      Flexible(
+                        child: Text(
+                          viewCount,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: _PhoneSizes._shortsMetaSize.sp,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: _PhoneSizes._shortsMetaSize.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                      SizedBox(width: 3.w),
+                      Flexible(
+                        child: Text(
+                          timeAgoStr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: _PhoneSizes._shortsMetaSize.sp,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -2201,85 +2157,213 @@ class _ShortsListCardPhone extends StatelessWidget {
       ),
     );
   }
+
+  /// Null-safe timeago format helper
+  String _safeTimeAgo(DateTime dateTime) {
+    try {
+      return timeago.format(dateTime, locale: 'tr');
+    } catch (_) {
+      return '';
+    }
+  }
 }
 
-class _ShortsBadgePhone extends StatelessWidget {
+// ─── Thumbnail Widget (Phone) — Gradient overlay + süre badge ───────────────
+
+class _ShortsThumbnailPhone extends StatelessWidget {
+  final String? thumbnailUrl;
+  final String duration;
+  const _ShortsThumbnailPhone({
+    required this.thumbnailUrl,
+    required this.duration,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.shortsBadgePaddingHorizontal.w,
-        vertical: _PhoneSizes.shortsBadgePaddingVertical.h,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF0000),
-        borderRadius: BorderRadius.circular(
-          _PhoneSizes.shortsBadgeBorderRadius.r,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.play_circle_fill_rounded,
-            size: _PhoneSizes.shortsBadgeIconSize.sp,
-            color: Colors.white,
-          ),
-          SizedBox(width: 2.w),
-          Text(
-            'SHORTS',
-            style: TextStyle(
-              fontSize: _PhoneSizes.shortsBadgeFontSize.sp,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.5,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Arka plan / thumbnail
+        if (thumbnailUrl != null)
+          CachedNetworkImage(
+            imageUrl: thumbnailUrl!,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => _thumbnailPlaceholder(context),
+            errorWidget: (_, _, _) => _thumbnailPlaceholder(context),
+          )
+        else
+          _thumbnailPlaceholder(context),
+
+        // Üst gradient — başlık okunurluğu için
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 40.h,
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withValues(alpha: 0.55),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+
+        // Alt gradient — meta bilgiler için
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 55.h,
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.65),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // SHORTS badge — sol üst
+        Positioned(
+          top: 8.h,
+          left: 8.w,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE53935),
+              borderRadius: BorderRadius.circular(5.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  blurRadius: 4.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.play_arrow_rounded,
+                  size: 12.sp,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 2.w),
+                Text(
+                  'SHORTS',
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Süre badge — sağ alt
+        if (duration.isNotEmpty)
+          Positioned(
+            bottom: 8.h,
+            right: 8.w,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+              child: Text(
+                duration,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+
+        // Play overlay — orta
+        Center(
+          child: Container(
+            width: 36.w,
+            height: 36.w,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.45),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 8.r,
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: 22.sp,
+            ),
+          ),
+        ),
+      ],
     );
   }
-}
 
-class _DurationChipPhone extends StatelessWidget {
-  final String duration;
-  const _DurationChipPhone({required this.duration});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _thumbnailPlaceholder(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.shortsDurationChipPaddingHorizontal.w,
-        vertical: _PhoneSizes.shortsDurationChipPaddingVertical.h,
-      ),
       decoration: BoxDecoration(
-        color: AppTheme.isDark(context)
-            ? Colors.white.withValues(alpha: 0.12)
-            : Colors.black.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(
-          _PhoneSizes.shortsDurationChipBorderRadius.r,
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryColor.withValues(alpha: 0.08),
+            AppTheme.primaryColor.withValues(alpha: 0.03),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-      child: Text(
-        duration,
-        style: TextStyle(
-          fontSize: _PhoneSizes.shortsDurationChipFontSize.sp,
-          fontWeight: FontWeight.w600,
-          color: AppTheme.textSec(context),
+      child: Center(
+        child: Icon(
+          Icons.play_circle_outline_rounded,
+          size: 32.sp,
+          color: AppTheme.textSec(context).withValues(alpha: 0.5),
         ),
       ),
     );
   }
 }
 
-class _ShortsListShimmerPhone extends StatelessWidget {
-  const _ShortsListShimmerPhone();
+// ─── Shorts Shimmer Grid (Phone) ────────────────────────────────────────────
 
+class _ShortsShimmerGridPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      child: Shimmer.fromColors(
+    return GridView.builder(
+      padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 10.h),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisExtent: _PhoneSizes._shortsCardHeight.h,
+        crossAxisSpacing: 10.w,
+        mainAxisSpacing: 10.h,
+      ),
+      itemCount: 6,
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppTheme.isDark(context)
             ? const Color(0xFF2A2A2A)
             : const Color(0xFFE0E0E0),
@@ -2287,12 +2371,9 @@ class _ShortsListShimmerPhone extends StatelessWidget {
             ? const Color(0xFF3A3A3A)
             : const Color(0xFFF5F5F5),
         child: Container(
-          height: _PhoneSizes.shimmerShortsHeight.h,
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(
-              _PhoneSizes.shimmerShortsBorderRadius.r,
-            ),
+            borderRadius: BorderRadius.circular(_PhoneSizes._shortsCardRadius.r),
           ),
         ),
       ),

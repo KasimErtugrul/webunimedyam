@@ -542,22 +542,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text('Tema', style: TextStyle(fontSize: titleSize)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final theme in ['system', 'light', 'dark'])
-              RadioListTile<String>(
-                title: Text(_themeLabel(theme)),
-                value: theme,
-                groupValue: _controller.settings.value?.theme,
-                onChanged: (v) {
-                  if (v != null) {
-                    _controller.changeTheme(v);
-                    Get.back();
-                  }
-                },
+        content: Obx(
+          () {
+            final String current =
+                _controller.settings.value?.theme ?? 'system';
+            return RadioGroup<String>(
+              groupValue: current,
+              onChanged: (String? v) {
+                if (v != null) {
+                  _controller.changeTheme(v);
+                  Get.back();
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ['system', 'light', 'dark']
+                    .map((theme) => RadioListTile<String>(
+                          title: Text(_themeLabel(theme)),
+                          value: theme,
+                        ))
+                    .toList(),
               ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -588,24 +595,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: TextStyle(fontSize: titleSize),
         ),
         content: Obx(
-          () => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final layout in ['list', 'wheel'])
-                RadioListTile<String>(
-                  title: Text(_homeLayoutLabel(layout)),
-                  subtitle: Text(_homeLayoutSublabel(layout)),
-                  value: layout,
-                  groupValue: _controller.homeLayout.value,
-                  onChanged: (v) {
-                    if (v != null) {
-                      _controller.changeHomeLayout(v);
-                      Get.back();
-                    }
-                  },
-                ),
-            ],
-          ),
+          () {
+            final String currentLayout = _controller.homeLayout.value;
+            return RadioGroup<String>(
+              groupValue: currentLayout,
+              onChanged: (String? v) {
+                if (v != null) {
+                  _controller.changeHomeLayout(v);
+                  Get.back();
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ['list', 'wheel']
+                    .map((layout) => RadioListTile<String>(
+                          title: Text(_homeLayoutLabel(layout)),
+                          subtitle: Text(_homeLayoutSublabel(layout)),
+                          value: layout,
+                        ))
+                    .toList(),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -1082,12 +1093,12 @@ class _VisibilityOptionRowPhone extends StatelessWidget {
                 size: _PhoneSizes.sheetOptionTrailingIconSize.sp,
               )
             : dimmed
-            ? Icon(
-                Icons.lock_outline,
-                color: AppTheme.textSec(context),
-                size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
-              )
-            : null,
+                ? Icon(
+                    Icons.lock_outline,
+                    color: AppTheme.textSec(context),
+                    size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
+                  )
+                : null,
       ),
     );
   }
@@ -1554,12 +1565,12 @@ class _VisibilityOptionRowTablet extends StatelessWidget {
                 size: _TabletSizes.sheetOptionTrailingIconSize,
               )
             : dimmed
-            ? Icon(
-                Icons.lock_outline,
-                color: AppTheme.textSec(context),
-                size: _TabletSizes.sheetOptionTrailingLockSize,
-              )
-            : null,
+                ? Icon(
+                    Icons.lock_outline,
+                    color: AppTheme.textSec(context),
+                    size: _TabletSizes.sheetOptionTrailingLockSize,
+                  )
+                : null,
       ),
     );
   }
