@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../app/routes/app_routes.dart';
@@ -19,6 +21,37 @@ class AuthController extends GetxController {
 
   final isLoading = false.obs;
   final errorMessage = ''.obs;
+
+  // ─── Email OTP Doğrulama ────────────────────────────────────────────────
+  /// Kayıt sonrası onay bekleyen kullanıcının email'i (OTP ekranını
+  /// önceden doldurmak ve "tekrar gönder" çağrısında kullanmak için).
+  final pendingEmail = ''.obs;
+  final isVerifyingOtp = false.obs;
+  final isResendingOtp = false.obs;
+  final resendCooldown = 0.obs;
+  Timer? _resendTimer;
+
+  // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
+  final isChangingPassword = false.obs;
+  final changePasswordError = ''.obs;
+  final changePasswordSuccess = false.obs;
+
+  // ─── Şifremi Unuttum (oturum yokken) ────────────────────────────────────
+  /// Kod gönderilen email (reset ekranını doldurmak ve tekrar gönder
+  /// çağrısında kullanmak için).
+  final pendingResetEmail = ''.obs;
+  final isSendingResetOtp = false.obs;
+  final isVerifyingReset = false.obs;
+  final isResendingResetOtp = false.obs;
+  final resetResendCooldown = 0.obs;
+  Timer? _resetResendTimer;
+
+  @override
+  void onClose() {
+    _resendTimer?.cancel();
+    _resetResendTimer?.cancel();
+    super.onClose();
+  }
 
   // ─── Sign In ──────────────────────────────────────────────────────────────
   /// Kullanıcı giriş yapmamıza yardımcı olur.
@@ -61,18 +94,25 @@ class AuthController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await authRepository.signUp(
+      final needsVerification = await authRepository.signUp(
         email: email,
         password: password,
         username: username,
       );
 
-      // Kayıt başarılı → FCM token'ı Supabase'e kaydet
+      if (needsVerification) {
+        // "Confirm email" açık: henüz session yok, kullanıcı önce mailine
+        // gelen 6 haneli kodu girmeli. FCM/analytics conversion event'i
+        // OTP doğrulandığında (verifyOtp içinde) tetiklenecek.
+        pendingEmail.value = email;
+        _startResendCooldown();
+        Get.toNamed(AppRoutes.otpVerification, arguments: {'email': email});
+        return;
+      }
+
+      // "Confirm email" kapalıysa session direkt kurulur.
       await NotificationService.instance.onUserLogin();
-
-      // auth_wall_hit sonrası dönüşümü ölçebilmek için GA4 önerilen event.
       AnalyticsService.instance.logSignUp(method: _kAuthMethod);
-
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
       log('Kayıt olunurken hata oluştu: $e', error: e, stackTrace: stacktrace);
@@ -86,6 +126,194 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // ─── Email OTP Doğrulama ────────────────────────────────────────────────
+  /// Kullanıcının email'ine gelen 6 haneli kodu doğrular. Başarılıysa
+  /// session kurulur ve Home'a yönlendirilir.
+  Future<void> verifyOtp({required String email, required String otp}) async {
+    try {
+      isVerifyingOtp.value = true;
+      errorMessage.value = '';
+
+      await authRepository.verifyEmailOtp(email: email, token: otp);
+
+      Get.offAllNamed(AppRoutes.home);
+    } catch (e, stacktrace) {
+      log('OTP doğrulanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+
+      AnalyticsService.instance.logEvent('otp_verification_failed');
+    } finally {
+      isVerifyingOtp.value = false;
+    }
+  }
+
+  /// Onay kodunu tekrar gönderir. Spam'i önlemek için 60 saniyelik
+  /// bekleme (cooldown) süresi boyunca tekrar tetiklenmez.
+  Future<void> resendOtp({required String email}) async {
+    if (resendCooldown.value > 0 || isResendingOtp.value) return;
+
+    try {
+      isResendingOtp.value = true;
+      errorMessage.value = '';
+
+      await authRepository.resendVerificationOtp(email: email);
+      _startResendCooldown();
+    } catch (e, stacktrace) {
+      log('OTP tekrar gönderilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Kod gönderilemedi. Lütfen tekrar deneyin.';
+    } finally {
+      isResendingOtp.value = false;
+    }
+  }
+
+  void _startResendCooldown() {
+    _resendTimer?.cancel();
+    resendCooldown.value = 60;
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendCooldown.value <= 1) {
+        resendCooldown.value = 0;
+        timer.cancel();
+      } else {
+        resendCooldown.value--;
+      }
+    });
+  }
+
+  // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
+  /// Mevcut şifreyi doğrulayıp yenisiyle değiştirir.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      isChangingPassword.value = true;
+      changePasswordError.value = '';
+      changePasswordSuccess.value = false;
+
+      await authRepository.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      changePasswordSuccess.value = true;
+      AnalyticsService.instance.logEvent('password_changed');
+
+      await Get.dialog(
+        AlertDialog(
+          title: const Text('Şifre Değiştirildi'),
+          content: const Text('Şifreniz başarıyla güncellendi.'),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Tamam'),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+      Get.back();
+    } catch (e, stacktrace) {
+      log('Şifre değiştirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      changePasswordError.value =
+          'Şifre değiştirilemedi. Mevcut şifrenizi kontrol edin.';
+    } finally {
+      isChangingPassword.value = false;
+    }
+  }
+
+  /// Değiştirme ekranından çıkılıp tekrar girildiğinde eski hata/başarı
+  /// durumunun görünmemesi için sıfırlar.
+  void resetChangePasswordState() {
+    changePasswordError.value = '';
+    changePasswordSuccess.value = false;
+  }
+
+  // ─── Şifremi Unuttum (oturum yokken) ────────────────────────────────────
+  /// Şifre sıfırlama kodunu email'e gönderir ve kod giriş ekranına yönlendirir.
+  Future<void> sendPasswordResetOtp({required String email}) async {
+    try {
+      isSendingResetOtp.value = true;
+      errorMessage.value = '';
+
+      await authRepository.sendPasswordResetOtp(email: email);
+
+      pendingResetEmail.value = email;
+      _startResetResendCooldown();
+      Get.toNamed(AppRoutes.resetPassword, arguments: {'email': email});
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Kod gönderilemedi. Email adresinizi kontrol edin.';
+    } finally {
+      isSendingResetOtp.value = false;
+    }
+  }
+
+  /// Kodu ve yeni şifreyi doğrular; başarılıysa Login ekranına döner.
+  Future<void> confirmPasswordReset({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      isVerifyingReset.value = true;
+      errorMessage.value = '';
+
+      await authRepository.confirmPasswordReset(
+        email: email,
+        otp: otp,
+        newPassword: newPassword,
+      );
+
+      AnalyticsService.instance.logEvent('password_reset_completed');
+
+      // Recovery akışı sırasında geçici bir session kurulmuş olabilir;
+      // kullanıcı yeni şifresiyle bilinçli olarak tekrar giriş yapsın diye
+      // oturumu kapatıp Login ekranına yönlendiriyoruz.
+      await authRepository.signOut();
+      Get.offAllNamed(AppRoutes.login);
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+
+      AnalyticsService.instance.logEvent('password_reset_failed');
+    } finally {
+      isVerifyingReset.value = false;
+    }
+  }
+
+  /// Şifre sıfırlama kodunu tekrar gönderir.
+  Future<void> resendPasswordResetOtp({required String email}) async {
+    if (resetResendCooldown.value > 0 || isResendingResetOtp.value) return;
+
+    try {
+      isResendingResetOtp.value = true;
+      errorMessage.value = '';
+
+      await authRepository.resendPasswordResetOtp(email: email);
+      _startResetResendCooldown();
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Kod gönderilemedi. Lütfen tekrar deneyin.';
+    } finally {
+      isResendingResetOtp.value = false;
+    }
+  }
+
+  void _startResetResendCooldown() {
+    _resetResendTimer?.cancel();
+    resetResendCooldown.value = 60;
+    _resetResendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resetResendCooldown.value <= 1) {
+        resetResendCooldown.value = 0;
+        timer.cancel();
+      } else {
+        resetResendCooldown.value--;
+      }
+    });
   }
 
   // ─── Sign Out ─────────────────────────────────────────────────────────────

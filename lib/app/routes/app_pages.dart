@@ -13,6 +13,10 @@ import '../../presentation/screens/radio/radio_page.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
+import '../../presentation/screens/auth/otp_verification_screen.dart';
+import '../../presentation/screens/auth/forgot_password_screen.dart';
+import '../../presentation/screens/auth/reset_password_screen.dart';
+import '../../presentation/screens/auth/change_password_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
@@ -86,6 +90,26 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.otpVerification,
+      page: () => const OtpVerificationScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.changePassword,
+      page: () => const ChangePasswordScreen(),
       binding: AuthBinding(),
     ),
     GetPage(

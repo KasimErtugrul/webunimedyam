@@ -204,7 +204,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            SizedBox(height: _PhoneSizes.formSpacing.h),
+            SizedBox(height: _PhoneSizes.formSpacing.h / 2),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
+                child: Text(
+                  'Şifremi unuttum',
+                  style: TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontSize: _PhoneSizes.linkFontSize.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: _PhoneSizes.formSpacing.h / 2),
             Obx(() => controller.errorMessage.isNotEmpty
                 ? Padding(
                     padding: EdgeInsets.only(
@@ -405,7 +420,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: _TabletSizes.formSpacing),
+                SizedBox(height: _TabletSizes.formSpacing / 2),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
+                    child: Text(
+                      'Şifremi unuttum',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: _TabletSizes.linkFontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: _TabletSizes.formSpacing / 2),
                 Obx(() => controller.errorMessage.isNotEmpty
                     ? Padding(
                         padding: EdgeInsets.only(

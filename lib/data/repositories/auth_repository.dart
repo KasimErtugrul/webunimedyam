@@ -45,26 +45,76 @@ class AuthRepository {
     }
   }
 
-  Future<void> signUp({
+  /// Kayıt işlemini başlatır.
+  ///
+  /// Dönüş değeri `true` ise: email onayı bekleniyor demektir (Supabase'de
+  /// "Confirm email" açık ve henüz session kurulmadı) — çağıran taraf
+  /// kullanıcıyı OTP giriş ekranına yönlendirmeli.
+  /// `false` ise: session doğrudan kuruldu (email onayı kapalıysa) — bu
+  /// durumda giriş/kayıt sonrası işlemler burada tamamlanır.
+  Future<bool> signUp({
     required String email,
     required String password,
     required String username,
   }) async {
     try {
-      await _supabase.signUp(
+      final response = await _supabase.signUp(
         email: email,
         password: password,
         username: username,
       );
-      await NotificationService.instance.onUserLogin();
-      // auth_status user property'si AnalyticsService'in authStateChanges
-      // dinleyicisi tarafından otomatik güncellenir; burada sadece
-      // dönüşüm (conversion) event'ini logluyoruz.
-      await AnalyticsService.instance.logSignUp(method: 'email');
+
+      final needsVerification = response.session == null;
+      if (!needsVerification) {
+        await _onAuthSuccess();
+      }
+      return needsVerification;
     } catch (e, stacktrace) {
       log('Kayıt olurken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
     }
+  }
+
+  /// Kayıt sırasında email'e gönderilen 6 haneli kodu doğrular.
+  /// Başarılı olursa session kurulur; bildirim token'ı kaydedilir ve
+  /// signup dönüşüm event'i loglanır (signUp() sırasında session henüz
+  /// olmadığı için bu adımlar buraya ertelenmişti).
+  Future<void> verifyEmailOtp({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      await _supabase.verifyEmailOTP(email: email, token: token);
+      await _onAuthSuccess();
+      await AnalyticsService.instance.logSignUp(method: 'email');
+    } catch (e, stacktrace) {
+      log(
+        'Email OTP doğrulanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Onay kodunu (OTP) tekrar gönderir.
+  Future<void> resendVerificationOtp({required String email}) async {
+    try {
+      await _supabase.resendSignUpOTP(email: email);
+    } catch (e, stacktrace) {
+      log(
+        'OTP tekrar gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Session başarıyla kurulduğunda (signIn veya OTP doğrulama sonrası)
+  /// ortak yapılması gereken işlemler.
+  Future<void> _onAuthSuccess() async {
+    await NotificationService.instance.onUserLogin();
   }
 
   Future<void> signIn({required String email, required String password}) async {
@@ -74,6 +124,73 @@ class AuthRepository {
       await AnalyticsService.instance.logLogin(method: 'email');
     } catch (e, stacktrace) {
       log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  String? get currentUserEmail => _supabase.currentUser?.email;
+
+  // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
+  /// Mevcut şifreyi doğrulayıp yenisiyle değiştirir. Kullanıcının halihazırda
+  /// oturumu açık olmalı (currentUserEmail dolu olmalı).
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final email = currentUserEmail;
+    if (email == null) {
+      throw Exception('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
+    }
+    try {
+      // Mevcut şifreyi teyit et — yanlışsa exception fırlatır ve
+      // updatePassword'e hiç gidilmez.
+      await _supabase.reauthenticateWithPassword(
+        email: email,
+        currentPassword: currentPassword,
+      );
+      await _supabase.updatePassword(newPassword: newPassword);
+    } catch (e, stacktrace) {
+      log('Şifre değiştirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  // ─── Şifremi Unuttum (oturum yokken) ────────────────────────────────────
+  /// Şifre sıfırlama kodunu email'e gönderir.
+  Future<void> sendPasswordResetOtp({required String email}) async {
+    try {
+      await _supabase.sendPasswordResetOtp(email: email);
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
+          error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  /// Kodu doğrular (geçici recovery session kurar) ve ardından yeni
+  /// şifreyi ayarlar. Tek adımda birleştirilmiş, çünkü recovery session'ın
+  /// tek başına bir anlamı yok — hemen yeni şifre belirlenmeli.
+  Future<void> confirmPasswordReset({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      await _supabase.verifyPasswordResetOtp(email: email, token: otp);
+      await _supabase.updatePassword(newPassword: newPassword);
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  /// Şifre sıfırlama kodunu tekrar gönderir.
+  Future<void> resendPasswordResetOtp({required String email}) async {
+    try {
+      await _supabase.resendPasswordResetOtp(email: email);
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
+          error: e, stackTrace: stacktrace);
       rethrow;
     }
   }

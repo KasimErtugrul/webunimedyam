@@ -8,6 +8,20 @@ abstract class AppRoutes {
   static const settings = '/settings';
   static const login = '/login';
   static const register = '/register';
+
+  /// Kayıt sonrası email onay kodu (OTP) giriş ekranı.
+  /// Argüman: {'email': String}
+  static const otpVerification = '/otp-verification';
+
+  /// Şifremi unuttum — email girişi.
+  static const forgotPassword = '/forgot-password';
+
+  /// Şifre sıfırlama — kod + yeni şifre girişi.
+  /// Argüman: {'email': String}
+  static const resetPassword = '/reset-password';
+
+  /// Oturum açıkken şifre değiştirme.
+  static const changePassword = '/change-password';
   static const search = '/search';
   static const stats = '/stats';
   static const videoSectionDetail = '/video-section-detail';

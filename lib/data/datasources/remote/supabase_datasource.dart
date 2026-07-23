@@ -18,13 +18,17 @@ class SupabaseDataSource {
   User? get currentUser => _client.auth.currentUser;
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
 
-  Future<void> signUp({
+  /// Kayıt (signup) başlatır. "Confirm email" ayarı açıkken Supabase bu
+  /// aşamada session DÖNMEZ (user.emailConfirmedAt == null, session == null);
+  /// gerçek session, kullanıcı mailine gelen 6 haneli kodu [verifyEmailOTP]
+  /// ile doğruladığında oluşur.
+  Future<AuthResponse> signUp({
     required String email,
     required String password,
     required String username,
   }) async {
     try {
-      await _client.auth.signUp(
+      return await _client.auth.signUp(
         email: email,
         password: password,
         data: {'username': username},
@@ -32,6 +36,36 @@ class SupabaseDataSource {
     } catch (e, stackTrace) {
       log('Kayıt olurken hata oluştu: $e\n$stackTrace');
       throw Exception('Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// Kayıt sırasında email'e gönderilen 6 haneli OTP kodunu doğrular.
+  /// Başarılı olursa session kurulur (currentUser artık dolu olur).
+  Future<AuthResponse> verifyEmailOTP({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      return await _client.auth.verifyOTP(
+        type: OtpType.signup,
+        email: email,
+        token: token,
+      );
+    } catch (e, stackTrace) {
+      log('Email OTP doğrulanırken hata oluştu: $e\n$stackTrace');
+      throw Exception(
+        'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
+      );
+    }
+  }
+
+  /// Kayıt onay kodunu (OTP) email adresine tekrar gönderir.
+  Future<void> resendSignUpOTP({required String email}) async {
+    try {
+      await _client.auth.resend(type: OtpType.signup, email: email);
+    } catch (e, stackTrace) {
+      log('OTP tekrar gönderilirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
     }
   }
 
@@ -50,6 +84,97 @@ class SupabaseDataSource {
     } catch (e, stackTrace) {
       log('Çıkış yapılırken hata oluştu: $e\n$stackTrace');
       throw Exception('Çıkış işlemi başarısız oldu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
+  /// Mevcut şifrenin doğru olduğunu teyit eder (yeniden kimlik doğrulama).
+  /// Supabase'de "mevcut şifreyi doğrula" için ayrı bir API yok; en güvenli
+  /// yöntem email+mevcut şifre ile tekrar signInWithPassword denemektir.
+  Future<void> reauthenticateWithPassword({
+    required String email,
+    required String currentPassword,
+  }) async {
+    try {
+      await _client.auth.signInWithPassword(
+        email: email,
+        password: currentPassword,
+      );
+    } catch (e, stackTrace) {
+      log('Mevcut şifre doğrulanırken hata oluştu: $e\n$stackTrace');
+      throw Exception('Mevcut şifreniz hatalı.');
+    }
+  }
+
+  /// Oturum açık kullanıcının şifresini değiştirir.
+  Future<void> updatePassword({required String newPassword}) async {
+    try {
+      await _client.auth.updateUser(UserAttributes(password: newPassword));
+    } on AuthApiException catch (e, stackTrace) {
+      log('Şifre güncellenirken hata oluştu: $e\n$stackTrace');
+      if (e.code == 'same_password') {
+        throw Exception(
+          'Yeni şifreniz mevcut şifrenizle aynı olamaz. Lütfen farklı bir şifre girin.',
+        );
+      }
+      if (e.code == 'weak_password') {
+        throw Exception(
+          'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre seçin.',
+        );
+      }
+      throw Exception('Şifre güncellenemedi. Lütfen tekrar deneyin.');
+    } catch (e, stackTrace) {
+      log('Şifre güncellenirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Şifre güncellenemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  // ─── Şifremi Unuttum (oturum yokken) ────────────────────────────────────
+  /// Email adresine 6 haneli şifre sıfırlama kodu gönderir.
+  Future<void> sendPasswordResetOtp({required String email}) async {
+    try {
+      await _client.auth.resetPasswordForEmail(email);
+    } catch (e, stackTrace) {
+      log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// Şifre sıfırlama kodunu doğrular; başarılı olursa geçici bir
+  /// "recovery" session kurulur ve ardından [updatePassword] çağrılabilir.
+  Future<AuthResponse> verifyPasswordResetOtp({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      return await _client.auth.verifyOTP(
+        type: OtpType.recovery,
+        email: email,
+        token: token,
+      );
+    } catch (e, stackTrace) {
+      log('Şifre sıfırlama kodu doğrulanırken hata oluştu: $e\n$stackTrace');
+      throw Exception(
+        'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
+      );
+    }
+  }
+
+  /// Şifre sıfırlama kodunu tekrar gönderir.
+  ///
+  /// NOT: Supabase (gotrue) `auth.resend()` fonksiyonu yalnızca
+  /// [OtpType.signup] ve [OtpType.emailChange] türlerini destekler;
+  /// `recovery` türü için kullanılamaz (kütüphane içi assertion hatası verir).
+  /// Bu yüzden recovery kodunu tekrar göndermek için `resend()` değil,
+  /// [sendPasswordResetOtp] ile aynı şekilde `resetPasswordForEmail`
+  /// tekrar çağrılır — Supabase bu çağrıda otomatik olarak yeni bir kod
+  /// üretip gönderir.
+  Future<void> resendPasswordResetOtp({required String email}) async {
+    try {
+      await _client.auth.resetPasswordForEmail(email);
+    } catch (e, stackTrace) {
+      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
     }
   }
 

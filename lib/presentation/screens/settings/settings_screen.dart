@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../../data/models/user_settings_model.dart';
@@ -226,9 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildPhone(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ayarlar'),
-      ),
+      appBar: AppBar(title: const Text('Ayarlar')),
       body: Obx(() {
         final s = _controller.settings.value;
         final isLoading = _controller.isLoading.value;
@@ -359,6 +358,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _DividerPhone(),
             _SectionHeaderPhone(title: 'Hesap'),
             _SettingsTilePhone(
+              icon: Icons.lock_outline,
+              title: 'Şifre Değiştir',
+              onTap: () => Get.toNamed(AppRoutes.changePassword),
+            ),
+            _SettingsTilePhone(
               icon: Icons.delete_sweep_outlined,
               title: 'Cache Temizle',
               subtitle: 'Yerel verileri temizle',
@@ -382,9 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildTablet(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ayarlar'),
-      ),
+      appBar: AppBar(title: const Text('Ayarlar')),
       body: Obx(() {
         final s = _controller.settings.value;
         final isLoading = _controller.isLoading.value;
@@ -515,6 +517,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _DividerTablet(),
             _SectionHeaderTablet(title: 'Hesap'),
             _SettingsTileTablet(
+              icon: Icons.lock_outline,
+              title: 'Şifre Değiştir',
+              onTap: () => Get.toNamed(AppRoutes.changePassword),
+            ),
+            _SettingsTileTablet(
               icon: Icons.delete_sweep_outlined,
               title: 'Cache Temizle',
               subtitle: 'Yerel verileri temizle',
@@ -542,30 +549,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text('Tema', style: TextStyle(fontSize: titleSize)),
-        content: Obx(
-          () {
-            final String current =
-                _controller.settings.value?.theme ?? 'system';
-            return RadioGroup<String>(
-              groupValue: current,
-              onChanged: (String? v) {
-                if (v != null) {
-                  _controller.changeTheme(v);
-                  Get.back();
-                }
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: ['system', 'light', 'dark']
-                    .map((theme) => RadioListTile<String>(
-                          title: Text(_themeLabel(theme)),
-                          value: theme,
-                        ))
-                    .toList(),
-              ),
-            );
-          },
-        ),
+        content: Obx(() {
+          final String current = _controller.settings.value?.theme ?? 'system';
+          return RadioGroup<String>(
+            groupValue: current,
+            onChanged: (String? v) {
+              if (v != null) {
+                _controller.changeTheme(v);
+                Get.back();
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ['system', 'light', 'dark']
+                  .map(
+                    (theme) => RadioListTile<String>(
+                      title: Text(_themeLabel(theme)),
+                      value: theme,
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -594,30 +600,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Ana Sayfa Görünümü',
           style: TextStyle(fontSize: titleSize),
         ),
-        content: Obx(
-          () {
-            final String currentLayout = _controller.homeLayout.value;
-            return RadioGroup<String>(
-              groupValue: currentLayout,
-              onChanged: (String? v) {
-                if (v != null) {
-                  _controller.changeHomeLayout(v);
-                  Get.back();
-                }
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: ['list', 'wheel']
-                    .map((layout) => RadioListTile<String>(
-                          title: Text(_homeLayoutLabel(layout)),
-                          subtitle: Text(_homeLayoutSublabel(layout)),
-                          value: layout,
-                        ))
-                    .toList(),
-              ),
-            );
-          },
-        ),
+        content: Obx(() {
+          final String currentLayout = _controller.homeLayout.value;
+          return RadioGroup<String>(
+            groupValue: currentLayout,
+            onChanged: (String? v) {
+              if (v != null) {
+                _controller.changeHomeLayout(v);
+                Get.back();
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ['list', 'wheel']
+                  .map(
+                    (layout) => RadioListTile<String>(
+                      title: Text(_homeLayoutLabel(layout)),
+                      subtitle: Text(_homeLayoutSublabel(layout)),
+                      value: layout,
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -869,10 +875,7 @@ class _VisibilityTilePhone extends StatelessWidget {
 
   bool _isAllowed(VisibilityOption option) {
     if (ceiling == null) return true;
-    const order = [
-      VisibilityOption.private,
-      VisibilityOption.public,
-    ];
+    const order = [VisibilityOption.private, VisibilityOption.public];
     return order.indexOf(option) <= order.indexOf(ceiling!);
   }
 
@@ -1093,12 +1096,12 @@ class _VisibilityOptionRowPhone extends StatelessWidget {
                 size: _PhoneSizes.sheetOptionTrailingIconSize.sp,
               )
             : dimmed
-                ? Icon(
-                    Icons.lock_outline,
-                    color: AppTheme.textSec(context),
-                    size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
-                  )
-                : null,
+            ? Icon(
+                Icons.lock_outline,
+                color: AppTheme.textSec(context),
+                size: _PhoneSizes.sheetOptionTrailingLockSize.sp,
+              )
+            : null,
       ),
     );
   }
@@ -1341,10 +1344,7 @@ class _VisibilityTileTablet extends StatelessWidget {
 
   bool _isAllowed(VisibilityOption option) {
     if (ceiling == null) return true;
-    const order = [
-      VisibilityOption.private,
-      VisibilityOption.public,
-    ];
+    const order = [VisibilityOption.private, VisibilityOption.public];
     return order.indexOf(option) <= order.indexOf(ceiling!);
   }
 
@@ -1565,12 +1565,12 @@ class _VisibilityOptionRowTablet extends StatelessWidget {
                 size: _TabletSizes.sheetOptionTrailingIconSize,
               )
             : dimmed
-                ? Icon(
-                    Icons.lock_outline,
-                    color: AppTheme.textSec(context),
-                    size: _TabletSizes.sheetOptionTrailingLockSize,
-                  )
-                : null,
+            ? Icon(
+                Icons.lock_outline,
+                color: AppTheme.textSec(context),
+                size: _TabletSizes.sheetOptionTrailingLockSize,
+              )
+            : null,
       ),
     );
   }
