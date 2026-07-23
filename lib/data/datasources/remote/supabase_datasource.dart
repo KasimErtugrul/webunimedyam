@@ -334,8 +334,22 @@ class SupabaseDataSource {
 
   /// FIX: `videos_cache` tablosunda app_view_count/app_like_count vb. kolonlar
   /// yok — bu yüzden üniversite detay sayfasındaki videolar her zaman 0
-  /// görünüyordu. Artık `videos_cache_with_engagement` view'inden okunuyor
-  /// (video_engagement_stats matview'i ile JOIN'lenmiş, university_name dahil).
+  /// görünüyordu. Artık `videos_cache_with_engagement_cached` view'inden
+  /// okunuyor (video_engagement_stats MATVIEW'i ile JOIN'lenmiş,
+  /// university_name dahil).
+  ///
+  /// PERF FIX: Önceden `videos_cache_with_engagement` (canlı, her sorguda
+  /// content_views/likes/favorites/shared/comments tablolarını TÜM video
+  /// kataloğu için GROUP BY ile yeniden hesaplayan view) kullanılıyordu.
+  /// `WHERE university_id = X` filtresi bu GROUP BY'ın altına inemediği için
+  /// Postgres önce TÜM videolar için engagement hesaplıyor, sonra filtreliyor
+  /// (EXPLAIN ANALYZE ile doğrulandı: 5600+ video ile ~50ms, katalog
+  /// büyüdükçe doğrusal olarak kötüleşiyor). `videos_cache_with_engagement_cached`
+  /// düz bir matview'e (video_engagement_stats, 15 dk'da bir pg_cron ile
+  /// yenilenir) JOIN yaptığı için university_id index'i düzgün kullanılıyor
+  /// (yalnızca o üniversitenin videoları taranıyor). Bedel: engagement
+  /// sayıları en fazla ~15 dk gecikmeli — bu ekran için kabul edilebilir,
+  /// video detay sayfası (getVideoById) hâlâ canlı veriyi kullanıyor.
   Future<List<VideoModel>> getCachedVideosByUniversity(
     int universityId, {
     int limit = 20,
@@ -343,7 +357,7 @@ class SupabaseDataSource {
   }) async {
     try {
       final data = await _client
-          .from('videos_cache_with_engagement')
+          .from('videos_cache_with_engagement_cached')
           .select()
           .eq('university_id', universityId)
           .order('published_at', ascending: false)
@@ -984,14 +998,27 @@ class SupabaseDataSource {
   // tablosundan yapılıyor — ama bu tabloda app_view_count/app_like_count vb.
   // kolonlar YOK. Bu yüzden Profil sayfasındaki Favorilerim/İzlediklerim/
   // Paylaştıklarım sekmelerinde görüntülenme & beğeni sayısı her zaman 0
-  // görünüyordu. Burada video_id'leri tek seferde 'video_engagement_live'
-  // (canlı, anlık hesaplanan view) üzerinden çekip eşleştiriyoruz.
+  // görünüyordu. Burada video_id'leri tek seferde eşleştirip çekiyoruz.
+  //
+  // PERF FIX: Önceden 'video_engagement_live' (canlı view) kullanılıyordu.
+  // `.inFilter('video_id', ids)` bir IN-list filtresi olduğu için Postgres
+  // bunu view'ın GROUP BY'ının altına indiremiyor (tek video_id eşitliğinde
+  // sorun yok, ama IN-list'te var) — sonuç: her çağrıda TÜM videos_cache
+  // kataloğu için 5 tabloyu (content_views/likes/favorites/shared/comments)
+  // GROUP BY ile yeniden hesaplıyordu. EXPLAIN ANALYZE ile doğrulandı:
+  // sadece 20 video_id için bile ~750ms (5600+ videoluk katalogda), katalog
+  // büyüdükçe her favoriler/beğeniler/geçmiş listesi açılışında doğrusal
+  // olarak kötüleşecekti. 'video_engagement_stats' (aynı kolonlar, 15 dk'da
+  // bir pg_cron ile yenilenen matview — düz bir tablo gibi index kullanır)
+  // aynı sonucu, gecikme dışında bedelsiz veriyor. Bu ekranlar zaten "az önce
+  // beğendim, hemen görüneyim" gerektirmiyor (o senaryo getEngagementStats'ta
+  // hâlâ canlı view ile karşılanıyor).
   Future<List<VideoModel>> _attachEngagement(List<VideoModel> videos) async {
     if (videos.isEmpty) return videos;
     final ids = videos.map((v) => v.videoId).toSet().toList();
     try {
       final stats = await _client
-          .from('video_engagement_live')
+          .from('video_engagement_stats')
           .select(
             'video_id, app_view_count, app_like_count, app_favorite_count, app_share_count, app_comment_count',
           )
