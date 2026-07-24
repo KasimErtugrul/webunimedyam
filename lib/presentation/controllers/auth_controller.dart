@@ -138,7 +138,12 @@ class AuthController extends GetxController {
 
       await authRepository.verifyEmailOtp(email: email, token: otp);
 
-      Get.offAllNamed(AppRoutes.home);
+      // Yeni kayıt olan kullanıcıya, ana sayfaya gitmeden önce ilgilendiği
+      // üniversiteleri seçme fırsatı sunuyoruz. Bu ekran zorunlu değildir;
+      // kullanıcı "Atla" diyerek de Home'a geçebilir. Bu ekran bir daha
+      // gösterilmeyecek şekilde InterestSelectionController tarafından
+      // işaretlenir.
+      Get.offAllNamed(AppRoutes.interestSelection);
     } catch (e, stacktrace) {
       log('OTP doğrulanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';

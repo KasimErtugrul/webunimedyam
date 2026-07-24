@@ -10,6 +10,7 @@ import '../../models/watch_progress_model.dart';
 
 class LocalDataSource {
   static const _onboardingKey = 'onboarding_completed';
+  static const _interestSelectionShownKey = 'interest_selection_shown';
   static const _videoCacheKey = 'videos_cache';
   static const _cacheTimeKey = 'cache_time';
   static const _themeKey = 'theme';
@@ -33,6 +34,27 @@ class LocalDataSource {
   Future<void> setOnboardingCompleted() async {
     try {
       await _box.put(_onboardingKey, true);
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // İlgi alanı (ilgilendiğin üniversiteleri seç) ekranı
+  //
+  // Bu ekran sadece YENİ KAYIT olan kullanıcıya, OTP doğrulaması sonrası
+  // bir kez gösterilir. Kullanıcı "Atla" dese de seçim yapıp devam etse
+  // de bu flag true'ya çekilir; bir daha gösterilmez.
+  Future<bool> isInterestSelectionShown() async {
+    try {
+      return (_box.get(_interestSelectionShownKey) as bool?) ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> setInterestSelectionShown() async {
+    try {
+      await _box.put(_interestSelectionShownKey, true);
     } catch (e) {
       // Sessizce devam et
     }

@@ -9,6 +9,10 @@ abstract class AppRoutes {
   static const login = '/login';
   static const register = '/register';
 
+  /// Yeni kayıt (signup) sonrası, OTP doğrulandıktan hemen sonra bir kez
+  /// gösterilen "ilgilendiğin üniversiteleri seç" ekranı.
+  static const interestSelection = '/interest-selection';
+
   /// Kayıt sonrası email onay kodu (OTP) giriş ekranı.
   /// Argüman: {'email': String}
   static const otpVerification = '/otp-verification';

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../controllers/onboarding_controller.dart';
@@ -83,15 +84,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, dynamic>> _pages = [
     {
       'icon': Icons.play_circle_outline_rounded,
-      'title': 'ÇOMÜ TV\'ye Hoş Geldiniz',
+      'title': 'UniTv\'ye Hoş Geldiniz',
       'description':
-          'Çanakkale Onsekiz Mart Üniversitesi\'nin resmi video platformuna hoş geldiniz. Üniversitemizin tüm etkinlik ve içeriklerine buradan ulaşabilirsiniz.',
+          'Üniversitelerin resmi video platformu UniTv\'ye hoş geldiniz. Tüm üniversitelerin etkinlik ve içeriklerine buradan ulaşabilirsiniz.',
     },
     {
-      'icon': Icons.video_library_rounded,
-      'title': 'Zengin İçerik',
+      'icon': Icons.casino_rounded,
+      'title': 'Üniversite Çarkını Çevir',
       'description':
-          'Konferanslar, seminerler, mezuniyet törenleri ve daha fazlası. Üniversitemizin ürettiği tüm video içeriklerine tek bir yerden erişin.',
+          'Keşfet sekmesindeki üniversite çarkıyla rastgele bir üniversiteyi keşfedin, yeni içeriklerle tanışın. UniTv\'ye özel bu eğlenceli keşif deneyimini kaçırmayın.',
+    },
+    {
+      'icon': Icons.radio_rounded,
+      'title': 'Canlı Radyo Dinleyin',
+      'description':
+          'Uygulamadan ayrılmadan canlı radyo yayınını dinleyin. Video izlerken bile arka planda radyonuzu açık tutabilirsiniz.',
+    },
+    {
+      'icon': Icons.smartphone_rounded,
+      'title': 'Shorts ile Hızlı İçerik',
+      'description':
+          'Kısa ve akıcı Shorts videolarıyla üniversitemizden en güncel anları saniyeler içinde yakalayın.',
     },
     {
       'icon': Icons.favorite_rounded,
@@ -104,12 +117,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'title': 'Anında Haberdar Olun',
       'description':
           'Yeni video yüklendiğinde anında bildirim alın. Hiçbir etkinliği ve içeriği kaçırmayın.',
-    },
-    {
-      'icon': Icons.people_rounded,
-      'title': 'Topluluk',
-      'description':
-          'Videolara yorum yapın, fikirlerinizi paylaşın. ÇOMÜ ailesinin bir parçası olun.',
     },
   ];
 
@@ -132,6 +139,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     controller.complete();
+  }
+
+  /// Son sayfada "Giriş Yap / Kayıt Ol" seçildiğinde: onboarding'i
+  /// tamamlanmış say (bir daha gösterilmesin), sonra Login ekranına git.
+  /// Kullanıcı daha önce kayıtlıysa orada giriş yapıp Home'a; yeni
+  /// kullanıcıysa Kayıt Ol'a geçip Signup → OTP → İlgi alanı seçimi →
+  /// Home akışını izler.
+  Future<void> _goToAuth() async {
+    await controller.completeSilently();
+    Get.toNamed(AppRoutes.login);
+  }
+
+  /// Son sayfada "Misafir Olarak Devam Et" seçildiğinde: mevcut davranış
+  /// (onboarding tamamlanır, doğrudan Home'a gidilir).
+  Future<void> _continueAsGuest() async {
+    await _completeOnboarding();
   }
 
   @override
@@ -213,26 +236,63 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   SizedBox(height: _PhoneSizes.dotsBottomSpacing.h),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                          double.infinity,
-                          _PhoneSizes.buttonHeight.h,
+                  if (_currentPage == _pages.length - 1) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _PhoneSizes.buttonHeight.h,
+                          ),
                         ),
-                      ),
-                      onPressed: _nextPage,
-                      child: Text(
-                        _currentPage == _pages.length - 1
-                            ? 'Başla'
-                            : 'Devam Et',
-                        style: TextStyle(
-                          fontSize: _PhoneSizes.buttonFontSize.sp,
+                        onPressed: _goToAuth,
+                        child: Text(
+                          'Giriş Yap / Kayıt Ol',
+                          style: TextStyle(
+                            fontSize: _PhoneSizes.buttonFontSize.sp,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _PhoneSizes.buttonHeight.h,
+                          ),
+                        ),
+                        onPressed: _continueAsGuest,
+                        child: Text(
+                          'Misafir Olarak Devam Et',
+                          style: TextStyle(
+                            fontSize: _PhoneSizes.buttonFontSize.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ] else
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _PhoneSizes.buttonHeight.h,
+                          ),
+                        ),
+                        onPressed: _nextPage,
+                        child: Text(
+                          'Devam Et',
+                          style: TextStyle(
+                            fontSize: _PhoneSizes.buttonFontSize.sp,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -313,26 +373,63 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   SizedBox(height: _TabletSizes.dotsBottomSpacing),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                          double.infinity,
-                          _TabletSizes.buttonHeight,
+                  if (_currentPage == _pages.length - 1) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _TabletSizes.buttonHeight,
+                          ),
                         ),
-                      ),
-                      onPressed: _nextPage,
-                      child: Text(
-                        _currentPage == _pages.length - 1
-                            ? 'Başla'
-                            : 'Devam Et',
-                        style: TextStyle(
-                          fontSize: _TabletSizes.buttonFontSize,
+                        onPressed: _goToAuth,
+                        child: Text(
+                          'Giriş Yap / Kayıt Ol',
+                          style: TextStyle(
+                            fontSize: _TabletSizes.buttonFontSize,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _TabletSizes.buttonHeight,
+                          ),
+                        ),
+                        onPressed: _continueAsGuest,
+                        child: Text(
+                          'Misafir Olarak Devam Et',
+                          style: TextStyle(
+                            fontSize: _TabletSizes.buttonFontSize,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ] else
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            _TabletSizes.buttonHeight,
+                          ),
+                        ),
+                        onPressed: _nextPage,
+                        child: Text(
+                          'Devam Et',
+                          style: TextStyle(
+                            fontSize: _TabletSizes.buttonFontSize,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

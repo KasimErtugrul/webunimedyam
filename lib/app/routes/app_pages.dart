@@ -14,6 +14,7 @@ import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/auth/otp_verification_screen.dart';
+import '../../presentation/screens/interest_selection/interest_selection_screen.dart';
 import '../../presentation/screens/auth/forgot_password_screen.dart';
 import '../../presentation/screens/auth/reset_password_screen.dart';
 import '../../presentation/screens/auth/change_password_screen.dart';
@@ -26,6 +27,7 @@ import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
+import '../bindings/interest_selection_binding.dart';
 import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/profile_activity_list_binding.dart';
@@ -98,6 +100,11 @@ abstract class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
+      name: AppRoutes.interestSelection,
+      page: () => const InterestSelectionScreen(),
+      binding: InterestSelectionBinding(),
+    ),
+    GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
       binding: AuthBinding(),
@@ -147,10 +154,7 @@ abstract class AppPages {
       transition: Transition.downToUp,
     ),
     GetPage(name: AppRoutes.radio, page: () => const RadioPage()),
-   /*  GetPage(
-      name: AppRoutes.universityWheel,
-      page: () => const UniversityWheelScreen(),
-      binding: UniversityWheelBinding(),
-    ), */
+   
+   
   ];
 }
