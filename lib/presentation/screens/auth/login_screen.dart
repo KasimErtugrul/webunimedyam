@@ -267,6 +267,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 )),
             SizedBox(height: _PhoneSizes.formSpacing.h),
+            _OrDivider(fontSize: _PhoneSizes.linkFontSize.sp),
+            SizedBox(height: _PhoneSizes.formSpacing.h),
+            _GoogleSignInButton(
+              controller: controller,
+              height: _PhoneSizes.buttonHeight.h,
+              fontSize: _PhoneSizes.buttonFontSize.sp,
+            ),
+            SizedBox(height: _PhoneSizes.formSpacing.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -483,6 +491,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     )),
                 SizedBox(height: _TabletSizes.formSpacing),
+                _OrDivider(fontSize: _TabletSizes.linkFontSize),
+                SizedBox(height: _TabletSizes.formSpacing),
+                _GoogleSignInButton(
+                  controller: controller,
+                  height: _TabletSizes.buttonHeight,
+                  fontSize: _TabletSizes.buttonFontSize,
+                ),
+                SizedBox(height: _TabletSizes.formSpacing),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -540,5 +556,99 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// "veya" ayırıcısı
+// ═══════════════════════════════════════════════════════════════════════
+
+class _OrDivider extends StatelessWidget {
+  final double fontSize;
+  const _OrDivider({required this.fontSize});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = AppTheme.textSec(context).withValues(alpha: 0.3);
+    return Row(
+      children: [
+        Expanded(child: Divider(color: color)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          child: Text(
+            'veya',
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: fontSize),
+          ),
+        ),
+        Expanded(child: Divider(color: color)),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Google ile Giriş Yap butonu
+// ═══════════════════════════════════════════════════════════════════════
+
+class _GoogleSignInButton extends StatelessWidget {
+  final AuthController controller;
+  final double height;
+  final double fontSize;
+
+  const _GoogleSignInButton({
+    required this.controller,
+    required this.height,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => SizedBox(
+        width: double.infinity,
+        height: height,
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: AppTheme.textSec(context).withValues(alpha: 0.3)),
+          ),
+          onPressed: controller.isGoogleLoading.value
+              ? null
+              : controller.signInWithGoogle,
+          child: controller.isGoogleLoading.value
+              ? SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Not: assets/icons/google_logo.png projeye eklenmeli.
+                    // Eklenene kadar Icons.g_mobiledata_rounded fallback'i
+                    // kullanılabilir; en doğrusu resmi Google "G" logosudur.
+                    Image.asset(
+                      'assets/icons/google_logo.png',
+                      width: 20.w,
+                      height: 20.w,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.g_mobiledata_rounded,
+                        size: 22.sp,
+                        color: AppTheme.textPri(context),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Text(
+                      'Google ile Giriş Yap',
+                      style: TextStyle(
+                        color: AppTheme.textPri(context),
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
   }
 }

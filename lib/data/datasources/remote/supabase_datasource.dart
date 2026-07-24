@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/shorts_model.dart';
 import '../../models/university_stats_model.dart';
@@ -78,9 +79,121 @@ class SupabaseDataSource {
     }
   }
 
+  // ─── Google ile Giriş ───────────────────────────────────────────────────
+  //
+  // Native (uygulama içi) Google Sign-In akışı: google_sign_in paketi ile
+  // kullanıcıdan idToken alınır, bu Supabase'e iletilerek session kurulur.
+  // Tarayıcıya çıkmaz, tek dokunuşla biter.
+  //
+  // NOT (google_sign_in v7+ ile gelen KIRICI değişiklikler):
+  //   - Paket artık singleton: `GoogleSignIn()` yok, `GoogleSignIn.instance`
+  //     var. Kullanılmadan önce mutlaka `initialize()` ile başlatılmalı ve
+  //     bu çağrı uygulama ömrü boyunca yalnızca BİR KEZ yapılabilir (ikinci
+  //     çağrıda hata fırlatır) — bu yüzden Future'ı cache'leyip her girişte
+  //     aynı initialize sonucunu bekliyoruz.
+  //   - `signIn()` kaldırıldı → yerine `authenticate()` geldi.
+  //   - `authentication` artık senkron bir getter ve sadece idToken taşıyor;
+  //     accessToken artık ayrı bir "authorization" adımıyla
+  //     (authorizationClient) isteniyor.
+  //   - İptal durumu artık null dönmüyor, `GoogleSignInException`
+  //     (`code: GoogleSignInExceptionCode.canceled`) fırlatıyor.
+  //
+  // ÖNEMLİ — Doldurulması gerekenler:
+  //   - webClientId: Google Cloud Console'daki "Web application" tipi
+  //     OAuth client ID (Supabase Dashboard > Authentication > Providers >
+  //     Google alanına girilenle AYNI olmalı). `serverClientId` olarak
+  //     kullanılır.
+  //   - iOS desteklenecekse ayrıca `clientId` (Info.plist / GoogleService
+  //     clientId) initialize'a eklenmeli; şu an yalnızca Android hedeflendiği
+  //     için verilmedi.
+  static const _googleWebClientId = '456320124267-s9q38rhpp3qucekt82i6iqv0qd7vgre0.apps.googleusercontent.com';
+  static const _googleScopes = ['email', 'profile'];
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  Future<void>? _googleSignInInitFuture;
+
+  /// `GoogleSignIn.instance.initialize()` bir kez çağrılmalı; tekrar
+  /// çağrılırsa `StateError` fırlatır. Bu yardımcı, ilk çağrıdaki Future'ı
+  /// saklayıp sonraki her girişte onu bekleyerek çift initialize'ı önler.
+  Future<void> _ensureGoogleSignInInitialized() {
+    return _googleSignInInitFuture ??= _googleSignIn.initialize(
+      serverClientId: _googleWebClientId,
+    );
+  }
+
+  /// Google ile giriş/kayıt yapar. Supabase tarafında bu email için hesap
+  /// yoksa otomatik oluşturulur (signInWithIdToken'ın doğal davranışı) —
+  /// yani ayrı bir "Google ile kayıt ol" akışına gerek yoktur.
+  ///
+  /// Dönüş: true → bu, kullanıcının Supabase'de AÇILAN İLK hesabı (yeni
+  /// kayıt); false → zaten var olan hesapla giriş yaptı.
+  Future<bool> signInWithGoogle() async {
+    try {
+      await _ensureGoogleSignInInitialized();
+
+      // Önceki oturumu temizle ki hesap seçim ekranı her seferinde çıksın.
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {
+        // Daha önce giriş yapılmamışsa signOut sessizce yok sayılabilir.
+      }
+
+      GoogleSignInAccount googleUser;
+      try {
+        googleUser = await _googleSignIn.authenticate(scopeHint: _googleScopes);
+      } on GoogleSignInException catch (e) {
+        if (e.code == GoogleSignInExceptionCode.canceled) {
+          // Kullanıcı hesap seçim ekranını iptal etti.
+          throw Exception('Google ile giriş iptal edildi.');
+        }
+        rethrow;
+      }
+
+      final idToken = googleUser.authentication.idToken;
+      if (idToken == null) {
+        throw Exception('Google kimlik doğrulama token\'ı alınamadı.');
+      }
+
+      // accessToken artık idToken'dan ayrı, bir "yetkilendirme" adımıyla
+      // isteniyor: daha önce izin verilmişse sessizce, verilmemişse
+      // kullanıcıya sorarak alınır.
+      final authorization =
+          await googleUser.authorizationClient.authorizationForScopes(_googleScopes) ??
+          await googleUser.authorizationClient.authorizeScopes(_googleScopes);
+
+      final response = await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: authorization.accessToken,
+      );
+
+      final user = response.user;
+      // Yeni oluşturulan bir hesapta created_at ve last_sign_in_at aynı ana
+      // (saniye farkıyla) denk gelir; var olan hesapla girişte last_sign_in_at
+      // güncellenir ama created_at eskidir — böylece "yeni kullanıcı mı"
+      // ayrımını email/otp akışına dokunmadan yapabiliyoruz.
+      if (user?.createdAt != null && user?.lastSignInAt != null) {
+        final createdAt = DateTime.tryParse(user!.createdAt);
+        final lastSignIn = DateTime.tryParse(user.lastSignInAt!);
+        if (createdAt != null && lastSignIn != null) {
+          return lastSignIn.difference(createdAt).abs() < const Duration(seconds: 10);
+        }
+      }
+      return false;
+    } catch (e, stackTrace) {
+      log('Google ile giriş yapılırken hata oluştu: $e\n$stackTrace');
+      throw Exception('Google ile giriş başarısız oldu. Lütfen tekrar deneyin.');
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await _client.auth.signOut();
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {
+        // Google tarafında zaten çıkış yapılmışsa/init edilmemişse yok say.
+      }
     } catch (e, stackTrace) {
       log('Çıkış yapılırken hata oluştu: $e\n$stackTrace');
       throw Exception('Çıkış işlemi başarısız oldu. Lütfen tekrar deneyin.');

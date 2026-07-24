@@ -130,6 +130,28 @@ class AuthRepository {
 
   String? get currentUserEmail => _supabase.currentUser?.email;
 
+  // ─── Google ile Giriş ───────────────────────────────────────────────────
+  /// Google ile giriş/kayıt yapar. Yeni kullanıcıysa Supabase tarafında
+  /// otomatik hesap açılır (email confirm adımı gerekmez, Google zaten
+  /// email'i doğrulamış sayılır).
+  ///
+  /// Dönüş: true → yeni kayıt (ilk kez bu Google hesabıyla giriş yaptı),
+  /// false → var olan hesapla giriş.
+  Future<bool> signInWithGoogle() async {
+    try {
+      final isNewUser = await _supabase.signInWithGoogle();
+      await NotificationService.instance.onUserLogin();
+      AnalyticsService.instance.logEvent(
+        isNewUser ? 'sign_up' : 'login',
+        parameters: {'method': 'google'},
+      );
+      return isNewUser;
+    } catch (e, stacktrace) {
+      log('Google ile giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
   // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
   /// Mevcut şifreyi doğrulayıp yenisiyle değiştirir. Kullanıcının halihazırda
   /// oturumu açık olmalı (currentUserEmail dolu olmalı).

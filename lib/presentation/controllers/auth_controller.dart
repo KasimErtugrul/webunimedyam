@@ -20,6 +20,7 @@ class AuthController extends GetxController {
   AuthController({required this.authRepository});
 
   final isLoading = false.obs;
+  final isGoogleLoading = false.obs;
   final errorMessage = ''.obs;
 
   // ─── Email OTP Doğrulama ────────────────────────────────────────────────
@@ -80,6 +81,37 @@ class AuthController extends GetxController {
       });
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // ─── Google ile Giriş ───────────────────────────────────────────────────
+  /// Google ile giriş/kayıt. Yeni kullanıcıysa (ilk kez bu Google hesabıyla
+  /// giriş yapıyorsa) email/OTP akışındakiyle tutarlı olsun diye önce
+  /// İlgi Alanı Seçimi ekranına, mevcut kullanıcıysa direkt Home'a gider.
+  Future<void> signInWithGoogle() async {
+    try {
+      isGoogleLoading.value = true;
+      errorMessage.value = '';
+
+      final isNewUser = await authRepository.signInWithGoogle();
+
+      if (isNewUser) {
+        Get.offAllNamed(AppRoutes.interestSelection);
+      } else {
+        Get.offAllNamed(AppRoutes.home);
+      }
+    } catch (e, stacktrace) {
+      log('Google ile giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      // Kullanıcı hesap seçim ekranını iptal ettiyse sessiz geç, ekranda
+      // kalsın; gerçek hatalarda mesaj göster.
+      if (!e.toString().contains('iptal edildi')) {
+        errorMessage.value = 'Google ile giriş başarısız. Lütfen tekrar deneyin.';
+      }
+      AnalyticsService.instance.logEvent('login_failed', parameters: {
+        'method': 'google',
+      });
+    } finally {
+      isGoogleLoading.value = false;
     }
   }
 
