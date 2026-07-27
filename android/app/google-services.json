@@ -12,7 +12,12 @@
           "package_name": "com.developfly.unitv"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "67433845227-vr0t65sp4e6855mmln3ulcrj32tgvu34.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBOhOjoSpDeXDcu4DEYxNrU7qKJZ7hSCwk"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "67433845227-vr0t65sp4e6855mmln3ulcrj32tgvu34.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

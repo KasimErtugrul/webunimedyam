@@ -2,12 +2,16 @@
 
 import 'dart:developer';
 import 'dart:typed_data';
+import 'package:get/get.dart';
 import '../../services/analytics_service.dart';
+import '../../core/errors/username_taken_exception.dart';
+import '../../core/utils/username_generator.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../datasources/local/local_datasource.dart';
 import '../models/profile_model.dart';
 import '../models/user_settings_model.dart';
 import '../../services/notification_service.dart';
+import 'university_favorites_repository.dart';
 
 class AuthRepository {
   final SupabaseDataSource _supabase;
@@ -145,11 +149,68 @@ class AuthRepository {
         isNewUser ? 'sign_up' : 'login',
         parameters: {'method': 'google'},
       );
+
+      // Google, handle_new_user trigger'ının okuduğu 'username' alanını
+      // hiç göndermiyor (sadece 'full_name'/'avatar_url' geliyor). Bu
+      // yüzden Google ile YENİ kayıt olan kullanıcının profili
+      // username=null olarak oluşuyor ve yorumlarda "Anonim" görünüyor.
+      // Burada, girişten hemen sonra, ad-soyaddan türetilmiş + rastgele
+      // 6 haneli sayı ekli bir kullanıcı adı otomatik atanır. Bu adım
+      // sessizce başarısız olsa bile (ör. ağ hatası) kullanıcı Home'a
+      // gitmeye devam eder — profilini Ayarlar'dan istediği zaman
+      // düzenleyebilir; giriş akışını bloke etmiyoruz.
+      if (isNewUser) {
+        try {
+          await _ensureUsernameAssigned();
+        } catch (e, stacktrace) {
+          log(
+            'Google girişi sonrası otomatik kullanıcı adı atanamadı: $e',
+            error: e,
+            stackTrace: stacktrace,
+          );
+        }
+      }
+
       return isNewUser;
     } catch (e, stacktrace) {
       log('Google ile giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
     }
+  }
+
+  /// Mevcut kullanıcının profilinde `username` boşsa, `full_name`'den
+  /// türetilmiş + rastgele 6 haneli sayı ekli bir aday üretip
+  /// `profiles.username` UNIQUE kısıtına yazmayı dener. Çakışma olursa
+  /// (UsernameTakenException) yeni bir aday üretip tekrar dener.
+  Future<void> _ensureUsernameAssigned({int maxAttempts = 5}) async {
+    final userId = currentUserId;
+    if (userId == null) return;
+
+    final profile = await _supabase.getProfile(userId);
+    if (profile == null) return;
+    if (profile.username != null && profile.username!.trim().isNotEmpty) {
+      return; // Zaten bir kullanıcı adı var, dokunma.
+    }
+
+    final base = UsernameGenerator.slugifyBase(profile.fullName);
+
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      final candidate = UsernameGenerator.nextCandidate(base);
+      try {
+        await _supabase.updateProfile(profile.copyWith(username: candidate));
+        log('Otomatik kullanıcı adı atandı: $candidate');
+        return;
+      } on UsernameTakenException {
+        // Bu aday tutulmuş, döngü yeni bir tane üretip tekrar deneyecek.
+        continue;
+      }
+    }
+
+    // maxAttempts denemede de tutturamadıysak sessizce vazgeçiyoruz;
+    // kullanıcı 'Anonim' görünmeye devam eder ama uygulama akışı bozulmaz.
+    log(
+      'Otomatik kullanıcı adı $maxAttempts denemede atanamadı (base: $base)',
+    );
   }
 
   // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
@@ -233,7 +294,30 @@ class AuthRepository {
         // bir önceki kullanıcının beğeni/favori id'lerini görebilir.
         _local.clearLikedVideoIds(),
         _local.clearFavoriteVideoIds(),
+        // BUG FIX: Takip edilen (favori) üniversite ID'lerinin disk cache'i
+        // (favorite_university_ids, TTL 30dk) kullanıcıya özel bir anahtar
+        // DEĞİL — global bir Hive key. Bu satır olmadan, TTL dolmadan aynı
+        // cihazda başka bir hesapla (örn. Google ile) giriş yapıldığında
+        // UniversityFavoritesRepository._ensureCache() bu eski, hâlâ
+        // "geçerli" görünen disk cache'i yeni kullanıcıya ait sanıp RAM'e
+        // yüklüyordu → önceki kullanıcının takip ettiği üniversiteler
+        // BottomNavigator > Üniversiteler sekmesinde yeni kullanıcıda da
+        // takip edilmiş gibi görünüyordu.
+        _local.clearFavoriteUniversityIds(),
       ]);
+
+      // BUG FIX: Disk cache'i temizlemek yetmiyor — UniversityFavoritesRepository
+      // `fenix: true` ile kayıtlı bir GetxService olduğu için uygulama
+      // kapanmadığı sürece RAM'deki _cachedFavoriteIds seti hayatta kalıyor.
+      // Bu servis kayıtlıysa (Home/UniversityDetail/InterestSelection
+      // binding'lerinden biri çalıştıysa) RAM cache'ini de burada,
+      // signOut sırasında sıfırlıyoruz. Servis henüz hiç kayıt olmadıysa
+      // (örn. splash ekranından direkt logout gibi teorik bir durum)
+      // isRegistered false döner ve hiçbir şey yapılmaz — güvenli.
+      if (Get.isRegistered<UniversityFavoritesRepository>()) {
+        Get.find<UniversityFavoritesRepository>().clearCache();
+      }
+
       await _supabase.signOut();
       await AnalyticsService.instance.logLogout();
     } catch (e, stacktrace) {
@@ -327,7 +411,13 @@ class AuthRepository {
         // atlıyordu; kullanıcı "temizle" dediğinde gerçekten hepsi silinsin.
         _local.clearLikedVideoIds(),
         _local.clearFavoriteVideoIds(),
+        // BUG FIX: takip edilen üniversite id-set cache'i de bu listede
+        // yoktu; signOut() ile aynı eksiklik burada da vardı.
+        _local.clearFavoriteUniversityIds(),
       ]);
+      if (Get.isRegistered<UniversityFavoritesRepository>()) {
+        Get.find<UniversityFavoritesRepository>().clearCache();
+      }
     } catch (e, stacktrace) {
       log(
         'Yerel önbellek temizlenirken hata oluştu: $e',

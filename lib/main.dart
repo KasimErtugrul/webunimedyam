@@ -102,7 +102,7 @@ void main() async {
   await Hive.openBox(AppCacheBox.name);
 
   // ── Tema ──────────────────────────────────────────────────────────────────
-  final savedTheme = (AppCacheBox.instance.get('theme') as String?) ?? 'dark';
+  final savedTheme = (AppCacheBox.instance.get('theme') as String?) ?? 'light';
 
   await ScreenUtil.ensureScreenSize();
 

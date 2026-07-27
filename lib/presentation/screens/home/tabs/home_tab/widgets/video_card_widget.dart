@@ -1257,6 +1257,18 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   }
 
   void _showQuickCommentSheet(BuildContext context, HomeController controller) {
+    // BUG FIX: Önceden giriş yapmamış kullanıcı bu sheet'i açıp yazı
+    // yazabiliyordu; sadece "Gönder"e bastığında (sendQuickComment içinde)
+    // sessizce engelleniyordu — kullanıcıya hiçbir geri bildirim yoktu.
+    // Artık kontrol en baştan yapılıyor: giriş yapmamış kullanıcı yazı
+    // yazma ekranını hiç görmüyor, direkt "Giriş Gerekiyor" dialog'u
+    // çıkıyor (aynı mekanizma: showAuthRequired → home_tab_widget'taki
+    // ever() worker → _showAuthDialog()).
+    if (!controller.isLoggedIn) {
+      controller.showAuthRequired.value = true;
+      return;
+    }
+
     if (_isTablet) {
       _showTabletQuickCommentSheet(context, controller);
     } else {

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../core/errors/username_taken_exception.dart';
 import '../../data/repositories/stats_repository.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/models/user_stats_model.dart';
@@ -63,9 +64,10 @@ class ProfileController extends GetxController {
       // Sadece ekrana ilk girişte logla; refreshProfile() (pull-to-refresh)
       // aynı loadProfile()'ı tekrar çağırdığı için burada değil, doğrudan
       // onInit akışında bir kereliğine tetikleniyor.
-      AnalyticsService.instance.logEvent('profile_view', parameters: {
-        'own_profile': isOwnProfile.toString(),
-      });
+      AnalyticsService.instance.logEvent(
+        'profile_view',
+        parameters: {'own_profile': isOwnProfile.toString()},
+      );
     });
 
     // İstatistik şeridi yalnızca kendi profilimizde anlamlı; başkasının
@@ -170,15 +172,25 @@ class ProfileController extends GetxController {
 
       // Gerçek değerleri değil, hangi alanların değiştiğini logluyoruz
       // (kullanıcı adı/avatar gibi kişisel veriyi Analytics'e taşımamak için).
-      AnalyticsService.instance.logEvent('profile_update', parameters: {
-        'username_changed':
-            (username != null && username != current.username).toString(),
-        'full_name_changed':
-            (fullName != null && fullName != current.fullName).toString(),
-        'avatar_changed':
-            (avatarUrl != null && avatarUrl != current.avatarUrl).toString(),
-      });
+      AnalyticsService.instance.logEvent(
+        'profile_update',
+        parameters: {
+          'username_changed': (username != null && username != current.username)
+              .toString(),
+          'full_name_changed':
+              (fullName != null && fullName != current.fullName).toString(),
+          'avatar_changed':
+              (avatarUrl != null && avatarUrl != current.avatarUrl).toString(),
+        },
+      );
       return true;
+    } on UsernameTakenException {
+      // Genel "Profil güncellenemedi" mesajından kasıtlı olarak ayrı:
+      // kullanıcı burada spesifik olarak "bu isim tutuluyor, başka bir
+      // tane dene" bilgisini almalı, aksi halde hangi alanın sorunlu
+      // olduğunu anlayamaz.
+      errorMessage.value = 'Bu kullanıcı adı zaten alınmış.';
+      return false;
     } catch (e, stacktrace) {
       log(
         'Profil güncellenirken hata oluştu: $e',
@@ -196,7 +208,9 @@ class ProfileController extends GetxController {
 
   /// Galeriden fotoğraf seçtirir, sıkıştırır, Supabase Storage'a yükler
   /// ve profiles.avatar_url alanını günceller.
-  Future<void> pickAndUploadAvatar({ImageSource source = ImageSource.gallery}) async {
+  Future<void> pickAndUploadAvatar({
+    ImageSource source = ImageSource.gallery,
+  }) async {
     if (!isOwnProfile) {
       errorMessage.value = 'Bu profili düzenleme yetkiniz yok.';
       return;
@@ -220,7 +234,8 @@ class ProfileController extends GetxController {
       // Boyut güvenliği: bucket zaten 5MB sınırlı ama erken kullanıcı
       // geri bildirimi için burada da kontrol ediyoruz.
       if (bytes.lengthInBytes > 5 * 1024 * 1024) {
-        errorMessage.value = 'Fotoğraf çok büyük. Lütfen 5MB altında bir fotoğraf seçin.';
+        errorMessage.value =
+            'Fotoğraf çok büyük. Lütfen 5MB altında bir fotoğraf seçin.';
         return;
       }
 
@@ -247,7 +262,8 @@ class ProfileController extends GetxController {
         error: e,
         stackTrace: stacktrace,
       );
-      errorMessage.value = 'Profil fotoğrafı yüklenemedi. Lütfen tekrar deneyin.';
+      errorMessage.value =
+          'Profil fotoğrafı yüklenemedi. Lütfen tekrar deneyin.';
     } finally {
       isUploadingAvatar.value = false;
     }

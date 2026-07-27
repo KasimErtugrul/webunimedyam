@@ -348,7 +348,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _VisibilityTilePhone(
               icon: Icons.chat_bubble_outline,
               title: 'Yorumlar',
-              subtitle: 'Yaptığın yorumlar',
+              // NOT: Bu ayar sadece profilindeki "yorum yaptığın videolar"
+              // listesini gizler/gösterir. Bir videoya bıraktığın yorum,
+              // o videonun yorum bölümünde her zaman kullanıcı adınla
+              // birlikte herkese açık görünmeye devam eder (YouTube
+              // yorumları gibi) — bu ayar geriye dönük olarak yorumları
+              // anonimleştirmez.
+              subtitle:
+                  'Profilinde "yorum yaptığın videolar" listesi görünür mü? '
+                  '(Yorumların, videoların altında her zaman herkese açıktır)',
               current: s?.commentsVisibility ?? VisibilityOption.public,
               ceiling: profVis,
               onChanged: _controller.changeCommentsVisibility,
@@ -507,7 +515,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _VisibilityTileTablet(
               icon: Icons.chat_bubble_outline,
               title: 'Yorumlar',
-              subtitle: 'Yaptığın yorumlar',
+              // NOT: Bu ayar sadece profilindeki "yorum yaptığın videolar"
+              // listesini gizler/gösterir. Bir videoya bıraktığın yorum,
+              // o videonun yorum bölümünde her zaman kullanıcı adınla
+              // birlikte herkese açık görünmeye devam eder (YouTube
+              // yorumları gibi) — bu ayar geriye dönük olarak yorumları
+              // anonimleştirmez.
+              subtitle:
+                  'Profilinde "yorum yaptığın videolar" listesi görünür mü? '
+                  '(Yorumların, videoların altında her zaman herkese açıktır)',
               current: s?.commentsVisibility ?? VisibilityOption.public,
               ceiling: profVis,
               onChanged: _controller.changeCommentsVisibility,

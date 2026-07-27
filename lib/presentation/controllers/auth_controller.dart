@@ -3,16 +3,34 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../core/errors/username_taken_exception.dart';
 import '../../app/routes/app_routes.dart';
 import '../../services/notification_service.dart';
 import '../../services/analytics_service.dart';
 import 'favorites_controller.dart';
 import 'home_controller.dart';
+import 'settings_controller.dart';
+import '../../data/models/user_settings_model.dart';
 
 /// Email/şifre ile giriş-kayıt akışı tek yöntem olduğu için event
 /// parametrelerinde sabit olarak kullanılıyor. İleride Google/Apple
 /// girişi eklenirse ilgili çağrılarda bu değer değiştirilmeli.
 const String _kAuthMethod = 'email';
+
+/// BUG FIX: SettingsController.loadSettings() önceden SADECE main.dart'ta,
+/// uygulama soğuk açılışında bir kez çağrılıyordu — o an kullanıcı henüz
+/// giriş yapmamış olabileceği için settings.value null kalıyordu. Kullanıcı
+/// sonradan giriş yapınca (email, Google, OTP, kayıt) bu değer BİR DAHA HİÇ
+/// yenilenmiyordu; bu yüzden Ayarlar > Gizlilik'teki değişiklikler
+/// (changeProfileVisibility vb.) "current == null" kontrolüne takılıp
+/// sessizce hiçbir şey yapmadan dönüyordu. Her başarılı giriş/kayıt
+/// sonrasında bu fonksiyon çağrılarak SettingsController'ın artık giriş
+/// yapmış kullanıcının gerçek ayarlarını çekmesi sağlanıyor.
+Future<void> _refreshSettingsForNewSession() async {
+  if (Get.isRegistered<SettingsController>()) {
+    await Get.find<SettingsController>().loadSettings();
+  }
+}
 
 class AuthController extends GetxController {
   final AuthRepository authRepository;
@@ -65,6 +83,8 @@ class AuthController extends GetxController {
 
       // Login başarılı → FCM token'ı Supabase'e kaydet
       await NotificationService.instance.onUserLogin();
+      // BUG FIX: giriş yapan kullanıcının gerçek ayarlarını çek (bkz. yukarıdaki not).
+      await _refreshSettingsForNewSession();
 
       // auth_wall_hit sonrası dönüşümü ölçebilmek için GA4 önerilen event.
       AnalyticsService.instance.logLogin(method: _kAuthMethod);
@@ -76,9 +96,10 @@ class AuthController extends GetxController {
 
       // Başarısız giriş denemelerini ayrı işaretliyoruz ki "kaç kişi login
       // ekranına geldi ama şifre/email hatası yüzünden vazgeçti" görülebilsin.
-      AnalyticsService.instance.logEvent('login_failed', parameters: {
-        'method': _kAuthMethod,
-      });
+      AnalyticsService.instance.logEvent(
+        'login_failed',
+        parameters: {'method': _kAuthMethod},
+      );
     } finally {
       isLoading.value = false;
     }
@@ -94,6 +115,8 @@ class AuthController extends GetxController {
       errorMessage.value = '';
 
       final isNewUser = await authRepository.signInWithGoogle();
+      // BUG FIX: giriş yapan kullanıcının gerçek ayarlarını çek (bkz. yukarıdaki not).
+      await _refreshSettingsForNewSession();
 
       if (isNewUser) {
         Get.offAllNamed(AppRoutes.interestSelection);
@@ -101,15 +124,21 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.home);
       }
     } catch (e, stacktrace) {
-      log('Google ile giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Google ile giriş yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       // Kullanıcı hesap seçim ekranını iptal ettiyse sessiz geç, ekranda
       // kalsın; gerçek hatalarda mesaj göster.
       if (!e.toString().contains('iptal edildi')) {
-        errorMessage.value = 'Google ile giriş başarısız. Lütfen tekrar deneyin.';
+        errorMessage.value =
+            'Google ile giriş başarısız. Lütfen tekrar deneyin.';
       }
-      AnalyticsService.instance.logEvent('login_failed', parameters: {
-        'method': 'google',
-      });
+      AnalyticsService.instance.logEvent(
+        'login_failed',
+        parameters: {'method': 'google'},
+      );
     } finally {
       isGoogleLoading.value = false;
     }
@@ -144,17 +173,30 @@ class AuthController extends GetxController {
 
       // "Confirm email" kapalıysa session direkt kurulur.
       await NotificationService.instance.onUserLogin();
+      // BUG FIX: giriş yapan kullanıcının gerçek ayarlarını çek (bkz. yukarıdaki not).
+      await _refreshSettingsForNewSession();
       AnalyticsService.instance.logSignUp(method: _kAuthMethod);
       Get.offAllNamed(AppRoutes.home);
+    } on UsernameTakenException {
+      // Genel hata mesajından kasıtlı olarak ayrı: kullanıcı burada
+      // "bilgilerimi kontrol et" değil, spesifik olarak "başka bir
+      // kullanıcı adı seç" demeli.
+      errorMessage.value =
+          'Bu kullanıcı adı zaten alınmış. Lütfen başka bir tane deneyin.';
+      AnalyticsService.instance.logEvent(
+        'sign_up_failed',
+        parameters: {'method': _kAuthMethod, 'reason': 'username_taken'},
+      );
     } catch (e, stacktrace) {
       log('Kayıt olunurken hata oluştu: $e', error: e, stackTrace: stacktrace);
       errorMessage.value = 'Kayıt başarısız. Bilgilerinizi kontrol edin.';
 
       // Başarısız kayıt denemelerini ayrı işaretliyoruz (örn. email zaten
       // kullanımda, zayıf şifre vb. nedenlerle formu terk edenleri görmek için).
-      AnalyticsService.instance.logEvent('sign_up_failed', parameters: {
-        'method': _kAuthMethod,
-      });
+      AnalyticsService.instance.logEvent(
+        'sign_up_failed',
+        parameters: {'method': _kAuthMethod},
+      );
     } finally {
       isLoading.value = false;
     }
@@ -169,6 +211,8 @@ class AuthController extends GetxController {
       errorMessage.value = '';
 
       await authRepository.verifyEmailOtp(email: email, token: otp);
+      // BUG FIX: giriş yapan kullanıcının gerçek ayarlarını çek (bkz. yukarıdaki not).
+      await _refreshSettingsForNewSession();
 
       // Yeni kayıt olan kullanıcıya, ana sayfaya gitmeden önce ilgilendiği
       // üniversiteleri seçme fırsatı sunuyoruz. Bu ekran zorunlu değildir;
@@ -177,8 +221,13 @@ class AuthController extends GetxController {
       // işaretlenir.
       Get.offAllNamed(AppRoutes.interestSelection);
     } catch (e, stacktrace) {
-      log('OTP doğrulanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
-      errorMessage.value = 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+      log(
+        'OTP doğrulanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value =
+          'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
 
       AnalyticsService.instance.logEvent('otp_verification_failed');
     } finally {
@@ -198,7 +247,11 @@ class AuthController extends GetxController {
       await authRepository.resendVerificationOtp(email: email);
       _startResendCooldown();
     } catch (e, stacktrace) {
-      log('OTP tekrar gönderilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'OTP tekrar gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Kod gönderilemedi. Lütfen tekrar deneyin.';
     } finally {
       isResendingOtp.value = false;
@@ -242,17 +295,18 @@ class AuthController extends GetxController {
           title: const Text('Şifre Değiştirildi'),
           content: const Text('Şifreniz başarıyla güncellendi.'),
           actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text('Tamam'),
-            ),
+            TextButton(onPressed: () => Get.back(), child: const Text('Tamam')),
           ],
         ),
         barrierDismissible: false,
       );
       Get.back();
     } catch (e, stacktrace) {
-      log('Şifre değiştirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Şifre değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       changePasswordError.value =
           'Şifre değiştirilemedi. Mevcut şifrenizi kontrol edin.';
     } finally {
@@ -280,8 +334,11 @@ class AuthController extends GetxController {
       _startResetResendCooldown();
       Get.toNamed(AppRoutes.resetPassword, arguments: {'email': email});
     } catch (e, stacktrace) {
-      log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Kod gönderilemedi. Email adresinizi kontrol edin.';
     } finally {
       isSendingResetOtp.value = false;
@@ -312,8 +369,13 @@ class AuthController extends GetxController {
       await authRepository.signOut();
       Get.offAllNamed(AppRoutes.login);
     } catch (e, stacktrace) {
-      log('Şifre sıfırlanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
-      errorMessage.value = 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+      log(
+        'Şifre sıfırlanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      errorMessage.value =
+          'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
 
       AnalyticsService.instance.logEvent('password_reset_failed');
     } finally {
@@ -332,8 +394,11 @@ class AuthController extends GetxController {
       await authRepository.resendPasswordResetOtp(email: email);
       _startResetResendCooldown();
     } catch (e, stacktrace) {
-      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Kod gönderilemedi. Lütfen tekrar deneyin.';
     } finally {
       isResendingResetOtp.value = false;
@@ -372,6 +437,15 @@ class AuthController extends GetxController {
       }
       if (Get.isRegistered<FavoritesController>()) {
         Get.find<FavoritesController>().favoriteVideos.clear();
+      }
+      // BUG FIX: signOut sonrası settings.value eski kullanıcıya ait
+      // kalmasın — bir sonraki anon/misafir görünüm veya farklı bir
+      // hesapla giriş (bkz. _refreshSettingsForNewSession) temiz bir
+      // durumdan başlasın.
+      if (Get.isRegistered<SettingsController>()) {
+        final settingsCtrl = Get.find<SettingsController>();
+        settingsCtrl.settings.value = null;
+        settingsCtrl.profileVisibility.value = VisibilityOption.public;
       }
 
       Get.offAllNamed(AppRoutes.home);

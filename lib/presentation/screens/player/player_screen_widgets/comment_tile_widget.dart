@@ -84,6 +84,13 @@ class CommentTileWidget extends StatelessWidget {
   final bool canDelete;
   final VoidCallback onDelete;
 
+  // BUG FIX: Ayarlar > Gizlilik > "Yorumlar" gizli yapıldığında,
+  // get_video_comments RPC'si başka kullanıcılar için username'i bu
+  // sabit metinle, avatar_url'i de null ile değiştiriyor. Burada bunu
+  // tanıyıp gerçek bir kişisel avatar/isim gibi göstermek yerine belirgin
+  // bir "gizli kullanıcı" görünümü (nötr gri + kişi ikonu) kullanıyoruz.
+  static const String _kMaskedUsername = 'Gizli Kullanıcı';
+
   const CommentTileWidget({
     super.key,
     required this.comment,
@@ -118,8 +125,10 @@ class CommentTileWidget extends StatelessWidget {
 
   Widget _buildPhone(BuildContext context) {
     final profile = comment.profile;
-    final hasAvatar = profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
+    final hasAvatar =
+        profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
     final username = profile?.username ?? 'Anonim';
+    final isMasked = username == _kMaskedUsername;
     final initial = username[0].toUpperCase();
 
     return InkWell(
@@ -131,10 +140,14 @@ class CommentTileWidget extends StatelessWidget {
           vertical: _PhoneSizes.cardPaddingVertical.h,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface(context).withValues(alpha:_PhoneSizes.cardBackgroundOpacity),
+          color: AppTheme.surface(
+            context,
+          ).withValues(alpha: _PhoneSizes.cardBackgroundOpacity),
           borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
           border: Border.all(
-            color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.cardBorderOpacity),
+            color: AppTheme.textSec(
+              context,
+            ).withValues(alpha: _PhoneSizes.cardBorderOpacity),
           ),
         ),
         child: Row(
@@ -144,30 +157,45 @@ class CommentTileWidget extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha:0.6),
-                    Theme.of(context).colorScheme.primary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: isMasked
+                    ? null
+                    : LinearGradient(
+                        colors: [
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.6),
+                          Theme.of(context).colorScheme.primary,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                color: isMasked
+                    ? AppTheme.textSec(context).withValues(alpha: 0.3)
+                    : null,
               ),
               child: CircleAvatar(
                 radius: _PhoneSizes.avatarRadius.r,
                 backgroundColor: Colors.transparent,
-                backgroundImage: hasAvatar ? NetworkImage(profile.avatarUrl!) : null,
-                child: hasAvatar
+                backgroundImage: (hasAvatar && !isMasked)
+                    ? NetworkImage(profile.avatarUrl!)
+                    : null,
+                child: (hasAvatar && !isMasked)
                     ? null
                     : Center(
-                        child: Text(
-                          initial,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: _PhoneSizes.avatarLetterFontSize.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: isMasked
+                            ? Icon(
+                                Icons.person_rounded,
+                                color: Colors.white,
+                                size: _PhoneSizes.avatarRadius.r,
+                              )
+                            : Text(
+                                initial,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: _PhoneSizes.avatarLetterFontSize.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
               ),
             ),
@@ -214,7 +242,7 @@ class CommentTileWidget extends StatelessWidget {
                   Text(
                     comment.content,
                     style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha:0.9),
+                      color: AppTheme.textSec(context).withValues(alpha: 0.9),
                       fontSize: _PhoneSizes.commentFontSize.sp,
                       height: _PhoneSizes.commentLineHeight,
                     ),
@@ -226,12 +254,14 @@ class CommentTileWidget extends StatelessWidget {
             // ─── Silme Butonu ───────────────────────────────────
             if (canDelete)
               Padding(
-                padding: EdgeInsets.only(left: _PhoneSizes.deleteButtonPadding.w),
+                padding: EdgeInsets.only(
+                  left: _PhoneSizes.deleteButtonPadding.w,
+                ),
                 child: IconButton(
                   onPressed: onDelete,
                   icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withValues(alpha:0.6),
+                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
                     size: _PhoneSizes.deleteIconSize.sp,
                   ),
                   splashRadius: _PhoneSizes.deleteSplashRadius.r,
@@ -254,8 +284,10 @@ class CommentTileWidget extends StatelessWidget {
 
   Widget _buildTablet(BuildContext context) {
     final profile = comment.profile;
-    final hasAvatar = profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
+    final hasAvatar =
+        profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
     final username = profile?.username ?? 'Anonim';
+    final isMasked = username == _kMaskedUsername;
     final initial = username[0].toUpperCase();
 
     return InkWell(
@@ -267,10 +299,14 @@ class CommentTileWidget extends StatelessWidget {
           vertical: _TabletSizes.cardPaddingVertical,
         ),
         decoration: BoxDecoration(
-          color: AppTheme.surface(context).withValues(alpha:_TabletSizes.cardBackgroundOpacity),
+          color: AppTheme.surface(
+            context,
+          ).withValues(alpha: _TabletSizes.cardBackgroundOpacity),
           borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
           border: Border.all(
-            color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.cardBorderOpacity),
+            color: AppTheme.textSec(
+              context,
+            ).withValues(alpha: _TabletSizes.cardBorderOpacity),
           ),
         ),
         child: Row(
@@ -280,30 +316,45 @@ class CommentTileWidget extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha:0.6),
-                    Theme.of(context).colorScheme.primary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: isMasked
+                    ? null
+                    : LinearGradient(
+                        colors: [
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.6),
+                          Theme.of(context).colorScheme.primary,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                color: isMasked
+                    ? AppTheme.textSec(context).withValues(alpha: 0.3)
+                    : null,
               ),
               child: CircleAvatar(
                 radius: _TabletSizes.avatarRadius,
                 backgroundColor: Colors.transparent,
-                backgroundImage: hasAvatar ? NetworkImage(profile.avatarUrl!) : null,
-                child: hasAvatar
+                backgroundImage: (hasAvatar && !isMasked)
+                    ? NetworkImage(profile.avatarUrl!)
+                    : null,
+                child: (hasAvatar && !isMasked)
                     ? null
                     : Center(
-                        child: Text(
-                          initial,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: _TabletSizes.avatarLetterFontSize,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: isMasked
+                            ? Icon(
+                                Icons.person_rounded,
+                                color: Colors.white,
+                                size: _TabletSizes.avatarRadius,
+                              )
+                            : Text(
+                                initial,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: _TabletSizes.avatarLetterFontSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
               ),
             ),
@@ -350,7 +401,7 @@ class CommentTileWidget extends StatelessWidget {
                   Text(
                     comment.content,
                     style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha:0.9),
+                      color: AppTheme.textSec(context).withValues(alpha: 0.9),
                       fontSize: _TabletSizes.commentFontSize,
                       height: _TabletSizes.commentLineHeight,
                     ),
@@ -362,12 +413,14 @@ class CommentTileWidget extends StatelessWidget {
             // ─── Silme Butonu ───────────────────────────────────
             if (canDelete)
               Padding(
-                padding: EdgeInsets.only(left: _TabletSizes.deleteButtonPadding),
+                padding: EdgeInsets.only(
+                  left: _TabletSizes.deleteButtonPadding,
+                ),
                 child: IconButton(
                   onPressed: onDelete,
                   icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withValues(alpha:0.6),
+                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
                     size: _TabletSizes.deleteIconSize,
                   ),
                   splashRadius: _TabletSizes.deleteSplashRadius,

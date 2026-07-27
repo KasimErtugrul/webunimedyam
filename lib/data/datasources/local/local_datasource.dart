@@ -666,9 +666,21 @@ class LocalDataSource {
 
   static const _favoriteUniversityIdsKey = 'favorite_university_ids';
   static const _favoriteUniversityIdsTimeKey = 'favorite_university_ids_time';
+  // BUG FIX: cache hangi kullanıcıya ait, artık bununla birlikte saklanıyor.
+  // Önceden bu cache global bir anahtardı; signOut() bu cache'i temizlemeyi
+  // unutursa (ki tam olarak bu yüzden bug oluşmuştu), TTL dolmadan farklı
+  // bir hesapla giriş yapan kullanıcı önceki kullanıcının takip ettiği
+  // üniversiteleri görüyordu. Şimdi cache'in sahibi olan userId de
+  // saklanıyor ve doğrulama sırasında karşılaştırılıyor — sahibi
+  // uyuşmuyorsa cache geçersiz sayılır, bu da signOut'ta bir temizleme
+  // adımı unutulsa bile veri sızıntısını engeller (defense-in-depth).
+  static const _favoriteUniversityIdsUserKey = 'favorite_university_ids_user';
 
-  Future<bool> isFavoriteUniversityIdsCacheValid() async {
+  Future<bool> isFavoriteUniversityIdsCacheValid(String userId) async {
     try {
+      final cachedUserId = _box.get(_favoriteUniversityIdsUserKey) as String?;
+      if (cachedUserId != userId) return false;
+
       final cacheTime = _box.get(_favoriteUniversityIdsTimeKey) as DateTime?;
       if (cacheTime == null) return false;
       return DateTime.now().toUtc().difference(cacheTime.toUtc()).inMinutes <
@@ -688,10 +700,11 @@ class LocalDataSource {
     }
   }
 
-  Future<void> cacheFavoriteUniversityIds(Set<int> ids) async {
+  Future<void> cacheFavoriteUniversityIds(String userId, Set<int> ids) async {
     try {
       await _box.put(_favoriteUniversityIdsKey, ids.toList());
       await _box.put(_favoriteUniversityIdsTimeKey, DateTime.now().toUtc());
+      await _box.put(_favoriteUniversityIdsUserKey, userId);
     } catch (e) {
       // Sessizce devam et
     }
@@ -723,6 +736,7 @@ class LocalDataSource {
     try {
       await _box.delete(_favoriteUniversityIdsKey);
       await _box.delete(_favoriteUniversityIdsTimeKey);
+      await _box.delete(_favoriteUniversityIdsUserKey);
     } catch (e) {
       // Sessizce devam et
     }

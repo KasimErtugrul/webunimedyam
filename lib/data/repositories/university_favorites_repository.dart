@@ -87,7 +87,11 @@ class UniversityFavoritesRepository extends GetxService {
     }
     _isCacheLoading = true;
     try {
-      if (await _local.isFavoriteUniversityIdsCacheValid()) {
+      // BUG FIX: disk cache artık userId ile birlikte doğrulanıyor
+      // (bkz. LocalDataSource.isFavoriteUniversityIdsCacheValid). Böylece
+      // TTL süresi dolmamış olsa bile başka bir kullanıcıya ait cache
+      // asla yeni kullanıcıya "geçerliymiş" gibi dönmez.
+      if (await _local.isFavoriteUniversityIdsCacheValid(userId)) {
         final cached = await _local.getCachedFavoriteUniversityIds();
         _cachedFavoriteIds
           ..clear()
@@ -103,7 +107,7 @@ class UniversityFavoritesRepository extends GetxService {
         ..addAll(ids);
       _cachedUserId = userId;
       _isCacheLoaded = true;
-      await _local.cacheFavoriteUniversityIds(_cachedFavoriteIds);
+      await _local.cacheFavoriteUniversityIds(userId, _cachedFavoriteIds);
     } catch (e, stacktrace) {
       log(
         'Üniversite favori ID\'leri cache\'e yüklenirken hata oluştu: $e',

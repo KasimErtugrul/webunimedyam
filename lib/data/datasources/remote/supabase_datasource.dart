@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/errors/username_taken_exception.dart';
 import '../../models/shorts_model.dart';
 import '../../models/university_stats_model.dart';
 import '../../models/video_model.dart';
@@ -15,14 +16,9 @@ import '../../models/video_viewer_model.dart';
 class SupabaseDataSource {
   final _client = Supabase.instance.client;
 
-  // Auth
   User? get currentUser => _client.auth.currentUser;
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
 
-  /// Kayıt (signup) başlatır. "Confirm email" ayarı açıkken Supabase bu
-  /// aşamada session DÖNMEZ (user.emailConfirmedAt == null, session == null);
-  /// gerçek session, kullanıcı mailine gelen 6 haneli kodu [verifyEmailOTP]
-  /// ile doğruladığında oluşur.
   Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -36,12 +32,26 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Kayıt olurken hata oluştu: $e\n$stackTrace');
+      // NOT: signUp() sırasında profiles.username UNIQUE ihlali,
+      // auth.users satırını oluşturan handle_new_user TRIGGER'ı içinde
+      // oluşur. Bu durumda Supabase Auth (GoTrue) hatayı doğrudan bir
+      // Postgrest '23505' kodu olarak değil, genellikle içinde
+      // "duplicate key" / "unique" geçen bir AuthException mesajı olarak
+      // sarar. Bu tespit best-effort'tur — canlıda gerçek bir çakışma
+      // denemesiyle DOĞRULANMALI, çünkü GoTrue'nun sardığı mesaj formatı
+      // Supabase sürümüne göre değişebilir.
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('duplicate') ||
+          msg.contains('unique') ||
+          msg.contains('profiles_username_key')) {
+        throw const UsernameTakenException(
+          'Bu kullanıcı adı zaten alınmış. Lütfen başka bir tane deneyin.',
+        );
+      }
       throw Exception('Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.');
     }
   }
 
-  /// Kayıt sırasında email'e gönderilen 6 haneli OTP kodunu doğrular.
-  /// Başarılı olursa session kurulur (currentUser artık dolu olur).
   Future<AuthResponse> verifyEmailOTP({
     required String email,
     required String token,
@@ -54,13 +64,10 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Email OTP doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw Exception(
-        'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
-      );
+      throw Exception('Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     }
   }
 
-  /// Kayıt onay kodunu (OTP) email adresine tekrar gönderir.
   Future<void> resendSignUpOTP({required String email}) async {
     try {
       await _client.auth.resend(type: OtpType.signup, email: email);
@@ -79,86 +86,55 @@ class SupabaseDataSource {
     }
   }
 
-  // ─── Google ile Giriş ───────────────────────────────────────────────────
-  //
-  // Native (uygulama içi) Google Sign-In akışı: google_sign_in paketi ile
-  // kullanıcıdan idToken alınır, bu Supabase'e iletilerek session kurulur.
-  // Tarayıcıya çıkmaz, tek dokunuşla biter.
-  //
-  // NOT (google_sign_in v7+ ile gelen KIRICI değişiklikler):
-  //   - Paket artık singleton: `GoogleSignIn()` yok, `GoogleSignIn.instance`
-  //     var. Kullanılmadan önce mutlaka `initialize()` ile başlatılmalı ve
-  //     bu çağrı uygulama ömrü boyunca yalnızca BİR KEZ yapılabilir (ikinci
-  //     çağrıda hata fırlatır) — bu yüzden Future'ı cache'leyip her girişte
-  //     aynı initialize sonucunu bekliyoruz.
-  //   - `signIn()` kaldırıldı → yerine `authenticate()` geldi.
-  //   - `authentication` artık senkron bir getter ve sadece idToken taşıyor;
-  //     accessToken artık ayrı bir "authorization" adımıyla
-  //     (authorizationClient) isteniyor.
-  //   - İptal durumu artık null dönmüyor, `GoogleSignInException`
-  //     (`code: GoogleSignInExceptionCode.canceled`) fırlatıyor.
-  //
-  // ÖNEMLİ — Doldurulması gerekenler:
-  //   - webClientId: Google Cloud Console'daki "Web application" tipi
-  //     OAuth client ID (Supabase Dashboard > Authentication > Providers >
-  //     Google alanına girilenle AYNI olmalı). `serverClientId` olarak
-  //     kullanılır.
-  //   - iOS desteklenecekse ayrıca `clientId` (Info.plist / GoogleService
-  //     clientId) initialize'a eklenmeli; şu an yalnızca Android hedeflendiği
-  //     için verilmedi.
-  static const _googleWebClientId = '456320124267-s9q38rhpp3qucekt82i6iqv0qd7vgre0.apps.googleusercontent.com';
+  static const _googleWebClientId =
+      '67433845227-vr0t65sp4e6855mmln3ulcrj32tgvu34.apps.googleusercontent.com';
   static const _googleScopes = ['email', 'profile'];
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   Future<void>? _googleSignInInitFuture;
 
-  /// `GoogleSignIn.instance.initialize()` bir kez çağrılmalı; tekrar
-  /// çağrılırsa `StateError` fırlatır. Bu yardımcı, ilk çağrıdaki Future'ı
-  /// saklayıp sonraki her girişte onu bekleyerek çift initialize'ı önler.
   Future<void> _ensureGoogleSignInInitialized() {
     return _googleSignInInitFuture ??= _googleSignIn.initialize(
       serverClientId: _googleWebClientId,
     );
   }
 
-  /// Google ile giriş/kayıt yapar. Supabase tarafında bu email için hesap
-  /// yoksa otomatik oluşturulur (signInWithIdToken'ın doğal davranışı) —
-  /// yani ayrı bir "Google ile kayıt ol" akışına gerek yoktur.
-  ///
-  /// Dönüş: true → bu, kullanıcının Supabase'de AÇILAN İLK hesabı (yeni
-  /// kayıt); false → zaten var olan hesapla giriş yaptı.
   Future<bool> signInWithGoogle() async {
     try {
       await _ensureGoogleSignInInitialized();
 
-      // Önceki oturumu temizle ki hesap seçim ekranı her seferinde çıksın.
       try {
         await _googleSignIn.signOut();
-      } catch (_) {
-        // Daha önce giriş yapılmamışsa signOut sessizce yok sayılabilir.
-      }
+      } catch (_) {}
 
       GoogleSignInAccount googleUser;
       try {
         googleUser = await _googleSignIn.authenticate(scopeHint: _googleScopes);
-      } on GoogleSignInException catch (e) {
+      } on GoogleSignInException catch (e, stackTrace) {
+        log(
+          'Google authenticate() hatası: code=${e.code} description=${e.description}\n$stackTrace',
+        );
         if (e.code == GoogleSignInExceptionCode.canceled) {
-          // Kullanıcı hesap seçim ekranını iptal etti.
-          throw Exception('Google ile giriş iptal edildi.');
+          throw Exception(
+            'Google ile giriş iptal edildi. ${e.description} - ${e.code} - ${e.details}',
+          );
         }
-        rethrow;
+        throw Exception(
+          'Google authenticate hatası: [${e.code}] ${e.description ?? e.toString()}',
+        );
       }
 
       final idToken = googleUser.authentication.idToken;
       if (idToken == null) {
-        throw Exception('Google kimlik doğrulama token\'ı alınamadı.');
+        throw Exception(
+          'Google kimlik doğrulama token\'ı alınamadı (idToken null).',
+        );
       }
 
-      // accessToken artık idToken'dan ayrı, bir "yetkilendirme" adımıyla
-      // isteniyor: daha önce izin verilmişse sessizce, verilmemişse
-      // kullanıcıya sorarak alınır.
       final authorization =
-          await googleUser.authorizationClient.authorizationForScopes(_googleScopes) ??
+          await googleUser.authorizationClient.authorizationForScopes(
+            _googleScopes,
+          ) ??
           await googleUser.authorizationClient.authorizeScopes(_googleScopes);
 
       final response = await _client.auth.signInWithIdToken(
@@ -168,21 +144,19 @@ class SupabaseDataSource {
       );
 
       final user = response.user;
-      // Yeni oluşturulan bir hesapta created_at ve last_sign_in_at aynı ana
-      // (saniye farkıyla) denk gelir; var olan hesapla girişte last_sign_in_at
-      // güncellenir ama created_at eskidir — böylece "yeni kullanıcı mı"
-      // ayrımını email/otp akışına dokunmadan yapabiliyoruz.
       if (user?.createdAt != null && user?.lastSignInAt != null) {
         final createdAt = DateTime.tryParse(user!.createdAt);
         final lastSignIn = DateTime.tryParse(user.lastSignInAt!);
         if (createdAt != null && lastSignIn != null) {
-          return lastSignIn.difference(createdAt).abs() < const Duration(seconds: 10);
+          return lastSignIn.difference(createdAt).abs() <
+              const Duration(seconds: 10);
         }
       }
       return false;
     } catch (e, stackTrace) {
       log('Google ile giriş yapılırken hata oluştu: $e\n$stackTrace');
-      throw Exception('Google ile giriş başarısız oldu. Lütfen tekrar deneyin.');
+      if (e.toString().contains('iptal edildi')) rethrow;
+      throw Exception('Google ile giriş başarısız: $e');
     }
   }
 
@@ -191,19 +165,13 @@ class SupabaseDataSource {
       await _client.auth.signOut();
       try {
         await _googleSignIn.signOut();
-      } catch (_) {
-        // Google tarafında zaten çıkış yapılmışsa/init edilmemişse yok say.
-      }
+      } catch (_) {}
     } catch (e, stackTrace) {
       log('Çıkış yapılırken hata oluştu: $e\n$stackTrace');
       throw Exception('Çıkış işlemi başarısız oldu. Lütfen tekrar deneyin.');
     }
   }
 
-  // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
-  /// Mevcut şifrenin doğru olduğunu teyit eder (yeniden kimlik doğrulama).
-  /// Supabase'de "mevcut şifreyi doğrula" için ayrı bir API yok; en güvenli
-  /// yöntem email+mevcut şifre ile tekrar signInWithPassword denemektir.
   Future<void> reauthenticateWithPassword({
     required String email,
     required String currentPassword,
@@ -219,7 +187,6 @@ class SupabaseDataSource {
     }
   }
 
-  /// Oturum açık kullanıcının şifresini değiştirir.
   Future<void> updatePassword({required String newPassword}) async {
     try {
       await _client.auth.updateUser(UserAttributes(password: newPassword));
@@ -242,8 +209,6 @@ class SupabaseDataSource {
     }
   }
 
-  // ─── Şifremi Unuttum (oturum yokken) ────────────────────────────────────
-  /// Email adresine 6 haneli şifre sıfırlama kodu gönderir.
   Future<void> sendPasswordResetOtp({required String email}) async {
     try {
       await _client.auth.resetPasswordForEmail(email);
@@ -253,8 +218,6 @@ class SupabaseDataSource {
     }
   }
 
-  /// Şifre sıfırlama kodunu doğrular; başarılı olursa geçici bir
-  /// "recovery" session kurulur ve ardından [updatePassword] çağrılabilir.
   Future<AuthResponse> verifyPasswordResetOtp({
     required String email,
     required String token,
@@ -267,31 +230,21 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Şifre sıfırlama kodu doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw Exception(
-        'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
-      );
+      throw Exception('Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     }
   }
 
-  /// Şifre sıfırlama kodunu tekrar gönderir.
-  ///
-  /// NOT: Supabase (gotrue) `auth.resend()` fonksiyonu yalnızca
-  /// [OtpType.signup] ve [OtpType.emailChange] türlerini destekler;
-  /// `recovery` türü için kullanılamaz (kütüphane içi assertion hatası verir).
-  /// Bu yüzden recovery kodunu tekrar göndermek için `resend()` değil,
-  /// [sendPasswordResetOtp] ile aynı şekilde `resetPasswordForEmail`
-  /// tekrar çağrılır — Supabase bu çağrıda otomatik olarak yeni bir kod
-  /// üretip gönderir.
   Future<void> resendPasswordResetOtp({required String email}) async {
     try {
       await _client.auth.resetPasswordForEmail(email);
     } catch (e, stackTrace) {
-      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e\n$stackTrace');
+      log(
+        'Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e\n$stackTrace',
+      );
       throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
     }
   }
 
-  // Profil
   Future<ProfileModel?> getProfile(String userId) async {
     try {
       final data = await _client
@@ -300,7 +253,6 @@ class SupabaseDataSource {
           .eq('id', userId)
           .maybeSingle();
       if (data == null) return null;
-
       return ProfileModel.fromSupabase(data);
     } catch (e, stackTrace) {
       log('Profil getirilirken hata oluştu: $e\n$stackTrace');
@@ -314,15 +266,22 @@ class SupabaseDataSource {
           .from('profiles')
           .update(profile.toSupabase())
           .eq('id', profile.id);
+    } on PostgrestException catch (e, stackTrace) {
+      // '23505' = unique_violation. Düz bir UPDATE üzerinden geldiği için
+      // (trigger'ın içinden değil), bu kod garantili şekilde geliyor —
+      // signUp() içindeki tahmine dayalı tespitin aksine burası kesin.
+      if (e.code == '23505') {
+        log('Kullanıcı adı zaten alınmış: ${profile.username}\n$stackTrace');
+        throw const UsernameTakenException();
+      }
+      log('Profil güncellenirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Profil güncellenemedi. Lütfen tekrar deneyin.');
     } catch (e, stackTrace) {
       log('Profil güncellenirken hata oluştu: $e\n$stackTrace');
       throw Exception('Profil güncellenemedi. Lütfen tekrar deneyin.');
     }
   }
 
-  /// Profil fotoğrafını 'avatars' bucket'ına yükler ve public URL döner.
-  /// Dosya yolu: {userId}/avatar.{ext} (upsert:true ile üzerine yazılır,
-  /// böylece storage.objects RLS politikaları [userId klasör kuralı] geçerli olur).
   Future<String> uploadAvatar({
     required String userId,
     required Uint8List bytes,
@@ -335,7 +294,6 @@ class SupabaseDataSource {
         'webp' => 'image/webp',
         _ => 'image/jpeg',
       };
-
       await _client.storage
           .from('avatars')
           .uploadBinary(
@@ -343,9 +301,6 @@ class SupabaseDataSource {
             bytes,
             fileOptions: FileOptions(contentType: contentType, upsert: true),
           );
-
-      // Public bucket olsa da CDN/tarayıcı cache'ini kırmak için
-      // sona bir cache-busting query parametresi ekliyoruz.
       final publicUrl = _client.storage.from('avatars').getPublicUrl(path);
       return '$publicUrl?t=${DateTime.now().millisecondsSinceEpoch}';
     } catch (e, stackTrace) {
@@ -354,7 +309,6 @@ class SupabaseDataSource {
     }
   }
 
-  /// Kullanıcının avatar klasöründeki tüm dosyaları siler (profil fotoğrafını kaldırma).
   Future<void> deleteAvatar(String userId) async {
     try {
       final files = await _client.storage.from('avatars').list(path: userId);
@@ -367,7 +321,6 @@ class SupabaseDataSource {
     }
   }
 
-  // Ayarlar
   Future<UserSettingsModel?> getUserSettings(String userId) async {
     try {
       final data = await _client
@@ -395,7 +348,6 @@ class SupabaseDataSource {
     }
   }
 
-  // ─── Üniversiteler ────────────────────────────────────────────────────────
   Future<List<UniversityModel>> getUniversities({int limit = 500}) async {
     try {
       final data = await _client
@@ -425,8 +377,6 @@ class SupabaseDataSource {
       throw Exception('Üniversite bulunamadı. Lütfen tekrar deneyin.');
     }
   }
-
-  // ─── Video Cache ──────────────────────────────────────────────────────────
 
   Future<VideoModel?> getVideoById(String videoId) async {
     try {
