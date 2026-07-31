@@ -34,6 +34,10 @@ abstract class AppRoutes {
   static const search = '/search';
   static const stats = '/stats';
   static const videoSectionDetail = '/video-section-detail';
+
+  /// Kanal (üniversite) tab'ındaki 8 bölümün "Tümünü Gör" detay sayfası.
+  /// Argüman: {'type': UniversityStatsSectionType, 'title': String}
+  static const universityStatsSectionDetail = '/university-stats-section-detail';
   static const universityDetail = '/university-detail';
   static const notifications = '/notifications';
   static const shortsPlayer = '/shorts-player';

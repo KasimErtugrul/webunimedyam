@@ -8,6 +8,21 @@ import '../datasources/local/app_cache_box.dart';
 import '../datasources/remote/supabase_datasource.dart';
 import '../models/university_stats_model.dart';
 
+/// Kanal (üniversite) tab'ındaki 8 bölümün her biri için tip.
+/// "Tümünü Gör" detay ekranının sayfalı sorgusunu hangi sıralama/filtre ile
+/// yapacağını belirler — video_repository.dart'taki VideoSectionType ile
+/// aynı desen.
+enum UniversityStatsSectionType {
+  mostWatched,
+  mostLiked,
+  popularInApp,
+  mostFavorited,
+  activeLast30,
+  biggestChannels,
+  richestArchive,
+  newlyDiscovered,
+}
+
 /// TTL: 30 dakika.
 /// Tek RPC çağrısı (get_home_university_stats) — artık university_leaderboard_mat
 /// materialized view üzerinden çalışıyor; okümaları bloklamaz, pg_cron ile saatlik yenilenir.
@@ -313,10 +328,87 @@ class UniversityStatsRepository {
   Future<List<UniversityStatsModel>> getRichestArchive() =>
       getList(orderBy: 'total_duration_sec');
 
-  Future<List<UniversityStatsModel>> getNewlyDiscovered() => getList(
-    orderBy: 'app_total_viewers',
-    filterColumn: 'app_total_views',
-    filterOperator: 'lt',
-    filterValue: 50,
-  );
+  // BUG FIX: Eskiden sabit bir eşik (app_total_views < 50) kullanıyordu;
+  // artık ana sayfa (get_home_university_stats) ile aynı dinamik %20
+  // yüzdelik dilim eşiğini kullanan RPC'ye gidiyor.
+  Future<List<UniversityStatsModel>> getNewlyDiscovered() =>
+      _supabase.getNewlyDiscoveredUniversitiesPage(limit: 10, offset: 0);
+
+  // ─── "Tümünü Gör" — Kanal Bölümü Detay Sayfası (sayfalı) ─────────────────
+  //
+  // BUG FIX: Kanal tab'ındaki 8 bölümün "Tümünü Gör" butonu hiç yoktu —
+  // UniversityHorizontalSection widget'ı onSeeAll parametresini zaten
+  // destekliyordu ama buildUniversitySections() bunu hiç iletmiyordu.
+  // Ayrıca sayfalı bir sorgu da yoktu. supabase_datasource.getUniversityStatsList
+  // aslında `offset` parametresini zaten destekliyordu, sadece bu repository
+  // üzerinden hiç kullanılmıyordu. Video tarafındaki getVideoSectionPage ile
+  // aynı desen: cache'e uğramadan doğrudan Supabase'e gider, her sayfa taze.
+  ({String orderBy, String? filterColumn, String? filterOperator, dynamic filterValue})
+      _paramsFor(UniversityStatsSectionType type) {
+    switch (type) {
+      case UniversityStatsSectionType.mostWatched:
+        return (orderBy: 'total_yt_views', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.mostLiked:
+        return (orderBy: 'total_yt_likes', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.popularInApp:
+        return (orderBy: 'app_total_views', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.mostFavorited:
+        return (orderBy: 'app_total_favorites', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.activeLast30:
+        return (orderBy: 'videos_last_30_days', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.biggestChannels:
+        return (orderBy: 'subscriber_count', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.richestArchive:
+        return (orderBy: 'total_duration_sec', filterColumn: null, filterOperator: null, filterValue: null);
+      case UniversityStatsSectionType.newlyDiscovered:
+        // NOT: getSectionPage() bu case'i artık hiç kullanmıyor (RPC'ye
+        // yönlendiriyor, bkz. aşağı) — switch'in exhaustive kalması için
+        // burada duruyor. Sabit eşik (< 50) bilinçli olarak YANLIŞ bırakıldı,
+        // yanlışlıkla tekrar kullanılırsa fark edilsin diye değiştirilmedi.
+        return (
+          orderBy: 'app_total_viewers',
+          filterColumn: 'app_total_views',
+          filterOperator: 'lt',
+          filterValue: 50,
+        );
+    }
+  }
+
+  Future<List<UniversityStatsModel>> getSectionPage({
+    required UniversityStatsSectionType type,
+    required int offset,
+    int limit = 10,
+  }) async {
+    try {
+      // BUG FIX: newlyDiscovered eskiden genel getUniversityStatsList()
+      // üzerinden sabit bir eşikle (app_total_views < 50) filtreleniyordu.
+      // 211 üniversiteden 209'u bu eşiğin altında olduğu için ana sayfadaki
+      // dinamik %20 yüzdelik dilim mantığıyla tamamen alakasız, farklı bir
+      // sıralama gösteriyordu. Artık aynı dinamik eşiği kullanan
+      // get_newly_discovered_universities_page() RPC'sine gidiyor.
+      if (type == UniversityStatsSectionType.newlyDiscovered) {
+        return await _supabase.getNewlyDiscoveredUniversitiesPage(
+          limit: limit,
+          offset: offset,
+        );
+      }
+
+      final p = _paramsFor(type);
+      return await _supabase.getUniversityStatsList(
+        orderBy: p.orderBy,
+        limit: limit,
+        offset: offset,
+        filterColumn: p.filterColumn,
+        filterOperator: p.filterOperator,
+        filterValue: p.filterValue,
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Kanal bölümü sayfası getirilirken hata oluştu ($type): $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return []; // Sayfa yüklenemezse boş döner, pagination durur ama app çökmez
+    }
+  }
 }

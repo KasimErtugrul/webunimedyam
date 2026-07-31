@@ -22,6 +22,7 @@ import '../../presentation/screens/auth/change_password_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
+import '../../presentation/screens/university_stats_section_detail/university_stats_section_detail_screen.dart';
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
@@ -38,6 +39,7 @@ import '../bindings/settings_binding.dart';
 import '../bindings/search_binding.dart';
 import '../bindings/stats_binding.dart';
 import '../bindings/video_section_detail_binding.dart';
+import '../bindings/university_stats_section_detail_binding.dart';
 import '../bindings/university_detail_binding.dart';
 import 'app_routes.dart';
 
@@ -140,6 +142,11 @@ abstract class AppPages {
       name: AppRoutes.videoSectionDetail,
       page: () => const VideoSectionDetailScreen(),
       binding: VideoSectionDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.universityStatsSectionDetail,
+      page: () => const UniversityStatsSectionDetailScreen(),
+      binding: UniversityStatsSectionDetailBinding(),
     ),
     GetPage(
       name: AppRoutes.universityDetail,

@@ -1204,8 +1204,18 @@ class SupabaseDataSource {
         }
       }
 
+      // BUG FIX: get_home_university_stats() RPC'si her metrikte artık
+      // "ORDER BY metric DESC NULLS LAST, university_id ASC" kullanıyor
+      // (bkz. migration: fix_unstable_ordering_zero_tie_sections). Burada da
+      // aynı ikincil sıralama anahtarı eklenmezse, beraberlik durumunda
+      // (ör. 0 izlenmeli birçok küçük kanal) ana sayfanın ilk 10'u ile
+      // "Tümünü Gör" sayfa 1'i FARKLI sıralarda gelebilir — çünkü Postgres
+      // beraberlikleri stabil sıralamaz. university_id ASC eklenerek ana
+      // sayfa ile "Tümünü Gör" sayfa 1 birebir aynı, deterministik hale
+      // getirildi; sayfa 2+'de de tekrar/atlama olmaz.
       final data = await query
           .order(orderBy, ascending: false)
+          .order('university_id', ascending: true)
           .range(offset, offset + limit - 1);
 
       return (data as List)
@@ -1219,6 +1229,36 @@ class SupabaseDataSource {
       );
       throw Exception(
         'Üniversite istatistikleri yüklenemedi. Lütfen tekrar deneyin.',
+      );
+    }
+  }
+
+  /// "Yeni Keşfedilen" kanalların sayfalı listesi.
+  /// get_home_university_stats() içindeki 'newly_discovered' ile AYNI
+  /// dinamik eşiği (app_total_views alt %20 yüzdelik dilimi) kullanan
+  /// get_newly_discovered_universities_page() RPC'sine gider — genel
+  /// getUniversityStatsList()'teki sabit filterValue (< 50) YANLIŞTI ve
+  /// ana sayfadan tamamen farklı, alakasız sonuçlar veriyordu.
+  Future<List<UniversityStatsModel>> getNewlyDiscoveredUniversitiesPage({
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    try {
+      final data = await _client.rpc(
+        'get_newly_discovered_universities_page',
+        params: {'p_limit': limit, 'p_offset': offset},
+      );
+      return (data as List)
+          .map(
+            (e) => UniversityStatsModel.fromMap(Map<String, dynamic>.from(e)),
+          )
+          .toList();
+    } catch (e, stackTrace) {
+      log(
+        'Yeni keşfedilen üniversiteler getirilirken hata oluştu: $e\n$stackTrace',
+      );
+      throw Exception(
+        'Yeni keşfedilen üniversiteler yüklenemedi. Lütfen tekrar deneyin.',
       );
     }
   }

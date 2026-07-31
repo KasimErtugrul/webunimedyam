@@ -200,7 +200,11 @@ class VideoHorizontalSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Get.toNamed(
                   AppRoutes.videoSectionDetail,
-                  arguments: {'type': config.type, 'title': config.title},
+                  arguments: {
+                    'type': config.type,
+                    'title': config.title,
+                    'initialItems': items,
+                  },
                 ),
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(
@@ -316,7 +320,11 @@ class VideoHorizontalSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Get.toNamed(
                   AppRoutes.videoSectionDetail,
-                  arguments: {'type': config.type, 'title': config.title},
+                  arguments: {
+                    'type': config.type,
+                    'title': config.title,
+                    'initialItems': items,
+                  },
                 ),
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(
