@@ -21,24 +21,24 @@ class _PhoneSizes {
   static const double subtitleFontSize = 14;
   static const double formSpacing = 16;
   static const double fieldSpacing = 40;
-  
+
   // TextField
   static const double fieldFontSize = 14;
   static const double fieldPaddingHorizontal = 12;
   static const double fieldPaddingVertical = 14;
   static const double fieldBorderRadius = 8;
   static const double iconSize = 20;
-  
+
   // Button
   static const double buttonHeight = 48;
   static const double buttonFontSize = 16;
   static const double loadingIndicatorSize = 20;
   static const double loadingStrokeWidth = 2;
-  
+
   // Error
   static const double errorFontSize = 13;
   static const double errorBottomPadding = 16;
-  
+
   // Links
   static const double linkFontSize = 14;
   static const double guestFontSize = 13;
@@ -55,24 +55,24 @@ class _TabletSizes {
   static const double subtitleFontSize = 16;
   static const double formSpacing = 20;
   static const double fieldSpacing = 50;
-  
+
   // TextField - tablet için daha büyük
   static const double fieldFontSize = 16;
   static const double fieldPaddingHorizontal = 16;
   static const double fieldPaddingVertical = 18;
   static const double fieldBorderRadius = 10;
   static const double iconSize = 24;
-  
+
   // Button - tablet için daha büyük
   static const double buttonHeight = 56;
   static const double buttonFontSize = 18;
   static const double loadingIndicatorSize = 24;
   static const double loadingStrokeWidth = 2.5;
-  
+
   // Error - tablet için daha büyük
   static const double errorFontSize = 15;
   static const double errorBottomPadding = 20;
-  
+
   // Links - tablet için daha büyük
   static const double linkFontSize = 16;
   static const double guestFontSize = 15;
@@ -113,9 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final controller = Get.find<AuthController>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Giriş Yap'),
-      ),
+      appBar: AppBar(title: const Text('Giriş Yap')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(_PhoneSizes.mainPadding.w),
         child: Column(
@@ -132,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: _PhoneSizes.formSpacing.h),
             Text(
-              'ÇOMÜ TV hesabınıza giriş yapın',
+              'UniTV hesabınıza giriş yapın',
               style: TextStyle(
                 color: AppTheme.textSec(context),
                 fontSize: _PhoneSizes.subtitleFontSize.sp,
@@ -220,52 +218,56 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: _PhoneSizes.formSpacing.h / 2),
-            Obx(() => controller.errorMessage.isNotEmpty
-                ? Padding(
-                    padding: EdgeInsets.only(
-                      bottom: _PhoneSizes.errorBottomPadding.h,
-                    ),
-                    child: Text(
-                      controller.errorMessage.value,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: _PhoneSizes.errorFontSize.sp,
+            Obx(
+              () => controller.errorMessage.isNotEmpty
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                        bottom: _PhoneSizes.errorBottomPadding.h,
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink()),
-            Obx(() => SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(
-                        double.infinity,
-                        _PhoneSizes.buttonHeight.h,
+                      child: Text(
+                        controller.errorMessage.value,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: _PhoneSizes.errorFontSize.sp,
+                        ),
                       ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Obx(
+              () => SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(
+                      double.infinity,
+                      _PhoneSizes.buttonHeight.h,
                     ),
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () => controller.signIn(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                            ),
-                    child: controller.isLoading.value
-                        ? SizedBox(
-                            width: _PhoneSizes.loadingIndicatorSize.w,
-                            height: _PhoneSizes.loadingIndicatorSize.h,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
-                            ),
-                          )
-                        : Text(
-                            'Giriş Yap',
-                            style: TextStyle(
-                              fontSize: _PhoneSizes.buttonFontSize.sp,
-                            ),
-                          ),
                   ),
-                )),
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () => controller.signIn(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        ),
+                  child: controller.isLoading.value
+                      ? SizedBox(
+                          width: _PhoneSizes.loadingIndicatorSize.w,
+                          height: _PhoneSizes.loadingIndicatorSize.h,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+                          ),
+                        )
+                      : Text(
+                          'Giriş Yap',
+                          style: TextStyle(
+                            fontSize: _PhoneSizes.buttonFontSize.sp,
+                          ),
+                        ),
+                ),
+              ),
+            ),
             SizedBox(height: _PhoneSizes.formSpacing.h),
             _OrDivider(fontSize: _PhoneSizes.linkFontSize.sp),
             SizedBox(height: _PhoneSizes.formSpacing.h),
@@ -306,7 +308,10 @@ class _LoginScreenState extends State<LoginScreen> {
             TextButton(
               onPressed: () => Get.offAllNamed(AppRoutes.home),
               style: TextButton.styleFrom(
-                minimumSize: Size(double.infinity, _PhoneSizes.guestButtonHeight.h),
+                minimumSize: Size(
+                  double.infinity,
+                  _PhoneSizes.guestButtonHeight.h,
+                ),
               ),
               child: Text(
                 'Şimdi değil, misafir olarak devam et',
@@ -330,9 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final controller = Get.find<AuthController>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Giriş Yap'),
-      ),
+      appBar: AppBar(title: const Text('Giriş Yap')),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500),
@@ -368,9 +371,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: TextStyle(
-                      fontSize: _TabletSizes.fieldFontSize,
-                    ),
+                    labelStyle: TextStyle(fontSize: _TabletSizes.fieldFontSize),
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: AppTheme.textSec(context),
@@ -397,9 +398,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: 'Şifre',
-                    labelStyle: TextStyle(
-                      fontSize: _TabletSizes.fieldFontSize,
-                    ),
+                    labelStyle: TextStyle(fontSize: _TabletSizes.fieldFontSize),
                     prefixIcon: Icon(
                       Icons.lock_outlined,
                       color: AppTheme.textSec(context),
@@ -444,52 +443,56 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: _TabletSizes.formSpacing / 2),
-                Obx(() => controller.errorMessage.isNotEmpty
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                          bottom: _TabletSizes.errorBottomPadding,
-                        ),
-                        child: Text(
-                          controller.errorMessage.value,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: _TabletSizes.errorFontSize,
+                Obx(
+                  () => controller.errorMessage.isNotEmpty
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                            bottom: _TabletSizes.errorBottomPadding,
                           ),
-                        ),
-                      )
-                    : const SizedBox.shrink()),
-                Obx(() => SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                            double.infinity,
-                            _TabletSizes.buttonHeight,
+                          child: Text(
+                            controller.errorMessage.value,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: _TabletSizes.errorFontSize,
+                            ),
                           ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          double.infinity,
+                          _TabletSizes.buttonHeight,
                         ),
-                        onPressed: controller.isLoading.value
-                            ? null
-                            : () => controller.signIn(
-                                  email: _emailController.text,
-                                  password: _passwordController.text,
-                                ),
-                        child: controller.isLoading.value
-                            ? SizedBox(
-                                width: _TabletSizes.loadingIndicatorSize,
-                                height: _TabletSizes.loadingIndicatorSize,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: _TabletSizes.loadingStrokeWidth,
-                                ),
-                              )
-                            : Text(
-                                'Giriş Yap',
-                                style: TextStyle(
-                                  fontSize: _TabletSizes.buttonFontSize,
-                                ),
-                              ),
                       ),
-                    )),
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : () => controller.signIn(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                            ),
+                      child: controller.isLoading.value
+                          ? SizedBox(
+                              width: _TabletSizes.loadingIndicatorSize,
+                              height: _TabletSizes.loadingIndicatorSize,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: _TabletSizes.loadingStrokeWidth,
+                              ),
+                            )
+                          : Text(
+                              'Giriş Yap',
+                              style: TextStyle(
+                                fontSize: _TabletSizes.buttonFontSize,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: _TabletSizes.formSpacing),
                 _OrDivider(fontSize: _TabletSizes.linkFontSize),
                 SizedBox(height: _TabletSizes.formSpacing),
@@ -577,7 +580,10 @@ class _OrDivider extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
             'veya',
-            style: TextStyle(color: AppTheme.textSec(context), fontSize: fontSize),
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: fontSize,
+            ),
           ),
         ),
         Expanded(child: Divider(color: color)),
@@ -609,7 +615,9 @@ class _GoogleSignInButton extends StatelessWidget {
         height: height,
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
-            side: BorderSide(color: AppTheme.textSec(context).withValues(alpha: 0.3)),
+            side: BorderSide(
+              color: AppTheme.textSec(context).withValues(alpha: 0.3),
+            ),
           ),
           onPressed: controller.isGoogleLoading.value
               ? null

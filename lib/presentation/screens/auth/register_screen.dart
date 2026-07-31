@@ -327,7 +327,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: _PhoneSizes.headerSubtitleSpacing.h),
               Center(
                 child: Text(
-                  'ÇOMÜ TV\'ye ücretsiz katılın',
+                  'UniTV\'ye ücretsiz katılın',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
                     fontSize: _PhoneSizes.headerSubtitleSize.sp,

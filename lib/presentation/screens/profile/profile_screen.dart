@@ -32,9 +32,9 @@ class _PhoneSizes {
   static const double subtitleLineHeight = 1.5;
   static const double buttonHeight = 48;
   static const double buttonFontSize = 16;
-  static const double buttonPaddingVertical = 14;
+  /*   static const double buttonPaddingVertical = 14;
   static const double buttonBorderRadius = 8;
-  static const double buttonSpacingSmall = 12;
+  static const double buttonSpacingSmall = 12; */
 }
 
 class _TabletSizes {
@@ -146,9 +146,7 @@ class _NotLoggedInViewPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
-      ),
+      appBar: AppBar(title: const Text('Profil')),
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(_PhoneSizes.mainPadding.w),
@@ -208,7 +206,7 @@ class _NotLoggedInViewPhone extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: _PhoneSizes.buttonSpacingSmall.h),
+              /* SizedBox(height: _PhoneSizes.buttonSpacingSmall.h),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -237,7 +235,7 @@ class _NotLoggedInViewPhone extends StatelessWidget {
                     style: TextStyle(fontSize: _PhoneSizes.buttonFontSize.sp),
                   ),
                 ),
-              ),
+              ), */
             ],
           ),
         ),
@@ -254,9 +252,7 @@ class _NotLoggedInViewTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
-      ),
+      appBar: AppBar(title: const Text('Profil')),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500),
