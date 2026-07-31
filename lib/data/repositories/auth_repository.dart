@@ -35,10 +35,20 @@ class AuthRepository {
   // uygulama güncelleme, OS token yenilemesi) bildirim hiç ulaşamıyordu.
   // Artık uygulama her ön plana geldiğinde token güncellenir — böylece
   // Sercan gibi "favori ekle ama henüz aç" senaryoları da kapsanır.
+  //
+  // BUG FIX: Burada önceden NotificationService.instance.onUserLogin()
+  // çağrılıyordu — bu metod HER seferinde requestPermission() tetikliyor.
+  // Sonuç: giriş yapmış bir kullanıcı için uygulama HER ön plana
+  // geldiğinde (hot reload, arka plana alıp geri dönme, hatta debugger
+  // bağlanması) sistem bildirim izni yeniden isteniyordu — bu da OS'un
+  // "bir kerelik" izin dialogunu, kullanıcı SignupPreferencesScreen'deki
+  // "Bildirimleri Aç" butonuna daha basmadan tüketiyordu. retryTokenSyncIfNeeded
+  // izin zaten verilmişse token'ı sessizce günceller, ASLA yeni bir izin
+  // dialogu açmaz.
   Future<void> onAppResume() async {
     if (!isLoggedIn) return;
     try {
-      await NotificationService.instance.onUserLogin();
+      await NotificationService.instance.retryTokenSyncIfNeeded();
     } catch (e, stacktrace) {
       log(
         'Uygulama açılışında token yenilenirken hata: $e',
@@ -89,7 +99,11 @@ class AuthRepository {
   }) async {
     try {
       await _supabase.verifyEmailOTP(email: email, token: token);
-      await _onAuthSuccess();
+      // İzin dialogu burada İSTENMİYOR: OTP doğrulaması sonrası kullanıcı
+      // SignupPreferencesScreen'de "Bildirimleri Aç/Kapat" sorusuyla
+      // karşılaşacak; izin isteme kararı orada, kullanıcının seçimine göre
+      // veriliyor (bkz. SignupPreferencesController.chooseNotifications).
+      await _onAuthSuccess(requestNotificationPermission: false);
       await AnalyticsService.instance.logSignUp(method: 'email');
     } catch (e, stacktrace) {
       log(
@@ -117,8 +131,28 @@ class AuthRepository {
 
   /// Session başarıyla kurulduğunda (signIn veya OTP doğrulama sonrası)
   /// ortak yapılması gereken işlemler.
-  Future<void> _onAuthSuccess() async {
-    await NotificationService.instance.onUserLogin();
+  ///
+  /// [requestNotificationPermission] true ise (varsayılan) hem sistem
+  /// bildirim izni istenir hem de FCM token kaydedilir
+  /// (NotificationService.onUserLogin). Bu, kullanıcının SignupPreferences
+  /// ekranından GEÇMEYECEĞİ akışlar için kullanılmalı (örn. "Confirm email"
+  /// kapalıyken doğrudan Home'a giden signUp).
+  ///
+  /// false verilirse izin dialogu burada AÇILMAZ — sadece izin zaten
+  /// (önceden) verilmişse token sessizce senkronize edilir
+  /// (NotificationService.retryTokenSyncIfNeeded). Bu, e-posta OTP
+  /// doğrulaması gibi ardından kullanıcıya SignupPreferences ekranında
+  /// "Bildirimleri aç/kapat" sorusunun sorulacağı akışlar için kullanılır —
+  /// aksi halde izin burada bir kez cevaplanmış olur ve o ekrandaki "Aç"
+  /// butonu artık hiçbir şey yapmaz (OS izni ikinci kez sormaz).
+  Future<void> _onAuthSuccess({
+    bool requestNotificationPermission = true,
+  }) async {
+    if (requestNotificationPermission) {
+      await NotificationService.instance.onUserLogin();
+    } else {
+      await NotificationService.instance.retryTokenSyncIfNeeded();
+    }
   }
 
   Future<void> signIn({required String email, required String password}) async {
@@ -144,7 +178,15 @@ class AuthRepository {
   Future<bool> signInWithGoogle() async {
     try {
       final isNewUser = await _supabase.signInWithGoogle();
-      await NotificationService.instance.onUserLogin();
+      if (isNewUser) {
+        // Yeni kullanıcı SignupPreferencesScreen'e yönlendirilecek ve
+        // bildirim izni orada, kullanıcının seçimine göre istenecek —
+        // burada erkenden istenirse OS izni bir kez cevaplanmış olur ve
+        // o ekrandaki "Aç" butonu artık dialog açtıramaz.
+        await NotificationService.instance.retryTokenSyncIfNeeded();
+      } else {
+        await NotificationService.instance.onUserLogin();
+      }
       AnalyticsService.instance.logEvent(
         isNewUser ? 'sign_up' : 'login',
         parameters: {'method': 'google'},

@@ -15,6 +15,7 @@ import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/auth/otp_verification_screen.dart';
 import '../../presentation/screens/interest_selection/interest_selection_screen.dart';
+import '../../presentation/screens/signup_preferences/signup_preferences_screen.dart';
 import '../../presentation/screens/auth/forgot_password_screen.dart';
 import '../../presentation/screens/auth/reset_password_screen.dart';
 import '../../presentation/screens/auth/change_password_screen.dart';
@@ -28,6 +29,7 @@ import '../bindings/onboarding_bindings.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/interest_selection_binding.dart';
+import '../bindings/signup_preferences_binding.dart';
 import '../bindings/player_binding.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/profile_activity_list_binding.dart';
@@ -98,6 +100,11 @@ abstract class AppPages {
       name: AppRoutes.otpVerification,
       page: () => const OtpVerificationScreen(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.signupPreferences,
+      page: () => const SignupPreferencesScreen(),
+      binding: SignupPreferencesBinding(),
     ),
     GetPage(
       name: AppRoutes.interestSelection,

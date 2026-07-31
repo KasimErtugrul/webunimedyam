@@ -119,7 +119,7 @@ class AuthController extends GetxController {
       await _refreshSettingsForNewSession();
 
       if (isNewUser) {
-        Get.offAllNamed(AppRoutes.interestSelection);
+        Get.offAllNamed(AppRoutes.signupPreferences);
       } else {
         Get.offAllNamed(AppRoutes.home);
       }
@@ -214,12 +214,14 @@ class AuthController extends GetxController {
       // BUG FIX: giriş yapan kullanıcının gerçek ayarlarını çek (bkz. yukarıdaki not).
       await _refreshSettingsForNewSession();
 
-      // Yeni kayıt olan kullanıcıya, ana sayfaya gitmeden önce ilgilendiği
-      // üniversiteleri seçme fırsatı sunuyoruz. Bu ekran zorunlu değildir;
-      // kullanıcı "Atla" diyerek de Home'a geçebilir. Bu ekran bir daha
+      // Yeni kayıt olan kullanıcıya, ana sayfaya gitmeden önce önce temel
+      // tercihlerini (tema, otomatik oynatma, bildirimler, aktivite
+      // görünürlüğü) sorup ardından ilgilendiği üniversiteleri seçme
+      // fırsatı sunuyoruz. Her iki ekran da zorunlu değildir; kullanıcı
+      // "Atla" diyerek de Home'a geçebilir. İlgi alanı ekranı bir daha
       // gösterilmeyecek şekilde InterestSelectionController tarafından
       // işaretlenir.
-      Get.offAllNamed(AppRoutes.interestSelection);
+      Get.offAllNamed(AppRoutes.signupPreferences);
     } catch (e, stacktrace) {
       log(
         'OTP doğrulanırken hata oluştu: $e',

@@ -68,21 +68,30 @@ class NotificationService {
   // FIX: İzin isteme artık burada — kullanıcı gerçekten giriş yaptığı an.
   // Böylece Android'in tek seferlik sistem dialogu, kullanıcının
   // uygulamayla niye ilgisi olduğunu bildiği bir anda gösteriliyor.
-  Future<void> onUserLogin() async {
+  // FIX: İzin isteme artık burada — kullanıcı gerçekten giriş yaptığı an.
+  // Böylece Android'in tek seferlik sistem dialogu, kullanıcının
+  // uygulamayla niye ilgisi olduğunu bildiği bir anda gösteriliyor.
+  //
+  // Dönüş değeri: sistem izni verildi/provisional ise true, reddedildiyse
+  // (denied) false. Çağıran taraf (örn. SignupPreferencesController) bu
+  // sonuca göre UI'da tik gösterip göstermeyeceğine karar verebilir.
+  Future<bool> onUserLogin() async {
     try {
       final settings = await _messaging.requestPermission(
         alert: true, badge: true, sound: true, provisional: false,
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        return;
+        return false;
       }
 
       if (Platform.isIOS) await _messaging.getAPNSToken();
 
       await _saveTokenIfLoggedIn();
+      return true;
     } catch (e, stacktrace) {
       log('Kullanıcı girişinde FCM token kaydedilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      return false;
     }
   }
 

@@ -13,6 +13,11 @@ abstract class AppRoutes {
   /// gösterilen "ilgilendiğin üniversiteleri seç" ekranı.
   static const interestSelection = '/interest-selection';
 
+  /// Yeni kayıt sonrası (email OTP veya Google ile ilk giriş), İlgi Alanı
+  /// Seçimi ekranından ÖNCE bir kez gösterilen temel tercih ekranı:
+  /// tema, otomatik oynatma, bildirimler ve aktivite/profil görünürlüğü.
+  static const signupPreferences = '/signup-preferences';
+
   /// Kayıt sonrası email onay kodu (OTP) giriş ekranı.
   /// Argüman: {'email': String}
   static const otpVerification = '/otp-verification';
