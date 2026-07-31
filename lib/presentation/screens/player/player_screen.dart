@@ -15,7 +15,6 @@ import 'player_screen_widgets/comment_tile_widget.dart';
 import 'player_screen_widgets/engagement_bar/engagement_bar_widget.dart';
 import 'player_screen_widgets/expandable_description_widget.dart';
 import 'player_screen_widgets/tag_row_widget.dart';
-import 'player_screen_widgets/youtube_meta_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
 import 'player_screen_widgets/suggested_videos_section_widget.dart';
 
@@ -48,6 +47,7 @@ class _PhoneSizes {
   static const double contentPaddingRight = 16.0;
   static const double contentPaddingBottom = 16.0;
   static const double dateFontSize = 11.0;
+  static const double dateDurationDotSpacing = 6.0;
   static const double titleFontSize = 15.0;
   static const double titleLineHeight = 1.4;
   static const double titleSpacing = 6.0;
@@ -55,7 +55,6 @@ class _PhoneSizes {
   static const double engagementSpacing = 14.0;
   static const double engagementBottomSpacing = 20.0;
   static const double descriptionSpacing = 12.0;
-  static const double metaSpacing = 16.0;
   static const double tagsSpacing = 14.0;
   static const double tagsBottomSpacing = 20.0;
   static const double suggestedSpacing = 20.0;
@@ -100,6 +99,7 @@ class _TabletSizes {
   static const double contentPaddingRight = 24.0;
   static const double contentPaddingBottom = 24.0;
   static const double dateFontSize = 13.0;
+  static const double dateDurationDotSpacing = 8.0;
   static const double titleFontSize = 20.0;
   static const double titleLineHeight = 1.45;
   static const double titleSpacing = 8.0;
@@ -107,7 +107,6 @@ class _TabletSizes {
   static const double engagementSpacing = 18.0;
   static const double engagementBottomSpacing = 24.0;
   static const double descriptionSpacing = 16.0;
-  static const double metaSpacing = 20.0;
   static const double tagsSpacing = 18.0;
   static const double tagsBottomSpacing = 24.0;
   static const double suggestedSpacing = 24.0;
@@ -449,14 +448,41 @@ class _PlayerScreenState extends State<PlayerScreen> {
         final d = v.publishedAt;
         final tarih =
             '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+        final sure = v.formattedDuration;
         return Padding(
           padding: EdgeInsets.only(bottom: _PhoneSizes.universitySpacing.h),
-          child: Text(
-            tarih,
-            style: TextStyle(
-              color: AppTheme.textSec(context).withValues(alpha: 0.6),
-              fontSize: _PhoneSizes.dateFontSize.sp,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                tarih,
+                style: TextStyle(
+                  color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                  fontSize: _PhoneSizes.dateFontSize.sp,
+                ),
+              ),
+              if (sure.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _PhoneSizes.dateDurationDotSpacing.w,
+                  ),
+                  child: Text(
+                    '•',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                      fontSize: _PhoneSizes.dateFontSize.sp,
+                    ),
+                  ),
+                ),
+                Text(
+                  sure,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                    fontSize: _PhoneSizes.dateFontSize.sp,
+                  ),
+                ),
+              ],
+            ],
           ),
         );
       }),
@@ -479,8 +505,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
             padding: EdgeInsets.only(top: _PhoneSizes.universitySpacing.h),
             child: UniversityRowWidget(
               universityName: _controller.currentVideo.value!.universityName!,
+              // BUG FIX: Üniversite adına basılınca player ekranı stack'te
+              // kalmamalı — Get.toNamed yerine Get.offNamed kullanılarak
+              // player rotası kaldırılıp üniversite detayına geçiliyor.
+              // Geri tuşuna basınca kullanıcı player'a değil, player'dan
+              // önceki ekrana döner.
               onTap: _controller.currentVideo.value!.universityId != null
-                  ? () => Get.toNamed(
+                  ? () => Get.offNamed(
                       AppRoutes.universityDetail,
                       arguments: _controller.currentVideo.value!.universityId,
                     )
@@ -502,13 +533,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return const SizedBox.shrink();
       }),
       SizedBox(height: _PhoneSizes.descriptionSpacing.h),
-      Obx(() {
-        if (_controller.currentVideo.value != null) {
-          return YoutubeMetaWidget(video: _controller.currentVideo.value!);
-        }
-        return const SizedBox.shrink();
-      }),
-      SizedBox(height: _PhoneSizes.metaSpacing.h),
       Obx(() {
         if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
           return Padding(
@@ -691,14 +715,41 @@ class _PlayerScreenState extends State<PlayerScreen> {
         final d = v.publishedAt;
         final tarih =
             '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+        final sure = v.formattedDuration;
         return Padding(
           padding: EdgeInsets.only(bottom: _TabletSizes.universitySpacing),
-          child: Text(
-            tarih,
-            style: TextStyle(
-              color: AppTheme.textSec(context).withValues(alpha: 0.6),
-              fontSize: _TabletSizes.dateFontSize,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                tarih,
+                style: TextStyle(
+                  color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                  fontSize: _TabletSizes.dateFontSize,
+                ),
+              ),
+              if (sure.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _TabletSizes.dateDurationDotSpacing,
+                  ),
+                  child: Text(
+                    '•',
+                    style: TextStyle(
+                      color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                      fontSize: _TabletSizes.dateFontSize,
+                    ),
+                  ),
+                ),
+                Text(
+                  sure,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                    fontSize: _TabletSizes.dateFontSize,
+                  ),
+                ),
+              ],
+            ],
           ),
         );
       }),
@@ -721,8 +772,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
             padding: EdgeInsets.only(top: _TabletSizes.universitySpacing),
             child: UniversityRowWidget(
               universityName: _controller.currentVideo.value!.universityName!,
+              // BUG FIX: bkz. telefon dalındaki aynı not — Get.offNamed ile
+              // player rotası stack'ten kaldırılıp üniversite detayına geçiliyor.
               onTap: _controller.currentVideo.value!.universityId != null
-                  ? () => Get.toNamed(
+                  ? () => Get.offNamed(
                       AppRoutes.universityDetail,
                       arguments: _controller.currentVideo.value!.universityId,
                     )
@@ -744,13 +797,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return const SizedBox.shrink();
       }),
       SizedBox(height: _TabletSizes.descriptionSpacing),
-      Obx(() {
-        if (_controller.currentVideo.value != null) {
-          return YoutubeMetaWidget(video: _controller.currentVideo.value!);
-        }
-        return const SizedBox.shrink();
-      }),
-      SizedBox(height: _TabletSizes.metaSpacing),
       Obx(() {
         if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
           return Padding(
