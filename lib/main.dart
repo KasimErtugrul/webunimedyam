@@ -101,9 +101,6 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox(AppCacheBox.name);
 
-  // ── Tema ──────────────────────────────────────────────────────────────────
-  final savedTheme = (AppCacheBox.instance.get('theme') as String?) ?? 'light';
-
   await ScreenUtil.ensureScreenSize();
 
   // ── Dependency Injection ──────────────────────────────────────────────────
@@ -122,6 +119,28 @@ void main() async {
     await ctrl.loadSettings();
     return ctrl;
   }, permanent: true);
+
+  // ── Tema ──────────────────────────────────────────────────────────────────
+  // BUG FIX: Önceden tema, SettingsController.loadSettings() TAMAMLANMADAN
+  // ÖNCE doğrudan yerel Hive cache'inden okunuyordu. Supabase'teki
+  // `user_settings.theme` değeri (ör. başka bir cihazda "açık" yapılmış)
+  // ile yerel cache senkron değilse, kullanıcı Ayarlar ekranında "Açık"
+  // yazdığını görse bile uygulama yerel cache'teki eski değere (ör. "dark")
+  // göre açılmaya devam ediyordu. Ayrıca "Cache'i temizle" butonu bu
+  // `theme` anahtarını silmediği için (bkz. LocalDataSource.clearCache)
+  // sorun cache temizlemeyle de düzelmiyordu.
+  //
+  // Artık loadSettings() bittikten SONRA, kullanıcı giriş yapmışsa
+  // Supabase'ten gelen değeri esas alıyoruz ve yerel cache'i de onunla
+  // senkronize ediyoruz. Giriş yapılmamışsa (settings.value.theme null)
+  // yerel cache'e, o da yoksa 'light'a düşüyoruz.
+  final settingsCtrl = Get.find<SettingsController>();
+  final remoteTheme = settingsCtrl.settings.value?.theme;
+  final savedTheme =
+      remoteTheme ?? (AppCacheBox.instance.get('theme') as String?) ?? 'light';
+  if (remoteTheme != null) {
+    await Get.find<AuthRepository>().saveThemeLocally(remoteTheme);
+  }
 
   // ── Bildirim Servisi ──────────────────────────────────────────────────────
   // İzin ister, token kaydeder, tüm FCM dinleyicilerini kurar.
