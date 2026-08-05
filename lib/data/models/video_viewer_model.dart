@@ -1,6 +1,8 @@
 // lib/data/models/video_viewer_model.dart
 
-class VideoViewerModel {
+import 'package:equatable/equatable.dart';
+
+class VideoViewerModel extends Equatable {
   final String userId;
   final String? username;
   final String? fullName;
@@ -26,8 +28,24 @@ class VideoViewerModel {
       fullName: map['full_name'] as String?,
       avatarUrl: map['avatar_url'] as String?,
       viewedAt:
-          DateTime.tryParse(map['viewed_at'] as String? ?? '') ?? DateTime.now(),
+          DateTime.tryParse(map['viewed_at'] as String? ?? '') ??
+          DateTime.now(),
       totalCount: (map['total_count'] as num?)?.toInt() ?? 0,
     );
+  }
+
+  @override
+  List<Object?> get props => [
+    userId,
+    username,
+    fullName,
+    avatarUrl,
+    viewedAt,
+    totalCount,
+  ];
+
+  @override
+  String toString() {
+    return 'VideoViewerModel{userId=$userId, username=$username, fullName=$fullName, avatarUrl=$avatarUrl, viewedAt=$viewedAt, totalCount=$totalCount}';
   }
 }

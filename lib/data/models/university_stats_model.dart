@@ -12,7 +12,9 @@ app_total_likes, most_viewed_title, latest_video_title,
 app_top_video_title...
  */
 
-class UniversityStatsModel {
+import 'package:equatable/equatable.dart';
+
+class UniversityStatsModel extends Equatable {
   final int universityId;
   final String name;
   final String? logoUrl;
@@ -154,4 +156,35 @@ class UniversityStatsModel {
   String toString() {
     return 'UniversityStatsModel{universityId=$universityId, name=$name, logoUrl=$logoUrl, city=$city, subscriberCount=$subscriberCount, totalVideos=$totalVideos, totalYtViews=$totalYtViews, totalYtLikes=$totalYtLikes, totalYtComments=$totalYtComments, appTotalViewers=$appTotalViewers, appTotalViews=$appTotalViews, appTotalLikes=$appTotalLikes, appTotalFavorites=$appTotalFavorites, appTotalShares=$appTotalShares, videosLast30Days=$videosLast30Days, videosLast7Days=$videosLast7Days, totalDurationSec=$totalDurationSec, avgDurationSec=$avgDurationSec, mostViewedTitle=$mostViewedTitle, mostViewedThumbnail=$mostViewedThumbnail, mostViewedViewCount=$mostViewedViewCount, latestVideoTitle=$latestVideoTitle, latestVideoThumbnail=$latestVideoThumbnail, latestVideoPublishedAt=$latestVideoPublishedAt, appTopVideoTitle=$appTopVideoTitle, appTopVideoThumbnail=$appTopVideoThumbnail, appTopVideoViews=$appTopVideoViews}';
   }
+
+  @override
+  List<Object?> get props => [
+    universityId,
+    name,
+    logoUrl,
+    city,
+    subscriberCount,
+    totalVideos,
+    totalYtViews,
+    totalYtLikes,
+    totalYtComments,
+    appTotalViewers,
+    appTotalViews,
+    appTotalLikes,
+    appTotalFavorites,
+    appTotalShares,
+    videosLast30Days,
+    videosLast7Days,
+    totalDurationSec,
+    avgDurationSec,
+    mostViewedTitle,
+    mostViewedThumbnail,
+    mostViewedViewCount,
+    latestVideoTitle,
+    latestVideoThumbnail,
+    latestVideoPublishedAt,
+    appTopVideoTitle,
+    appTopVideoThumbnail,
+    appTopVideoViews,
+  ];
 }

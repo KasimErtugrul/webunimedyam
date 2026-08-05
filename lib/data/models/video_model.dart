@@ -1,4 +1,6 @@
-class VideoModel {
+import 'package:equatable/equatable.dart';
+
+class VideoModel extends Equatable {
   final String videoId;
   final String title;
   final String description;
@@ -195,6 +197,32 @@ class VideoModel {
 
   @override
   String toString() {
-    return 'VideoModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, viewCount=$viewCount, likeCount=$likeCount, commentCount=$commentCount, tags=$tags, isHd=$isHd, isShorts=$isShorts, channelTitle=$channelTitle, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount, liveBroadcastContent=$liveBroadcastContent}';
+    return 'VideoModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, viewCount=$viewCount, likeCount=$likeCount, commentCount=$commentCount, tags=$tags, isHd=$isHd, isShorts=$isShorts, channelTitle=$channelTitle, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, liveBroadcastContent=$liveBroadcastContent, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount}';
   }
+
+  @override
+  List<Object?> get props => [
+    videoId,
+    title,
+    description,
+    thumbnailUrl,
+    maxresThumbnailUrl,
+    duration,
+    viewCount,
+    likeCount,
+    commentCount,
+    tags,
+    isHd,
+    isShorts,
+    channelTitle,
+    publishedAt,
+    universityId,
+    universityName,
+    liveBroadcastContent,
+    appViewCount,
+    appLikeCount,
+    appFavoriteCount,
+    appShareCount,
+    appCommentCount,
+  ];
 }

@@ -1,6 +1,8 @@
 // lib/data/models/shorts_model.dart
 
-class ShortsModel {
+import 'package:equatable/equatable.dart';
+
+class ShortsModel extends Equatable {
   final String videoId;
   final String title;
   final String description;
@@ -43,5 +45,24 @@ class ShortsModel {
       universityName: map['university_name'] as String? ?? '',
       logoUrl: map['logo_url'] as String?,
     );
+  }
+
+  @override
+  List<Object?> get props => [
+    videoId,
+    title,
+    description,
+    thumbnailUrl,
+    maxresThumbnailUrl,
+    duration,
+    publishedAt,
+    universityId,
+    universityName,
+    logoUrl,
+  ];
+
+  @override
+  String toString() {
+    return 'ShortsModel{videoId=$videoId, title=$title, description=$description, thumbnailUrl=$thumbnailUrl, maxresThumbnailUrl=$maxresThumbnailUrl, duration=$duration, publishedAt=$publishedAt, universityId=$universityId, universityName=$universityName, logoUrl=$logoUrl}';
   }
 }

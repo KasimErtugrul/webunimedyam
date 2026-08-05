@@ -4,9 +4,11 @@
 // bir videoyu nereye kadar izlediğini TAMAMEN LOCAL (Hive) olarak saklayan
 // model. Sunucuya hiçbir şey gönderilmez — tamamen cihaz üzerinde tutulur.
 
+import 'package:equatable/equatable.dart';
+
 import 'video_model.dart';
 
-class WatchProgressModel {
+class WatchProgressModel extends Equatable {
   /// İzlenen videonun tüm bilgileri (kart gösterimi için gerekli).
   final VideoModel video;
 
@@ -95,5 +97,18 @@ class WatchProgressModel {
           DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
           DateTime.now(),
     );
+  }
+
+  @override
+  List<Object?> get props => [
+    video,
+    positionSeconds,
+    durationSeconds,
+    updatedAt,
+  ];
+
+  @override
+  String toString() {
+    return 'WatchProgressModel{video=$video, positionSeconds=$positionSeconds, durationSeconds=$durationSeconds, updatedAt=$updatedAt}';
   }
 }

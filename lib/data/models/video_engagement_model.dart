@@ -16,9 +16,11 @@ temsil ediyor. VideoModel'in "zenginleştirilmiş" hali gibi düşünebilirsin �
 ama ayrı tutulması doğru.
  */
 
+import 'package:equatable/equatable.dart';
+
 import 'video_model.dart';
 
-class VideoEngagementModel {
+class VideoEngagementModel extends Equatable {
   final String videoId;
   final String title;
   final String channelTitle;
@@ -150,4 +152,28 @@ class VideoEngagementModel {
   String toString() {
     return 'VideoEngagementModel{videoId=$videoId, title=$title, channelTitle=$channelTitle, universityId=$universityId, publishedAt=$publishedAt, duration=$duration, isHd=$isHd, isLive=$isLive, ytViewCount=$ytViewCount, ytLikeCount=$ytLikeCount, appViewCount=$appViewCount, appLikeCount=$appLikeCount, appFavoriteCount=$appFavoriteCount, appShareCount=$appShareCount, appCommentCount=$appCommentCount, engagementScore=$engagementScore, likeRatePct=$likeRatePct, commentRatePct=$commentRatePct, firstViewedAt=$firstViewedAt, lastViewedAt=$lastViewedAt}';
   }
+
+  @override
+  List<Object?> get props => [
+    videoId,
+    title,
+    channelTitle,
+    universityId,
+    publishedAt,
+    duration,
+    isHd,
+    isLive,
+    ytViewCount,
+    ytLikeCount,
+    appViewCount,
+    appLikeCount,
+    appFavoriteCount,
+    appShareCount,
+    appCommentCount,
+    engagementScore,
+    likeRatePct,
+    commentRatePct,
+    firstViewedAt,
+    lastViewedAt,
+  ];
 }

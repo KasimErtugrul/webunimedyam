@@ -1,13 +1,16 @@
 // lib/data/models/profile_model.dart
+import 'package:equatable/equatable.dart';
+
 import 'user_settings_model.dart';
 
-class ProfileModel {
+class ProfileModel extends Equatable {
   final String id;
   final String? username;
   final String? fullName;
   final String? avatarUrl;
   final DateTime createdAt;
-  final DateTime? updatedAt; // BUG FIX: DB'de updated_at var ama model okumuyordu
+  final DateTime?
+  updatedAt; // BUG FIX: DB'de updated_at var ama model okumuyordu
 
   /// Profilin kim tarafından görülebileceğini belirler.
   /// 'public' → herkes, 'friends' → takipçiler, 'private' → sadece sahip
@@ -18,7 +21,7 @@ class ProfileModel {
   /// Supabase sessizce ignore ediyordu. Migration ile kolon eklendi.
   final VisibilityOption profileVisibility;
 
-  ProfileModel({
+  const ProfileModel({
     required this.id,
     this.username,
     this.fullName,
@@ -34,7 +37,9 @@ class ProfileModel {
       username: json['username'] as String?,
       fullName: json['full_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
       // BUG FIX: updated_at artık okunuyor
       updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'] as String)
@@ -79,8 +84,17 @@ class ProfileModel {
 
   @override
   String toString() {
-    return 'ProfileModel{id=$id, username=$username, fullName=$fullName, '
-        'avatarUrl=$avatarUrl, createdAt=$createdAt, updatedAt=$updatedAt, '
-        'profileVisibility=${profileVisibility.value}}';
+    return 'ProfileModel{id=$id, username=$username, fullName=$fullName, avatarUrl=$avatarUrl, createdAt=$createdAt, updatedAt=$updatedAt, profileVisibility=$profileVisibility}';
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    username,
+    fullName,
+    avatarUrl,
+    createdAt,
+    updatedAt,
+    profileVisibility,
+  ];
 }

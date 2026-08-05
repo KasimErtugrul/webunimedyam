@@ -1,6 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:equatable/equatable.dart';
+
 import 'profile_model.dart';
 
-class CommentModel {
+class CommentModel extends Equatable {
   final String id;
   final String userId;
   final String videoId;
@@ -8,7 +11,7 @@ class CommentModel {
   final DateTime createdAt;
   final ProfileModel? profile;
 
-  CommentModel({
+  const CommentModel({
     required this.id,
     required this.userId,
     required this.videoId,
@@ -29,4 +32,12 @@ class CommentModel {
           : null,
     );
   }
+
+  @override
+  String toString() {
+    return 'CommentModel(id: $id, userId: $userId, videoId: $videoId, content: $content, createdAt: $createdAt, profile: $profile)';
+  }
+
+  @override
+  List<Object?> get props => [id, userId, videoId, content, createdAt, profile];
 }

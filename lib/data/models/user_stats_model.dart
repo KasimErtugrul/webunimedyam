@@ -8,7 +8,9 @@ Bu model da tamamen user_stats view'ini temsil ediyor.
 profiles tablosunun tüm kolonları değil, sadece özet birkaç alan burada var.
 */
 
-class UserStatsModel {
+import 'package:equatable/equatable.dart';
+
+class UserStatsModel extends Equatable {
   final String userId;
   final String? username;
   final String? fullName;
@@ -223,4 +225,35 @@ class UserStatsModel {
       lastLikedAt: lastLikedAt ?? this.lastLikedAt,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    userId,
+    username,
+    fullName,
+    avatarUrl,
+    memberSince,
+    totalWatched,
+    totalLiked,
+    totalFavorited,
+    totalCommented,
+    totalShared,
+    uniqueUniversitiesWatched,
+    watchedThisWeek,
+    watchedThisMonth,
+    estimatedWatchMinutes,
+    firstWatchAt,
+    lastWatchAt,
+    currentStreakDays,
+    longestStreakDays,
+    topUniversityName,
+    topUniversityLogo,
+    topUniversityWatchCount,
+    lastWatchedTitle,
+    lastWatchedThumbnail,
+    lastWatchedAt,
+    lastLikedTitle,
+    lastLikedThumbnail,
+    lastLikedAt,
+  ];
 }

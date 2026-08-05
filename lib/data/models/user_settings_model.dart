@@ -1,5 +1,7 @@
 // lib/data/models/user_settings_model.dart
 
+import 'package:equatable/equatable.dart';
+
 /// Aktivite ve profil görünürlük seçenekleri
 ///
 /// NOT: 'friends' katmanı kalıcı olarak kaldırıldı — takip/arkadaş sistemi
@@ -9,49 +11,58 @@
 enum VisibilityOption {
   /// Herkese açık
   public,
+
   /// Sadece sahibine açık
   private;
 
   String get label {
     switch (this) {
-      case VisibilityOption.public:  return 'Herkese açık';
-      case VisibilityOption.private: return 'Gizli';
+      case VisibilityOption.public:
+        return 'Herkese açık';
+      case VisibilityOption.private:
+        return 'Gizli';
     }
   }
 
   String get sublabel {
     switch (this) {
-      case VisibilityOption.public:  return 'Herkes görebilir';
-      case VisibilityOption.private: return 'Sadece sen görebilirsin';
+      case VisibilityOption.public:
+        return 'Herkes görebilir';
+      case VisibilityOption.private:
+        return 'Sadece sen görebilirsin';
     }
   }
 
   String get value {
     switch (this) {
-      case VisibilityOption.public:  return 'public';
-      case VisibilityOption.private: return 'private';
+      case VisibilityOption.public:
+        return 'public';
+      case VisibilityOption.private:
+        return 'private';
     }
   }
 
   static VisibilityOption fromString(String? s) {
     switch (s) {
-      case 'private': return VisibilityOption.private;
-      default:        return VisibilityOption.public;
+      case 'private':
+        return VisibilityOption.private;
+      default:
+        return VisibilityOption.public;
     }
   }
 }
 
-class UserSettingsModel {
+class UserSettingsModel extends Equatable {
   final String userId;
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
-  final String theme;            // 'dark' | 'light' | 'system'
-  final String homeLayout;       // 'list' | 'wheel' — Ana sayfa besleme görünümü
+  final String theme; // 'dark' | 'light' | 'system'
+  final String homeLayout; // 'list' | 'wheel' — Ana sayfa besleme görünümü
 
   // ─── Oynatma ──────────────────────────────────────────────────────────────
   final bool autoplay;
   final bool showSubtitles;
-  final String videoQuality;     // 'auto' | '1080p' | '720p' | '480p' | '360p'
+  final String videoQuality; // 'auto' | '1080p' | '720p' | '480p' | '360p'
 
   // ─── Bildirimler ──────────────────────────────────────────────────────────
   final bool notificationsEnabled;
@@ -85,54 +96,60 @@ class UserSettingsModel {
     this.showWatchHistory = true,
     this.showFavoritesPublic = false,
     this.watchHistoryVisibility = VisibilityOption.public,
-    this.likesVisibility        = VisibilityOption.public,
-    this.favoritesVisibility    = VisibilityOption.public,
-    this.commentsVisibility     = VisibilityOption.public,
+    this.likesVisibility = VisibilityOption.public,
+    this.favoritesVisibility = VisibilityOption.public,
+    this.commentsVisibility = VisibilityOption.public,
     this.reducedMotion = false,
     this.textScaleFactor = 1.0,
   });
 
   factory UserSettingsModel.fromSupabase(Map<String, dynamic> json) {
     return UserSettingsModel(
-      userId:               json['user_id'] ?? '',
-      theme:                json['theme'] ?? 'system',
-      homeLayout:           json['home_layout'] ?? 'list',
-      autoplay:             json['autoplay'] ?? true,
-      showSubtitles:        json['show_subtitles'] ?? false,
-      videoQuality:         json['video_quality'] ?? 'auto',
+      userId: json['user_id'] ?? '',
+      theme: json['theme'] ?? 'system',
+      homeLayout: json['home_layout'] ?? 'list',
+      autoplay: json['autoplay'] ?? true,
+      showSubtitles: json['show_subtitles'] ?? false,
+      videoQuality: json['video_quality'] ?? 'auto',
       notificationsEnabled: json['notifications_enabled'] ?? true,
-      notifyNewVideos:      json['notify_new_videos'] ?? true,
+      notifyNewVideos: json['notify_new_videos'] ?? true,
       notifyCommentReplies: json['notify_comment_replies'] ?? true,
-      showWatchHistory:     json['show_watch_history'] ?? true,
-      showFavoritesPublic:  json['show_favorites_public'] ?? false,
-      watchHistoryVisibility: VisibilityOption.fromString(json['watch_history_visibility']),
-      likesVisibility:        VisibilityOption.fromString(json['likes_visibility']),
-      favoritesVisibility:    VisibilityOption.fromString(json['favorites_visibility']),
-      commentsVisibility:     VisibilityOption.fromString(json['comments_visibility']),
-      reducedMotion:    json['reduced_motion'] ?? false,
-      textScaleFactor:  (json['text_scale_factor'] as num?)?.toDouble() ?? 1.0,
+      showWatchHistory: json['show_watch_history'] ?? true,
+      showFavoritesPublic: json['show_favorites_public'] ?? false,
+      watchHistoryVisibility: VisibilityOption.fromString(
+        json['watch_history_visibility'],
+      ),
+      likesVisibility: VisibilityOption.fromString(json['likes_visibility']),
+      favoritesVisibility: VisibilityOption.fromString(
+        json['favorites_visibility'],
+      ),
+      commentsVisibility: VisibilityOption.fromString(
+        json['comments_visibility'],
+      ),
+      reducedMotion: json['reduced_motion'] ?? false,
+      textScaleFactor: (json['text_scale_factor'] as num?)?.toDouble() ?? 1.0,
     );
   }
 
   Map<String, dynamic> toSupabase() {
     return {
-      'user_id':                   userId,
-      'theme':                     theme,
-      'home_layout':               homeLayout,
-      'autoplay':                  autoplay,
-      'show_subtitles':            showSubtitles,
-      'video_quality':             videoQuality,
-      'notifications_enabled':     notificationsEnabled,
-      'notify_new_videos':         notifyNewVideos,
-      'notify_comment_replies':    notifyCommentReplies,
-      'show_watch_history':        showWatchHistory,
-      'show_favorites_public':     showFavoritesPublic,
-      'watch_history_visibility':  watchHistoryVisibility.value,
-      'likes_visibility':          likesVisibility.value,
-      'favorites_visibility':      favoritesVisibility.value,
-      'comments_visibility':       commentsVisibility.value,
-      'reduced_motion':            reducedMotion,
-      'text_scale_factor':         textScaleFactor,
+      'user_id': userId,
+      'theme': theme,
+      'home_layout': homeLayout,
+      'autoplay': autoplay,
+      'show_subtitles': showSubtitles,
+      'video_quality': videoQuality,
+      'notifications_enabled': notificationsEnabled,
+      'notify_new_videos': notifyNewVideos,
+      'notify_comment_replies': notifyCommentReplies,
+      'show_watch_history': showWatchHistory,
+      'show_favorites_public': showFavoritesPublic,
+      'watch_history_visibility': watchHistoryVisibility.value,
+      'likes_visibility': likesVisibility.value,
+      'favorites_visibility': favoritesVisibility.value,
+      'comments_visibility': commentsVisibility.value,
+      'reduced_motion': reducedMotion,
+      'text_scale_factor': textScaleFactor,
     };
   }
 
@@ -155,23 +172,50 @@ class UserSettingsModel {
     double? textScaleFactor,
   }) {
     return UserSettingsModel(
-      userId:                userId,
-      theme:                 theme ?? this.theme,
-      homeLayout:            homeLayout ?? this.homeLayout,
-      autoplay:              autoplay ?? this.autoplay,
-      showSubtitles:         showSubtitles ?? this.showSubtitles,
-      videoQuality:          videoQuality ?? this.videoQuality,
-      notificationsEnabled:  notificationsEnabled ?? this.notificationsEnabled,
-      notifyNewVideos:       notifyNewVideos ?? this.notifyNewVideos,
-      notifyCommentReplies:  notifyCommentReplies ?? this.notifyCommentReplies,
-      showWatchHistory:      showWatchHistory ?? this.showWatchHistory,
-      showFavoritesPublic:   showFavoritesPublic ?? this.showFavoritesPublic,
-      watchHistoryVisibility: watchHistoryVisibility ?? this.watchHistoryVisibility,
-      likesVisibility:        likesVisibility ?? this.likesVisibility,
-      favoritesVisibility:    favoritesVisibility ?? this.favoritesVisibility,
-      commentsVisibility:     commentsVisibility ?? this.commentsVisibility,
-      reducedMotion:         reducedMotion ?? this.reducedMotion,
-      textScaleFactor:       textScaleFactor ?? this.textScaleFactor,
+      userId: userId,
+      theme: theme ?? this.theme,
+      homeLayout: homeLayout ?? this.homeLayout,
+      autoplay: autoplay ?? this.autoplay,
+      showSubtitles: showSubtitles ?? this.showSubtitles,
+      videoQuality: videoQuality ?? this.videoQuality,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      notifyNewVideos: notifyNewVideos ?? this.notifyNewVideos,
+      notifyCommentReplies: notifyCommentReplies ?? this.notifyCommentReplies,
+      showWatchHistory: showWatchHistory ?? this.showWatchHistory,
+      showFavoritesPublic: showFavoritesPublic ?? this.showFavoritesPublic,
+      watchHistoryVisibility:
+          watchHistoryVisibility ?? this.watchHistoryVisibility,
+      likesVisibility: likesVisibility ?? this.likesVisibility,
+      favoritesVisibility: favoritesVisibility ?? this.favoritesVisibility,
+      commentsVisibility: commentsVisibility ?? this.commentsVisibility,
+      reducedMotion: reducedMotion ?? this.reducedMotion,
+      textScaleFactor: textScaleFactor ?? this.textScaleFactor,
     );
+  }
+
+  @override
+  List<Object?> get props => [
+    userId,
+    theme,
+    homeLayout,
+    autoplay,
+    showSubtitles,
+    videoQuality,
+    notificationsEnabled,
+    notifyNewVideos,
+    notifyCommentReplies,
+    showWatchHistory,
+    showFavoritesPublic,
+    watchHistoryVisibility,
+    likesVisibility,
+    favoritesVisibility,
+    commentsVisibility,
+    reducedMotion,
+    textScaleFactor,
+  ];
+
+  @override
+  String toString() {
+    return 'UserSettingsModel{userId=$userId, theme=$theme, homeLayout=$homeLayout, autoplay=$autoplay, showSubtitles=$showSubtitles, videoQuality=$videoQuality, notificationsEnabled=$notificationsEnabled, notifyNewVideos=$notifyNewVideos, notifyCommentReplies=$notifyCommentReplies, showWatchHistory=$showWatchHistory, showFavoritesPublic=$showFavoritesPublic, watchHistoryVisibility=$watchHistoryVisibility, likesVisibility=$likesVisibility, favoritesVisibility=$favoritesVisibility, commentsVisibility=$commentsVisibility, reducedMotion=$reducedMotion, textScaleFactor=$textScaleFactor}';
   }
 }

@@ -1,12 +1,15 @@
-class PlaylistModel {
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:equatable/equatable.dart';
+
+class PlaylistModel extends Equatable {
   final String playlistId; // university_id (string'e çevrilmiş)
-  final String title;      // university name
+  final String title; // university name
   final String description;
   final String thumbnailUrl;
   final int itemCount;
-  final String? logoUrl;   // üniversite logosu
+  final String? logoUrl; // üniversite logosu
 
-  PlaylistModel({
+  const PlaylistModel({
     required this.playlistId,
     required this.title,
     required this.description,
@@ -30,5 +33,22 @@ class PlaylistModel {
       itemCount: videoCount,
       logoUrl: json['logo_url'] as String?,
     );
+  }
+
+  @override
+  String toString() {
+    return 'PlaylistModel(playlistId: $playlistId, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, itemCount: $itemCount, logoUrl: $logoUrl)';
+  }
+
+  @override
+  List<Object?> get props {
+    return [
+      playlistId,
+      title,
+      description,
+      thumbnailUrl,
+      itemCount,
+      logoUrl,
+    ];
   }
 }
