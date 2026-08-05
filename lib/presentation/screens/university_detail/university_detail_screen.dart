@@ -460,7 +460,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
 
   Widget _buildPhone(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
         body: Column(
@@ -605,6 +605,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                     ),
                     _VideosTabPhone(controller: controller),
                     _ShortsTabPhone(controller: controller),
+                    _LiveTabPhone(controller: controller),
                   ],
                 ),
               ),
@@ -622,7 +623,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
 
   Widget _buildTablet(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
         body: Column(
@@ -767,6 +768,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                     ),
                     _VideosTabTablet(controller: controller),
                     _ShortsTabTablet(controller: controller),
+                    _LiveTabTablet(controller: controller),
                   ],
                 ),
               ),
@@ -1146,6 +1148,7 @@ class _TabBarDelegatePhone extends SliverPersistentHeaderDelegate {
               Tab(text: 'Hakkında'),
               Tab(text: 'Videolar'),
               Tab(text: 'Shorts'),
+              Tab(text: 'Canlı'),
             ],
           ),
         ),
@@ -1220,11 +1223,6 @@ class _AboutTabPhone extends StatelessWidget {
                 ),
               ],
               SizedBox(height: _PhoneSizes.aboutSectionSpacing.h),
-            ],
-            if (uni.channelId != null) ...[
-              _SectionTitlePhone(title: 'YouTube Kanalı'),
-              SizedBox(height: _PhoneSizes.aboutSectionTitleSpacing.h),
-              _ChannelCardPhone(uni: uni),
             ],
           ],
         ),
@@ -1398,55 +1396,6 @@ class _InfoCardPhone extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _ChannelCardPhone extends StatelessWidget {
-  final dynamic uni;
-  const _ChannelCardPhone({required this.uni});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(
-          _PhoneSizes.aboutCardBorderRadius.r,
-        ),
-        border: Border.all(
-          color: AppTheme.isDark(context)
-              ? Colors.white.withValues(alpha: 0.06)
-              : Colors.black.withValues(alpha: 0.06),
-        ),
-      ),
-      child: Column(
-        children: [
-          _InfoRowPhone(
-            icon: Icons.tag_rounded,
-            label: 'Kanal ID',
-            value: uni.channelId!,
-            isFirst: true,
-            isLast: uni.channelSyncedAt == null,
-          ),
-          if (uni.channelSyncedAt != null)
-            _InfoRowPhone(
-              icon: Icons.sync_rounded,
-              label: 'Son Senkronizasyon',
-              value: _formatDate(uni.channelSyncedAt!),
-              isLast: true,
-            ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(String isoDate) {
-    try {
-      final dt = DateTime.parse(isoDate).toLocal();
-      return '${dt.day}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
-    } catch (_) {
-      return isoDate;
-    }
   }
 }
 
@@ -1983,7 +1932,12 @@ class _ShortsTabPhone extends StatelessWidget {
           child: CustomScrollView(
             slivers: [
               SliverPadding(
-                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, hasMore ? 0 : 32.h),
+                padding: EdgeInsets.fromLTRB(
+                  12.w,
+                  10.h,
+                  12.w,
+                  hasMore ? 0 : 32.h,
+                ),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -1991,18 +1945,15 @@ class _ShortsTabPhone extends StatelessWidget {
                     crossAxisSpacing: 10.w,
                     mainAxisSpacing: 10.h,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (_, i) {
-                      if (i >= shortsList.length) {
-                        return const SizedBox.shrink();
-                      }
-                      return _ShortsGridCardPhone(
-                        video: shortsList[i],
-                        onTap: () => _openShortsPlayer(shortsList, i),
-                      );
-                    },
-                    childCount: shortsList.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((_, i) {
+                    if (i >= shortsList.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return _ShortsGridCardPhone(
+                      video: shortsList[i],
+                      onTap: () => _openShortsPlayer(shortsList, i),
+                    );
+                  }, childCount: shortsList.length),
                 ),
               ),
               if (hasMore)
@@ -2373,11 +2324,56 @@ class _ShortsShimmerGridPhone extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(_PhoneSizes._shortsCardRadius.r),
+            borderRadius: BorderRadius.circular(
+              _PhoneSizes._shortsCardRadius.r,
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+// ─── Live Tab (Phone) ───────────────────────────────────────────────────────
+
+class _LiveTabPhone extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _LiveTabPhone({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isLoading = controller.isLoadingLive.value;
+      final error = controller.liveErrorMessage.value;
+      final liveList = controller.liveVideos;
+      if (isLoading) {
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          itemCount: 3,
+          itemBuilder: (_, _) => _VideoShimmerPhone(),
+        );
+      }
+      if (error.isNotEmpty) {
+        return _ErrorViewPhone(error: error, onRetry: controller.loadLiveVideos);
+      }
+      if (liveList.isEmpty) {
+        return _EmptyViewPhone(
+          icon: Icons.sensors_off_rounded,
+          title: 'Şu anda canlı yayın yok',
+          subtitle: 'Bu üniversite şu anda canlı yayın yapmıyor.',
+        );
+      }
+      return RefreshIndicator(
+        color: AppTheme.primaryColor,
+        backgroundColor: AppTheme.card(context),
+        onRefresh: controller.loadLiveVideos,
+        child: ListView.builder(
+          padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+          itemCount: liveList.length,
+          itemBuilder: (_, i) => VideoCardWidget(video: liveList[i]),
+        ),
+      );
+    });
   }
 }
 
@@ -2861,6 +2857,7 @@ class _TabBarDelegateTablet extends SliverPersistentHeaderDelegate {
               Tab(text: 'Hakkında'),
               Tab(text: 'Videolar'),
               Tab(text: 'Shorts'),
+              Tab(text: 'Canlı'),
             ],
           ),
         ),
@@ -2935,11 +2932,6 @@ class _AboutTabTablet extends StatelessWidget {
                 ),
               ],
               SizedBox(height: _TabletSizes.aboutSectionSpacing),
-            ],
-            if (uni.channelId != null) ...[
-              _SectionTitleTablet(title: 'YouTube Kanalı'),
-              SizedBox(height: _TabletSizes.aboutSectionTitleSpacing),
-              _ChannelCardTablet(uni: uni),
             ],
           ],
         ),
@@ -3109,53 +3101,6 @@ class _InfoCardTablet extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _ChannelCardTablet extends StatelessWidget {
-  final dynamic uni;
-  const _ChannelCardTablet({required this.uni});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_TabletSizes.aboutCardBorderRadius),
-        border: Border.all(
-          color: AppTheme.isDark(context)
-              ? Colors.white.withValues(alpha: 0.06)
-              : Colors.black.withValues(alpha: 0.06),
-        ),
-      ),
-      child: Column(
-        children: [
-          _InfoRowTablet(
-            icon: Icons.tag_rounded,
-            label: 'Kanal ID',
-            value: uni.channelId!,
-            isFirst: true,
-            isLast: uni.channelSyncedAt == null,
-          ),
-          if (uni.channelSyncedAt != null)
-            _InfoRowTablet(
-              icon: Icons.sync_rounded,
-              label: 'Son Senkronizasyon',
-              value: _formatDate(uni.channelSyncedAt!),
-              isLast: true,
-            ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(String isoDate) {
-    try {
-      final dt = DateTime.parse(isoDate).toLocal();
-      return '${dt.day}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
-    } catch (_) {
-      return isoDate;
-    }
   }
 }
 
@@ -4033,6 +3978,66 @@ class _ShortsListShimmerTablet extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ─── Live Tab (Tablet) ──────────────────────────────────────────────────────
+
+class _LiveTabTablet extends StatelessWidget {
+  final UniversityDetailController controller;
+  const _LiveTabTablet({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isLoading = controller.isLoadingLive.value;
+      final error = controller.liveErrorMessage.value;
+      final liveList = controller.liveVideos;
+      final crossAxisCount =
+          MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
+      if (isLoading) {
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: 4,
+          itemBuilder: (_, _) => _VideoShimmerTablet(),
+        );
+      }
+      if (error.isNotEmpty) {
+        return _ErrorViewTablet(
+          error: error,
+          onRetry: controller.loadLiveVideos,
+        );
+      }
+      if (liveList.isEmpty) {
+        return _EmptyViewTablet(
+          icon: Icons.sensors_off_rounded,
+          title: 'Şu anda canlı yayın yok',
+          subtitle: 'Bu üniversite şu anda canlı yayın yapmıyor.',
+        );
+      }
+      return RefreshIndicator(
+        color: AppTheme.primaryColor,
+        backgroundColor: AppTheme.card(context),
+        onRefresh: controller.loadLiveVideos,
+        child: GridView.builder(
+          padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: liveList.length,
+          itemBuilder: (_, i) => VideoCardWidget(video: liveList[i]),
+        ),
+      );
+    });
   }
 }
 

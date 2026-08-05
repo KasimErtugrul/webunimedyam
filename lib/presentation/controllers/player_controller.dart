@@ -64,6 +64,13 @@ class PlayerController extends GetxController {
   final appFavoriteCount = 0.obs;
   final appShareCount = 0.obs;
   final appCommentCount = 0.obs;
+  // Bu ekranda (player açıkken) net eklenen/silinen yorum sayısı.
+  // Ana sayfaya dönerken HomeController'a bildirip kart üzerindeki
+  // yorum sayısını like/fav/görüntülenme ile aynı şekilde senkron tutmak için.
+  int _commentCountDeltaThisSession = 0;
+  // Bu ekranda net paylaşılan video sayısı — yorum sayacıyla aynı
+  // gerekçeyle: onClose'da HomeController'a bildirilecek.
+  int _shareCountDeltaThisSession = 0;
   final isInitialStatsLoading = true.obs;
 
   final showAuthRequired = false.obs;
@@ -575,6 +582,7 @@ class PlayerController extends GetxController {
         );
         // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic güncelleme yeterli.
         appShareCount.value += 1;
+        _shareCountDeltaThisSession += 1;
       }
       AnalyticsService.instance.logShare(
         videoId: currentVideo.value!.videoId,
@@ -638,6 +646,7 @@ class PlayerController extends GetxController {
       await loadComments();
       // OPTİMİZASYON: getEngagementStats() kaldırıldı — yorum sayısını doğrudan güncelle.
       appCommentCount.value += 1;
+      _commentCountDeltaThisSession += 1;
       AnalyticsService.instance.logEvent(
         'comment_add',
         parameters: {'video_id': currentVideo.value!.videoId},
@@ -654,6 +663,7 @@ class PlayerController extends GetxController {
       comments.removeWhere((c) => c.id == commentId);
       // OPTİMİZASYON: getEngagementStats() kaldırıldı — optimistic azalt.
       if (appCommentCount.value > 0) appCommentCount.value -= 1;
+      _commentCountDeltaThisSession -= 1;
     } catch (e, stacktrace) {
       log('Yorum silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }
@@ -673,6 +683,18 @@ class PlayerController extends GetxController {
           currentVideo.value!.videoId,
           appViewCount.value,
         );
+        if (_commentCountDeltaThisSession != 0) {
+          home.syncCommentCountFromPlayer(
+            currentVideo.value!.videoId,
+            _commentCountDeltaThisSession,
+          );
+        }
+        if (_shareCountDeltaThisSession != 0) {
+          home.syncShareCountFromPlayer(
+            currentVideo.value!.videoId,
+            _shareCountDeltaThisSession,
+          );
+        }
       }
     } catch (_) {}
 

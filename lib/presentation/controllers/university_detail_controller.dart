@@ -44,6 +44,11 @@ class UniversityDetailController extends GetxController {
   final isFavorite = false.obs;
   final isFavoriteLoading = false.obs;
 
+  // ─── Canlı Yayınlar ("Canlı" sekmesi) ──────────────────────────────────────
+  final liveVideos = <VideoModel>[].obs;
+  final isLoadingLive = true.obs;
+  final liveErrorMessage = ''.obs;
+
   late final StreamSubscription<UniversityFavoriteChange> _favSub;
 
   List<VideoModel> get videoOnly => videos.where((v) => !v.isShorts).toList();
@@ -75,6 +80,7 @@ class UniversityDetailController extends GetxController {
         university.value = args;
         _loadFavoriteStatus();
         loadVideos();
+        loadLiveVideos();
         AnalyticsService.instance.logEvent(
           'university_view',
           parameters: {
@@ -122,6 +128,7 @@ class UniversityDetailController extends GetxController {
       university.value = await videoRepository.getUniversityById(id);
       await _loadFavoriteStatus();
       await loadVideos();
+      await loadLiveVideos();
       AnalyticsService.instance.logEvent(
         'university_view',
         parameters: {
@@ -202,6 +209,28 @@ class UniversityDetailController extends GetxController {
       );
     } finally {
       isLoadingMore.value = false;
+    }
+  }
+
+  /// "Canlı" sekmesi için üniversitenin şu an yayında olan videolarını
+  /// yükler. `videos` listesinden bağımsızdır — sadece son N video arasında
+  /// değil, gerçekten canlı olan tüm yayınları getirir.
+  Future<void> loadLiveVideos() async {
+    final id = university.value?.id;
+    if (id == null) return;
+    try {
+      isLoadingLive.value = true;
+      liveErrorMessage.value = '';
+      liveVideos.value = await videoRepository.getLiveVideosByUniversity(id);
+    } catch (e, stacktrace) {
+      log(
+        'Canlı yayınlar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      liveErrorMessage.value = 'Canlı yayınlar yüklenemedi.';
+    } finally {
+      isLoadingLive.value = false;
     }
   }
 

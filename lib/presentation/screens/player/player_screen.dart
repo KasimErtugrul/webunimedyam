@@ -249,11 +249,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return screenW - miniW - miniPad;
   }
 
-  double _defaultMiniTop(double screenH, double botPad) {
+  double _defaultMiniTop(
+    double screenH,
+    double botPad, [
+    double keyboardInset = 0,
+  ]) {
     final isTablet = Responsive.isTablet(context);
     final miniH = isTablet ? _TabletSizes.miniH : _PhoneSizes.miniH;
     final miniPad = isTablet ? _TabletSizes.miniPad : _PhoneSizes.miniPad;
-    return screenH - miniH - miniPad - botPad - 56;
+    // Klavye açıkken mini player'ı klavyenin üstüne it, altında kalmasın.
+    return screenH - miniH - miniPad - botPad - 56 - keyboardInset;
   }
 
   void _onMiniPanStart(DragStartDetails details) {
@@ -264,7 +269,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final mq = MediaQuery.of(context);
       _miniPosition = Offset(
         _defaultMiniLeft(mq.size.width),
-        _defaultMiniTop(mq.size.height, mq.padding.bottom),
+        _defaultMiniTop(
+          mq.size.height,
+          mq.padding.bottom,
+          mq.viewInsets.bottom,
+        ),
       );
     }
   }
@@ -364,13 +373,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final screenH = mq.size.height;
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
+    final keyboardInset = mq.viewInsets.bottom;
     final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
     final double targetLeft = _isMini
         ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW))
         : 0;
     final double targetTop = _isMini
-        ? (_miniPosition?.dy ?? _defaultMiniTop(screenH, botPad))
+        ? (_miniPosition == null
+              ? _defaultMiniTop(screenH, botPad, keyboardInset)
+              : (_miniPosition!.dy - keyboardInset).clamp(
+                  topPad,
+                  screenH - _PhoneSizes.miniH - botPad,
+                ))
         : topPad;
     final double targetW = _isMini ? _PhoneSizes.miniW : screenW;
     final double targetH = _isMini ? _PhoneSizes.miniH : bigH;
@@ -631,13 +646,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final screenH = mq.size.height;
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
+    final keyboardInset = mq.viewInsets.bottom;
     final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
     final double targetLeft = _isMini
         ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW))
         : 0;
     final double targetTop = _isMini
-        ? (_miniPosition?.dy ?? _defaultMiniTop(screenH, botPad))
+        ? (_miniPosition == null
+              ? _defaultMiniTop(screenH, botPad, keyboardInset)
+              : (_miniPosition!.dy - keyboardInset).clamp(
+                  topPad,
+                  screenH - _TabletSizes.miniH - botPad,
+                ))
         : topPad;
     final double targetW = _isMini ? _TabletSizes.miniW : screenW;
     final double targetH = _isMini ? _TabletSizes.miniH : bigH;

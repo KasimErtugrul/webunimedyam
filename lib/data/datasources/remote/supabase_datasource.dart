@@ -437,6 +437,29 @@ class SupabaseDataSource {
     }
   }
 
+  /// Bir üniversitenin şu anda CANLI yayında olan videolarını getirir.
+  /// `videos_cache_with_engagement_cached` view'i `is_live` kolonunu
+  /// içeriyor (pg_cron ile periyodik yenilenen matview üzerinden), bu yüzden
+  /// aynı performanslı view kullanılıyor — ayrı bir canlı sorgu view'ine
+  /// gerek yok.
+  Future<List<VideoModel>> getLiveVideosByUniversity(int universityId) async {
+    try {
+      final data = await _client
+          .from('videos_cache_with_engagement_cached')
+          .select()
+          .eq('university_id', universityId)
+          .eq('is_live', true)
+          .order('published_at', ascending: false);
+
+      return (data)
+          .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (e, stackTrace) {
+      log('Canlı yayınlar getirilirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Canlı yayınlar yüklenemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
   Future<List<VideoModel>> getLatestVideoPerUniversity({
     int limit = 500,
     int offset = 0,

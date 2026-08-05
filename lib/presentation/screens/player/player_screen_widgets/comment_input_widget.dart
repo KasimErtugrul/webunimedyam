@@ -121,6 +121,7 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
   void _handleSend() {
     if (_hasText) {
       widget.onSend(_textController.text.trim());
+      _textController.clear();
     }
   }
 

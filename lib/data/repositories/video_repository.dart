@@ -221,6 +221,33 @@ class VideoRepository {
     }
   }
 
+  // ─── Video: Canlı Yayınlar ─────────────────────────────────────────────────
+  Future<List<VideoModel>> getLiveVideosByUniversity(int universityId) async {
+    try {
+      return await _supabase.getLiveVideosByUniversity(universityId);
+    } catch (e, stacktrace) {
+      log(
+        'Üniversite canlı yayınları getirilirken hata oluştu ($universityId): $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      // Offline/hata durumunda yerel cache'teki videolardan canlı olanları filtrele.
+      try {
+        final all = await _local.getCachedVideos();
+        return all
+            .where((v) => v.universityId == universityId && v.isLiveBroadcast)
+            .toList();
+      } catch (staleError, staleStacktrace) {
+        log(
+          'Local fallback canlı yayınlar okunurken hata oluştu: $staleError',
+          error: staleError,
+          stackTrace: staleStacktrace,
+        );
+        return [];
+      }
+    }
+  }
+
   // ─── Pull-to-Refresh ───────────────────────────────────────────────────────
   Future<List<VideoModel>> refreshVideos() async {
     try {

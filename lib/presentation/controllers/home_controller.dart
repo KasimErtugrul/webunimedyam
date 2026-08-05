@@ -633,6 +633,26 @@ class HomeController extends GetxController {
     );
   }
 
+  // Player ekranından çıkarken, o oturumda yapılan net paylaşım sayısını
+  // ana sayfa kartına yansıtır. Kartlar appShareCount'u doğrudan
+  // `videos` listesinden okuduğu için (bkz. liveVideo?.appShareCount),
+  // like/favori/görüntülenme ile aynı senkron deseni burada da geçerli.
+  void syncShareCountFromPlayer(String videoId, int delta) {
+    if (delta == 0) return;
+    _updateVideoShareCount(videoId, delta);
+  }
+
+  // Player ekranından çıkarken, o oturumda eklenen/silinen net yorum
+  // sayısını ana sayfa kartına yansıtır. Kartlar zaten
+  // `video.appCommentCount + extraCommentCountFor(videoId)` okuduğu için
+  // (bkz. _quickCommentBumps / hızlı yorum akışı) burada da aynı haritayı
+  // kullanmak yeterli — like/favori/görüntülenme ile aynı senkron deseni.
+  void syncCommentCountFromPlayer(String videoId, int delta) {
+    if (delta == 0) return;
+    final current = _quickCommentBumps[videoId] ?? 0;
+    _quickCommentBumps[videoId] = current + delta;
+  }
+
   void syncFavoriteFromPlayer(String videoId, bool isNowFav) {
     final wasFav = favoriteIds.contains(videoId);
     if (wasFav == isNowFav) return;
