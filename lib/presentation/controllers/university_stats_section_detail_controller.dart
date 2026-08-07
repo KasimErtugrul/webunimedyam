@@ -4,11 +4,11 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 
-import '../../../data/models/university_stats_model.dart';
-import '../../../data/repositories/university_stats_repository.dart';
-import '../../../services/analytics_service.dart';
+import '../../data/models/university_stats_model.dart';
+import '../../data/repositories/university_stats_repository.dart';
+import '../../services/analytics_service.dart';
 
-export '../../../data/repositories/university_stats_repository.dart'
+export '../../data/repositories/university_stats_repository.dart'
     show UniversityStatsSectionType;
 
 /// Kanal (üniversite) tab'ındaki 8 bölümün "Tümünü Gör" detay sayfası.

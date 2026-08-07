@@ -3,7 +3,7 @@
 import 'package:get/get.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/university_stats_repository.dart';
-import '../../presentation/screens/university_stats_section_detail/university_stats_section_detail_controller.dart';
+import '../../presentation/controllers/university_stats_section_detail_controller.dart';
 
 class UniversityStatsSectionDetailBinding extends Bindings {
   @override
