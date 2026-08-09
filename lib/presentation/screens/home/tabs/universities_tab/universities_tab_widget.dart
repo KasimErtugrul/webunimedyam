@@ -27,7 +27,7 @@ class _PhoneSizes {
   static const double iconSpacing = 12;
   static const double shadowBlurRadius = 8;
   static const double shadowOffsetY = 2;
-  
+
   // Search
   static const double searchHeight = 48;
   static const double searchBorderRadius = 12;
@@ -38,7 +38,7 @@ class _PhoneSizes {
   static const double searchPaddingVertical = 14;
   static const double searchPaddingTop = 4;
   static const double searchPaddingBottom = 8;
-  
+
   // Sort Chips
   static const double chipSpacing = 8;
   static const double chipRunSpacing = 6;
@@ -48,7 +48,7 @@ class _PhoneSizes {
   static const double chipBorderRadius = 8;
   static const double chipPaddingHorizontal = 4;
   static const double chipLabelPaddingLeft = 2;
-  
+
   // Stats
   static const double statsPaddingTop = 4;
   static const double statsPaddingBottom = 4;
@@ -57,7 +57,7 @@ class _PhoneSizes {
   static const double sortIconSize = 18;
   static const double sortFontSize = 13;
   static const double sortSpacing = 4;
-  
+
   // Empty
   static const double emptyIconSize = 80;
   static const double emptyInnerIconSize = 40;
@@ -70,7 +70,7 @@ class _PhoneSizes {
   static const double emptyButtonFontSize = 14;
   static const double emptyButtonBorderRadius = 12;
   static const double emptyPaddingHorizontal = 40;
-  
+
   // Bottom Sheet
   static const double sheetBorderRadius = 24;
   static const double sheetHandleWidth = 40;
@@ -87,18 +87,18 @@ class _PhoneSizes {
   static const double sheetListPaddingBottom = 24;
   static const double sheetResetIconSize = 16;
   static const double sheetResetFontSize = 13;
-  
+
   // Sort Option Tile
   static const double sortTileIconSize = 20;
   static const double sortTileFontSize = 14;
   static const double sortTileToggleIconSize = 20;
   static const double sortTileCheckboxSpacing = 4;
-  
+
   // Alphabet Sidebar
   static const double sidebarWidth = 22;
   static const double sidebarActiveFontSize = 12;
   static const double sidebarInactiveFontSize = 10;
-  
+
   // Refresh Indicator
   static const double refreshDisplacement = 40;
 }
@@ -112,7 +112,7 @@ class _TabletSizes {
   static const double iconSpacing = 14;
   static const double shadowBlurRadius = 10;
   static const double shadowOffsetY = 3;
-  
+
   // Search - tablet için daha büyük
   static const double searchHeight = 52;
   static const double searchBorderRadius = 14;
@@ -123,7 +123,7 @@ class _TabletSizes {
   static const double searchPaddingVertical = 16;
   static const double searchPaddingTop = 6;
   static const double searchPaddingBottom = 10;
-  
+
   // Sort Chips - tablet için daha büyük
   static const double chipSpacing = 10;
   static const double chipRunSpacing = 8;
@@ -133,7 +133,7 @@ class _TabletSizes {
   static const double chipBorderRadius = 10;
   static const double chipPaddingHorizontal = 6;
   static const double chipLabelPaddingLeft = 4;
-  
+
   // Stats - tablet için daha büyük
   static const double statsPaddingTop = 6;
   static const double statsPaddingBottom = 6;
@@ -142,7 +142,7 @@ class _TabletSizes {
   static const double sortIconSize = 20;
   static const double sortFontSize = 15;
   static const double sortSpacing = 6;
-  
+
   // Empty - tablet için daha büyük
   static const double emptyIconSize = 100;
   static const double emptyInnerIconSize = 48;
@@ -155,7 +155,7 @@ class _TabletSizes {
   static const double emptyButtonFontSize = 16;
   static const double emptyButtonBorderRadius = 14;
   static const double emptyPaddingHorizontal = 48;
-  
+
   // Bottom Sheet - tablet için daha büyük
   static const double sheetBorderRadius = 28;
   static const double sheetHandleWidth = 48;
@@ -172,18 +172,18 @@ class _TabletSizes {
   static const double sheetListPaddingBottom = 28;
   static const double sheetResetIconSize = 18;
   static const double sheetResetFontSize = 15;
-  
+
   // Sort Option Tile - tablet için daha büyük
   static const double sortTileIconSize = 22;
   static const double sortTileFontSize = 16;
   static const double sortTileToggleIconSize = 22;
   static const double sortTileCheckboxSpacing = 6;
-  
+
   // Alphabet Sidebar - tablet için daha büyük
   static const double sidebarWidth = 26;
   static const double sidebarActiveFontSize = 14;
   static const double sidebarInactiveFontSize = 12;
-  
+
   // Refresh Indicator
   static const double refreshDisplacement = 48;
 }
@@ -273,7 +273,10 @@ class UniversitiesTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _PhoneSizes.iconSpacing.w),
-                    Text('Üniversiteler'),
+                    Text(
+                      'Üniversiteler',
+                      style: TextStyle(color: AppTheme.textPri(context)),
+                    ),
                   ],
                 ),
               ),
@@ -322,7 +325,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                                       icon: Icon(
                                         Icons.clear_rounded,
                                         color: AppTheme.textSec(context),
-                                        size: _PhoneSizes.searchClearIconSize.sp,
+                                        size:
+                                            _PhoneSizes.searchClearIconSize.sp,
                                       ),
                                       onPressed: sortController.clearSearch,
                                     )
@@ -522,7 +526,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                                       : 'Şu anda listelenecek üniversite mevcut değil.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: _PhoneSizes.emptySubtitleFontSize.sp,
+                                    fontSize:
+                                        _PhoneSizes.emptySubtitleFontSize.sp,
                                     color: AppTheme.textSec(context),
                                     height: 1.5,
                                   ),
@@ -548,7 +553,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                                     label: Text(
                                       'Tekrar Dene',
                                       style: TextStyle(
-                                        fontSize: _PhoneSizes.emptyButtonFontSize.sp,
+                                        fontSize:
+                                            _PhoneSizes.emptyButtonFontSize.sp,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -606,15 +612,17 @@ class UniversitiesTabWidget extends StatelessWidget {
     return SliverToBoxAdapter(
       child: _UniversityAlphabetListView(
         universities: universities,
-        height: MediaQuery.of(context).size.height -
+        height:
+            MediaQuery.of(context).size.height -
             (_PhoneSizes.toolbarHeight +
-                _PhoneSizes.searchHeight +
-                _PhoneSizes.searchPaddingTop +
-                _PhoneSizes.searchPaddingBottom +
-                _PhoneSizes.chipRunSpacing +
-                _PhoneSizes.statsPaddingTop +
-                _PhoneSizes.statsPaddingBottom +
-                120).h,
+                    _PhoneSizes.searchHeight +
+                    _PhoneSizes.searchPaddingTop +
+                    _PhoneSizes.searchPaddingBottom +
+                    _PhoneSizes.chipRunSpacing +
+                    _PhoneSizes.statsPaddingTop +
+                    _PhoneSizes.statsPaddingBottom +
+                    120)
+                .h,
         itemExtent: 168.h,
       ),
     );
@@ -704,10 +712,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              Divider(
-                height: _PhoneSizes.sheetDividerHeight.h,
-                thickness: 1,
-              ),
+              Divider(height: _PhoneSizes.sheetDividerHeight.h, thickness: 1),
               Expanded(
                 child: ListView(
                   padding: EdgeInsets.only(
@@ -947,7 +952,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                               ),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () => _showSortBottomSheetTablet(context),
+                                onTap: () =>
+                                    _showSortBottomSheetTablet(context),
                                 child: Row(
                                   children: [
                                     Icon(
@@ -1027,7 +1033,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                                       : 'Şu anda listelenecek üniversite mevcut değil.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: _TabletSizes.emptySubtitleFontSize,
+                                    fontSize:
+                                        _TabletSizes.emptySubtitleFontSize,
                                     color: AppTheme.textSec(context),
                                     height: 1.5,
                                   ),
@@ -1053,7 +1060,8 @@ class UniversitiesTabWidget extends StatelessWidget {
                                     label: Text(
                                       'Tekrar Dene',
                                       style: TextStyle(
-                                        fontSize: _TabletSizes.emptyButtonFontSize,
+                                        fontSize:
+                                            _TabletSizes.emptyButtonFontSize,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -1110,7 +1118,8 @@ class UniversitiesTabWidget extends StatelessWidget {
     return SliverToBoxAdapter(
       child: _UniversityAlphabetListView(
         universities: universities,
-        height: MediaQuery.of(context).size.height -
+        height:
+            MediaQuery.of(context).size.height -
             (_TabletSizes.toolbarHeight +
                 _TabletSizes.searchHeight +
                 _TabletSizes.searchPaddingTop +
@@ -1208,10 +1217,7 @@ class UniversitiesTabWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              Divider(
-                height: _TabletSizes.sheetDividerHeight,
-                thickness: 1,
-              ),
+              Divider(height: _TabletSizes.sheetDividerHeight, thickness: 1),
               Expanded(
                 child: ListView(
                   padding: EdgeInsets.only(
@@ -1273,8 +1279,8 @@ class _SortOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isTablet = Responsive.isTablet(context);
-   // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
-    
+    // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
+
     final sortController = Get.find<UniversitySortController>();
 
     return Obx(() {
@@ -1291,7 +1297,9 @@ class _SortOptionTile extends StatelessWidget {
           dense: true,
           leading: Icon(
             _icon,
-            size: isTablet ? _TabletSizes.sortTileIconSize : _PhoneSizes.sortTileIconSize.sp,
+            size: isTablet
+                ? _TabletSizes.sortTileIconSize
+                : _PhoneSizes.sortTileIconSize.sp,
             color: isActive ? AppTheme.primaryColor : AppTheme.textSec(context),
           ),
           title: Text(
@@ -1301,7 +1309,9 @@ class _SortOptionTile extends StatelessWidget {
                   ? AppTheme.primaryColor
                   : AppTheme.textPri(context),
               fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              fontSize: isTablet ? _TabletSizes.sortTileFontSize : _PhoneSizes.sortTileFontSize.sp,
+              fontSize: isTablet
+                  ? _TabletSizes.sortTileFontSize
+                  : _PhoneSizes.sortTileFontSize.sp,
             ),
           ),
           trailing: Row(
@@ -1313,12 +1323,18 @@ class _SortOptionTile extends StatelessWidget {
                     sortOption!.direction == SortDirection.ascending
                         ? Icons.arrow_upward_rounded
                         : Icons.arrow_downward_rounded,
-                    size: isTablet ? _TabletSizes.sortTileToggleIconSize : _PhoneSizes.sortTileToggleIconSize.sp,
+                    size: isTablet
+                        ? _TabletSizes.sortTileToggleIconSize
+                        : _PhoneSizes.sortTileToggleIconSize.sp,
                     color: AppTheme.primaryColor,
                   ),
                   onPressed: () => sortController.toggleDirection(criteria),
                 ),
-                SizedBox(width: isTablet ? _TabletSizes.sortTileCheckboxSpacing : _PhoneSizes.sortTileCheckboxSpacing.w),
+                SizedBox(
+                  width: isTablet
+                      ? _TabletSizes.sortTileCheckboxSpacing
+                      : _PhoneSizes.sortTileCheckboxSpacing.w,
+                ),
               ],
               Checkbox(
                 value: isActive,
@@ -1383,8 +1399,8 @@ class _UniversityAlphabetListViewState
 
   @override
   Widget build(BuildContext context) {
-   // final isTablet = Responsive.isTablet(context);
-    
+    // final isTablet = Responsive.isTablet(context);
+
     return SizedBox(
       height: widget.height,
       child: Row(
@@ -1447,7 +1463,7 @@ class _AlphabetSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isTablet = Responsive.isTablet(context);
-   // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
+    // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1459,7 +1475,9 @@ class _AlphabetSidebar extends StatelessWidget {
           onVerticalDragUpdate: (d) =>
               _handlePosition(d.localPosition, height, onDragLetter),
           child: Container(
-            width: isTablet ? _TabletSizes.sidebarWidth : _PhoneSizes.sidebarWidth.w,
+            width: isTablet
+                ? _TabletSizes.sidebarWidth
+                : _PhoneSizes.sidebarWidth.w,
             alignment: Alignment.center,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1471,8 +1489,12 @@ class _AlphabetSidebar extends StatelessWidget {
                       letter,
                       style: TextStyle(
                         fontSize: isActive
-                            ? (isTablet ? _TabletSizes.sidebarActiveFontSize : _PhoneSizes.sidebarActiveFontSize.sp)
-                            : (isTablet ? _TabletSizes.sidebarInactiveFontSize : _PhoneSizes.sidebarInactiveFontSize.sp),
+                            ? (isTablet
+                                  ? _TabletSizes.sidebarActiveFontSize
+                                  : _PhoneSizes.sidebarActiveFontSize.sp)
+                            : (isTablet
+                                  ? _TabletSizes.sidebarInactiveFontSize
+                                  : _PhoneSizes.sidebarInactiveFontSize.sp),
                         fontWeight: isActive
                             ? FontWeight.w800
                             : FontWeight.w500,

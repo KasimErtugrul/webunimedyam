@@ -10,15 +10,13 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
-
 import '../../../../controllers/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
-
 import 'shorts/shorts_row_widget.dart';
+import 'widgets/continue_watching_section_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
 import 'widgets/video_grid_card_widget.dart';
-import 'widgets/continue_watching_section_widget.dart';
 
 // ═══════════════════════════════════════════════════════════
 // KURAL 3 — SABİTLER

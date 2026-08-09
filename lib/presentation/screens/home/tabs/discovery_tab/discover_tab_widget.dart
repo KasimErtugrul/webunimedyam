@@ -92,7 +92,7 @@ class DiscoverTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: _PhoneSizes.iconSpacing.w),
-                    Text('Keşfet'),
+                    Text('Keşfet', style: TextStyle(color: AppTheme.textPri(context))),
                   ],
                 ),
                 bottom: TabBar(
