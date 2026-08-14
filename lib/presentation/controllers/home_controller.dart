@@ -951,7 +951,29 @@ class HomeController extends GetxController {
   // çekmemek için "bir kez yüklendi mi" bilgisini tutar.
   bool _discoveryTabInitialized = false;
 
+  // ─── Ana Sayfa "en üste al + yenile" sinyali ──────────────────────────────
+  // BottomNavigationBar'daki "Ana Sayfa" öğesine basıldığında — kullanıcı
+  // hangi sekmede olursa olsun, hatta zaten Ana Sayfa'dayken bile —
+  // HomeTabWidget'a "listeyi en üste kaydır ve yenile" komutu göndermek için
+  // kullanılan bir sayaç. Değerin kendisi önemli değildir; sadece her
+  // basışta değişmesi (bir `ever` worker'ını tetiklemesi) yeterlidir.
+  final homeTabResetSignal = 0.obs;
+
   void changeTab(int index) {
+    if (index == 0) {
+      // Instagram mantığı: "Ana Sayfa"ya basıldığında en üste kaydır +
+      // yenile YALNIZCA kullanıcı zaten Ana Sayfa sekmesindeyse geçerli.
+      // Başka bir sekmeden (Keşfet, Üniversiteler, Ara, Profil) Ana
+      // Sayfa'ya geçişte ise scroll pozisyonu olduğu gibi korunur —
+      // sinyal HİÇ tetiklenmez.
+      final alreadyOnHome = selectedIndex.value == 0;
+      selectedIndex.value = 0;
+      if (alreadyOnHome) {
+        homeTabResetSignal.value++;
+      }
+      return;
+    }
+
     selectedIndex.value = index;
     if (index == 1 && !_discoveryTabInitialized) {
       _discoveryTabInitialized = true;

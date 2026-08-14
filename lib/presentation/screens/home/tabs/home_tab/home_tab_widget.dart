@@ -66,6 +66,16 @@ class _PhoneSizes {
   // Auth Dialog
   static const double dialogBorderRadius = 16;
   static const double dialogButtonRadius = 8;
+
+  // İzlemeye Devam Et ile Üniversitelerin Son Videoları arasındaki ek boşluk
+  static const double continueWatchingExtraSpacing = 20;
+
+  // İçerik Bölüm Başlığı ("Üniversitelerin Son Videoları")
+  static const double contentTitlePadTop = 20;
+  static const double contentTitlePadBottom = 10;
+  static const double contentTitleFontSize = 18;
+  static const double contentTitleSubSpacing = 4;
+  static const double contentSubtitleFontSize = 12;
 }
 
 class _TabletSizes {
@@ -112,6 +122,17 @@ class _TabletSizes {
   // Auth Dialog - tablet için daha büyük
   static const double dialogBorderRadius = 20;
   static const double dialogButtonRadius = 10;
+
+  // İzlemeye Devam Et ile Üniversitelerin Son Videoları arasındaki ek boşluk
+  static const double continueWatchingExtraSpacing = 24;
+
+  // İçerik Bölüm Başlığı ("Üniversitelerin Son Videoları")
+  static const double contentTitlePadHorizontal = 16;
+  static const double contentTitlePadTop = 20;
+  static const double contentTitlePadBottom = 12;
+  static const double contentTitleFontSize = 20;
+  static const double contentTitleSubSpacing = 4;
+  static const double contentSubtitleFontSize = 13;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -128,7 +149,13 @@ class HomeTabWidget extends StatefulWidget {
 class _HomeTabWidgetState extends State<HomeTabWidget> {
   final controller = Get.find<HomeController>();
   final ScrollController _scrollController = ScrollController();
+  // RefreshIndicator'ı kod içinden (kullanıcı parmağıyla çekmeden) de
+  // tetikleyebilmek için: BottomNavigationBar'da "Ana Sayfa"ya basıldığında
+  // hem spinner görünsün hem de gerçek yenileme mantığı (onRefresh) çalışsın.
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   Worker? _authWorker;
+  Worker? _homeResetWorker;
 
   @override
   void initState() {
@@ -145,6 +172,36 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
         _showAuthDialog();
         controller.showAuthRequired.value = false;
       }
+    });
+
+    // BottomNavigationBar'daki "Ana Sayfa"ya basıldığında (nerede olursak
+    // olalım, hatta zaten bu sekmedeyken bile) HomeController bu sinyali
+    // artırır; biz de listeyi en üste kaydırıp yenilemeyi tetikleriz.
+    _homeResetWorker = ever<int>(controller.homeTabResetSignal, (_) {
+      _resetToTopAndRefresh();
+    });
+  }
+
+  // "Ana Sayfa" sekmesine basıldığında çağrılır: listeyi en üste kaydırır
+  // ve ardından pull-to-refresh ile aynı yenileme mantığını (spinner dahil)
+  // programatik olarak tetikler.
+  void _resetToTopAndRefresh() {
+    if (!mounted) return;
+
+    if (_scrollController.hasClients && _scrollController.offset > 0) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
+      );
+    }
+
+    // RefreshIndicator'ın kendi görsel spinner'ını göstererek onRefresh'i
+    // tetikler; böylece pull-to-refresh ile tam olarak aynı veri yenileme
+    // akışı (refreshVideos, loadVideoSections, vs.) çalışır.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _refreshIndicatorKey.currentState?.show();
     });
   }
 
@@ -173,6 +230,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _authWorker?.dispose();
+    _homeResetWorker?.dispose();
     super.dispose();
   }
 
@@ -188,6 +246,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         child: RefreshIndicator(
+          key: _refreshIndicatorKey,
           color: Theme.of(context).colorScheme.primary,
           onRefresh: () async {
             await controller.refreshVideos();
@@ -213,12 +272,28 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               SliverToBoxAdapter(
                 child: Obx(() {
                   final items = controller.continueWatching.toList();
-                  return !controller.isWheelView.value
-                      ? ContinueWatchingSectionWidget(
+                  final showSection =
+                      !controller.isWheelView.value && items.isNotEmpty;
+                  if (!showSection) return const SizedBox.shrink();
+                  return Padding(
+                    padding: EdgeInsets.only(top: 20.0.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ContinueWatchingSectionWidget(
                           items: items,
                           onRemove: controller.removeFromContinueWatching,
-                        )
-                      : const SizedBox.shrink();
+                        ),
+                        // Bir sonraki bölümle ("Üniversitelerin Son Videoları")
+                        // arada biraz daha nefes alan bir boşluk olsun.
+                        SizedBox(
+                          height: Responsive.isTablet(context)
+                              ? _TabletSizes.continueWatchingExtraSpacing
+                              : _PhoneSizes.continueWatchingExtraSpacing.h,
+                        ),
+                      ],
+                    ),
+                  );
                 }),
               ),
 
@@ -438,29 +513,29 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           // ── Bölüm Başlığı ──────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                horizontalPadding,
-                20,
-                horizontalPadding,
-                12,
+              padding: EdgeInsets.fromLTRB(
+                _TabletSizes.contentTitlePadHorizontal,
+                _TabletSizes.contentTitlePadTop,
+                _TabletSizes.contentTitlePadHorizontal,
+                _TabletSizes.contentTitlePadBottom,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Son Videolar',
+                    'Üniversitelerin Son Videoları',
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: 20,
+                      fontSize: _TabletSizes.contentTitleFontSize,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: _TabletSizes.contentTitleSubSpacing),
                   Text(
                     'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
                     style: TextStyle(
                       color: AppTheme.textSec(context),
-                      fontSize: 13,
+                      fontSize: _TabletSizes.contentSubtitleFontSize,
                     ),
                   ),
                 ],
@@ -519,22 +594,58 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       );
     }
 
-    // ── PHONE: Tam genişlik liste görünümü (BİREBİR AYNI) ───────────────
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        if (index >= nonShorts.length) {
-          return isLoadingMore
-              ? const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : const SizedBox.shrink();
-        }
-        log(
-          'home tab widget üniversite adları : ${nonShorts[index].universityName}',
-        );
-        return VideoCardWidget(video: nonShorts[index]);
-      }, childCount: nonShorts.length + (showLoader ? 1 : 0)),
+    // ── PHONE: Tam genişlik liste görünümü ────────────────────────────────
+    return SliverMainAxisGroup(
+      slivers: [
+        // ── Bölüm Başlığı ──────────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              _PhoneSizes.titleSpacingLarge.w,
+              _PhoneSizes.contentTitlePadTop.h,
+              _PhoneSizes.titleSpacingLarge.w,
+              _PhoneSizes.contentTitlePadBottom.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Üniversitelerin Son Videoları',
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: _PhoneSizes.contentTitleFontSize.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(height: _PhoneSizes.contentTitleSubSpacing.h),
+                Text(
+                  'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: _PhoneSizes.contentSubtitleFontSize.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index >= nonShorts.length) {
+              return isLoadingMore
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox.shrink();
+            }
+            log(
+              'home tab widget üniversite adları : ${nonShorts[index].universityName}',
+            );
+            return VideoCardWidget(video: nonShorts[index]);
+          }, childCount: nonShorts.length + (showLoader ? 1 : 0)),
+        ),
+      ],
     );
   }
 

@@ -60,6 +60,15 @@ class _PhoneSizes {
 
   // Placeholder
   static const double placeholderIconSize = 26;
+
+  // Bölüm başlığı ("Shorts")
+  static const double sectionPadLeft = 16;
+  static const double sectionPadTop = 12;
+  static const double sectionPadRight = 16;
+  static const double sectionPadBottom = 8;
+  static const double sectionIconSize = 18;
+  static const double sectionIconSpacing = 6;
+  static const double sectionTitleFontSize = 16;
 }
 
 /// Tablet için sabitler. ScreenUtil'e HİÇ dokunmuyor — direkt piksel.
@@ -92,6 +101,15 @@ class _TabletSizes {
   static const double timeAgoFontSize = 9;
 
   static const double placeholderIconSize = 30;
+
+  // Bölüm başlığı ("Shorts")
+  static const double sectionPadLeft = 24;
+  static const double sectionPadTop = 16;
+  static const double sectionPadRight = 24;
+  static const double sectionPadBottom = 10;
+  static const double sectionIconSize = 20;
+  static const double sectionIconSpacing = 8;
+  static const double sectionTitleFontSize = 18;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -132,23 +150,98 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ShortsController>();
+    final isTablet = Responsive.isTablet(context);
 
     return Obx(() {
       if (controller.isLoading.value) {
         // ── TEK DALLANMA NOKTASI ────────────────────────────────────
-        return Responsive.isTablet(context)
-            ? _buildTabletShimmer(context)
-            : _buildPhoneShimmer(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            isTablet
+                ? _buildSectionTitleTablet(context)
+                : _buildSectionTitlePhone(context),
+            isTablet
+                ? _buildTabletShimmer(context)
+                : _buildPhoneShimmer(context),
+          ],
+        );
       }
 
       if (controller.shorts.isEmpty) {
         return const SizedBox.shrink();
       }
 
-      return Responsive.isTablet(context)
-          ? _tablet(context, controller)
-          : _phone(context, controller);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          isTablet
+              ? _buildSectionTitleTablet(context)
+              : _buildSectionTitlePhone(context),
+          isTablet ? _tablet(context, controller) : _phone(context, controller),
+        ],
+      );
     });
+  }
+
+  // ── "Shorts" Bölüm Başlığı — Phone ─────────────────────────────────────
+  Widget _buildSectionTitlePhone(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        _PhoneSizes.sectionPadLeft.w,
+        _PhoneSizes.sectionPadTop.h,
+        _PhoneSizes.sectionPadRight.w,
+        _PhoneSizes.sectionPadBottom.h,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.bolt_rounded,
+            size: _PhoneSizes.sectionIconSize.sp,
+            color: AppTheme.primaryColor,
+          ),
+          SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
+          Text(
+            'Shorts',
+            style: TextStyle(
+              color: AppTheme.textPri(context),
+              fontSize: _PhoneSizes.sectionTitleFontSize.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── "Shorts" Bölüm Başlığı — Tablet ────────────────────────────────────
+  Widget _buildSectionTitleTablet(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        _TabletSizes.sectionPadLeft,
+        _TabletSizes.sectionPadTop,
+        _TabletSizes.sectionPadRight,
+        _TabletSizes.sectionPadBottom,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.bolt_rounded,
+            size: _TabletSizes.sectionIconSize,
+            color: AppTheme.primaryColor,
+          ),
+          SizedBox(width: _TabletSizes.sectionIconSpacing),
+          Text(
+            'Shorts',
+            style: TextStyle(
+              color: AppTheme.textPri(context),
+              fontSize: _TabletSizes.sectionTitleFontSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -164,7 +257,8 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         padding: EdgeInsets.symmetric(
           horizontal: _PhoneSizes.listPaddingHorizontal.w,
         ),
-        itemCount: controller.shorts.length + (controller.hasMore.value ? 1 : 0),
+        itemCount:
+            controller.shorts.length + (controller.hasMore.value ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= controller.shorts.length) {
             return _PhoneLoadMoreIndicator(
@@ -222,7 +316,8 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         padding: const EdgeInsets.symmetric(
           horizontal: _TabletSizes.listPaddingHorizontal,
         ),
-        itemCount: controller.shorts.length + (controller.hasMore.value ? 1 : 0),
+        itemCount:
+            controller.shorts.length + (controller.hasMore.value ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= controller.shorts.length) {
             return _TabletLoadMoreIndicator(
@@ -434,7 +529,9 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                           ),
                         ),
                         child: ClipOval(
-                          child: (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
+                          child:
+                              (shorts.logoUrl != null &&
+                                  shorts.logoUrl!.isNotEmpty)
                               ? CachedNetworkImage(
                                   imageUrl: shorts.logoUrl!,
                                   fit: BoxFit.cover,
@@ -611,7 +708,9 @@ class _ShortsThumbItemTablet extends StatelessWidget {
                           ),
                         ),
                         child: ClipOval(
-                          child: (shorts.logoUrl != null && shorts.logoUrl!.isNotEmpty)
+                          child:
+                              (shorts.logoUrl != null &&
+                                  shorts.logoUrl!.isNotEmpty)
                               ? CachedNetworkImage(
                                   imageUrl: shorts.logoUrl!,
                                   fit: BoxFit.cover,

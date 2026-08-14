@@ -26,6 +26,7 @@ import '../../presentation/screens/university_stats_section_detail/university_st
 import '../../presentation/screens/university_detail/university_detail_screen.dart';
 import '../../presentation/screens/shorts/shorts_player_screen.dart';
 import '../../presentation/screens/shorts/simple_shorts_player_screen.dart';
+import '../bindings/shorts_player_binding.dart';
 import '../bindings/onboarding_bindings.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/auth_binding.dart';
@@ -160,6 +161,7 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.shortsPlayer,
       page: () => const ShortsPlayerScreen(),
+      binding: ShortsPlayerBinding(),
       transition: Transition.downToUp,
     ),
     GetPage(

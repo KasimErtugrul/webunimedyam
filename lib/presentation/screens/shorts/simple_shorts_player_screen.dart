@@ -13,122 +13,8 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../../data/models/video_model.dart';
+import 'utils/simple_shorts_player_sizes.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
-
-class _PhoneSizes {
-  // Top bar
-  static const double topBarPaddingHorizontal = 4;
-  static const double topBarPaddingVertical = 2;
-  static const double backIconSize = 20;
-  static const double shortsBadgePaddingHorizontal = 8;
-  static const double shortsBadgePaddingVertical = 3;
-  static const double shortsBadgeBorderRadius = 5;
-  static const double shortsBadgeFontSize = 10;
-  static const double shortsBadgeLetterSpacing = 1.2;
-  static const double counterFontSize = 12;
-  static const double counterSpacing = 8;
-  static const double muteButtonSize = 34;
-  static const double muteIconSize = 16;
-
-  // Chip row
-  static const double chipRowHeight = 38;
-  static const double chipPaddingHorizontal = 12;
-  static const double chipMarginRight = 8;
-  static const double chipPaddingHorizontalInner = 6;
-  static const double chipPaddingVertical = 4;
-  static const double chipBorderRadius = 20;
-  static const double chipBorderWidth = 1;
-  static const double chipThumbnailSize = 24;
-  static const double chipThumbnailBorderRadius = 4;
-  static const double chipThumbnailSpacing = 6;
-  static const double chipTitleMaxWidth = 80;
-  static const double chipFontSize = 10;
-
-  // Player
-  static const double playerAspectRatio = 9 / 16;
-  static const double playPauseOverlaySize = 64;
-  static const double playPauseIconSize = 40;
-
-  // Bottom content
-  static const double bottomPaddingHorizontal = 16;
-  static const double bottomPaddingVertical = 10;
-  static const double titleFontSize = 13;
-  static const double titleLineHeight = 1.35;
-  static const double viewCountFontSize = 11;
-  static const double viewCountSpacing = 4;
-
-  // Progress bar
-  static const double progressBarHeight = 4;
-  static const double progressBarRadius = 2;
-
-  // Text buttons
-  static const double textBtnPaddingVertical = 8;
-  static const double textBtnBorderRadius = 8;
-  static const double textBtnBorderWidth = 1;
-  static const double textBtnIconSize = 16;
-  static const double textBtnLabelFontSize = 12;
-  static const double textBtnSpacing = 5;
-  static const double textBtnSpacingHorizontal = 10;
-}
-
-class _TabletSizes {
-  // Top bar
-  static const double topBarPaddingHorizontal = 6;
-  static const double topBarPaddingVertical = 4;
-  static const double backIconSize = 24;
-  static const double shortsBadgePaddingHorizontal = 10;
-  static const double shortsBadgePaddingVertical = 4;
-  static const double shortsBadgeBorderRadius = 6;
-  static const double shortsBadgeFontSize = 12;
-  static const double shortsBadgeLetterSpacing = 1.4;
-  static const double counterFontSize = 14;
-  static const double counterSpacing = 10;
-  static const double muteButtonSize = 40;
-  static const double muteIconSize = 20;
-
-  // Chip row
-  static const double chipRowHeight = 44;
-  static const double chipPaddingHorizontal = 16;
-  static const double chipMarginRight = 10;
-  static const double chipPaddingHorizontalInner = 8;
-  static const double chipPaddingVertical = 5;
-  static const double chipBorderRadius = 24;
-  static const double chipBorderWidth = 1.2;
-  static const double chipThumbnailSize = 30;
-  static const double chipThumbnailBorderRadius = 5;
-  static const double chipThumbnailSpacing = 8;
-  static const double chipTitleMaxWidth = 100;
-  static const double chipFontSize = 12;
-
-  // Player
-  static const double playerAspectRatio = 9 / 16;
-  static const double playPauseOverlaySize = 76;
-  static const double playPauseIconSize = 48;
-
-  // Bottom content
-  static const double bottomPaddingHorizontal = 20;
-  static const double bottomPaddingVertical = 14;
-  static const double titleFontSize = 16;
-  static const double titleLineHeight = 1.4;
-  static const double viewCountFontSize = 13;
-  static const double viewCountSpacing = 6;
-
-  // Progress bar
-  static const double progressBarHeight = 5;
-  static const double progressBarRadius = 3;
-
-  // Text buttons
-  static const double textBtnPaddingVertical = 10;
-  static const double textBtnBorderRadius = 10;
-  static const double textBtnBorderWidth = 1.2;
-  static const double textBtnIconSize = 20;
-  static const double textBtnLabelFontSize = 14;
-  static const double textBtnSpacing = 6;
-  static const double textBtnSpacingHorizontal = 12;
-}
 
 // ═══════════════════════════════════════════════════════════
 // ANA WIDGET (Stateful)
@@ -145,13 +31,15 @@ class SimpleShortsPlayerScreen extends StatefulWidget {
 class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
   late final List<VideoModel> _shorts;
   late final ScrollController _chipScrollController;
+  late final PageController _pageController;
   int _currentIndex = 0;
 
   YoutubePlayerController? _ytController;
   Timer? _progressTimer;
-  double _progress = 0.0;
   bool _isMuted = false;
   bool _isPaused = false;
+
+  final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
 
   int _playerKey = 0;
 
@@ -162,6 +50,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     _shorts = List<VideoModel>.from(args['shorts'] as List);
     _currentIndex = (args['initialIndex'] as int?) ?? 0;
     _chipScrollController = ScrollController();
+    _pageController = PageController(initialPage: _currentIndex);
     _initYtController(_currentIndex);
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -176,6 +65,8 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     _progressTimer?.cancel();
     _ytController?.close();
     _chipScrollController.dispose();
+    _pageController.dispose();
+    _progressNotifier.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -184,9 +75,9 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     _progressTimer?.cancel();
     _ytController?.close();
 
+    _progressNotifier.value = 0.0;
     if (mounted) {
       setState(() {
-        _progress = 0.0;
         _isPaused = false;
         _playerKey++;
       });
@@ -214,7 +105,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
         if (!mounted) return;
         if (dur > 0) {
           final p = (cur / dur).clamp(0.0, 1.0);
-          setState(() => _progress = p);
+          _progressNotifier.value = p;
           if (p >= 0.99 && _currentIndex < _shorts.length - 1) {
             _goToIndex(_currentIndex + 1);
           }
@@ -226,13 +117,22 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
   void _goToIndex(int index) {
     if (index < 0 || index >= _shorts.length) return;
     if (index == _currentIndex) return;
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _onPageChanged(int index) {
+    if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
     _initYtController(index);
     _scrollChipIntoView(index);
   }
 
   void _scrollChipIntoView(int index) {
-    const chipWidth = 120.0;
+    const chipWidth = 90.0;
     final offset = (index * chipWidth) - chipWidth;
     if (_chipScrollController.hasClients) {
       _chipScrollController.animateTo(
@@ -269,123 +169,165 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    final short = _shorts[_currentIndex];
+    final SimpleShortsPlayerSizes sizes = Responsive.isTablet(context)
+        ? const SimpleShortsPlayerTabletSizes()
+        : const SimpleShortsPlayerPhoneSizes();
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBarPhone(),
-            _VideoChipRowPhone(
-              shorts: _shorts,
-              currentIndex: _currentIndex,
-              scrollController: _chipScrollController,
-              onSelect: _goToIndex,
-            ),
-            SizedBox(height: _PhoneSizes.topBarPaddingVertical.h),
-            AspectRatio(
-              aspectRatio: _PhoneSizes.playerAspectRatio,
-              child: Stack(
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: _shorts.length,
+            onPageChanged: _onPageChanged,
+            itemBuilder: (context, index) =>
+                _buildPage(sizes, _shorts[index], index),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Positioned.fill(
-                    child: CachedNetworkImage(
-                      imageUrl: short.bestThumbnail,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  if (_ytController != null)
-                    YoutubePlayer(
-                      key: ValueKey(_playerKey),
-                      controller: _ytController!,
-                      aspectRatio: _PhoneSizes.playerAspectRatio,
-                    ),
-                  Positioned.fill(
-                    child: GestureDetector(
-                      onTap: _togglePlayPause,
-                      behavior: HitTestBehavior.translucent,
-                      child: Center(
-                        child: AnimatedOpacity(
-                          opacity: _isPaused ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 250),
-                          child: Container(
-                            width: _PhoneSizes.playPauseOverlaySize.w,
-                            height: _PhoneSizes.playPauseOverlaySize.w,
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: _PhoneSizes.playPauseIconSize.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  _buildTopBar(sizes),
+                  SimpleShortsPlayerVideoChipRow(
+                    sizes: sizes,
+                    shorts: _shorts,
+                    currentIndex: _currentIndex,
+                    scrollController: _chipScrollController,
+                    onSelect: _goToIndex,
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: Container(
-                color: Colors.black,
-                padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.bottomPaddingHorizontal.w,
-                  vertical: _PhoneSizes.bottomPaddingVertical.h,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPage(SimpleShortsPlayerSizes sizes, VideoModel short, int index) {
+    final isActive = index == _currentIndex;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        CachedNetworkImage(
+          imageUrl: short.bestThumbnail,
+          fit: BoxFit.cover,
+        ),
+        if (isActive && _ytController != null)
+          IgnorePointer(
+            child: YoutubePlayer(
+              key: ValueKey(_playerKey),
+              controller: _ytController!,
+            ),
+          ),
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: isActive ? _togglePlayPause : () => _goToIndex(index),
+          ),
+        ),
+        if (isActive && _isPaused)
+          Center(
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white.withValues(alpha: 0.85),
+              size: sizes.playIconSize,
+            ),
+          ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              sizes.bottomPaddingHorizontal,
+              60.h,
+              sizes.bottomPaddingHorizontal,
+              0,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.88),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: sizes.bottomPaddingVertical,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       short.title,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        fontSize: _PhoneSizes.titleFontSize.sp,
-                        height: _PhoneSizes.titleLineHeight,
+                        fontSize: sizes.titleFontSize,
+                        height: sizes.titleLineHeight,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: _PhoneSizes.viewCountSpacing.h),
+                    SizedBox(height: sizes.viewCountSpacing),
                     Text(
                       short.formattedViewCount,
                       style: TextStyle(
                         color: Colors.white54,
-                        fontSize: _PhoneSizes.viewCountFontSize.sp,
+                        fontSize: sizes.viewCountFontSize,
                       ),
                     ),
-                    const Spacer(),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        _PhoneSizes.progressBarRadius.r,
-                      ),
-                      child: LinearProgressIndicator(
-                        value: _progress,
-                        backgroundColor: Colors.white24,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor,
-                        ),
-                        minHeight: _PhoneSizes.progressBarHeight.h,
-                      ),
-                    ),
-                    SizedBox(height: _PhoneSizes.viewCountSpacing.h),
+                    SizedBox(height: sizes.topBarPaddingVertical),
+                    isActive
+                        ? ValueListenableBuilder<double>(
+                            valueListenable: _progressNotifier,
+                            builder: (context, progress, _) => ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                sizes.progressBarRadius,
+                              ),
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                backgroundColor: Colors.white24,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppTheme.primaryColor,
+                                ),
+                                minHeight: sizes.progressBarHeight,
+                              ),
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              sizes.progressBarRadius,
+                            ),
+                            child: LinearProgressIndicator(
+                              value: 0,
+                              backgroundColor: Colors.white24,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppTheme.primaryColor,
+                              ),
+                              minHeight: sizes.progressBarHeight,
+                            ),
+                          ),
+                    SizedBox(height: sizes.topBarPaddingVertical),
                     Row(
                       children: [
                         Expanded(
-                          child: _TextBtnPhone(
+                          child: SimpleShortsPlayerTextButton(
+                            sizes: sizes,
                             icon: Icons.play_circle_outline_rounded,
                             label: 'Tam İzle',
                             onTap: () => Get.toNamed(
@@ -394,9 +336,10 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(width: _PhoneSizes.textBtnSpacingHorizontal.w),
+                        SizedBox(width: sizes.textBtnSpacingHorizontal),
                         Expanded(
-                          child: _TextBtnPhone(
+                          child: SimpleShortsPlayerTextButton(
+                            sizes: sizes,
                             icon: Icons.share_rounded,
                             label: 'Paylaş',
                             onTap: () {
@@ -414,7 +357,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
                                 colorText: Colors.white,
                                 duration: const Duration(seconds: 2),
                                 margin: EdgeInsets.all(
-                                  _PhoneSizes.bottomPaddingHorizontal.w,
+                                  sizes.bottomPaddingHorizontal,
                                 ),
                               );
                             },
@@ -426,17 +369,17 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
                 ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildTopBarPhone() {
+  Widget _buildTopBar(SimpleShortsPlayerSizes sizes) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.topBarPaddingHorizontal.w,
-        vertical: _PhoneSizes.topBarPaddingVertical.h,
+        horizontal: sizes.topBarPaddingHorizontal,
+        vertical: sizes.topBarPaddingVertical,
       ),
       child: Row(
         children: [
@@ -445,27 +388,27 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
-              size: _PhoneSizes.backIconSize.sp,
+              size: sizes.backIconSize,
             ),
           ),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: _PhoneSizes.shortsBadgePaddingHorizontal.w,
-              vertical: _PhoneSizes.shortsBadgePaddingVertical.h,
+              horizontal: sizes.shortsBadgePaddingHorizontal,
+              vertical: sizes.shortsBadgePaddingVertical,
             ),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
               borderRadius: BorderRadius.circular(
-                _PhoneSizes.shortsBadgeBorderRadius.r,
+                sizes.shortsBadgeBorderRadius,
               ),
             ),
             child: Text(
               'SHORTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: _PhoneSizes.shortsBadgeFontSize.sp,
+                fontSize: sizes.shortsBadgeFontSize,
                 fontWeight: FontWeight.w800,
-                letterSpacing: _PhoneSizes.shortsBadgeLetterSpacing,
+                letterSpacing: sizes.shortsBadgeLetterSpacing,
               ),
             ),
           ),
@@ -474,15 +417,15 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             '${_currentIndex + 1} / ${_shorts.length}',
             style: TextStyle(
               color: Colors.white60,
-              fontSize: _PhoneSizes.counterFontSize.sp,
+              fontSize: sizes.counterFontSize,
             ),
           ),
-          SizedBox(width: _PhoneSizes.counterSpacing.w),
+          SizedBox(width: sizes.counterSpacing),
           GestureDetector(
             onTap: _toggleMute,
             child: Container(
-              width: _PhoneSizes.muteButtonSize.w,
-              height: _PhoneSizes.muteButtonSize.w,
+              width: sizes.muteButtonSize,
+              height: sizes.muteButtonSize,
               decoration: const BoxDecoration(
                 color: Colors.white12,
                 shape: BoxShape.circle,
@@ -490,254 +433,32 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
               child: Icon(
                 _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
                 color: Colors.white,
-                size: _PhoneSizes.muteIconSize.sp,
+                size: sizes.muteIconSize,
               ),
             ),
           ),
-          SizedBox(width: _PhoneSizes.topBarPaddingHorizontal.w),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final short = _shorts[_currentIndex];
-
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBarTablet(),
-            _VideoChipRowTablet(
-              shorts: _shorts,
-              currentIndex: _currentIndex,
-              scrollController: _chipScrollController,
-              onSelect: _goToIndex,
-            ),
-            SizedBox(height: _TabletSizes.topBarPaddingVertical),
-            AspectRatio(
-              aspectRatio: _TabletSizes.playerAspectRatio,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: CachedNetworkImage(
-                      imageUrl: short.bestThumbnail,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  if (_ytController != null)
-                    YoutubePlayer(
-                      key: ValueKey(_playerKey),
-                      controller: _ytController!,
-                      aspectRatio: _TabletSizes.playerAspectRatio,
-                    ),
-                  Positioned.fill(
-                    child: GestureDetector(
-                      onTap: _togglePlayPause,
-                      behavior: HitTestBehavior.translucent,
-                      child: Center(
-                        child: AnimatedOpacity(
-                          opacity: _isPaused ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 250),
-                          child: Container(
-                            width: _TabletSizes.playPauseOverlaySize,
-                            height: _TabletSizes.playPauseOverlaySize,
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: _TabletSizes.playPauseIconSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                color: Colors.black,
-                padding: EdgeInsets.symmetric(
-                  horizontal: _TabletSizes.bottomPaddingHorizontal,
-                  vertical: _TabletSizes.bottomPaddingVertical,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      short.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: _TabletSizes.titleFontSize,
-                        height: _TabletSizes.titleLineHeight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: _TabletSizes.viewCountSpacing),
-                    Text(
-                      short.formattedViewCount,
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: _TabletSizes.viewCountFontSize,
-                      ),
-                    ),
-                    const Spacer(),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        _TabletSizes.progressBarRadius,
-                      ),
-                      child: LinearProgressIndicator(
-                        value: _progress,
-                        backgroundColor: Colors.white24,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor,
-                        ),
-                        minHeight: _TabletSizes.progressBarHeight,
-                      ),
-                    ),
-                    SizedBox(height: _TabletSizes.viewCountSpacing),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _TextBtnTablet(
-                            icon: Icons.play_circle_outline_rounded,
-                            label: 'Tam İzle',
-                            onTap: () => Get.toNamed(
-                              AppRoutes.player,
-                              parameters: {'videoId': short.videoId},
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: _TabletSizes.textBtnSpacingHorizontal),
-                        Expanded(
-                          child: _TextBtnTablet(
-                            icon: Icons.share_rounded,
-                            label: 'Paylaş',
-                            onTap: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      'https://www.youtube.com/shorts/${short.videoId}',
-                                ),
-                              );
-                              Get.snackbar(
-                                'Kopyalandı',
-                                short.title,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.black87,
-                                colorText: Colors.white,
-                                duration: const Duration(seconds: 2),
-                                margin: EdgeInsets.all(
-                                  _TabletSizes.bottomPaddingHorizontal,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBarTablet() {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: _TabletSizes.topBarPaddingHorizontal,
-        vertical: _TabletSizes.topBarPaddingVertical,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
-              size: _TabletSizes.backIconSize,
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: _TabletSizes.shortsBadgePaddingHorizontal,
-              vertical: _TabletSizes.shortsBadgePaddingVertical,
-            ),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(
-                _TabletSizes.shortsBadgeBorderRadius,
-              ),
-            ),
-            child: Text(
-              'SHORTS',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: _TabletSizes.shortsBadgeFontSize,
-                fontWeight: FontWeight.w800,
-                letterSpacing: _TabletSizes.shortsBadgeLetterSpacing,
-              ),
-            ),
-          ),
-          const Spacer(),
-          Text(
-            '${_currentIndex + 1} / ${_shorts.length}',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: _TabletSizes.counterFontSize,
-            ),
-          ),
-          SizedBox(width: _TabletSizes.counterSpacing),
-          GestureDetector(
-            onTap: _toggleMute,
-            child: Container(
-              width: _TabletSizes.muteButtonSize,
-              height: _TabletSizes.muteButtonSize,
-              decoration: const BoxDecoration(
-                color: Colors.white12,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                color: Colors.white,
-                size: _TabletSizes.muteIconSize,
-              ),
-            ),
-          ),
-          SizedBox(width: _TabletSizes.topBarPaddingHorizontal),
+          SizedBox(width: sizes.topBarPaddingHorizontal),
         ],
       ),
     );
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT SEVİYE WIDGET'LAR (PHONE)
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// ALT WIDGET'LAR (TEK SINIF, sizes İLE)
+// ═══════════════════════════════════════════════════════════
 
-class _VideoChipRowPhone extends StatelessWidget {
+// ─── Video Chip Row ─────────────────────────────────────────────────────────
+
+class SimpleShortsPlayerVideoChipRow extends StatelessWidget {
+  final SimpleShortsPlayerSizes sizes;
   final List<VideoModel> shorts;
   final int currentIndex;
   final ScrollController scrollController;
   final ValueChanged<int> onSelect;
 
-  const _VideoChipRowPhone({
+  const SimpleShortsPlayerVideoChipRow({super.key, 
+    required this.sizes,
     required this.shorts,
     required this.currentIndex,
     required this.scrollController,
@@ -747,11 +468,11 @@ class _VideoChipRowPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _PhoneSizes.chipRowHeight.h,
+      height: sizes.chipRowHeight,
       child: ListView.builder(
         controller: scrollController,
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.chipPaddingHorizontal.w),
+        padding: EdgeInsets.symmetric(horizontal: sizes.chipPaddingHorizontal),
         itemCount: shorts.length,
         itemBuilder: (context, index) {
           final isSelected = index == currentIndex;
@@ -760,21 +481,21 @@ class _VideoChipRowPhone extends StatelessWidget {
             onTap: () => onSelect(index),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              margin: EdgeInsets.only(right: _PhoneSizes.chipMarginRight.w),
+              margin: EdgeInsets.only(right: sizes.chipMarginRight),
               padding: EdgeInsets.symmetric(
-                horizontal: _PhoneSizes.chipPaddingHorizontalInner.w,
-                vertical: _PhoneSizes.chipPaddingVertical.h,
+                horizontal: sizes.chipPaddingHorizontalInner,
+                vertical: sizes.chipPaddingVertical,
               ),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : Colors.white.withValues(alpha:0.12),
-                borderRadius: BorderRadius.circular(_PhoneSizes.chipBorderRadius.r),
+                    : Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(sizes.chipBorderRadius),
                 border: isSelected
                     ? null
                     : Border.all(
                         color: Colors.white24,
-                        width: _PhoneSizes.chipBorderWidth,
+                        width: sizes.chipBorderWidth,
                       ),
               ),
               child: Row(
@@ -782,24 +503,24 @@ class _VideoChipRowPhone extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(
-                      _PhoneSizes.chipThumbnailBorderRadius.r,
+                      sizes.chipThumbnailBorderRadius,
                     ),
                     child: CachedNetworkImage(
                       imageUrl: video.thumbnailUrl,
-                      width: _PhoneSizes.chipThumbnailSize.w,
-                      height: _PhoneSizes.chipThumbnailSize.w,
+                      width: sizes.chipThumbnailSize,
+                      height: sizes.chipThumbnailSize,
                       fit: BoxFit.cover,
                       errorWidget: (_, _, _) => Icon(
                         Icons.play_circle_outline,
-                        size: _PhoneSizes.chipThumbnailSize.sp * 0.6,
+                        size: sizes.chipThumbnailSize * 0.6,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  SizedBox(width: _PhoneSizes.chipThumbnailSpacing.w),
+                  SizedBox(width: sizes.chipThumbnailSpacing),
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: _PhoneSizes.chipTitleMaxWidth.w,
+                      maxWidth: sizes.chipTitleMaxWidth,
                     ),
                     child: Text(
                       video.title,
@@ -807,7 +528,7 @@ class _VideoChipRowPhone extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: _PhoneSizes.chipFontSize.sp,
+                        fontSize: sizes.chipFontSize,
                         fontWeight: isSelected
                             ? FontWeight.w700
                             : FontWeight.w400,
@@ -824,12 +545,16 @@ class _VideoChipRowPhone extends StatelessWidget {
   }
 }
 
-class _TextBtnPhone extends StatelessWidget {
+// ─── Text Button ────────────────────────────────────────────────────────────
+
+class SimpleShortsPlayerTextButton extends StatelessWidget {
+  final SimpleShortsPlayerSizes sizes;
   final IconData icon;
   final String label;
   final VoidCallback onTap;
 
-  const _TextBtnPhone({
+  const SimpleShortsPlayerTextButton({super.key, 
+    required this.sizes,
     required this.icon,
     required this.label,
     required this.onTap,
@@ -841,14 +566,14 @@ class _TextBtnPhone extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: _PhoneSizes.textBtnPaddingVertical.h,
+          vertical: sizes.textBtnPaddingVertical,
         ),
         decoration: BoxDecoration(
           color: Colors.white10,
-          borderRadius: BorderRadius.circular(_PhoneSizes.textBtnBorderRadius.r),
+          borderRadius: BorderRadius.circular(sizes.textBtnBorderRadius),
           border: Border.all(
             color: Colors.white12,
-            width: _PhoneSizes.textBtnBorderWidth,
+            width: sizes.textBtnBorderWidth,
           ),
         ),
         child: Row(
@@ -857,162 +582,14 @@ class _TextBtnPhone extends StatelessWidget {
             Icon(
               icon,
               color: Colors.white70,
-              size: _PhoneSizes.textBtnIconSize.sp,
+              size: sizes.textBtnIconSize,
             ),
-            SizedBox(width: _PhoneSizes.textBtnSpacing.w),
+            SizedBox(width: sizes.textBtnSpacing),
             Text(
               label,
               style: TextStyle(
                 color: Colors.white70,
-                fontSize: _PhoneSizes.textBtnLabelFontSize.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT SEVİYE WIDGET'LAR (TABLET)
-// ═══════════════════════════════════════════════════════════════════════
-
-class _VideoChipRowTablet extends StatelessWidget {
-  final List<VideoModel> shorts;
-  final int currentIndex;
-  final ScrollController scrollController;
-  final ValueChanged<int> onSelect;
-
-  const _VideoChipRowTablet({
-    required this.shorts,
-    required this.currentIndex,
-    required this.scrollController,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: _TabletSizes.chipRowHeight,
-      child: ListView.builder(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: _TabletSizes.chipPaddingHorizontal),
-        itemCount: shorts.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == currentIndex;
-          final video = shorts[index];
-          return GestureDetector(
-            onTap: () => onSelect(index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: EdgeInsets.only(right: _TabletSizes.chipMarginRight),
-              padding: EdgeInsets.symmetric(
-                horizontal: _TabletSizes.chipPaddingHorizontalInner,
-                vertical: _TabletSizes.chipPaddingVertical,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : Colors.white.withValues(alpha:0.12),
-                borderRadius: BorderRadius.circular(_TabletSizes.chipBorderRadius),
-                border: isSelected
-                    ? null
-                    : Border.all(
-                        color: Colors.white24,
-                        width: _TabletSizes.chipBorderWidth,
-                      ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      _TabletSizes.chipThumbnailBorderRadius,
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl,
-                      width: _TabletSizes.chipThumbnailSize,
-                      height: _TabletSizes.chipThumbnailSize,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => Icon(
-                        Icons.play_circle_outline,
-                        size: _TabletSizes.chipThumbnailSize * 0.6,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: _TabletSizes.chipThumbnailSpacing),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: _TabletSizes.chipTitleMaxWidth,
-                    ),
-                    child: Text(
-                      video.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: _TabletSizes.chipFontSize,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _TextBtnTablet extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _TextBtnTablet({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: _TabletSizes.textBtnPaddingVertical,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white10,
-          borderRadius: BorderRadius.circular(_TabletSizes.textBtnBorderRadius),
-          border: Border.all(
-            color: Colors.white12,
-            width: _TabletSizes.textBtnBorderWidth,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: Colors.white70,
-              size: _TabletSizes.textBtnIconSize,
-            ),
-            SizedBox(width: _TabletSizes.textBtnSpacing),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: _TabletSizes.textBtnLabelFontSize,
+                fontSize: sizes.textBtnLabelFontSize,
                 fontWeight: FontWeight.w500,
               ),
             ),
