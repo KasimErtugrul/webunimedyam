@@ -311,6 +311,25 @@ class VideoRepository {
     }
   }
 
+  // ─── Video: Tek Kayıt (Deep Link) ─────────────────────────────────────────
+  // BUG FIX: Deep link ile (bkz. deep_link_service.dart) player ekranına
+  // gidildiğinde elde sadece videoId string'i olur, tam bir VideoModel
+  // nesnesi olmaz (normal navigasyonda — video kartına tıklama gibi —
+  // zaten elimizde tam model vardır ve Get.arguments ile taşınır). Bu
+  // metod, sadece videoId ile Supabase'ten tek bir videoyu çeker.
+  Future<VideoModel?> getVideoById(String videoId) async {
+    try {
+      return await _supabase.getVideoById(videoId);
+    } catch (e, stacktrace) {
+      log(
+        'Video ID ile getirilirken hata oluştu ($videoId): $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return null;
+    }
+  }
+
   // ─── Öneri Sistemi ────────────────────────────────────────────────────────
   Future<List<VideoModel>> getSuggestedVideos(String videoId) async {
     try {

@@ -101,30 +101,75 @@ class PlayerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    currentVideo.value = Get.arguments as VideoModel?;
+    final argVideo = Get.arguments as VideoModel?;
 
-    if (currentVideo.value != null) {
-      _startInitWatchdog();
-      _initPlayer().then((_) async {
-        _initWatchdog?.cancel();
-        isPlayerReady.value = true;
-        loadComments();
-        _loadInitialState();
-        loadSuggestedVideos(); // ← YENİ
-
-        // Analytics: video_play — recordView() sadece giriş yapmış kullanıcılar
-        // için Supabase'e yazıldığından, misafir izlemelerini de yakalamak için
-        // burada auth durumundan bağımsız ayrı bir event gönderiyoruz.
-        AnalyticsService.instance.logVideoPlay(
-          videoId: currentVideo.value!.videoId,
-          title: currentVideo.value!.title,
-        );
-
-        // İzlemeye Devam Et: kaldığı yerden devam ettir + izleme takibini başlat.
-        await _restoreSavedProgress();
-        _startProgressTracking();
-      });
+    if (argVideo != null) {
+      // Normal navigasyon (video kartı, arama, bildirim vb.) — elimizde
+      // zaten tam bir VideoModel var, direkt player'ı başlat.
+      currentVideo.value = argVideo;
+      _startPlayerFlow();
+      return;
     }
+
+    // BUG FIX: Deep link ile (bkz. deep_link_service.dart) buraya
+    // gelindiğinde Get.arguments HER ZAMAN null'dır — sadece route
+    // parametresi olarak videoId taşınır (Get.toNamed(..., parameters:
+    // {'videoId': videoId})). Önceden bu durumda currentVideo.value hep
+    // null kalıyor, if bloğuna hiç girilmediği için _initPlayer() asla
+    // çağrılmıyor ve isPlayerReady sonsuza kadar false kalıyordu — kullanıcı
+    // player ekranında sonsuz bir yüklenme (CircularProgressIndicator)
+    // görüyordu. Artık bu durumda videoId ile Supabase'ten tam VideoModel'i
+    // ayrıca çekip öyle başlatıyoruz.
+    final deepLinkVideoId = Get.parameters['videoId'];
+    if (deepLinkVideoId != null && deepLinkVideoId.isNotEmpty) {
+      _loadVideoByIdAndStart(deepLinkVideoId);
+    }
+  }
+
+  /// Sadece videoId elimizdeyken (deep link senaryosu) tam VideoModel'i
+  /// Supabase'ten çekip player akışını başlatır. Video bulunamazsa veya
+  /// çekilirken hata olursa kullanıcıyı sonsuz spinner'da bırakmamak için
+  /// hasPlayerError tetiklenir.
+  Future<void> _loadVideoByIdAndStart(String videoId) async {
+    try {
+      final video = await videoRepository.getVideoById(videoId);
+      if (video == null) {
+        hasPlayerError.value = true;
+        return;
+      }
+      currentVideo.value = video;
+      _startPlayerFlow();
+    } catch (e, stacktrace) {
+      hasPlayerError.value = true;
+      log(
+        'Deep link videosu yüklenirken hata oluştu ($videoId): $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
+  void _startPlayerFlow() {
+    _startInitWatchdog();
+    _initPlayer().then((_) async {
+      _initWatchdog?.cancel();
+      isPlayerReady.value = true;
+      loadComments();
+      _loadInitialState();
+      loadSuggestedVideos();
+
+      // Analytics: video_play — recordView() sadece giriş yapmış kullanıcılar
+      // için Supabase'e yazıldığından, misafir izlemelerini de yakalamak için
+      // burada auth durumundan bağımsız ayrı bir event gönderiyoruz.
+      AnalyticsService.instance.logVideoPlay(
+        videoId: currentVideo.value!.videoId,
+        title: currentVideo.value!.title,
+      );
+
+      // İzlemeye Devam Et: kaldığı yerden devam ettir + izleme takibini başlat.
+      await _restoreSavedProgress();
+      _startProgressTracking();
+    });
   }
 
   // ─── İzlemeye Devam Et — Kaldığı Yerden Başlatma ─────────────────────────
