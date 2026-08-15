@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -12,16 +11,12 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../core/utils/share_helper.dart';
 import '../../../data/models/shorts_model.dart';
 import '../../controllers/shorts_player_controller.dart';
 import 'shorts_player_screen_widgets/logo_wheel.dart';
 import 'shorts_player_screen_widgets/text_button.dart';
 import 'utils/shorts_player_sizes.dart';
-
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
   const ShortsPlayerScreen({super.key});
@@ -52,7 +47,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
         body: SafeArea(
           child: Column(
             children: [
-              _buildTopBar(sizes),
+              _buildTopBar(sizes, short),
               SizedBox(
                 height: sizes.wheelHeight,
                 child: ShortsPlayerUniversityLogoWheel(
@@ -70,7 +65,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
     });
   }
 
-  Widget _buildTopBar(ShortsPlayerSizes sizes) {
+  Widget _buildTopBar(ShortsPlayerSizes sizes, ShortsModel short) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: sizes.topBarPaddingHorizontal,
@@ -138,6 +133,17 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
               ),
             ),
           ),
+          ShortsPlayerTextButton(
+            sizes: sizes,
+            icon: Icons.share_rounded,
+            label: 'Paylaş',
+            onTap: () => ShareHelper.shareVideo(
+              videoId: short.videoId,
+              title: short.title,
+              universityName: short.universityName,
+              thumbnailUrl: short.bestThumbnail,
+            ),
+          ),
           SizedBox(width: sizes.topBarPaddingHorizontal),
         ],
       ),
@@ -156,7 +162,8 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
             child: YoutubePlayer(
               key: ValueKey(controller.playerKey.value),
               controller: yt,
-              gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+              gestureRecognizers:
+                  const <Factory<OneSequenceGestureRecognizer>>{},
             ),
           );
         }),
@@ -184,7 +191,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
           child: Container(
             padding: EdgeInsets.fromLTRB(
               sizes.bottomPaddingHorizontal,
-              60.h,
+              sizes.isTablet ? 72 : 60.h,
               sizes.bottomPaddingHorizontal,
               0,
             ),
@@ -201,9 +208,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
             child: SafeArea(
               top: false,
               child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: sizes.bottomPaddingVertical,
-                ),
+                padding: EdgeInsets.only(bottom: sizes.bottomPaddingVertical),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -214,9 +219,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
                           Container(
                             width: sizes.logoContainerSize,
                             height: sizes.logoContainerSize,
-                            margin: EdgeInsets.only(
-                              right: sizes.logoSpacing,
-                            ),
+                            margin: EdgeInsets.only(right: sizes.logoSpacing),
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white,
@@ -290,25 +293,12 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
                             sizes: sizes,
                             icon: Icons.share_rounded,
                             label: 'Paylaş',
-                            onTap: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      'https://www.youtube.com/shorts/${short.videoId}',
-                                ),
-                              );
-                              Get.snackbar(
-                                'Kopyalandı',
-                                short.title,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.black87,
-                                colorText: Colors.white,
-                                duration: const Duration(seconds: 2),
-                                margin: EdgeInsets.all(
-                                  sizes.bottomPaddingHorizontal,
-                                ),
-                              );
-                            },
+                            onTap: () => ShareHelper.shareVideo(
+                              videoId: short.videoId,
+                              title: short.title,
+                              universityName: short.universityName,
+                              thumbnailUrl: short.bestThumbnail,
+                            ),
                           ),
                         ),
                       ],
@@ -323,4 +313,3 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
     );
   }
 }
-

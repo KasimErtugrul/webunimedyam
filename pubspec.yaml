@@ -56,6 +56,7 @@ dependencies:
   carousel_slider_plus: ^7.1.2
   google_sign_in: ^7.2.0
   equatable: ^2.1.0
+  app_links: ^7.2.1
 
 dev_dependencies:
   flutter_test:

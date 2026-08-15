@@ -3,8 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import '../../core/utils/share_helper.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
@@ -566,13 +566,17 @@ class PlayerController extends GetxController {
     if (isShareLoading.value) return;
     isShareLoading.value = true; // ← EN BAŞA AL
 
-    final videoUrl =
-        'https://www.youtube.com/watch?v=${currentVideo.value!.videoId}';
-    final text = '${currentVideo.value!.title}\n$videoUrl';
+    // Web fallback linki: paylaşım başarısız olup panoya kopyalama
+    // gerekirse (aşağıdaki catch bloğu) kullanılıyor, çünkü panoya
+    // kopyalanan içerik uygulaması olmayan biri için de çalışmalı.
+    final videoUrl = ShareHelper.buildWebFallback(currentVideo.value!.videoId);
 
     try {
-      await SharePlus.instance.share(
-        ShareParams(text: text, subject: currentVideo.value!.title),
+      await ShareHelper.shareVideo(
+        videoId: currentVideo.value!.videoId,
+        title: currentVideo.value!.title,
+        universityName: currentVideo.value!.universityName,
+        thumbnailUrl: currentVideo.value!.bestThumbnail,
       );
       final userId = currentUserId;
       if (userId != null) {

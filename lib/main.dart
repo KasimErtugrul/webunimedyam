@@ -24,6 +24,7 @@ import 'data/datasources/remote/supabase_datasource.dart';
 import 'data/repositories/auth_repository.dart';
 import 'presentation/controllers/settings_controller.dart';
 import 'services/analytics_service.dart';
+import 'services/deep_link_service.dart';
 import 'services/notification_service.dart';
 
 // ─── Background mesaj handler (top-level, sınıf dışı) ─────────────────────
@@ -169,6 +170,7 @@ void main() async {
   }
 
   runApp(MyApp(initialTheme: savedTheme, initialRoute: initialRoute));
+  DeepLinkService.instance.init();
 }
 
 // ─── App Widget ────────────────────────────────────────────────────────────

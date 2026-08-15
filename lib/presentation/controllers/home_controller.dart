@@ -3,8 +3,8 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../core/utils/share_helper.dart';
 import '../../data/models/playlist_model.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/university_stats_model.dart';
@@ -838,12 +838,17 @@ class HomeController extends GetxController {
     _shareProcessing.add(video.videoId);
     _shareLoadingIds.add(video.videoId);
 
-    final videoUrl = 'https://www.youtube.com/watch?v=${video.videoId}';
-    final text = '${video.title}\n$videoUrl';
+    // Web fallback linki: paylaşım başarısız olup panoya kopyalama
+    // gerekirse (aşağıdaki catch bloğu) kullanılıyor, çünkü panoya
+    // kopyalanan içerik uygulaması olmayan biri için de çalışmalı.
+    final videoUrl = ShareHelper.buildWebFallback(video.videoId);
 
     try {
-      await SharePlus.instance.share(
-        ShareParams(text: text, subject: video.title),
+      await ShareHelper.shareVideo(
+        videoId: video.videoId,
+        title: video.title,
+        universityName: video.universityName,
+        thumbnailUrl: video.bestThumbnail,
       );
       final userId = _currentUserId;
       if (userId != null) {
