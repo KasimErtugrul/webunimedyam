@@ -2,32 +2,38 @@
 //
 // Uygulama genelinde video paylaşımı için TEK, merkezi yardımcı sınıf.
 // Home tab, Shorts Player ve Player ekranı artık aynı paylaşım metnini,
-// aynı deep link + web fallback mantığını kullanır.
+// aynı link mantığını kullanır.
 //
-// NEDEN GEREKLİYDİ?
-// - ShortsPlayerScreen içinde `unitv://video/...` deep link'i yanlışlıkla
-//   ShareParams.title alanına konuyordu. share_plus'ta `title`, paylaşılan
-//   İÇERİK değil; sadece Android'in chooser dialog başlığı / EXTRA_TITLE
-//   alanıdır (bkz. share_plus dokümantasyonu). Sonuç: paylaşılan mesajda
-//   video linki HİÇ yer almıyordu, kullanıcı sadece boş bir başlık metni
-//   paylaşıyordu.
-// - Home ve Player ekranlarında ise deep link hiç kullanılmıyor, sadece
-//   YouTube web linki paylaşılıyordu. Bu da uygulaması zaten yüklü olan
-//   kullanıcıları YouTube'a yönlendirip UniTv içinde açılmasını engelliyordu.
+// GEÇMİŞ SORUNLAR VE ÇÖZÜMLERİ:
 //
-// ÇÖZÜM:
-// - Paylaşılan metin hem `unitv://video/{videoId}` uygulama içi derin
-//   bağlantısını (uygulama yüklüyse doğrudan player'ı açar) HEM DE
-//   YouTube web linkini (uygulama yüklü değilse / masaüstünde açan
-//   kişi için) içerir.
-// - `text` alanına yazılır (gerçekten paylaşılan içerik budur),
-//   `subject` e-posta gibi kanallarda konu satırı olarak kullanılır.
-// - Video kapak görseli (`bestThumbnail`) de indirilip paylaşım
-//   sayfasına dosya olarak eklenir (`ShareParams.files`), böylece
-//   WhatsApp/Instagram gibi uygulamalarda mesajla birlikte görsel de
-//   gider. Görsel indirilemezse (ağ hatası, zaman aşımı vb.) sessizce
-//   sadece metinle paylaşıma devam edilir; kullanıcı hiçbir zaman
-//   paylaşımı yapamama durumunda kalmaz.
+// 1) ShortsPlayerScreen içinde `unitv://video/...` deep link'i yanlışlıkla
+//    ShareParams.title alanına konuyordu. share_plus'ta `title`, paylaşılan
+//    İÇERİK değil; sadece Android'in chooser dialog başlığı / EXTRA_TITLE
+//    alanıdır. Sonuç: paylaşılan mesajda video linki HİÇ yer almıyordu.
+//    → DÜZELTİLDİ: link artık her zaman `text` alanında.
+//
+// 2) `unitv://video/{videoId}` gibi özel (custom) URI şemaları WhatsApp,
+//    Telegram, Instagram DM gibi üçüncü parti uygulamalar tarafından
+//    OTOMATİK TIKLANABİLİR hale getirilmiyor — bu uygulamaların linkify
+//    motorları sadece http:// ve https:// şemalarını tanıyor. Bu yüzden
+//    mesajdaki "unitv://..." satırı hep düz, pasif metin olarak kalıyordu.
+//    → DÜZELTİLDİ: artık `https://{VideoLinkConfig.webHost}/video/{videoId}`
+//      formatında GERÇEK bir HTTPS linki paylaşılıyor. Bu link:
+//        - Android App Links / iOS Universal Links doğrulaması
+//          tamamlanmışsa VE uygulama yüklüyse → doğrudan UniTv'yi açar
+//          (tarayıcıya hiç uğramadan).
+//        - Uygulama yüklü değilse → hosting'deki (/hosting klasörü)
+//          basit yönlendirme sayfası açılır, o da otomatik olarak
+//          YouTube'a yönlendirir.
+//      Kurulum adımları için bkz. /hosting/README.md ve
+//      lib/core/constants/app_links.dart içindeki yorumlar.
+//
+// 3) Video kapak görseli (`bestThumbnail`) indirilip paylaşım sayfasına
+//    dosya olarak eklenir (`ShareParams.files`), böylece WhatsApp/
+//    Instagram gibi uygulamalarda mesajla birlikte görsel de gider.
+//    Görsel indirilemezse (ağ hatası, zaman aşımı vb.) sessizce sadece
+//    metinle paylaşıma devam edilir; kullanıcı hiçbir zaman paylaşımı
+//    yapamama durumunda kalmaz.
 //
 // NOT (pubspec.yaml): `flutter_cache_manager` burada import ediliyor.
 // `cached_network_image` paketi zaten bunu transitive bağımlılık
@@ -41,33 +47,38 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../constants/app_links.dart';
+
 class ShareHelper {
   ShareHelper._();
 
-  /// Uygulamanın AndroidManifest.xml / deep_link_service.dart içinde
-  /// tanımlı özel şeması. Formatı: unitv://video/{videoId}
-  static const String _appScheme = 'unitv://video/';
-
-  /// Uygulama yüklü değilse veya masaüstünde açılırsa çalışacak web
-  /// fallback linki.
-  static const String _webFallbackBase = 'https://www.youtube.com/watch?v=';
+  /// Uygulama yüklü değilse veya paylaşım sırasında bir hata olursa
+  /// (bkz. controller'lardaki clipboard fallback) kullanılacak, her
+  /// zaman çalışan YouTube web linki.
+  static const String _youtubeFallbackBase =
+      'https://www.youtube.com/watch?v=';
 
   /// Görsel indirme için üst sınır. Bu süre aşılırsa görsel olmadan,
   /// sadece metinle paylaşıma devam edilir — kullanıcı yavaş bir
   /// bağlantı yüzünden paylaşım ekranında beklemesin diye.
   static const Duration _thumbnailTimeout = Duration(seconds: 6);
 
-  /// unitv://video/{videoId} formatında uygulama içi derin bağlantı üretir.
-  static String buildDeepLink(String videoId) => '$_appScheme$videoId';
+  /// WhatsApp/Telegram/Instagram gibi uygulamalarda TIKLANABİLİR olan,
+  /// paylaşımda kullanılacak asıl HTTPS linki. Uygulama yüklüyse
+  /// doğrudan UniTv'yi, değilse hosting'deki yönlendirme sayfası
+  /// üzerinden YouTube'u açar.
+  static String buildDeepLink(String videoId) =>
+      VideoLinkConfig.videoWebLink(videoId);
 
-  /// Uygulama yüklü değilse açılacak YouTube web linkini üretir.
+  /// Sadece clipboard fallback / hata durumları için: doğrudan YouTube
+  /// linki (App Links doğrulamasına bağlı değil, her zaman çalışır).
   static String buildWebFallback(String videoId) =>
-      '$_webFallbackBase$videoId';
+      '$_youtubeFallbackBase$videoId';
 
-  /// Paylaşım mesajının gövdesini oluşturur. Hem deep link hem de web
-  /// fallback linkini içerir, böylece mesajı alan kişi UniTv'yi
-  /// kullanıyorsa uygulama içinde, kullanmıyorsa tarayıcıda videoyu
-  /// açabilir.
+  /// Paylaşım mesajının gövdesini oluşturur. Tek, tıklanabilir HTTPS
+  /// linki içerir — ayrı bir "uygulama yüklü değilse" satırına gerek
+  /// yok, çünkü fallback zaten linkin kendisinde (hosting sayfası
+  /// üzerinden) gerçekleşiyor.
   static String buildShareText({
     required String videoId,
     required String title,
@@ -77,11 +88,7 @@ class ShareHelper {
         ? '$universityName - $title'
         : title;
 
-    return '$headline\n\n'
-        'UniTv\'de izle:\n'
-        '${buildDeepLink(videoId)}\n\n'
-        'Uygulama yüklü değilse:\n'
-        '${buildWebFallback(videoId)}';
+    return '$headline\n\n${buildDeepLink(videoId)}';
   }
 
   /// Verilen thumbnail linkini indirip paylaşım ekranına eklenecek bir
@@ -113,8 +120,6 @@ class ShareHelper {
   /// [thumbnailUrl] verilirse video kapak görseli, metinle birlikte
   /// paylaşım sayfasına eklenir (görsel indirilemezse sessizce
   /// metin-only paylaşıma düşer).
-  /// `sharePositionOrigin`, iPad'de popover'ın nereden açılacağını
-  /// belirlemek için opsiyonel olarak verilebilir.
   static Future<ShareResult> shareVideo({
     required String videoId,
     required String title,
@@ -138,4 +143,5 @@ class ShareHelper {
     );
   }
 }
+
 

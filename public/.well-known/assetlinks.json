@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.developfly.unitv",
+      "sha256_cert_fingerprints": [
+        "3E:AA:66:BB:A5:DB:33:EC:7E:23:52:A3:B7:D9:77:31:53:42:CD:34:AF:7B:81:7F:D3:3B:AC:F2:B9:5D:94:E2"
+      ]
+    }
+  }
+]

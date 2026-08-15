@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UniTv'de İzle</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, Roboto, Segoe UI, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      text-align: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .card { max-width: 360px; }
+    a.button {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      background: #ff2d55;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    p { opacity: 0.8; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p id="status">Yönlendiriliyor…</p>
+    <a id="fallback-link" class="button" href="https://www.youtube.com">
+      YouTube'da izle
+    </a>
+  </div>
+
+  <script>
+    // Uygulama yüklü değilse (ya da App/Universal Links doğrulaması
+    // henüz gerçekleşmediyse) buraya düşülür. URL: /video/{videoId}
+    (function () {
+      var segments = window.location.pathname.split('/').filter(Boolean);
+      var videoId = segments.length > 1 ? segments[1] : null;
+
+      if (!videoId) {
+        document.getElementById('status').textContent =
+          'Video bulunamadı.';
+        return;
+      }
+
+      var youtubeUrl = 'https://www.youtube.com/watch?v=' + videoId;
+      document.getElementById('fallback-link').href = youtubeUrl;
+
+      // Kısa bir gecikmeyle otomatik yönlendir; buton da elle
+      // tıklamak isteyenler için hazır dursun.
+      setTimeout(function () {
+        window.location.replace(youtubeUrl);
+      }, 600);
+    })();
+  </script>
+</body>
+</html>
