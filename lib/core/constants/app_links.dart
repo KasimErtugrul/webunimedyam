@@ -26,7 +26,7 @@ class VideoLinkConfig {
 
   /// Firebase Hosting (veya kullandığın başka bir statik hosting) domain'i.
   /// ÖRNEK: 'unitv.web.app' — www YOK, şema YOK, sondaki / YOK.
-  static const String webHost = 'unitv.web.app'; // ← KENDİ DOMAIN'İNLE DEĞİŞTİR
+  static const String webHost = 'unitv-33f05.web.app'; // ← KENDİ DOMAIN'İNLE DEĞİŞTİR
 
   /// Eski / uygulama-içi kullanım için hâlâ desteklenen özel şema.
   /// WhatsApp gibi üçüncü parti uygulamalarda TIKLANABİLİR OLMADIĞI için

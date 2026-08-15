@@ -77,7 +77,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="unitv.web.app"
+                    android:host="unitv-33f05.web.app"
                     android:pathPrefix="/video" />
             </intent-filter>
 
