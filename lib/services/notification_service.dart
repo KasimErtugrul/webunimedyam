@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../app/bindings/home_binding.dart';
 import '../app/routes/app_routes.dart';
 import '../data/datasources/remote/supabase_datasource.dart';
+import '../presentation/screens/home/home_screen.dart';
 
 class NotificationService {
   NotificationService._();
@@ -207,8 +209,20 @@ class NotificationService {
       final video = await ds.getVideoById(videoId);
       if (video == null) return;
       
-      Get.offAllNamed(AppRoutes.home);
-      await Future.delayed(const Duration(milliseconds: 300));
+      // BUG FIX: Önceden burada Get.offAllNamed(AppRoutes.home) çağrılıp
+      // ardından 300ms'lik yapay bir gecikme bekleniyordu — bu süre
+      // boyunca ana sayfa gerçekten ekranda görünüyordu, kullanıcı
+      // bildirime bastığında "önce ana sayfa, sonra player" açılıyormuş
+      // gibi algılıyordu. Artık ana sayfaya geçiş ANİMASYONSUZ yapılıyor
+      // (görünmeden, ama yine de geri tuşu için yığının altına
+      // yerleşiyor) ve hemen ardından player normal animasyonla açılıyor.
+      await Get.offAll(
+        () => const HomeScreen(),
+        binding: HomeBinding(),
+        routeName: AppRoutes.home,
+        transition: Transition.noTransition,
+        duration: Duration.zero,
+      );
       Get.toNamed(AppRoutes.player, arguments: video, parameters: {'videoId': video.videoId});
     } catch (e, stacktrace) {
       log('Bildirimden oynatıcıya yönlendirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);

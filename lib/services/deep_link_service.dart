@@ -20,8 +20,10 @@ import 'dart:developer';
 import 'package:app_links/app_links.dart';
 import 'package:get/get.dart';
 
+import '../app/bindings/home_binding.dart';
 import '../app/routes/app_routes.dart';
 import '../core/constants/app_links.dart';
+import '../presentation/screens/home/home_screen.dart';
 
 class DeepLinkService {
   DeepLinkService._();
@@ -29,6 +31,22 @@ class DeepLinkService {
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _sub;
+
+  // BUG FIX: app_links paketinde, uygulama SOĞUK BAŞLATILDIĞINDA (cold
+  // start) hem `getInitialLink()` hem de `uriLinkStream` AYNI URI'yi
+  // yayınlıyor. Bu yüzden aşağıdaki init() akışında bir linke tıklanarak
+  // uygulama sıfırdan açıldığında `_handle()` İKİ KEZ çağrılıyordu:
+  // bir kez getInitialLink() sonucunda, bir kez de stream'in ilk emisyonunda.
+  // Sonuç: _navigateToPlayer() iki kez tetikleniyor → Get.offAllNamed +
+  // Get.toNamed çifti art arda iki kez çalışıyor → gereksiz/duplicate
+  // navigator işlemleri, PlayerController'ın videoyu iki kez yüklemesi ve
+  // geri tuşunda beklenmedik davranış.
+  //
+  // Çözüm: son işlenen URI'yi (ve işlendiği zamanı) hatırlayıp, kısa bir
+  // pencere içinde gelen birebir aynı URI'yi yok sayıyoruz.
+  Uri? _lastHandledUri;
+  DateTime? _lastHandledAt;
+  static const _dedupeWindow = Duration(seconds: 2);
 
   Future<void> init() async {
     // Uygulama bir link ile SIFIRDAN açıldıysa (cold start).
@@ -40,6 +58,9 @@ class DeepLinkService {
     }
 
     // Uygulama zaten açıkken bir link ile tetiklenirse (warm start).
+    // NOT: cold start durumunda bu stream, yukarıda getInitialLink() ile
+    // zaten işlediğimiz AYNI URI'yi de bir kez daha yayınlayabilir —
+    // bu yüzden _handle() içindeki dedupe kontrolü bu tekrarı süzer.
     _sub = _appLinks.uriLinkStream.listen(
       _handle,
       onError: (e, st) => log('Deep link stream hatası: $e', error: e),
@@ -49,8 +70,20 @@ class DeepLinkService {
   void dispose() => _sub?.cancel();
 
   void _handle(Uri uri) {
+    // Aynı URI, kısa bir süre içinde tekrar geldiyse (getInitialLink +
+    // uriLinkStream çakışması) yok say.
+    final now = DateTime.now();
+    if (_lastHandledUri == uri &&
+        _lastHandledAt != null &&
+        now.difference(_lastHandledAt!) < _dedupeWindow) {
+      return;
+    }
+
     final videoId = _extractVideoId(uri);
     if (videoId == null || videoId.isEmpty) return;
+
+    _lastHandledUri = uri;
+    _lastHandledAt = now;
     _navigateToPlayer(videoId);
   }
 
@@ -77,20 +110,44 @@ class DeepLinkService {
     return null;
   }
 
-  void _navigateToPlayer(String videoId, {int attempt = 0}) {
+  Future<void> _navigateToPlayer(String videoId, {int attempt = 0}) async {
     // GetMaterialApp'in navigator'ı henüz hazır değilse (uygulama daha
     // yeni açılıyorsa) birkaç kez kısa aralıklarla tekrar dener.
     if (Get.key.currentState == null) {
       if (attempt >= 20) return; // ~4 saniye sonra vazgeç
-      Future.delayed(
-        const Duration(milliseconds: 200),
-        () => _navigateToPlayer(videoId, attempt: attempt + 1),
-      );
-      return;
+      await Future.delayed(const Duration(milliseconds: 200));
+      return _navigateToPlayer(videoId, attempt: attempt + 1);
     }
 
-    // Önce ana sayfa, üstüne player — geri tuşu ana sayfaya dönsün diye.
-    Get.offAllNamed(AppRoutes.home);
+    // BUG FIX: offAllNamed() tamamlanmadan toNamed() çağrılırsa navigator
+    // işlemleri yarışabiliyordu (özellikle geçiş animasyonları sürerken).
+    // Bu yüzden ana sayfaya geçişin bitmesini bekleyip ANCAK ONDAN SONRA
+    // player'a gidiyoruz — geri tuşu davranışı (ana sayfaya dönme) aynı
+    // kalıyor.
+    //
+    // BUG FIX 2 (asıl şikayet): `Get.offAllNamed` awaitlendiğinde, o
+    // rotanın GetPage'inde tanımlı VARSAYILAN geçiş animasyonu (~300ms)
+    // sonuna kadar oynatılıyor — yani ana sayfa gerçekten ekranda render
+    // olup GÖRÜNÜYOR, ancak ondan SONRA player açılıyor. Kullanıcı
+    // WhatsApp'tan linke bastığında "önce ana sayfa açılıyor, sonra
+    // player'a geçiyor" olarak algıladığı şey tam olarak bu.
+    //
+    // Çözüm: ana sayfaya geçişi ANİMASYONSUZ (Transition.noTransition,
+    // duration: Duration.zero) yapıyoruz. Böylece ana sayfa yine yığının
+    // (back stack) en altına, tam olarak aynı şekilde yerleşiyor — geri
+    // tuşu davranışı değişmiyor — ama görsel olarak hiç "flash" etmiyor;
+    // kullanıcı uygulamayı doğrudan player ekranında açılmış gibi görüyor.
+    // `routeName` parametresi, adsız (anonymous) bir widget push'u
+    // kullanmamıza rağmen rota adının hâlâ AppRoutes.home olarak
+    // kaydedilmesini sağlıyor (analytics observer ve Get.currentRoute
+    // gibi isme dayalı mekanizmalar etkilenmesin diye).
+    await Get.offAll(
+      () => const HomeScreen(),
+      binding: HomeBinding(),
+      routeName: AppRoutes.home,
+      transition: Transition.noTransition,
+      duration: Duration.zero,
+    );
     Get.toNamed(AppRoutes.player, parameters: {'videoId': videoId});
   }
 }
