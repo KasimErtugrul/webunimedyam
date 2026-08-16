@@ -22,6 +22,42 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!--
+                BUG FIX: Flutter'ın kendi dahili (built-in) deep-linking
+                mekanizmasını KAPATIYORUZ. Bu meta-data eklenmezse (veya
+                true bırakılırsa), Flutter engine hem cold start'ta
+                (getInitialRoute() üzerinden — bunu MainActivity.kt'de
+                zaten "/" döndürecek şekilde override ettik) HEM DE
+                warm start'ta (onNewIntent() üzerinden — bu OVERRIDE
+                EDİLMEDİ, yani hâlâ Flutter'ın default davranışı
+                çalışıyor) intent'in data URI'sini otomatik olarak
+                NavigationChannel.pushRouteInformation() ile Dart'a
+                "route" olarak göndermeye çalışır.
+
+                Bu, GetMaterialApp (GetX) ile çakışıyor: GetX kendi
+                getPages listesinde "/video/{id}" diye bir route
+                tanımlı olmadığından PageRedirect.page içinde null-check
+                operatörü null bir değer üzerinde patlıyor
+                ("Null check operator used on a null value",
+                route_middleware.dart:200) — cold start'ta yaşanan ve
+                MainActivity.kt'deki getInitialRoute() override'ıyla
+                düzeltilen sorunun AYNISI, warm start'ta (uygulama
+                arka planda/ön planda açıkken linke tıklanınca) hâlâ
+                yaşanabilir.
+
+                Bu meta-data ile Flutter'ın kendi deep-link işleme
+                mantığını TAMAMEN devre dışı bırakıyoruz; intent'in
+                yönetimi tamamen DeepLinkService.dart'a (app_links
+                paketine, getInitialLink() + uriLinkStream üzerinden)
+                bırakılıyor. Böylece hem cold hem warm start'ta
+                GetX ile çakışma ihtimali kökten ortadan kalkıyor.
+
+                Kaynak: https://github.com/llfbandit/app_links/blob/master/doc/README_android.md
+            -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
+
             <!-- Launcher intent -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
