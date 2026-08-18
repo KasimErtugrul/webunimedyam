@@ -11,26 +11,19 @@
 //      üçüncü parti uygulamalar bunu tıklanabilir hale getirmiyor)
 //
 // Davranış: her zaman önce ANA SAYFA'ya, sonra üstüne PLAYER ekranına
-// gidilir (Get.offAllNamed + Get.toNamed). Böylece player ekranındayken
-// geri tuşuna basıldığında kullanıcı ana sayfaya döner.
-//
-// ─────────────────────────────────────────────────────────────────────
-// GEÇİCİ DEBUG ARAÇLARI EKLENDİ (debugSnack çağrıları) — deep link
-// akışının hangi adımda takıldığını adb/logcat olmadan, doğrudan
-// ekranda görmek için. Sorun çözüldükten sonra tüm debugSnack(...)
-// satırlarını ve import'unu kaldır.
-// ─────────────────────────────────────────────────────────────────────
+// gidilir (Get.offAll + Get.toNamed). Böylece player ekranındayken geri
+// tuşuna basıldığında kullanıcı ana sayfaya döner.
 
 import 'dart:async';
 import 'dart:developer';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../app/bindings/home_binding.dart';
 import '../app/routes/app_routes.dart';
 import '../core/constants/app_links.dart';
-import '../core/utils/debug_snack.dart'; // ← GEÇİCİ DEBUG
 import '../presentation/screens/home/home_screen.dart';
 
 class DeepLinkService {
@@ -45,7 +38,7 @@ class DeepLinkService {
   // yayınlıyor. Bu yüzden aşağıdaki init() akışında bir linke tıklanarak
   // uygulama sıfırdan açıldığında `_handle()` İKİ KEZ çağrılıyordu:
   // bir kez getInitialLink() sonucunda, bir kez de stream'in ilk emisyonunda.
-  // Sonuç: _navigateToPlayer() iki kez tetikleniyor → Get.offAllNamed +
+  // Sonuç: _navigateToPlayer() iki kez tetikleniyor → Get.offAll +
   // Get.toNamed çifti art arda iki kez çalışıyor → gereksiz/duplicate
   // navigator işlemleri, PlayerController'ın videoyu iki kez yüklemesi ve
   // geri tuşunda beklenmedik davranış.
@@ -57,20 +50,11 @@ class DeepLinkService {
   static const _dedupeWindow = Duration(seconds: 2);
 
   Future<void> init() async {
-    debugSnack('init() başladı'); // GEÇİCİ DEBUG
-
     // Uygulama bir link ile SIFIRDAN açıldıysa (cold start).
     Uri? initial;
     try {
       initial = await _appLinks.getInitialLink();
-      debugSnack(
-        // GEÇİCİ DEBUG
-        initial != null
-            ? 'getInitialLink() -> $initial'
-            : 'getInitialLink() -> NULL (uygulama linksiz açıldı ya da native intent verisi Dart\'a hiç ulaşmadı)',
-      );
     } catch (e, st) {
-      debugSnack('getInitialLink() HATA fırlattı: $e'); // GEÇİCİ DEBUG
       log('Deep link (initial) okunurken hata: $e', error: e, stackTrace: st);
     }
 
@@ -81,12 +65,8 @@ class DeepLinkService {
     // zaten işlediğimiz AYNI URI'yi de bir kez daha yayınlayabilir —
     // bu yüzden _handle() içindeki dedupe kontrolü bu tekrarı süzer.
     _sub = _appLinks.uriLinkStream.listen(
-      (uri) {
-        debugSnack('uriLinkStream emisyonu -> $uri'); // GEÇİCİ DEBUG
-        _handle(uri);
-      },
+      _handle,
       onError: (e, st) {
-        debugSnack('uriLinkStream HATA: $e'); // GEÇİCİ DEBUG
         log('Deep link stream hatası: $e', error: e);
       },
     );
@@ -101,18 +81,10 @@ class DeepLinkService {
     if (_lastHandledUri == uri &&
         _lastHandledAt != null &&
         now.difference(_lastHandledAt!) < _dedupeWindow) {
-      debugSnack('_handle: DEDUPE ile atlandı -> $uri'); // GEÇİCİ DEBUG
       return;
     }
 
     final videoId = _extractVideoId(uri);
-    debugSnack(
-      // GEÇİCİ DEBUG
-      (videoId == null || videoId.isEmpty)
-          ? '_extractVideoId -> BULUNAMADI (uri host/path eşleşmedi). uri.scheme=${uri.scheme}, uri.host=${uri.host}, uri.pathSegments=${uri.pathSegments}'
-          : '_extractVideoId -> "$videoId" (navigasyon başlıyor)',
-    );
-
     if (videoId == null || videoId.isEmpty) return;
 
     _lastHandledUri = uri;
@@ -147,45 +119,27 @@ class DeepLinkService {
     // GetMaterialApp'in navigator'ı henüz hazır değilse (uygulama daha
     // yeni açılıyorsa) birkaç kez kısa aralıklarla tekrar dener.
     if (Get.key.currentState == null) {
-      if (attempt >= 20) {
-        debugSnack(
-          // GEÇİCİ DEBUG
-          '_navigateToPlayer("$videoId"): navigator 4sn sonra hâlâ hazır değil, VAZGEÇİLDİ',
-        );
-        return; // ~4 saniye sonra vazgeç
-      }
+      if (attempt >= 20) return; // ~4 saniye sonra vazgeç
       await Future.delayed(const Duration(milliseconds: 200));
       return _navigateToPlayer(videoId, attempt: attempt + 1);
     }
 
-    debugSnack(
-      // GEÇİCİ DEBUG
-      '_navigateToPlayer("$videoId") -> Get.offAll(Home) çağrılıyor (attempt=$attempt)',
-    );
-
-    // BUG FIX: offAllNamed() tamamlanmadan toNamed() çağrılırsa navigator
-    // işlemleri yarışabiliyordu (özellikle geçiş animasyonları sürerken).
-    // Bu yüzden ana sayfaya geçişin bitmesini bekleyip ANCAK ONDAN SONRA
-    // player'a gidiyoruz — geri tuşu davranışı (ana sayfaya dönme) aynı
-    // kalıyor.
+    // BUG FIX (kök neden): `Navigator.pushAndRemoveUntil` (Get.offAll'ın
+    // altında kullandığı mekanizma) döndürdüğü Future, rota PUSH
+    // edildiğinde DEĞİL, o rota daha sonra POP edildiğinde tamamlanır.
+    // Home ekranı hiçbir zaman pop edilmediği için (kullanıcı geri
+    // tuşuna basana kadar), bu Future'ı `await` etmek akışı burada
+    // sonsuza kadar bekletiyor ve Get.toNamed() satırına asla
+    // ulaşılamıyordu — "linke tıklanınca hep ana sayfada kalma"
+    // şikayetinin birebir sebebi buydu.
     //
-    // BUG FIX 2 (asıl şikayet): `Get.offAllNamed` awaitlendiğinde, o
-    // rotanın GetPage'inde tanımlı VARSAYILAN geçiş animasyonu (~300ms)
-    // sonuna kadar oynatılıyor — yani ana sayfa gerçekten ekranda render
-    // olup GÖRÜNÜYOR, ancak ondan SONRA player açılıyor. Kullanıcı
-    // WhatsApp'tan linke bastığında "önce ana sayfa açılıyor, sonra
-    // player'a geçiyor" olarak algıladığı şey tam olarak bu.
-    //
-    // Çözüm: ana sayfaya geçişi ANİMASYONSUZ (Transition.noTransition,
-    // duration: Duration.zero) yapıyoruz. Böylece ana sayfa yine yığının
-    // (back stack) en altına, tam olarak aynı şekilde yerleşiyor — geri
-    // tuşu davranışı değişmiyor — ama görsel olarak hiç "flash" etmiyor;
-    // kullanıcı uygulamayı doğrudan player ekranında açılmış gibi görüyor.
-    // `routeName` parametresi, adsız (anonymous) bir widget push'u
-    // kullanmamıza rağmen rota adının hâlâ AppRoutes.home olarak
-    // kaydedilmesini sağlıyor (analytics observer ve Get.currentRoute
-    // gibi isme dayalı mekanizmalar etkilenmesin diye).
-    await Get.offAll(
+    // Çözüm: Future'ı awaitlemiyoruz (fire-and-forget). Home ekranının
+    // gerçekten bir frame render olmasını (widget ağacına yerleşmesini)
+    // bekleyip hemen ardından player'a geçiyoruz. `transition:
+    // Transition.noTransition, duration: Duration.zero` sayesinde Home
+    // ekranı görsel olarak hiç "flash" etmiyor; kullanıcı uygulamayı
+    // doğrudan player ekranında açılmış gibi görüyor.
+    Get.offAll(
       () => const HomeScreen(),
       binding: HomeBinding(),
       routeName: AppRoutes.home,
@@ -193,10 +147,8 @@ class DeepLinkService {
       duration: Duration.zero,
     );
 
-    debugSnack(
-      // GEÇİCİ DEBUG
-      'Get.offAll TAMAMLANDI -> Get.toNamed(AppRoutes.player, videoId: "$videoId") çağrılıyor',
-    );
+    await WidgetsBinding.instance.endOfFrame;
+
     Get.toNamed(AppRoutes.player, parameters: {'videoId': videoId});
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../core/utils/share_helper.dart';
-import '../../core/utils/debug_snack.dart'; // ← GEÇİCİ DEBUG
 import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../data/repositories/comment_repository.dart';
@@ -104,12 +103,6 @@ class PlayerController extends GetxController {
     super.onInit();
     final argVideo = Get.arguments as VideoModel?;
 
-    debugSnack(
-      // GEÇİCİ DEBUG
-      'PlayerController.onInit() -> argVideo=${argVideo != null ? "VAR" : "YOK"}, '
-      'Get.parameters=${Get.parameters}',
-    );
-
     if (argVideo != null) {
       // Normal navigasyon (video kartı, arama, bildirim vb.) — elimizde
       // zaten tam bir VideoModel var, direkt player'ı başlat.
@@ -130,12 +123,6 @@ class PlayerController extends GetxController {
     final deepLinkVideoId = Get.parameters['videoId'];
     if (deepLinkVideoId != null && deepLinkVideoId.isNotEmpty) {
       _loadVideoByIdAndStart(deepLinkVideoId);
-    } else {
-      debugSnack(
-        // GEÇİCİ DEBUG
-        'PlayerController.onInit() -> ne argVideo ne de videoId parametresi var! '
-        'Player ekranı hiçbir veri olmadan açıldı.',
-      );
     }
   }
 
@@ -144,27 +131,15 @@ class PlayerController extends GetxController {
   /// çekilirken hata olursa kullanıcıyı sonsuz spinner'da bırakmamak için
   /// hasPlayerError tetiklenir.
   Future<void> _loadVideoByIdAndStart(String videoId) async {
-    debugSnack(
-      '_loadVideoByIdAndStart("$videoId") -> Supabase sorgusu başlıyor',
-    ); // GEÇİCİ DEBUG
     try {
       final video = await videoRepository.getVideoById(videoId);
       if (video == null) {
-        debugSnack(
-          // GEÇİCİ DEBUG
-          '_loadVideoByIdAndStart("$videoId") -> video BULUNAMADI (null döndü). '
-          'videoId yanlış/uydurma olabilir ya da Supabase\'te böyle bir kayıt yok.',
-        );
         hasPlayerError.value = true;
         return;
       }
-      debugSnack(
-        '_loadVideoByIdAndStart("$videoId") -> video BULUNDU, player başlatılıyor',
-      ); // GEÇİCİ DEBUG
       currentVideo.value = video;
       _startPlayerFlow();
     } catch (e, stacktrace) {
-      debugSnack('_loadVideoByIdAndStart("$videoId") -> HATA: $e'); // GEÇİCİ DEBUG
       hasPlayerError.value = true;
       log(
         'Deep link videosu yüklenirken hata oluştu ($videoId): $e',

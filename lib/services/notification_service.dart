@@ -216,13 +216,25 @@ class NotificationService {
       // gibi algılıyordu. Artık ana sayfaya geçiş ANİMASYONSUZ yapılıyor
       // (görünmeden, ama yine de geri tuşu için yığının altına
       // yerleşiyor) ve hemen ardından player normal animasyonla açılıyor.
-      await Get.offAll(
+      //
+      // BUG FIX 2 (kök neden): `Navigator.pushAndRemoveUntil` (Get.offAll'ın
+      // altında kullandığı mekanizma) döndürdüğü Future, rota PUSH
+      // edildiğinde DEĞİL, o rota daha sonra POP edildiğinde tamamlanır.
+      // Home ekranı hiçbir zaman pop edilmediği için, bu Future'ı `await`
+      // etmek akışı burada SONSUZA KADAR bekletiyordu — Get.toNamed()
+      // satırına asla ulaşılamıyordu (deep_link_service.dart'ta tespit
+      // edilen sorunun birebir aynısı). Çözüm: awaitlemeyip bir sonraki
+      // frame'i beklemek.
+      Get.offAll(
         () => const HomeScreen(),
         binding: HomeBinding(),
         routeName: AppRoutes.home,
         transition: Transition.noTransition,
         duration: Duration.zero,
       );
+
+      await WidgetsBinding.instance.endOfFrame;
+
       Get.toNamed(AppRoutes.player, arguments: video, parameters: {'videoId': video.videoId});
     } catch (e, stacktrace) {
       log('Bildirimden oynatıcıya yönlendirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
