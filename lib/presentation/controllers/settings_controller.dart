@@ -6,19 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
-import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../services/analytics_service.dart';
 import 'auth_controller.dart';
 import 'profile_controller.dart';
 
 class SettingsController extends GetxService {
   final AuthRepository authRepository;
-  final SupabaseDataSource _supabase;
 
-  SettingsController({
-    required this.authRepository,
-    required SupabaseDataSource supabase,
-  }) : _supabase = supabase;
+  SettingsController({required this.authRepository});
 
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
@@ -230,7 +225,7 @@ class SettingsController extends GetxService {
   ///
   /// Artık hem profiles tablosu hem de ProfileController senkronize ediliyor.
   Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
-    final userId = _supabase.currentUser?.id;
+    final userId = authRepository.currentUserId;
     final current = settings.value;
     log(
       'changeProfileVisibility: userId=$userId, newVisibility=$newVisibility, current=$current',
@@ -242,7 +237,7 @@ class SettingsController extends GetxService {
 
     try {
       // BUG FIX: Bu satır artık YORUM SATIRI DEĞİL — DB'ye yazılıyor
-      await _supabase.updateProfileVisibility(userId, newVisibility.value);
+      await authRepository.updateProfileVisibility(userId, newVisibility.value);
       log(
         'changeProfileVisibility: DB güncellemesi başarılı: userId=$userId, newVisibility=$newVisibility',
       );

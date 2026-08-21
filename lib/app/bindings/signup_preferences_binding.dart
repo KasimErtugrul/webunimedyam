@@ -27,10 +27,7 @@ class SignupPreferencesBinding extends Bindings {
     // yine de kayıtlı değilse burada güvenlik amacıyla oluşturuyoruz.
     if (!Get.isRegistered<SettingsController>()) {
       Get.lazyPut(
-        () => SettingsController(
-          authRepository: Get.find(),
-          supabase: Get.find(),
-        ),
+        () => SettingsController(authRepository: Get.find()),
         fenix: true,
       );
     }

@@ -5,6 +5,7 @@ import '../../data/datasources/local/local_datasource.dart';
 import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
+import '../../data/repositories/video_repository.dart';
 import '../../presentation/controllers/interest_selection_controller.dart';
 
 class InterestSelectionBinding extends Bindings {
@@ -31,10 +32,16 @@ class InterestSelectionBinding extends Bindings {
         fenix: true,
       );
     }
+    if (!Get.isRegistered<VideoRepository>()) {
+      Get.lazyPut(
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
 
     Get.lazyPut(
       () => InterestSelectionController(
-        supabase: Get.find(),
+        videoRepository: Get.find(),
         authRepository: Get.find(),
         universityFavoritesRepository: Get.find(),
         local: Get.find(),

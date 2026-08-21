@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:radio_player/radio_player.dart';
 
-import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/models/university_model.dart';
+import '../../data/repositories/video_repository.dart';
 import '../../services/analytics_service.dart';
 
 class RadioPageController extends GetxController {
+  final VideoRepository videoRepository;
+
+  RadioPageController({required this.videoRepository});
+
   final universities = <UniversityModel>[].obs;
   final isLoading = true.obs;
 
@@ -38,8 +42,7 @@ class RadioPageController extends GetxController {
 
   Future<void> _loadRadios() async {
     try {
-      final ds = Get.find<SupabaseDataSource>();
-      final all = await ds.getUniversities(limit: 500);
+      final all = await videoRepository.getUniversities();
       universities.value = all
           .where((u) => u.radioLink != null && u.radioLink!.isNotEmpty)
           .toList();

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/responsive.dart';
-import '../../../data/datasources/remote/supabase_datasource.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../controllers/profile_controller.dart';
 import 'widgets/profile_view_widget.dart';
 
@@ -71,8 +71,7 @@ class ProfileScreen extends StatelessWidget {
     final args = rawArgs is Map<String, dynamic> ? rawArgs : null;
     final targetUserId = args?['userId'] as String?;
     if (targetUserId != null) return targetUserId;
-    final supabase = Get.find<SupabaseDataSource>();
-    return supabase.currentUser?.id ?? 'anonymous';
+    return Get.find<AuthRepository>().currentUserId ?? 'anonymous';
   }
 
   @override

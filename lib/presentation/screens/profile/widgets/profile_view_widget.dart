@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
-import '../../../../data/datasources/remote/supabase_datasource.dart';
+import '../../../../data/repositories/auth_repository.dart';
 import '../../../controllers/profile_activity_list_controller.dart';
 import '../../../controllers/profile_controller.dart';
 import 'profile_header/profile_header_widget.dart';
@@ -78,8 +78,7 @@ class ProfileViewWidget extends StatelessWidget {
 
   String get _userId {
     if (controller.isOwnProfile) {
-      final supabase = Get.find<SupabaseDataSource>();
-      return supabase.currentUser?.id ?? '';
+      return Get.find<AuthRepository>().currentUserId ?? '';
     }
     return controller.targetUserId ?? '';
   }

@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
-import '../../../data/datasources/remote/supabase_datasource.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../controllers/profile_controller.dart';
 import 'widgets/profile_header/avatar_source_sheet.dart';
 import 'widgets/profile_header/avatar_widget.dart';
@@ -102,8 +102,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final supabase = Get.find<SupabaseDataSource>();
-    final tag = supabase.currentUser?.id ?? 'anonymous';
+    final tag = Get.find<AuthRepository>().currentUserId ?? 'anonymous';
     _controller = Get.find<ProfileController>(tag: tag);
 
     final profile = _controller.profile.value;

@@ -14,6 +14,7 @@ import 'package:radio_player/radio_player.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../data/repositories/video_repository.dart';
 import '../../controllers/radio_page_controller.dart';
 import 'widgets/radio_card_widget.dart';
 import 'widgets/radio_dot_indicator_widget.dart';
@@ -76,7 +77,18 @@ class _RadioPageState extends State<RadioPage> {
   @override
   void initState() {
     super.initState();
-    _ctrl = Get.put(RadioPageController());
+
+    // RadioPage kendi Binding'ine sahip değil (route'ta binding atanmamış),
+    // bu yüzden VideoRepository'nin her koşulda hazır olduğundan burada
+    // emin oluyoruz — HomeBinding zaten aynı deseni kullanıyor.
+    if (!Get.isRegistered<VideoRepository>()) {
+      Get.lazyPut(
+        () => VideoRepository(supabase: Get.find(), local: Get.find()),
+        fenix: true,
+      );
+    }
+
+    _ctrl = Get.put(RadioPageController(videoRepository: Get.find()));
 
     ever(_ctrl.universities, (list) {
       if (list.isNotEmpty && _ctrl.currentUrl.value == null) {

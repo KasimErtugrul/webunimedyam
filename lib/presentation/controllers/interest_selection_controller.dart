@@ -22,20 +22,20 @@ import 'package:get/get.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../data/datasources/local/local_datasource.dart';
-import '../../data/datasources/remote/supabase_datasource.dart';
 import '../../data/models/university_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
+import '../../data/repositories/video_repository.dart';
 import '../../services/analytics_service.dart';
 
 class InterestSelectionController extends GetxController {
-  final SupabaseDataSource supabase;
+  final VideoRepository videoRepository;
   final AuthRepository authRepository;
   final UniversityFavoritesRepository universityFavoritesRepository;
   final LocalDataSource local;
 
   InterestSelectionController({
-    required this.supabase,
+    required this.videoRepository,
     required this.authRepository,
     required this.universityFavoritesRepository,
     required this.local,
@@ -70,7 +70,7 @@ class InterestSelectionController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final list = await supabase.getUniversities();
+      final list = await videoRepository.getUniversities();
       list.sort(
         (a, b) => (a.name ?? '').toLowerCase().compareTo(
               (b.name ?? '').toLowerCase(),

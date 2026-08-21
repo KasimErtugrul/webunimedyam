@@ -382,6 +382,24 @@ class AuthRepository {
     }
   }
 
+  /// Profil görünürlüğünü (private/public) günceller.
+  ///
+  /// Repository katmanına eklendi: önceden yalnızca SupabaseDataSource'ta
+  /// vardı ve SettingsController doğrudan datasource'a erişerek bu katmanı
+  /// bypass ediyordu.
+  Future<void> updateProfileVisibility(String userId, String visibility) async {
+    try {
+      await _supabase.updateProfileVisibility(userId, visibility);
+    } catch (e, stacktrace) {
+      log(
+        'Profil görünürlüğü güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      rethrow;
+    }
+  }
+
   /// Profil fotoğrafını yükler, avatar_url'i profiles tablosunda günceller
   /// ve yerel önbelleği tazeler. Yüklenen public URL döner.
   Future<String> uploadAvatar({

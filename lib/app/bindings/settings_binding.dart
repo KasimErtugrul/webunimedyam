@@ -24,10 +24,7 @@ class SettingsBinding extends Bindings {
     }
     if (!Get.isRegistered<SettingsController>()) {
       Get.lazyPut(
-        () => SettingsController(
-          authRepository: Get.find(),
-          supabase: Get.find(),
-        ),
+        () => SettingsController(authRepository: Get.find()),
         fenix: true,
       );
     }

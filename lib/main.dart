@@ -115,7 +115,7 @@ void main() async {
   await Get.putAsync<SettingsController>(() async {
     final ctrl = SettingsController(
       authRepository: Get.find(),
-      supabase: Get.find(),
+      //supabase: Get.find(),
     );
     await ctrl.loadSettings();
     return ctrl;
