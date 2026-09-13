@@ -64,6 +64,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
+            <meta-data
+                 android:name="com.google.firebase.messaging.default_notification_channel_id"
+                 android:value="high_importance_channel" />
+
             <!--
                 FCM bildirimine tıklanınca uygulamayı ön plana getiren intent.
                 click_action: "FLUTTER_NOTIFICATION_CLICK" ile eşleşmelidir.

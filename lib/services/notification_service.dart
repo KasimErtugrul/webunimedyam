@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -17,6 +19,21 @@ class NotificationService {
 
   final _messaging = FirebaseMessaging.instance;
   final _supabase  = Supabase.instance.client;
+  final _localNotifications = FlutterLocalNotificationsPlugin();
+
+  // ÖNEMLİ: Bu kanal id'si, `send-university-notification` edge function'ında
+  // gönderilen `android.notification.channel_id` ile TAM AYNI olmak zorunda.
+  // Android'de bir bildirim kanalının sesi, kanal İLK OLUŞTURULDUĞUNDA kilitlenir;
+  // sonradan aynı id ile tekrar oluşturmaya çalışmak sesi değiştirmez. Eğer bu
+  // kanal cihazda zaten (eski/varsayılan sesle) var olarak oluşturulmuşsa, yeni
+  // sesi görmek için uygulamayı cihazdan kaldırıp yeniden kurmak (veya kanal
+  // id'sini değiştirmek) gerekir.
+  static const String _channelId = 'high_importance_channel';
+  static const String _channelName = 'Önemli Bildirimler';
+  static const String _channelDescription =
+      'Üniversite videoları ve canlı yayın bildirimleri';
+  // res/raw/notification_sound.mp3 -> uzantısız verilir
+  static const String _soundResourceName = 'notification_sound';
 
   // ─── initialize ──────────────────────────────────────────────────────────
 
@@ -32,6 +49,14 @@ class NotificationService {
   // içinde yapılır.
   Future<void> initialize() async {
     try {
+      await _initLocalNotifications();
+
+      // FIX: setForegroundNotificationPresentationOptions, iOS'a ait bir
+      // API'dir ve uygulama ön plandayken FCM'in kendi sistem bildirimini
+      // göstermesini sağlar. Android'de ön plandaki mesajlar zaten sistem
+      // tarafında OTOMATİK gösterilmez — bu yüzden ses/görsel bildirimi
+      // Android'de _handleForegroundMessage içinde flutter_local_notifications
+      // ile elle tetikliyoruz (bkz. aşağısı).
       await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true, badge: true, sound: true,
       );
@@ -158,14 +183,86 @@ class NotificationService {
     await _saveTokenIfLoggedIn();
   }
 
+  // ─── Local Notifications Kurulumu ────────────────────────────────────────
+
+  // FIX: Android'de FCM, uygulama ÖN PLANDAYKEN gelen mesajlar için sistem
+  // bildirimini OTOMATİK göstermez (bu davranış sadece arka plan/kapalı
+  // durumda geçerlidir) — bu yüzden ön planda hem görünür bir bildirim hem
+  // de özel sesin çalması için flutter_local_notifications ile elle bir
+  // bildirim gösteriyoruz. Arka plan/kapalı durumda ise Android'in kendisi
+  // FCM payload'ındaki `android.notification.channel_id` ile eşleşen
+  // kanalın sesini otomatik çalar — bunun için burada oluşturduğumuz kanal
+  // id'sinin (`_channelId`) backend'deki (`send-university-notification`
+  // edge function) ile bire bir aynı olması gerekiyor.
+  Future<void> _initLocalNotifications() async {
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosInit = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    await _localNotifications.initialize(
+      settings: const InitializationSettings(android: androidInit, iOS: iosInit),
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final payload = response.payload;
+        if (payload == null || payload.isEmpty) return;
+        try {
+          final data = jsonDecode(payload) as Map<String, dynamic>;
+          _routeByType(data);
+        } catch (e, stacktrace) {
+          log('Local bildirim payload çözümlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+        }
+      },
+    );
+
+    if (Platform.isAndroid) {
+      const channel = AndroidNotificationChannel(
+        _channelId,
+        _channelName,
+        description: _channelDescription,
+        importance: Importance.high,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(_soundResourceName),
+      );
+
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    }
+  }
+
   // ─── Mesaj İşleyiciler ────────────────────────────────────────────────────
 
-  void _handleForegroundMessage(RemoteMessage message) {
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
     try {
       final title = message.notification?.title ?? '';
       final body  = message.notification?.body  ?? '';
       if (title.isEmpty && body.isEmpty) return;
 
+      // Sistem bildirimi + özel ses (Android'de ön planda otomatik gelmiyor).
+      if (Platform.isAndroid) {
+        await _localNotifications.show(
+          id: message.hashCode,
+          title: title,
+          body: body,
+          notificationDetails: NotificationDetails(
+            android: AndroidNotificationDetails(
+              _channelId,
+              _channelName,
+              channelDescription: _channelDescription,
+              importance: Importance.high,
+              priority: Priority.high,
+              playSound: true,
+              sound: const RawResourceAndroidNotificationSound(_soundResourceName),
+            ),
+          ),
+          payload: jsonEncode(message.data),
+        );
+      }
+
+      // Uygulama içi görünür geri bildirim (snackbar) — sistem bildirimine ek.
       Get.snackbar(
         title,
         body,
@@ -183,12 +280,16 @@ class NotificationService {
   }
 
   Future<void> _handleNotificationTap(RemoteMessage message) async {
+    await _routeByType(message.data);
+  }
+
+  Future<void> _routeByType(Map<String, dynamic> data) async {
     try {
-      final type = message.data['type'] as String? ?? '';
+      final type = data['type'] as String? ?? '';
 
       switch (type) {
         case 'new_university_video':
-          await _navigateToPlayer(message.data);
+          await _navigateToPlayer(data);
           break;
         default:
           break;
