@@ -1,3 +1,4 @@
+// lib/presentation/screens/university_detail/tabs/videos_tab/videos_tab.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,17 +6,16 @@ import 'package:get/get.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/university_detail_controller.dart';
 import '../../../home/tabs/home_tab/widgets/video_card_widget.dart';
-import '../../utils/university_detail_sizes.dart';
-import 'empty_view.dart';
-import 'error_view.dart';
-import 'error_view_video_shimmer.dart';
+import '../../university_detail_layout_spec.dart';
+import '../../widgets/tab_state_views.dart';
 
 class UniversityDetailVideosTab extends StatelessWidget {
-  final UniversityDetailSizes sizes;
+  final UniversityDetailLayoutSpec spec;
   final UniversityDetailController controller;
+
   const UniversityDetailVideosTab({
     super.key,
-    required this.sizes,
+    required this.spec,
     required this.controller,
   });
 
@@ -29,18 +29,22 @@ class UniversityDetailVideosTab extends StatelessWidget {
       final hasMore = controller.hasMoreVideos.value;
 
       if (isLoading) {
-        return _buildShimmerLoading(context);
+        return UniversityTabSkeleton(
+          child: spec.isTablet
+              ? _buildTabletGrid(context, const [], false, skeleton: true)
+              : _buildPhoneList(context, const [], false, skeleton: true),
+        );
       }
       if (error.isNotEmpty) {
-        return UniversityDetailVideosTabErrorView(
-          sizes: sizes,
-          error: error,
+        return UniversityTabErrorView(
+          spec: spec,
+          message: error,
           onRetry: controller.loadVideos,
         );
       }
       if (videoList.isEmpty) {
-        return UniversityDetailVideosTabEmptyView(
-          sizes: sizes,
+        return UniversityTabEmptyView(
+          spec: spec,
           icon: Icons.videocam_off_rounded,
           title: 'Henüz video yok',
           subtitle: 'Bu üniversiteye ait video bulunamadı.',
@@ -52,16 +56,15 @@ class UniversityDetailVideosTab extends StatelessWidget {
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadVideos,
         child: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
+          onNotification: (n) {
             if (hasMore &&
                 !isLoadingMore &&
-                notification.metrics.pixels >=
-                    notification.metrics.maxScrollExtent - 400) {
+                n.metrics.pixels >= n.metrics.maxScrollExtent - 400) {
               controller.loadMoreVideos();
             }
             return false;
           },
-          child: sizes.isTablet
+          child: spec.isTablet
               ? _buildTabletGrid(context, videoList, hasMore)
               : _buildPhoneList(context, videoList, hasMore),
         ),
@@ -69,56 +72,43 @@ class UniversityDetailVideosTab extends StatelessWidget {
     });
   }
 
-  Widget _buildShimmerLoading(BuildContext context) {
-    return sizes.isTablet
-        ? GridView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-                  MediaQuery.orientationOf(context) == Orientation.landscape
-                  ? 3
-                  : 2,
-              childAspectRatio: 0.72,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: 6,
-            itemBuilder: (_, __) => UniversityDetailVideosTabErrorViewVideoShimmer(sizes: sizes),
-          )
-        : ListView.builder(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            itemCount: 6,
-            itemBuilder: (_, __) => UniversityDetailVideosTabErrorViewVideoShimmer(sizes: sizes),
-          );
-  }
-
   Widget _buildTabletGrid(
     BuildContext context,
     List<dynamic> videoList,
-    bool hasMore,
-  ) {
+    bool hasMore, {
+    bool skeleton = false,
+  }) {
+    final count = skeleton ? 6 : videoList.length;
+    final landscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final cols = landscape ? 3 : 2;
+
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(12, 10, 12, hasMore ? 0 : 40),
+          padding: EdgeInsets.fromLTRB(
+            spec.gridPaddingH,
+            spec.gridPaddingV,
+            spec.gridPaddingH,
+            hasMore ? 0 : 40,
+          ),
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-                  MediaQuery.orientationOf(context) == Orientation.landscape
-                  ? 3
-                  : 2,
-              childAspectRatio: 0.72,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+              crossAxisCount: cols,
+              childAspectRatio: spec.gridAspectRatio,
+              crossAxisSpacing: spec.gridSpacing,
+              mainAxisSpacing: spec.gridSpacing,
             ),
             delegate: SliverChildBuilderDelegate(
-              (_, i) => VideoCardWidget(video: videoList[i]),
-              childCount: videoList.length,
+              (_, i) => skeleton
+                  ? const SizedBox.shrink()
+                  : VideoCardWidget(video: videoList[i]),
+              childCount: count,
             ),
           ),
         ),
         if (hasMore)
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
               child: Center(
@@ -140,8 +130,17 @@ class UniversityDetailVideosTab extends StatelessWidget {
   Widget _buildPhoneList(
     BuildContext context,
     List<dynamic> videoList,
-    bool hasMore,
-  ) {
+    bool hasMore, {
+    bool skeleton = false,
+  }) {
+    if (skeleton) {
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        itemCount: 6,
+        itemBuilder: (_, _) => UniversityVideoSkeletonCard(spec: spec),
+      );
+    }
+
     return ListView.builder(
       padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
       itemCount: videoList.length + (hasMore ? 1 : 0),
@@ -149,7 +148,7 @@ class UniversityDetailVideosTab extends StatelessWidget {
         if (i >= videoList.length) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Center(
+            child: const Center(
               child: SizedBox(
                 width: 22,
                 height: 22,

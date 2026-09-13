@@ -1,6 +1,6 @@
 // lib/presentation/screens/profile/widgets/profile_header/profile_header_widget.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -13,108 +13,175 @@ import 'avatar_widget.dart';
 import 'stat_chip_widget.dart';
 import 'stat_divider_widget.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+const double _kBannerHeight = 96;
+const double _kAvatarSize = 88;
 
-const double kProfileBannerHeight = 96;
-const double kProfileAvatarSize = 88;
+class _Sizes {
+  final bool isTablet;
+  final double bannerRadius;
+  final double avatarTopSpacing;
+  final double usernameFontSize;
+  final double usernameSpacing;
+  final double atUsernameFontSize;
+  final double memberSinceFontSize;
+  final double memberSinceSpacing;
+  final double editButtonSpacing;
+  final double statsRowSpacing;
+  final double statsRowBottomSpacing;
+  final double statsRowRadius;
+  final double statsRowPaddingV;
+  final double statsRowMarginH;
+  final double statsRowHeight;
+  final double editButtonIconSize;
+  final double editButtonFontSize;
+  final double editButtonPaddingH;
+  final double editButtonPaddingV;
+  final double editButtonRadius;
+  final double editButtonBorderWidth;
+  final double statsLoadingSize;
+  final double statsLoadingStrokeWidth;
+  final double blob1Size;
+  final double blob1Opacity;
+  final double blob1Right;
+  final double blob1Top;
+  final double blob2Size;
+  final double blob2Opacity;
+  final double blob2Left;
+  final double blob2Bottom;
+  final double blob3Size;
+  final double blob3Opacity;
+  final double blob3Left;
+  final double blob3Top;
 
-class _PhoneSizes {
-  static const double bannerBorderRadius = 26;
-  static const double avatarTopSpacing = 12;
-  static const double usernameFontSize = 19;
-  static const double usernameSpacing = 3;
-  static const double atUsernameFontSize = 13;
-  static const double memberSinceFontSize = 11.5;
-  static const double memberSinceSpacing = 4;
-  static const double editButtonSpacing = 14;
-  static const double statsRowSpacing = 16;
-  static const double statsRowBottomSpacing = 10;
-  static const double statsRowBorderRadius = 16;
-  static const double statsRowPaddingVertical = 12;
-  static const double editButtonIconSize = 15;
-  static const double editButtonFontSize = 12.5;
-  static const double editButtonPaddingHorizontal = 16;
-  static const double editButtonPaddingVertical = 8;
-  static const double editButtonBorderRadius = 20;
-  static const double editButtonBorderWidth = 1.2;
-  static const double statsLoadingSize = 18;
-  static const double statsLoadingStrokeWidth = 2;
-  
-  // Stats chip
-/*   static const double statChipCountFontSize = 17;
-  static const double statChipLabelFontSize = 11;
-  static const double statChipSpacing = 2;
-  
-  // Divider
-  static const double dividerWidth = 1;
-  static const double dividerHeight = 28; */
-  
-  // Blob
-  static const double blobOpacity1 = 0.16;
-  static const double blobOpacity2 = 0.14;
-  static const double blobOpacity3 = 0.10;
+  const _Sizes._({
+    required this.isTablet,
+    required this.bannerRadius,
+    required this.avatarTopSpacing,
+    required this.usernameFontSize,
+    required this.usernameSpacing,
+    required this.atUsernameFontSize,
+    required this.memberSinceFontSize,
+    required this.memberSinceSpacing,
+    required this.editButtonSpacing,
+    required this.statsRowSpacing,
+    required this.statsRowBottomSpacing,
+    required this.statsRowRadius,
+    required this.statsRowPaddingV,
+    required this.statsRowMarginH,
+    required this.statsRowHeight,
+    required this.editButtonIconSize,
+    required this.editButtonFontSize,
+    required this.editButtonPaddingH,
+    required this.editButtonPaddingV,
+    required this.editButtonRadius,
+    required this.editButtonBorderWidth,
+    required this.statsLoadingSize,
+    required this.statsLoadingStrokeWidth,
+    required this.blob1Size,
+    required this.blob1Opacity,
+    required this.blob1Right,
+    required this.blob1Top,
+    required this.blob2Size,
+    required this.blob2Opacity,
+    required this.blob2Left,
+    required this.blob2Bottom,
+    required this.blob3Size,
+    required this.blob3Opacity,
+    required this.blob3Left,
+    required this.blob3Top,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        bannerRadius: 30,
+        avatarTopSpacing: 16,
+        usernameFontSize: 24,
+        usernameSpacing: 4,
+        atUsernameFontSize: 15,
+        memberSinceFontSize: 13,
+        memberSinceSpacing: 6,
+        editButtonSpacing: 18,
+        statsRowSpacing: 20,
+        statsRowBottomSpacing: 14,
+        statsRowRadius: 20,
+        statsRowPaddingV: 16,
+        statsRowMarginH: 24,
+        statsRowHeight: 64,
+        editButtonIconSize: 18,
+        editButtonFontSize: 15,
+        editButtonPaddingH: 20,
+        editButtonPaddingV: 10,
+        editButtonRadius: 24,
+        editButtonBorderWidth: 1.4,
+        statsLoadingSize: 22,
+        statsLoadingStrokeWidth: 2.5,
+        blob1Size: 150,
+        blob1Opacity: 0.16,
+        blob1Right: -30,
+        blob1Top: -36,
+        blob2Size: 110,
+        blob2Opacity: 0.14,
+        blob2Left: -24,
+        blob2Bottom: -40,
+        blob3Size: 54,
+        blob3Opacity: 0.10,
+        blob3Left: 70,
+        blob3Top: -22,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      bannerRadius: 26,
+      avatarTopSpacing: 12,
+      usernameFontSize: 19,
+      usernameSpacing: 3,
+      atUsernameFontSize: 12.5,
+      memberSinceFontSize: 11.5,
+      memberSinceSpacing: 4,
+      editButtonSpacing: 14,
+      statsRowSpacing: 16,
+      statsRowBottomSpacing: 10,
+      statsRowRadius: 16,
+      statsRowPaddingV: 12,
+      statsRowMarginH: 20,
+      statsRowHeight: 56,
+      editButtonIconSize: 15,
+      editButtonFontSize: 12.5,
+      editButtonPaddingH: 16,
+      editButtonPaddingV: 8,
+      editButtonRadius: 20,
+      editButtonBorderWidth: 1.2,
+      statsLoadingSize: 18,
+      statsLoadingStrokeWidth: 2,
+      blob1Size: 130,
+      blob1Opacity: 0.16,
+      blob1Right: -26,
+      blob1Top: -30,
+      blob2Size: 96,
+      blob2Opacity: 0.14,
+      blob2Left: -20,
+      blob2Bottom: -34,
+      blob3Size: 46,
+      blob3Opacity: 0.10,
+      blob3Left: 60,
+      blob3Top: -18,
+    );
+  }
 }
-
-class _TabletSizes {
-  static const double bannerBorderRadius = 30;
-  static const double avatarTopSpacing = 16;
-  static const double usernameFontSize = 24;
-  static const double usernameSpacing = 4;
-  static const double atUsernameFontSize = 16;
-  static const double memberSinceFontSize = 14;
-  static const double memberSinceSpacing = 6;
-  static const double editButtonSpacing = 18;
-  static const double statsRowSpacing = 20;
-  static const double statsRowBottomSpacing = 14;
-  static const double statsRowBorderRadius = 20;
-  static const double statsRowPaddingVertical = 16;
-  static const double editButtonIconSize = 18;
-  static const double editButtonFontSize = 15;
-  static const double editButtonPaddingHorizontal = 20;
-  static const double editButtonPaddingVertical = 10;
-  static const double editButtonBorderRadius = 24;
-  static const double editButtonBorderWidth = 1.5;
-  static const double statsLoadingSize = 22;
-  static const double statsLoadingStrokeWidth = 2.5;
-  
-  // Stats chip - tablet için daha büyük
- /*  static const double statChipCountFontSize = 21;
-  static const double statChipLabelFontSize = 14;
-  static const double statChipSpacing = 3;
-  
-  // Divider - tablet için daha büyük
-  static const double dividerWidth = 1.5;
-  static const double dividerHeight = 34; */
-  
-  // Blob - tablet için daha büyük
-  static const double blobOpacity1 = 0.16;
-  static const double blobOpacity2 = 0.14;
-  static const double blobOpacity3 = 0.10;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class ProfileHeaderWidget extends StatelessWidget {
   final ProfileController controller;
+
   const ProfileHeaderWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final spec = _Sizes.of(context);
+    double w(double v) => spec.isTablet ? v : v.w;
+    double h(double v) => spec.isTablet ? v : v.h;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     return Obx(() {
       final profile = controller.profile.value;
       final stats = controller.stats.value;
@@ -123,14 +190,13 @@ class ProfileHeaderWidget extends StatelessWidget {
       return Container(
         color: AppTheme.bg(context),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(
-              height: kProfileBannerHeight.h + kProfileAvatarSize.w / 2,
+              height: h(_kBannerHeight) + w(_kAvatarSize) / 2,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  _CoverBannerPhone(height: kProfileBannerHeight.h),
+                  _CoverBanner(spec: spec),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -141,149 +207,81 @@ class ProfileHeaderWidget extends StatelessWidget {
                         username: profile?.username ?? 'U',
                         isOwnProfile: isOwn,
                         isUploading: controller.isUploadingAvatar.value,
-                        size: kProfileAvatarSize.w,
-                        onTap: () => showAvatarSourceSheet(context, controller),
-                      ),
+                        size: w(_kAvatarSize),
+                        onTap: () =>
+                            showAvatarSourceSheet(context, controller),
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .scaleXY(
+                            begin: 0.7,
+                            end: 1,
+                            duration: 500.ms,
+                            curve: Curves.easeOutBack,
+                          ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: _PhoneSizes.avatarTopSpacing.h),
+            SizedBox(height: h(spec.avatarTopSpacing)),
+
             Text(
               (profile?.fullName?.isNotEmpty ?? false)
                   ? profile!.fullName!
                   : (profile?.username ?? 'Kullanıcı'),
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: _PhoneSizes.usernameFontSize.sp,
+                fontSize: spec.usernameFontSize.sp,
                 fontWeight: FontWeight.bold,
+                letterSpacing: -0.3,
               ),
-              textAlign: TextAlign.center,
-            ),
+            )
+                .animate()
+                .fadeIn(delay: 200.ms, duration: 350.ms)
+                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
             if ((profile?.fullName?.isNotEmpty ?? false) &&
                 (profile?.username?.isNotEmpty ?? false)) ...[
-              SizedBox(height: _PhoneSizes.usernameSpacing.h),
+              SizedBox(height: h(spec.usernameSpacing)),
               Text(
                 '@${profile!.username}',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.atUsernameFontSize.sp,
+                  fontSize: spec.atUsernameFontSize.sp,
                 ),
-              ),
+              ).animate().fadeIn(delay: 280.ms, duration: 300.ms),
             ],
+
             if (profile != null) ...[
-              SizedBox(height: _PhoneSizes.memberSinceSpacing.h),
+              SizedBox(height: h(spec.memberSinceSpacing)),
               Text(
                 _memberSinceLabel(profile.createdAt),
                 style: TextStyle(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.75),
-                  fontSize: _PhoneSizes.memberSinceFontSize.sp,
+                  color: AppTheme.textSec(context).withValues(alpha: 0.7),
+                  fontSize: spec.memberSinceFontSize.sp,
                 ),
-              ),
+              ).animate().fadeIn(delay: 340.ms, duration: 300.ms),
             ],
+
             if (isOwn) ...[
-              SizedBox(height: _PhoneSizes.editButtonSpacing.h),
-              const _EditProfileButtonPhone(),
+              SizedBox(height: h(spec.editButtonSpacing)),
+              _EditProfileButton(spec: spec)
+                  .animate()
+                  .fadeIn(delay: 420.ms, duration: 300.ms),
             ],
+
             if (isOwn) ...[
-              SizedBox(height: _PhoneSizes.statsRowSpacing.h),
-              _StatsRowPhone(
+              SizedBox(height: h(spec.statsRowSpacing)),
+              _StatsRow(
                 stats: stats,
                 isLoading: controller.isLoadingStats.value,
-              ),
+                spec: spec,
+              ).animate().fadeIn(delay: 500.ms, duration: 350.ms),
             ],
-            SizedBox(height: _PhoneSizes.statsRowBottomSpacing.h),
-          ],
-        ),
-      );
-    });
-  }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Obx(() {
-      final profile = controller.profile.value;
-      final stats = controller.stats.value;
-      final isOwn = controller.isOwnProfile;
-
-      return Container(
-        color: AppTheme.bg(context),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: kProfileBannerHeight + kProfileAvatarSize / 2,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  _CoverBannerTablet(height: kProfileBannerHeight),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: ProfileAvatarWidget(
-                        avatarUrl: profile?.avatarUrl,
-                        username: profile?.username ?? 'U',
-                        isOwnProfile: isOwn,
-                        isUploading: controller.isUploadingAvatar.value,
-                        size: kProfileAvatarSize,
-                        onTap: () => showAvatarSourceSheet(context, controller),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: _TabletSizes.avatarTopSpacing),
-            Text(
-              (profile?.fullName?.isNotEmpty ?? false)
-                  ? profile!.fullName!
-                  : (profile?.username ?? 'Kullanıcı'),
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: _TabletSizes.usernameFontSize,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if ((profile?.fullName?.isNotEmpty ?? false) &&
-                (profile?.username?.isNotEmpty ?? false)) ...[
-              SizedBox(height: _TabletSizes.usernameSpacing),
-              Text(
-                '@${profile!.username}',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _TabletSizes.atUsernameFontSize,
-                ),
-              ),
-            ],
-            if (profile != null) ...[
-              SizedBox(height: _TabletSizes.memberSinceSpacing),
-              Text(
-                _memberSinceLabel(profile.createdAt),
-                style: TextStyle(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.75),
-                  fontSize: _TabletSizes.memberSinceFontSize,
-                ),
-              ),
-            ],
-            if (isOwn) ...[
-              SizedBox(height: _TabletSizes.editButtonSpacing),
-              const _EditProfileButtonTablet(),
-            ],
-            if (isOwn) ...[
-              SizedBox(height: _TabletSizes.statsRowSpacing),
-              _StatsRowTablet(
-                stats: stats,
-                isLoading: controller.isLoadingStats.value,
-              ),
-            ],
-            SizedBox(height: _TabletSizes.statsRowBottomSpacing),
+            SizedBox(height: h(spec.statsRowBottomSpacing)),
           ],
         ),
       );
@@ -300,24 +298,23 @@ class ProfileHeaderWidget extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (PHONE)
-// ═══════════════════════════════════════════════════════════════════════
+// ─── Cover banner ────────────────────────────────────────────────────────
 
-// ─── Kapak (Banner) Phone ─────────────────────────────────────────────────
+class _CoverBanner extends StatelessWidget {
+  final _Sizes spec;
+  const _CoverBanner({required this.spec});
 
-class _CoverBannerPhone extends StatelessWidget {
-  final double height;
-  const _CoverBannerPhone({required this.height});
+  double w(double v) => spec.isTablet ? v : v.w;
+  double h(double v) => spec.isTablet ? v : v.h;
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.vertical(
-        bottom: Radius.circular(_PhoneSizes.bannerBorderRadius.r),
+        bottom: Radius.circular(w(spec.bannerRadius)),
       ),
       child: SizedBox(
-        height: height,
+        height: h(_kBannerHeight),
         width: double.infinity,
         child: DecoratedBox(
           decoration: const BoxDecoration(
@@ -331,19 +328,28 @@ class _CoverBannerPhone extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Positioned(
-                right: -26.w,
-                top: -30.h,
-                child: _BlobPhone(size: 130.w, opacity: _PhoneSizes.blobOpacity1),
+                right: w(spec.blob1Right),
+                top: h(spec.blob1Top),
+                child: _Blob(
+                  size: w(spec.blob1Size),
+                  opacity: spec.blob1Opacity,
+                ),
               ),
               Positioned(
-                left: -20.w,
-                bottom: -34.h,
-                child: _BlobPhone(size: 96.w, opacity: _PhoneSizes.blobOpacity2),
+                left: w(spec.blob2Left),
+                bottom: h(spec.blob2Bottom),
+                child: _Blob(
+                  size: w(spec.blob2Size),
+                  opacity: spec.blob2Opacity,
+                ),
               ),
               Positioned(
-                left: 60.w,
-                top: -18.h,
-                child: _BlobPhone(size: 46.w, opacity: _PhoneSizes.blobOpacity3),
+                left: w(spec.blob3Left),
+                top: h(spec.blob3Top),
+                child: _Blob(
+                  size: w(spec.blob3Size),
+                  opacity: spec.blob3Opacity,
+                ),
               ),
             ],
           ),
@@ -353,10 +359,10 @@ class _CoverBannerPhone extends StatelessWidget {
   }
 }
 
-class _BlobPhone extends StatelessWidget {
+class _Blob extends StatelessWidget {
   final double size;
   final double opacity;
-  const _BlobPhone({required this.size, required this.opacity});
+  const _Blob({required this.size, required this.opacity});
 
   @override
   Widget build(BuildContext context) {
@@ -371,66 +377,81 @@ class _BlobPhone extends StatelessWidget {
   }
 }
 
-// ─── Profili Düzenle Butonu Phone ───────────────────────────────────────
+// ─── Edit profile button ─────────────────────────────────────────────────
 
-class _EditProfileButtonPhone extends StatelessWidget {
-  const _EditProfileButtonPhone();
+class _EditProfileButton extends StatelessWidget {
+  final _Sizes spec;
+  const _EditProfileButton({required this.spec});
 
   @override
   Widget build(BuildContext context) {
+    double w(double v) => spec.isTablet ? v : v.w;
+    double h(double v) => spec.isTablet ? v : v.h;
+
     return OutlinedButton.icon(
       onPressed: () => Get.toNamed(AppRoutes.editProfile),
       icon: Icon(
         Icons.edit_outlined,
-        size: _PhoneSizes.editButtonIconSize.sp,
+        size: spec.editButtonIconSize.sp,
       ),
       label: Text(
         'Profili Düzenle',
-        style: TextStyle(fontSize: _PhoneSizes.editButtonFontSize.sp),
+        style: TextStyle(fontSize: spec.editButtonFontSize.sp),
       ),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppTheme.textPri(context),
         side: BorderSide(
-          color: AppTheme.surface(context),
-          width: _PhoneSizes.editButtonBorderWidth.w,
+          color: AppTheme.textSec(context).withValues(alpha: 0.2),
+          width: w(spec.editButtonBorderWidth),
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.editButtonPaddingHorizontal.w,
-          vertical: _PhoneSizes.editButtonPaddingVertical.h,
+          horizontal: w(spec.editButtonPaddingH),
+          vertical: h(spec.editButtonPaddingV),
         ),
         minimumSize: const Size(0, 0),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_PhoneSizes.editButtonBorderRadius.r),
+          borderRadius: BorderRadius.circular(w(spec.editButtonRadius)),
         ),
       ),
     );
   }
 }
 
-// ─── Özet İstatistik Şeridi Phone ───────────────────────────────────────
+// ─── Stats row ───────────────────────────────────────────────────────────
 
-class _StatsRowPhone extends StatelessWidget {
+class _StatsRow extends StatelessWidget {
   final dynamic stats;
   final bool isLoading;
-  const _StatsRowPhone({required this.stats, required this.isLoading});
+  final _Sizes spec;
+
+  const _StatsRow({
+    required this.stats,
+    required this.isLoading,
+    required this.spec,
+  });
+
+  double w(double v) => spec.isTablet ? v : v.w;
+  double h(double v) => spec.isTablet ? v : v.h;
 
   @override
   Widget build(BuildContext context) {
+    final marginH = w(spec.statsRowMarginH);
+
     if (stats == null && isLoading) {
       return Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.w),
-        height: 56.h,
+        margin: EdgeInsets.symmetric(horizontal: marginH),
+        height: h(spec.statsRowHeight),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_PhoneSizes.statsRowBorderRadius.r),
+          borderRadius: BorderRadius.circular(w(spec.statsRowRadius)),
         ),
         child: Center(
           child: SizedBox(
-            width: _PhoneSizes.statsLoadingSize.w,
-            height: _PhoneSizes.statsLoadingSize.w,
+            width: w(spec.statsLoadingSize),
+            height: w(spec.statsLoadingSize),
             child: CircularProgressIndicator(
-              strokeWidth: _PhoneSizes.statsLoadingStrokeWidth.w,
+              strokeWidth: spec.statsLoadingStrokeWidth,
               color: AppTheme.primaryColor,
             ),
           ),
@@ -439,200 +460,14 @@ class _StatsRowPhone extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w),
-      padding: EdgeInsets.symmetric(
-        vertical: _PhoneSizes.statsRowPaddingVertical.h,
-      ),
+      margin: EdgeInsets.symmetric(horizontal: marginH),
+      padding: EdgeInsets.symmetric(vertical: h(spec.statsRowPaddingV)),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.statsRowBorderRadius.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            child: StatChipWidget(
-              icon: Icons.play_circle_rounded,
-              count: stats?.totalWatched ?? 0,
-              label: 'İzlenen',
-            ),
-          ),
-          const StatDividerWidget(),
-          Expanded(
-            child: StatChipWidget(
-              icon: Icons.thumb_up_alt_rounded,
-              count: stats?.totalLiked ?? 0,
-              label: 'Beğenilen',
-            ),
-          ),
-          const StatDividerWidget(),
-          Expanded(
-            child: StatChipWidget(
-              icon: Icons.favorite_rounded,
-              count: stats?.totalFavorited ?? 0,
-              label: 'Favori',
-            ),
-          ),
-          const StatDividerWidget(),
-          Expanded(
-            child: StatChipWidget(
-              icon: Icons.chat_bubble_rounded,
-              count: stats?.totalCommented ?? 0,
-              label: 'Yorum',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (TABLET)
-// ═══════════════════════════════════════════════════════════════════════
-
-// ─── Kapak (Banner) Tablet ─────────────────────────────────────────────────
-
-class _CoverBannerTablet extends StatelessWidget {
-  final double height;
-  const _CoverBannerTablet({required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.vertical(
-        bottom: Radius.circular(_TabletSizes.bannerBorderRadius),
-      ),
-      child: SizedBox(
-        height: height,
-        width: double.infinity,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppTheme.primaryColor, Color(0xFF0F5C2A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                right: -30,
-                top: -36,
-                child: _BlobTablet(size: 150, opacity: _TabletSizes.blobOpacity1),
-              ),
-              Positioned(
-                left: -24,
-                bottom: -40,
-                child: _BlobTablet(size: 110, opacity: _TabletSizes.blobOpacity2),
-              ),
-              Positioned(
-                left: 70,
-                top: -22,
-                child: _BlobTablet(size: 54, opacity: _TabletSizes.blobOpacity3),
-              ),
-            ],
-          ),
+        borderRadius: BorderRadius.circular(w(spec.statsRowRadius)),
+        border: Border.all(
+          color: AppTheme.textSec(context).withValues(alpha: 0.06),
         ),
-      ),
-    );
-  }
-}
-
-class _BlobTablet extends StatelessWidget {
-  final double size;
-  final double opacity;
-  const _BlobTablet({required this.size, required this.opacity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: opacity),
-      ),
-    );
-  }
-}
-
-// ─── Profili Düzenle Butonu Tablet ───────────────────────────────────────
-
-class _EditProfileButtonTablet extends StatelessWidget {
-  const _EditProfileButtonTablet();
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () => Get.toNamed(AppRoutes.editProfile),
-      icon: Icon(
-        Icons.edit_outlined,
-        size: _TabletSizes.editButtonIconSize,
-      ),
-      label: Text(
-        'Profili Düzenle',
-        style: TextStyle(fontSize: _TabletSizes.editButtonFontSize),
-      ),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppTheme.textPri(context),
-        side: BorderSide(
-          color: AppTheme.surface(context),
-          width: _TabletSizes.editButtonBorderWidth,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: _TabletSizes.editButtonPaddingHorizontal,
-          vertical: _TabletSizes.editButtonPaddingVertical,
-        ),
-        minimumSize: const Size(0, 0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_TabletSizes.editButtonBorderRadius),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Özet İstatistik Şeridi Tablet ───────────────────────────────────────
-
-class _StatsRowTablet extends StatelessWidget {
-  final dynamic stats;
-  final bool isLoading;
-  const _StatsRowTablet({required this.stats, required this.isLoading});
-
-  @override
-  Widget build(BuildContext context) {
-    if (stats == null && isLoading) {
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: 24),
-        height: 64,
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_TabletSizes.statsRowBorderRadius),
-        ),
-        child: Center(
-          child: SizedBox(
-            width: _TabletSizes.statsLoadingSize,
-            height: _TabletSizes.statsLoadingSize,
-            child: CircularProgressIndicator(
-              strokeWidth: _TabletSizes.statsLoadingStrokeWidth,
-              color: AppTheme.primaryColor,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24),
-      padding: EdgeInsets.symmetric(
-        vertical: _TabletSizes.statsRowPaddingVertical,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_TabletSizes.statsRowBorderRadius),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

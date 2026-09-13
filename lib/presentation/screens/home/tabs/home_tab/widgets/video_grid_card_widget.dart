@@ -19,7 +19,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../data/models/video_model.dart';
-import '../../../../../controllers/home_controller.dart';
+import '../../../../../controllers/home/home_controller.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
 // SABİTLER

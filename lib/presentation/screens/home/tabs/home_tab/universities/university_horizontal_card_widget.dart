@@ -1,5 +1,4 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_horizontal_card_widget.dart
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,63 +9,88 @@ import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/university_stats_model.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final bool isTablet;
+  final double cardWidth;
+  final double cardHeight;
+  final double cardRadius;
+  final double gradientHeight;
+  final double logoSize;
+  final double placeholderIconSize;
+  final double contentPaddingH;
+  final double contentPaddingV;
+  final double titleFontSize;
+  final double titleLineHeight;
+  final double statPaddingH;
+  final double statPaddingV;
+  final double statRadius;
+  final double statIconSize;
+  final double statFontSize;
+  final double statSpacing;
 
-class _PhoneSizes {
-  // Kart
-  static const double cardWidth = 160;
-  static const double cardHeight = 200;
-  static const double cardMarginRight = 12;
-  static const double cardBorderRadius = 14;
-  
-  // Thumbnail
-  static const double gradientHeight = 40;
-  static const double logoSize = 80;
-  static const double placeholderIconSize = 32;
-  
-  // Content
-  static const double contentPaddingHorizontal = 8;
-  static const double contentPaddingVertical = 6;
-  static const double titleFontSize = 11;
-  static const double titleLineHeight = 1.3;
-  static const double statPaddingHorizontal = 6;
-  static const double statPaddingVertical = 3;
-  static const double statBorderRadius = 6;
-  static const double statIconSize = 10;
-  static const double statFontSize = 9.5;
-  static const double statSpacing = 3;
+  const _Sizes._({
+    required this.isTablet,
+    required this.cardWidth,
+    required this.cardHeight,
+    required this.cardRadius,
+    required this.gradientHeight,
+    required this.logoSize,
+    required this.placeholderIconSize,
+    required this.contentPaddingH,
+    required this.contentPaddingV,
+    required this.titleFontSize,
+    required this.titleLineHeight,
+    required this.statPaddingH,
+    required this.statPaddingV,
+    required this.statRadius,
+    required this.statIconSize,
+    required this.statFontSize,
+    required this.statSpacing,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        cardWidth: 180,
+        cardHeight: 220,
+        cardRadius: 16,
+        gradientHeight: 44,
+        logoSize: 90,
+        placeholderIconSize: 36,
+        contentPaddingH: 10,
+        contentPaddingV: 8,
+        titleFontSize: 13,
+        titleLineHeight: 1.35,
+        statPaddingH: 8,
+        statPaddingV: 4,
+        statRadius: 7,
+        statIconSize: 12,
+        statFontSize: 11,
+        statSpacing: 4,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      cardWidth: 160,
+      cardHeight: 200,
+      cardRadius: 14,
+      gradientHeight: 40,
+      logoSize: 80,
+      placeholderIconSize: 32,
+      contentPaddingH: 8,
+      contentPaddingV: 6,
+      titleFontSize: 11.5,
+      titleLineHeight: 1.3,
+      statPaddingH: 6,
+      statPaddingV: 3,
+      statRadius: 6,
+      statIconSize: 10,
+      statFontSize: 9.5,
+      statSpacing: 3,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Kart - tablet için daha büyük
-  static const double cardWidth = 180;
-  static const double cardHeight = 220;
-  static const double cardMarginRight = 14;
-  static const double cardBorderRadius = 16;
-  
-  // Thumbnail - tablet için daha büyük
-  static const double gradientHeight = 44;
-  static const double logoSize = 90;
-  static const double placeholderIconSize = 36;
-  
-  // Content - tablet için daha okunaklı
-  static const double contentPaddingHorizontal = 10;
-  static const double contentPaddingVertical = 8;
-  static const double titleFontSize = 13;
-  static const double titleLineHeight = 1.35;
-  static const double statPaddingHorizontal = 8;
-  static const double statPaddingVertical = 4;
-  static const double statBorderRadius = 7;
-  static const double statIconSize = 12;
-  static const double statFontSize = 11;
-  static const double statSpacing = 4;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class UniversityHorizontalCard extends StatelessWidget {
   final UniversityStatsModel stats;
@@ -90,131 +114,118 @@ class UniversityHorizontalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final spec = _Sizes.of(context);
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    return GestureDetector(
-      onTap: _navigateToDetail,
-      child: Container(
-        width: _PhoneSizes.cardWidth.w,
-        height: _PhoneSizes.cardHeight.h,
-        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 6,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _buildImagePhone(context),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: _PhoneSizes.gradientHeight.h,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            AppTheme.card(context).withValues(alpha: 0.85),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.contentPaddingHorizontal.w,
-                  vertical: _PhoneSizes.contentPaddingVertical.h,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Material(
+      color: AppTheme.card(context),
+      borderRadius: BorderRadius.circular(spec.cardRadius.r),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: _navigateToDetail,
+        child: SizedBox(
+          width: spec.cardWidth.w,
+          height: spec.cardHeight.h,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 6,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Text(
-                      stats.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppTheme.textPri(context),
-                        fontSize: _PhoneSizes.titleFontSize.sp,
-                        fontWeight: FontWeight.w600,
-                        height: _PhoneSizes.titleLineHeight,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: _PhoneSizes.statPaddingHorizontal.w,
-                        vertical: _PhoneSizes.statPaddingVertical.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(
-                          _PhoneSizes.statBorderRadius.r,
+                    _buildImage(context, spec),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: spec.gradientHeight.h,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              AppTheme.card(context).withValues(alpha: 0.85),
+                            ],
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            statIcon,
-                            size: _PhoneSizes.statIconSize.sp,
-                            color: AppTheme.primaryColor,
-                          ),
-                          SizedBox(width: _PhoneSizes.statSpacing.w),
-                          Flexible(
-                            child: Text(
-                              statLabel,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                                fontSize: _PhoneSizes.statFontSize.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spec.contentPaddingH.w,
+                    vertical: spec.contentPaddingV.h,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        stats.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontSize: spec.titleFontSize.sp,
+                          fontWeight: FontWeight.w700,
+                          height: spec.titleLineHeight,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spec.statPaddingH.w,
+                          vertical: spec.statPaddingV.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(
+                            spec.statRadius.r,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              statIcon,
+                              size: spec.statIconSize.sp,
+                              color: AppTheme.primaryColor,
+                            ),
+                            SizedBox(width: spec.statSpacing.w),
+                            Flexible(
+                              child: Text(
+                                statLabel,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppTheme.primaryColor,
+                                  fontSize: spec.statFontSize.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildImagePhone(BuildContext context) {
+  Widget _buildImage(BuildContext context, _Sizes spec) {
     final url = imageUrl;
-
-    if (url == null || url.isEmpty) {
-      return _placeholderPhone(context);
-    }
+    if (url == null || url.isEmpty) return _placeholder(context, spec);
 
     if (showLogoLarge) {
       return Container(
@@ -224,11 +235,11 @@ class UniversityHorizontalCard extends StatelessWidget {
         child: Center(
           child: CachedNetworkImage(
             imageUrl: url,
-            width: _PhoneSizes.logoSize.w,
-            height: _PhoneSizes.logoSize.w,
+            width: spec.logoSize.w,
+            height: spec.logoSize.w,
             fit: BoxFit.contain,
-            errorWidget: (_, _, _) => _placeholderPhone(context),
-            placeholder: (_, _) => _shimmerBoxPhone(context),
+            errorWidget: (_, _, _) => _placeholder(context, spec),
+            placeholder: (_, _) => _shimmerBox(context),
           ),
         ),
       );
@@ -237,180 +248,20 @@ class UniversityHorizontalCard extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: url,
       fit: BoxFit.cover,
-      errorWidget: (_, _, _) => _placeholderPhone(context),
-      placeholder: (_, _) => _shimmerBoxPhone(context),
+      errorWidget: (_, _, _) => _placeholder(context, spec),
+      placeholder: (_, _) => _shimmerBox(context),
     );
   }
 
-  Widget _placeholderPhone(BuildContext context) => Container(
+  Widget _placeholder(BuildContext context, _Sizes spec) => Container(
     color: AppTheme.surface(context),
     child: Icon(
       Icons.school_rounded,
       color: AppTheme.textSec(context),
-      size: _PhoneSizes.placeholderIconSize.sp,
+      size: spec.placeholderIconSize.sp,
     ),
   );
 
-  Widget _shimmerBoxPhone(BuildContext context) => Container(
-    color: AppTheme.surface(context),
-  );
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return GestureDetector(
-      onTap: _navigateToDetail,
-      child: Container(
-        width: _TabletSizes.cardWidth,
-        height: _TabletSizes.cardHeight,
-        margin: EdgeInsets.only(right: _TabletSizes.cardMarginRight),
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 6,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _buildImageTablet(context),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: _TabletSizes.gradientHeight,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            AppTheme.card(context).withValues(alpha: 0.85),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _TabletSizes.contentPaddingHorizontal,
-                  vertical: _TabletSizes.contentPaddingVertical,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      stats.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppTheme.textPri(context),
-                        fontSize: _TabletSizes.titleFontSize,
-                        fontWeight: FontWeight.w600,
-                        height: _TabletSizes.titleLineHeight,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: _TabletSizes.statPaddingHorizontal,
-                        vertical: _TabletSizes.statPaddingVertical,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(
-                          _TabletSizes.statBorderRadius,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            statIcon,
-                            size: _TabletSizes.statIconSize,
-                            color: AppTheme.primaryColor,
-                          ),
-                          SizedBox(width: _TabletSizes.statSpacing),
-                          Flexible(
-                            child: Text(
-                              statLabel,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                                fontSize: _TabletSizes.statFontSize,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageTablet(BuildContext context) {
-    final url = imageUrl;
-
-    if (url == null || url.isEmpty) {
-      return _placeholderTablet(context);
-    }
-
-    if (showLogoLarge) {
-      return Container(
-        color: AppTheme.isDark(context)
-            ? const Color(0xFF2A2A2A)
-            : const Color(0xFFF0F0F0),
-        child: Center(
-          child: CachedNetworkImage(
-            imageUrl: url,
-            width: _TabletSizes.logoSize,
-            height: _TabletSizes.logoSize,
-            fit: BoxFit.contain,
-            errorWidget: (_, _, _) => _placeholderTablet(context),
-            placeholder: (_, _) => _shimmerBoxTablet(context),
-          ),
-        ),
-      );
-    }
-
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      errorWidget: (_, _, _) => _placeholderTablet(context),
-      placeholder: (_, _) => _shimmerBoxTablet(context),
-    );
-  }
-
-  Widget _placeholderTablet(BuildContext context) => Container(
-    color: AppTheme.surface(context),
-    child: Icon(
-      Icons.school_rounded,
-      color: AppTheme.textSec(context),
-      size: _TabletSizes.placeholderIconSize,
-    ),
-  );
-
-  Widget _shimmerBoxTablet(BuildContext context) => Container(
-    color: AppTheme.surface(context),
-  );
+  Widget _shimmerBox(BuildContext context) =>
+      Container(color: AppTheme.surface(context));
 }

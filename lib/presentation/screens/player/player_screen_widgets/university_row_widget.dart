@@ -1,36 +1,44 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Üniversite Satırı  (logo · üniversite adı)
-// ═══════════════════════════════════════════════════════════════════════════
-
+// lib/presentation/screens/player/player_screen_widgets/university_row_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double borderRadius;
+  final double verticalPadding;
+  final double fontSize;
+  final double lineHeight;
+  final double chevronSize;
 
-class _PhoneSizes {
-  static const double borderRadius = 10;
-  static const double verticalPadding = 4;
-  static const double fontSize = 13;
-  static const double lineHeight = 1.3;
-  static const double chevronSize = 18;
+  const _Sizes._({
+    required this.borderRadius,
+    required this.verticalPadding,
+    required this.fontSize,
+    required this.lineHeight,
+    required this.chevronSize,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        borderRadius: 12,
+        verticalPadding: 6,
+        fontSize: 16,
+        lineHeight: 1.35,
+        chevronSize: 22,
+      );
+    }
+    return const _Sizes._(
+      borderRadius: 10,
+      verticalPadding: 4,
+      fontSize: 13,
+      lineHeight: 1.3,
+      chevronSize: 18,
+    );
+  }
 }
-
-class _TabletSizes {
-  static const double borderRadius = 12;
-  static const double verticalPadding = 6;
-  static const double fontSize = 16;
-  static const double lineHeight = 1.35;
-  static const double chevronSize = 22;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class UniversityRowWidget extends StatelessWidget {
   final String universityName;
@@ -46,22 +54,12 @@ class UniversityRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
+    final s = _Sizes.of(context);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
+      borderRadius: BorderRadius.circular(s.borderRadius.r),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: _PhoneSizes.verticalPadding.h),
+        padding: EdgeInsets.symmetric(vertical: s.verticalPadding.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -70,9 +68,9 @@ class UniversityRowWidget extends StatelessWidget {
                 universityName,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.fontSize.sp,
+                  fontSize: s.fontSize.sp,
                   fontWeight: FontWeight.w600,
-                  height: _PhoneSizes.lineHeight,
+                  height: s.lineHeight,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -82,45 +80,7 @@ class UniversityRowWidget extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textSec(context),
-                size: _PhoneSizes.chevronSize.sp,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(_TabletSizes.borderRadius),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: _TabletSizes.verticalPadding),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                universityName,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _TabletSizes.fontSize,
-                  fontWeight: FontWeight.w600,
-                  height: _TabletSizes.lineHeight,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (onTap != null)
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppTheme.textSec(context),
-                size: _TabletSizes.chevronSize,
+                size: s.chevronSize.sp,
               ),
           ],
         ),

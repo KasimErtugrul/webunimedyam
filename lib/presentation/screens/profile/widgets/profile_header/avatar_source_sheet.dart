@@ -1,9 +1,4 @@
 // lib/presentation/screens/profile/widgets/profile_header/avatar_source_sheet.dart
-//
-// Profil fotoğrafı kaynağı (kamera/galeri) seçim sheet'i.
-// Hem profil başlığındaki avatar'da hem de "Profili Düzenle" ekranında
-// kullanılıyor — tek yerden yönetiliyor ki ikisi birbirinden sapmasın.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -13,33 +8,88 @@ import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 import '../../../../controllers/profile_controller.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final bool isTablet;
+  final double sheetRadius;
+  final double handleW;
+  final double handleH;
+  final double handleSpacing;
+  final double titleFontSize;
+  final double titleSpacing;
+  final double optionRadius;
+  final double optionPaddingH;
+  final double optionPaddingV;
+  final double optionIconBox;
+  final double optionIconBoxRadius;
+  final double optionIconSize;
+  final double optionTitleFontSize;
+  final double optionSubtitleFontSize;
+  final double optionSpacing;
+  final double bottomPadding;
 
-class _PhoneSizes {
-  static const double sheetBorderRadius = 20;
-  static const double sheetVerticalPadding = 12;
-  static const double sheetTopPadding = 8;
-  static const double sheetBottomPadding = 8;
-  static const double titleFontSize = 16;
-  static const double tileFontSize = 14;
-  static const double titleSpacing = 8;
+  const _Sizes._({
+    required this.isTablet,
+    required this.sheetRadius,
+    required this.handleW,
+    required this.handleH,
+    required this.handleSpacing,
+    required this.titleFontSize,
+    required this.titleSpacing,
+    required this.optionRadius,
+    required this.optionPaddingH,
+    required this.optionPaddingV,
+    required this.optionIconBox,
+    required this.optionIconBoxRadius,
+    required this.optionIconSize,
+    required this.optionTitleFontSize,
+    required this.optionSubtitleFontSize,
+    required this.optionSpacing,
+    required this.bottomPadding,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        sheetRadius: 28,
+        handleW: 48,
+        handleH: 5,
+        handleSpacing: 14,
+        titleFontSize: 20,
+        titleSpacing: 20,
+        optionRadius: 16,
+        optionPaddingH: 16,
+        optionPaddingV: 14,
+        optionIconBox: 48,
+        optionIconBoxRadius: 14,
+        optionIconSize: 24,
+        optionTitleFontSize: 16,
+        optionSubtitleFontSize: 13,
+        optionSpacing: 10,
+        bottomPadding: 24,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      sheetRadius: 24,
+      handleW: 40,
+      handleH: 4,
+      handleSpacing: 12,
+      titleFontSize: 17,
+      titleSpacing: 16,
+      optionRadius: 14,
+      optionPaddingH: 14,
+      optionPaddingV: 12,
+      optionIconBox: 42,
+      optionIconBoxRadius: 12,
+      optionIconSize: 20,
+      optionTitleFontSize: 15,
+      optionSubtitleFontSize: 12,
+      optionSpacing: 8,
+      bottomPadding: 20,
+    );
+  }
 }
-
-class _TabletSizes {
-  static const double sheetBorderRadius = 24;
-  static const double sheetVerticalPadding = 16;
-  static const double sheetTopPadding = 10;
-  static const double sheetBottomPadding = 10;
-  static const double titleFontSize = 20;
-  static const double tileFontSize = 16;
-  static const double titleSpacing = 10;
-}
-
-// ═══════════════════════════════════════════════════════════
-// FUNCTIONS
-// ═══════════════════════════════════════════════════════════
 
 Future<void> _pickAndNotify(
   ProfileController controller,
@@ -58,80 +108,162 @@ Future<void> _pickAndNotify(
 void showAvatarSourceSheet(BuildContext context, ProfileController controller) {
   if (!controller.isOwnProfile || controller.isUploadingAvatar.value) return;
 
-  final isTablet = Responsive.isTablet(context);
- // final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
+  final spec = _Sizes.of(context);
+  double w(double v) => spec.isTablet ? v : v.w;
+  double h(double v) => spec.isTablet ? v : v.h;
 
   Get.bottomSheet(
     SafeArea(
+      top: false,
       child: Container(
         decoration: BoxDecoration(
           color: AppTheme.card(context),
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(
-              isTablet ? _TabletSizes.sheetBorderRadius : _PhoneSizes.sheetBorderRadius.r,
-            ),
+            top: Radius.circular(w(spec.sheetRadius)),
           ),
-        ),
-        padding: EdgeInsets.symmetric(
-          vertical: isTablet ? _TabletSizes.sheetVerticalPadding : _PhoneSizes.sheetVerticalPadding.h,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              height: isTablet ? _TabletSizes.sheetTopPadding : _PhoneSizes.sheetTopPadding.h,
+            SizedBox(height: h(spec.handleSpacing)),
+            // Handle
+            Container(
+              width: w(spec.handleW),
+              height: h(spec.handleH),
+              decoration: BoxDecoration(
+                color: AppTheme.textSec(context).withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(h(spec.handleH)),
+              ),
             ),
+            SizedBox(height: h(spec.handleSpacing)),
+
+            // Başlık
             Text(
               'Profil Fotoğrafı',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: isTablet ? _TabletSizes.titleFontSize : _PhoneSizes.titleFontSize.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: spec.titleFontSize.sp,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(
-              height: isTablet ? _TabletSizes.titleSpacing : _PhoneSizes.titleSpacing.h,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_camera_outlined,
-                color: AppTheme.textPri(context),
-              ),
-              title: Text(
-                'Kameradan Çek',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: isTablet ? _TabletSizes.tileFontSize : _PhoneSizes.tileFontSize.sp,
-                ),
-              ),
+            SizedBox(height: h(spec.titleSpacing)),
+
+            // Kamera
+            _SourceOption(
+              spec: spec,
+              icon: Icons.photo_camera_rounded,
+              color: const Color(0xFF3B82F6),
+              title: 'Kameradan Çek',
+              subtitle: 'Yeni bir fotoğraf çek',
               onTap: () {
                 Get.back();
                 _pickAndNotify(controller, ImageSource.camera);
               },
             ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_library_outlined,
-                color: AppTheme.textPri(context),
-              ),
-              title: Text(
-                'Galeriden Seç',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: isTablet ? _TabletSizes.tileFontSize : _PhoneSizes.tileFontSize.sp,
-                ),
-              ),
+            SizedBox(height: h(spec.optionSpacing)),
+
+            // Galeri
+            _SourceOption(
+              spec: spec,
+              icon: Icons.photo_library_rounded,
+              color: const Color(0xFF8B5CF6),
+              title: 'Galeriden Seç',
+              subtitle: 'Cihazındaki bir fotoğrafı kullan',
               onTap: () {
                 Get.back();
                 _pickAndNotify(controller, ImageSource.gallery);
               },
             ),
-            SizedBox(
-              height: isTablet ? _TabletSizes.sheetBottomPadding : _PhoneSizes.sheetBottomPadding.h,
-            ),
+            SizedBox(height: h(spec.bottomPadding)),
           ],
         ),
       ),
     ),
   );
+}
+
+class _SourceOption extends StatelessWidget {
+  final _Sizes spec;
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SourceOption({
+    required this.spec,
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double w(double v) => spec.isTablet ? v : v.w;
+    double h(double v) => spec.isTablet ? v : v.h;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Material(
+        color: AppTheme.surface(context),
+        borderRadius: BorderRadius.circular(w(spec.optionRadius)),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(w(spec.optionRadius)),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: w(spec.optionPaddingH),
+              vertical: h(spec.optionPaddingV),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: w(spec.optionIconBox),
+                  height: w(spec.optionIconBox),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.14),
+                    borderRadius:
+                        BorderRadius.circular(w(spec.optionIconBoxRadius)),
+                  ),
+                  child: Icon(icon, color: color, size: spec.optionIconSize.sp),
+                ),
+                SizedBox(width: w(12)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontSize: spec.optionTitleFontSize.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: h(2)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: AppTheme.textSec(context),
+                          fontSize: spec.optionSubtitleFontSize.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppTheme.textSec(context).withValues(alpha: 0.5),
+                  size: spec.optionIconSize.sp + 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

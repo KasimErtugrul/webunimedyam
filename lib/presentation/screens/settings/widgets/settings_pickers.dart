@@ -1,0 +1,531 @@
+// lib/presentation/screens/settings/widgets/settings_pickers.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
+import '../../../../app/themes/app_theme.dart';
+import '../../../../data/models/user_settings_model.dart';
+import '../settings_layout_spec.dart';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ORTAK SHEET İSKELETİ
+// ═══════════════════════════════════════════════════════════════════════════
+
+void _showSheet({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required String title,
+  String? subtitle,
+  required Widget child,
+}) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: AppTheme.card(context),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(spec.sheetRadius.r),
+      ),
+    ),
+    builder: (_) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: spec.sheetHandleSpacing.h),
+          Container(
+            width: spec.sheetHandleWidth.w,
+            height: spec.sheetHandleHeight.h,
+            decoration: BoxDecoration(
+              color: AppTheme.textSec(context).withValues(alpha: 0.25),
+              borderRadius:
+                  BorderRadius.circular(spec.sheetHandleHeight.r),
+            ),
+          ),
+          SizedBox(height: spec.sheetHandleSpacing.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: spec.sheetTitleFontSize.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPri(context),
+            ),
+          ),
+          if (subtitle != null) ...[
+            SizedBox(height: 4.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: spec.sheetSubtitleFontSize.sp,
+                  color: AppTheme.textSec(context),
+                ),
+              ),
+            ),
+          ],
+          SizedBox(height: spec.sheetOptionSpacing.h),
+          child,
+          SizedBox(height: spec.sheetPaddingBottom.h),
+        ],
+      ),
+    ),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// OPSİYON SATIRI
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SheetOption extends StatelessWidget {
+  final SettingsLayoutSpec spec;
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final bool isCurrent;
+  final bool isEnabled;
+  final String? disabledReason;
+  final Widget? preview;
+  final VoidCallback? onTap;
+
+  const _SheetOption({
+    required this.spec,
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.isCurrent,
+    this.isEnabled = true,
+    this.disabledReason,
+    this.preview,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Opacity(
+        opacity: isEnabled ? 1.0 : 0.4,
+        child: Material(
+          color: isCurrent
+              ? color.withValues(alpha: isDark ? 0.18 : 0.10)
+              : AppTheme.surface(context).withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(16.r),
+          child: InkWell(
+            onTap: isEnabled ? onTap : null,
+            borderRadius: BorderRadius.circular(16.r),
+            child: Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Row(
+                children: [
+                  Container(
+                    width: spec.sheetOptionIconBoxSize.w,
+                    height: spec.sheetOptionIconBoxSize.w,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(
+                        spec.sheetOptionIconBoxRadius.r,
+                      ),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: color,
+                      size: spec.sheetOptionIconSize.sp,
+                    ),
+                  ),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
+                            fontSize: spec.sheetOptionTitleFontSize.sp,
+                            fontWeight:
+                                isCurrent ? FontWeight.w700 : FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          isEnabled ? subtitle : (disabledReason ?? subtitle),
+                          style: TextStyle(
+                            color: AppTheme.textSec(context),
+                            fontSize: spec.sheetOptionSubtitleFontSize.sp,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (preview != null) ...[
+                    SizedBox(width: 12.w),
+                    preview!,
+                  ] else if (isCurrent) ...[
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: color,
+                      size: 22.sp,
+                    ),
+                  ] else if (!isEnabled) ...[
+                    Icon(
+                      Icons.lock_outline,
+                      color: AppTheme.textSec(context),
+                      size: 18.sp,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TEMA PICKER
+// ═══════════════════════════════════════════════════════════════════════════
+
+void showSettingsThemePicker({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required String current,
+  required ValueChanged<String> onChanged,
+}) {
+  _showSheet(
+    context: context,
+    spec: spec,
+    title: 'Tema',
+    subtitle: 'Uygulama görünümünü seç',
+    child: Column(
+      children: [
+        _themeOption(context, spec, 'system', 'Sistem', current, onChanged),
+        SizedBox(height: 8.h),
+        _themeOption(context, spec, 'light', 'Açık', current, onChanged),
+        SizedBox(height: 8.h),
+        _themeOption(context, spec, 'dark', 'Koyu', current, onChanged),
+      ],
+    ),
+  );
+}
+
+Widget _themeOption(
+  BuildContext context,
+  SettingsLayoutSpec spec,
+  String value,
+  String label,
+  String current,
+  ValueChanged<String> onChanged,
+) {
+  const colors = {
+    'system': (Icons.brightness_auto_rounded, Color(0xFF8B5CF6)),
+    'light': (Icons.light_mode_rounded, Color(0xFFF59E0B)),
+    'dark': (Icons.dark_mode_rounded, Color(0xFF6366F1)),
+  };
+  final (icon, color) = colors[value]!;
+
+  return _SheetOption(
+    spec: spec,
+    icon: icon,
+    color: color,
+    title: label,
+    subtitle: value == 'system'
+        ? 'Cihaz ayarını takip et'
+        : value == 'light'
+            ? 'Her zaman açık tema'
+            : 'Her zaman koyu tema',
+    isCurrent: value == current,
+    preview: _ThemePreview(spec: spec, mode: value),
+    onTap: () {
+      Get.back();
+      onChanged(value);
+    },
+  );
+}
+
+class _ThemePreview extends StatelessWidget {
+  final SettingsLayoutSpec spec;
+  final String mode;
+  const _ThemePreview({required this.spec, required this.mode});
+
+  @override
+  Widget build(BuildContext context) {
+    const light = Color(0xFFF5F5F5);
+    const dark = Color(0xFF1A1A1A);
+
+    Widget swatch(Color color, {bool top = true}) => Container(
+          width: 18.w,
+          height: 14.h,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.vertical(
+              top: top ? Radius.circular(4.r) : Radius.zero,
+              bottom: top ? Radius.zero : Radius.circular(4.r),
+            ),
+            border: Border.all(
+              color: Colors.black.withValues(alpha: 0.08),
+              width: 0.5,
+            ),
+          ),
+        );
+
+    return SizedBox(
+      width: 18.w,
+      height: 28.h,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4.r),
+        child: Column(
+          children: [
+            if (mode == 'system') ...[
+              swatch(light),
+              swatch(dark, top: false),
+            ] else if (mode == 'light')
+              Expanded(child: swatch(light, top: false)),
+            if (mode == 'dark')
+              Expanded(child: swatch(dark, top: false)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANA SAYFA LAYOUT PICKER
+// ═══════════════════════════════════════════════════════════════════════════
+
+void showSettingsHomeLayoutPicker({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required String current,
+  required ValueChanged<String> onChanged,
+}) {
+  _showSheet(
+    context: context,
+    spec: spec,
+    title: 'Ana Sayfa Görünümü',
+    subtitle: 'Videoların nasıl görüneceğini seç',
+    child: Column(
+      children: [
+        _layoutOption(
+          context,
+          spec,
+          'list',
+          'Liste Görünümü',
+          'Videolar alt alta listelenir',
+          Icons.view_list_rounded,
+          const Color(0xFF14B8A6),
+          current,
+          onChanged,
+        ),
+        SizedBox(height: 8.h),
+        _layoutOption(
+          context,
+          spec,
+          'wheel',
+          'Wheel Görünümü',
+          'Videolar çark şeklinde döner',
+          Icons.donut_large_rounded,
+          const Color(0xFF8B5CF6),
+          current,
+          onChanged,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _layoutOption(
+  BuildContext context,
+  SettingsLayoutSpec spec,
+  String value,
+  String title,
+  String subtitle,
+  IconData icon,
+  Color color,
+  String current,
+  ValueChanged<String> onChanged,
+) {
+  return _SheetOption(
+    spec: spec,
+    icon: icon,
+    color: color,
+    title: title,
+    subtitle: subtitle,
+    isCurrent: value == current,
+    preview: _LayoutPreview(spec: spec, mode: value, color: color),
+    onTap: () {
+      Get.back();
+      onChanged(value);
+    },
+  );
+}
+
+class _LayoutPreview extends StatelessWidget {
+  final SettingsLayoutSpec spec;
+  final String mode;
+  final Color color;
+  const _LayoutPreview({
+    required this.spec,
+    required this.mode,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34.w,
+      height: 28.h,
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: AppTheme.surface(context),
+        borderRadius: BorderRadius.circular(6.r),
+        border: Border.all(
+          color: AppTheme.textSec(context).withValues(alpha: 0.15),
+          width: 0.6,
+        ),
+      ),
+      child: mode == 'list' ? _listPreview() : _wheelPreview(),
+    );
+  }
+
+  Widget _listPreview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (int i = 0; i < 3; i++) ...[
+          if (i > 0) SizedBox(height: 2.h),
+          Container(
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.4 + i * 0.2),
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _wheelPreview() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 10.w,
+          height: 10.w,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.7),
+            shape: BoxShape.circle,
+          ),
+        ),
+        Positioned(
+          left: 2.w,
+          child: Container(
+            width: 6.w,
+            height: 6.w,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+        Positioned(
+          right: 2.w,
+          child: Container(
+            width: 6.w,
+            height: 6.w,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GÖRÜNÜRLÜK PICKER
+// ═══════════════════════════════════════════════════════════════════════════
+
+Future<void> showSettingsVisibilitySheet({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required String title,
+  required String subtitle,
+  required VisibilityOption current,
+  required VisibilityOption? ceiling,
+  required Future<void> Function(VisibilityOption) onChanged,
+}) async {
+  const order = [VisibilityOption.private, VisibilityOption.public];
+
+  bool isAllowed(VisibilityOption option) {
+    if (ceiling == null) return true;
+    return order.indexOf(option) <= order.indexOf(ceiling);
+  }
+
+  _showSheet(
+    context: context,
+    spec: spec,
+    title: title,
+    subtitle: subtitle,
+    child: Column(
+      children: [
+        for (final option in VisibilityOption.values) ...[
+          _visibilityOption(
+            context: context,
+            spec: spec,
+            option: option,
+            isCurrent: option == current,
+            isAllowed: isAllowed(option),
+            ceiling: ceiling,
+            onTap: () async {
+              if (!isAllowed(option)) return;
+              Get.back();
+              await onChanged(option);
+            },
+          ),
+          if (option != VisibilityOption.values.last) SizedBox(height: 8.h),
+        ],
+      ],
+    ),
+  );
+}
+
+Widget _visibilityOption({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required VisibilityOption option,
+  required bool isCurrent,
+  required bool isAllowed,
+  required VisibilityOption? ceiling,
+  required VoidCallback onTap,
+}) {
+  final (icon, color) = switch (option) {
+    VisibilityOption.public => (Icons.public_rounded, const Color(0xFF10B981)),
+    VisibilityOption.private => (Icons.lock_rounded, const Color(0xFFF59E0B)),
+  };
+
+  return _SheetOption(
+    spec: spec,
+    icon: icon,
+    color: color,
+    title: option.label,
+    subtitle: option.sublabel,
+    isCurrent: isCurrent,
+    isEnabled: isAllowed,
+    disabledReason: ceiling != null
+        ? 'Profil "${ceiling.label}" olduğu için seçilemiyor'
+        : null,
+    onTap: onTap,
+  );
+}

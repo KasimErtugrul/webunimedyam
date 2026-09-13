@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 import '../../data/models/university_model.dart';
 import '../../data/models/video_model.dart';
 import '../../data/repositories/video_repository.dart';
-import 'home_controller.dart';
+import 'home/home_controller.dart';
 
 class UniversityWheelController extends GetxController {
   final VideoRepository videoRepository;

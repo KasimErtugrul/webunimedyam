@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
-import '../../controllers/home_controller.dart';
+import '../../controllers/home/home_controller.dart';
 
 import '../profile/profile_screen.dart';
 import '../search/search_screen.dart';

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
 import '../../services/analytics_service.dart';
-import 'auth_controller.dart';
+import 'auth/session_controller.dart';
 import 'profile_controller.dart';
 
 class SettingsController extends GetxService {
@@ -385,8 +385,8 @@ class SettingsController extends GetxService {
 
   Future<void> signOut() async {
     try {
-      if (Get.isRegistered<AuthController>()) {
-        await Get.find<AuthController>().signOut();
+      if (Get.isRegistered<SessionController>()) {
+        await Get.find<SessionController>().signOut();
       } else {
         await authRepository.signOut();
         Get.offAllNamed('/home');

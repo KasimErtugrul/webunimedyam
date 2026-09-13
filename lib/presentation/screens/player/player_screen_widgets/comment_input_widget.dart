@@ -1,76 +1,86 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Yorum giriş alanı - KENDİ CONTROLLER'INI YÖNETİR
-// ═══════════════════════════════════════════════════════════════════════════
-
+// lib/presentation/screens/player/player_screen_widgets/comment_input_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double containerPaddingH;
+  final double containerPaddingV;
+  final double containerRadius;
+  final double containerBorderOpacity;
+  final double containerShadowBlur;
+  final double containerShadowOpacity;
+  final double textFieldFontSize;
+  final double textFieldVerticalPadding;
+  final double textFieldLeftSpacing;
+  final double sendButtonRadius;
+  final double sendButtonPadding;
+  final double sendButtonIconSize;
+  final double sendButtonDisabledAlpha;
+  final double sendButtonSplashAlpha;
+  final double rightSpacing;
 
-class _PhoneSizes {
-  // Container
-  static const double containerPaddingHorizontal = 8;
-  static const double containerPaddingVertical = 6;
-  static const double containerBorderRadius = 28;
-  static const double containerBorderOpacity = 0.1;
-  static const double containerShadowBlur = 10;
-  static const double containerShadowOpacity = 0.05;
+  const _Sizes._({
+    required this.containerPaddingH,
+    required this.containerPaddingV,
+    required this.containerRadius,
+    required this.containerBorderOpacity,
+    required this.containerShadowBlur,
+    required this.containerShadowOpacity,
+    required this.textFieldFontSize,
+    required this.textFieldVerticalPadding,
+    required this.textFieldLeftSpacing,
+    required this.sendButtonRadius,
+    required this.sendButtonPadding,
+    required this.sendButtonIconSize,
+    required this.sendButtonDisabledAlpha,
+    required this.sendButtonSplashAlpha,
+    required this.rightSpacing,
+  });
 
-  // Text field
-  static const double textFieldFontSize = 14;
-  static const double textFieldVerticalPadding = 10;
-  static const double textFieldLeftSpacing = 12;
-
-  // Send button
-  static const double sendButtonRadius = 20;
-  static const double sendButtonPadding = 8;
-  static const double sendButtonIconSize = 18;
-  static const double sendButtonDisabledAlpha = 0.2;
-  static const double sendButtonSplashAlpha = 0.2;
-
-  // Spacing
-  static const double rightSpacing = 4;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 200);
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        containerPaddingH: 12,
+        containerPaddingV: 8,
+        containerRadius: 32,
+        containerBorderOpacity: 0.1,
+        containerShadowBlur: 14,
+        containerShadowOpacity: 0.06,
+        textFieldFontSize: 16,
+        textFieldVerticalPadding: 12,
+        textFieldLeftSpacing: 16,
+        sendButtonRadius: 24,
+        sendButtonPadding: 10,
+        sendButtonIconSize: 22,
+        sendButtonDisabledAlpha: 0.2,
+        sendButtonSplashAlpha: 0.2,
+        rightSpacing: 6,
+      );
+    }
+    return const _Sizes._(
+      containerPaddingH: 8,
+      containerPaddingV: 6,
+      containerRadius: 28,
+      containerBorderOpacity: 0.1,
+      containerShadowBlur: 10,
+      containerShadowOpacity: 0.05,
+      textFieldFontSize: 14,
+      textFieldVerticalPadding: 10,
+      textFieldLeftSpacing: 12,
+      sendButtonRadius: 20,
+      sendButtonPadding: 8,
+      sendButtonIconSize: 18,
+      sendButtonDisabledAlpha: 0.2,
+      sendButtonSplashAlpha: 0.2,
+      rightSpacing: 4,
+    );
+  }
 }
 
-class _TabletSizes {
-  // Container - tablet için daha büyük
-  static const double containerPaddingHorizontal = 12;
-  static const double containerPaddingVertical = 8;
-  static const double containerBorderRadius = 32;
-  static const double containerBorderOpacity = 0.1;
-  static const double containerShadowBlur = 14;
-  static const double containerShadowOpacity = 0.06;
-
-  // Text field - tablet için daha büyük
-  static const double textFieldFontSize = 16;
-  static const double textFieldVerticalPadding = 12;
-  static const double textFieldLeftSpacing = 16;
-
-  // Send button - tablet için daha büyük
-  static const double sendButtonRadius = 24;
-  static const double sendButtonPadding = 10;
-  static const double sendButtonIconSize = 22;
-  static const double sendButtonDisabledAlpha = 0.2;
-  static const double sendButtonSplashAlpha = 0.2;
-
-  // Spacing - tablet için daha geniş
-  static const double rightSpacing = 6;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 200);
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateful)
-// ═══════════════════════════════════════════════════════════
+const Duration _kAnimDuration = Duration(milliseconds: 200);
 
 class CommentInputWidget extends StatefulWidget {
   final void Function(String text) onSend;
@@ -109,12 +119,9 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
 
   void _updateTextState() {
     if (_isDisposed) return;
-
     final hasText = _textController.text.trim().isNotEmpty;
     if (hasText != _hasText) {
-      setState(() {
-        _hasText = hasText;
-      });
+      setState(() => _hasText = hasText);
     }
   }
 
@@ -127,58 +134,52 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.containerPaddingHorizontal.w,
-        vertical: _PhoneSizes.containerPaddingVertical.h,
+        horizontal: s.containerPaddingH.w,
+        vertical: s.containerPaddingV.h,
       ),
       decoration: BoxDecoration(
         color: AppTheme.surface(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.containerBorderRadius.r),
+        borderRadius: BorderRadius.circular(s.containerRadius.r),
         border: Border.all(
-          color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.containerBorderOpacity),
+          color: AppTheme.textSec(context)
+              .withValues(alpha: s.containerBorderOpacity),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:_PhoneSizes.containerShadowOpacity),
-            blurRadius: _PhoneSizes.containerShadowBlur.r,
+            color: Colors.black.withValues(alpha: s.containerShadowOpacity),
+            blurRadius: s.containerShadowBlur.r,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          SizedBox(width: _PhoneSizes.textFieldLeftSpacing.w),
+          SizedBox(width: s.textFieldLeftSpacing.w),
           Expanded(
             child: TextField(
               controller: _textController,
               focusNode: widget.focusNode,
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: _PhoneSizes.textFieldFontSize.sp,
+                fontSize: s.textFieldFontSize.sp,
               ),
               decoration: InputDecoration(
                 hintText: 'Yorum ekle...',
                 hintStyle: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.textFieldFontSize.sp,
+                  fontSize: s.textFieldFontSize.sp,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: _PhoneSizes.textFieldVerticalPadding.h,
+                  vertical: s.textFieldVerticalPadding.h,
                 ),
                 isDense: true,
               ),
@@ -187,115 +188,33 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
             ),
           ),
           AnimatedContainer(
-            duration: _PhoneSizes.animDuration,
+            duration: _kAnimDuration,
             curve: Curves.easeInOut,
             child: Material(
               color: _hasText
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textSec(context).withValues(alpha:_PhoneSizes.sendButtonDisabledAlpha),
-              borderRadius: BorderRadius.circular(_PhoneSizes.sendButtonRadius.r),
+                  ? primary
+                  : AppTheme.textSec(context)
+                      .withValues(alpha: s.sendButtonDisabledAlpha),
+              borderRadius: BorderRadius.circular(s.sendButtonRadius.r),
               child: InkWell(
                 onTap: _handleSend,
-                borderRadius: BorderRadius.circular(_PhoneSizes.sendButtonRadius.r),
-                splashColor: Colors.white.withValues(alpha:_PhoneSizes.sendButtonSplashAlpha),
+                borderRadius: BorderRadius.circular(s.sendButtonRadius.r),
+                splashColor:
+                    Colors.white.withValues(alpha: s.sendButtonSplashAlpha),
                 child: Padding(
-                  padding: EdgeInsets.all(_PhoneSizes.sendButtonPadding.w),
+                  padding: EdgeInsets.all(s.sendButtonPadding.w),
                   child: Icon(
                     Icons.send_rounded,
                     color: _hasText
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : AppTheme.textSec(context).withValues(alpha:0.5),
-                    size: _PhoneSizes.sendButtonIconSize.sp,
+                        ? onPrimary
+                        : AppTheme.textSec(context).withValues(alpha: 0.5),
+                    size: s.sendButtonIconSize.sp,
                   ),
                 ),
               ),
             ),
           ),
-          SizedBox(width: _PhoneSizes.rightSpacing.w),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: _TabletSizes.containerPaddingHorizontal,
-        vertical: _TabletSizes.containerPaddingVertical,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.surface(context),
-        borderRadius: BorderRadius.circular(_TabletSizes.containerBorderRadius),
-        border: Border.all(
-          color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.containerBorderOpacity),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha:_TabletSizes.containerShadowOpacity),
-            blurRadius: _TabletSizes.containerShadowBlur,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          SizedBox(width: _TabletSizes.textFieldLeftSpacing),
-          Expanded(
-            child: TextField(
-              controller: _textController,
-              focusNode: widget.focusNode,
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: _TabletSizes.textFieldFontSize,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Yorum ekle...',
-                hintStyle: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _TabletSizes.textFieldFontSize,
-                ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: _TabletSizes.textFieldVerticalPadding,
-                ),
-                isDense: true,
-              ),
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _handleSend(),
-            ),
-          ),
-          AnimatedContainer(
-            duration: _TabletSizes.animDuration,
-            curve: Curves.easeInOut,
-            child: Material(
-              color: _hasText
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textSec(context).withValues(alpha:_TabletSizes.sendButtonDisabledAlpha),
-              borderRadius: BorderRadius.circular(_TabletSizes.sendButtonRadius),
-              child: InkWell(
-                onTap: _handleSend,
-                borderRadius: BorderRadius.circular(_TabletSizes.sendButtonRadius),
-                splashColor: Colors.white.withValues(alpha:_TabletSizes.sendButtonSplashAlpha),
-                child: Padding(
-                  padding: EdgeInsets.all(_TabletSizes.sendButtonPadding),
-                  child: Icon(
-                    Icons.send_rounded,
-                    color: _hasText
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : AppTheme.textSec(context).withValues(alpha:0.5),
-                    size: _TabletSizes.sendButtonIconSize,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: _TabletSizes.rightSpacing),
+          SizedBox(width: s.rightSpacing.w),
         ],
       ),
     );

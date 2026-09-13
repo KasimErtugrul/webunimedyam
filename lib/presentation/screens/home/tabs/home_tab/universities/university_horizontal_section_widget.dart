@@ -1,4 +1,4 @@
-// lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_horizontal_section_widget.dart
+/* // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_horizontal_section_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -428,4 +428,4 @@ class UniversityHorizontalSection extends StatelessWidget {
       ),
     );
   }
-}
+} */

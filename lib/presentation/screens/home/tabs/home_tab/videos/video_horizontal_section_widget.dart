@@ -1,4 +1,4 @@
-// lib/presentation/screens/home/widgets/tabs/home_tab/videos/video_horizontal_section_widget.dart
+/* // lib/presentation/screens/home/widgets/tabs/home_tab/videos/video_horizontal_section_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -392,4 +392,4 @@ class VideoHorizontalSection extends StatelessWidget {
       ),
     );
   }
-}
+} */

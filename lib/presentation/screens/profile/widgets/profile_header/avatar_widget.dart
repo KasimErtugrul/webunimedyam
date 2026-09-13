@@ -1,43 +1,66 @@
 // lib/presentation/screens/profile/widgets/profile_header/avatar_widget.dart
-//
-// Profil avatarı — hem profil başlığında (ProfileHeaderWidget) hem de
-// "Profili Düzenle" ekranında (edit_profile_screen.dart) kullanılıyor.
-// Tek yerden yönetiliyor ki ikisi birbirinden sapmasın.
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final bool isTablet;
+  final double outerBorderWidth;
+  final double innerPadding;
+  final double shadowBlur;
+  final double shadowOffsetY;
+  final double loadingIndicatorSize;
+  final double loadingStrokeWidth;
+  final double badgeSizeRatio;
+  final double badgeBorderWidth;
+  final double badgeIconRatio;
 
-class _PhoneSizes {
-  static const double avatarPadding = 3;
-  static const double shadowBlurRadius = 14;
-  static const double shadowOffsetY = 5;
-  static const double loadingIndicatorSize = 26;
-  static const double loadingStrokeWidth = 2.5;
-  static const double badgeBorderWidth = 2;
-  static const double badgeIconScale = 0.5;
+  const _Sizes._({
+    required this.isTablet,
+    required this.outerBorderWidth,
+    required this.innerPadding,
+    required this.shadowBlur,
+    required this.shadowOffsetY,
+    required this.loadingIndicatorSize,
+    required this.loadingStrokeWidth,
+    required this.badgeSizeRatio,
+    required this.badgeBorderWidth,
+    required this.badgeIconRatio,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        outerBorderWidth: 2.5,
+        innerPadding: 4,
+        shadowBlur: 20,
+        shadowOffsetY: 6,
+        loadingIndicatorSize: 32,
+        loadingStrokeWidth: 3,
+        badgeSizeRatio: 0.32,
+        badgeBorderWidth: 2.5,
+        badgeIconRatio: 0.5,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      outerBorderWidth: 2,
+      innerPadding: 3,
+      shadowBlur: 16,
+      shadowOffsetY: 5,
+      loadingIndicatorSize: 26,
+      loadingStrokeWidth: 2.5,
+      badgeSizeRatio: 0.32,
+      badgeBorderWidth: 2,
+      badgeIconRatio: 0.5,
+    );
+  }
 }
-
-class _TabletSizes {
-  static const double avatarPadding = 4;
-  static const double shadowBlurRadius = 18;
-  static const double shadowOffsetY = 6;
-  static const double loadingIndicatorSize = 30;
-  static const double loadingStrokeWidth = 3;
-  static const double badgeBorderWidth = 2.5;
-  static const double badgeIconScale = 0.5;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class ProfileAvatarWidget extends StatelessWidget {
   final String? avatarUrl;
@@ -59,34 +82,38 @@ class ProfileAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
-  //  final sizes = isTablet ? _TabletSizes() : _PhoneSizes();
-    
+    final spec = _Sizes.of(context);
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
-    final badgeSize = size * 0.32;
+    final badgeSize = size * spec.badgeSizeRatio;
+
+    double w(double v) => spec.isTablet ? v : v.w;
+    double h(double v) => spec.isTablet ? v : v.h;
 
     return GestureDetector(
       onTap: isOwnProfile ? onTap : null,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
+          // ── Dış ring + shadow ──
           Container(
             width: size,
             height: size,
-            padding: EdgeInsets.all(
-              isTablet ? _TabletSizes.avatarPadding : _PhoneSizes.avatarPadding.w,
-            ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppTheme.bg(context),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  blurRadius: isTablet ? _TabletSizes.shadowBlurRadius : _PhoneSizes.shadowBlurRadius.r,
-                  offset: Offset(0, isTablet ? _TabletSizes.shadowOffsetY : _PhoneSizes.shadowOffsetY.h),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.25),
+                  blurRadius: w(spec.shadowBlur),
+                  offset: Offset(0, h(spec.shadowOffsetY)),
                 ),
               ],
+              border: Border.all(
+                color: AppTheme.primaryColor.withValues(alpha: 0.25),
+                width: w(spec.outerBorderWidth),
+              ),
             ),
+            padding: EdgeInsets.all(w(spec.innerPadding)),
             child: Container(
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
@@ -96,31 +123,33 @@ class ProfileAvatarWidget extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: hasImage
-                  ? ClipOval(
-                      child: CachedNetworkImage(
+              child: ClipOval(
+                child: hasImage
+                    ? CachedNetworkImage(
                         imageUrl: avatarUrl!,
                         fit: BoxFit.cover,
                         width: size,
                         height: size,
                         errorWidget: (_, _, _) =>
                             _InitialLetter(username: username, size: size),
-                      ),
-                    )
-                  : _InitialLetter(username: username, size: size),
+                      )
+                    : _InitialLetter(username: username, size: size),
+              ),
             ),
           ),
+
+          // ── Yükleniyor overlay ──
           if (isUploading)
             Positioned.fill(
               child: ClipOval(
                 child: Container(
-                  color: Colors.black.withValues(alpha: 0.45),
+                  color: Colors.black.withValues(alpha: 0.5),
                   child: Center(
                     child: SizedBox(
-                      width: isTablet ? _TabletSizes.loadingIndicatorSize : _PhoneSizes.loadingIndicatorSize.w,
-                      height: isTablet ? _TabletSizes.loadingIndicatorSize : _PhoneSizes.loadingIndicatorSize.w,
+                      width: w(spec.loadingIndicatorSize),
+                      height: w(spec.loadingIndicatorSize),
                       child: CircularProgressIndicator(
-                        strokeWidth: isTablet ? _TabletSizes.loadingStrokeWidth : _PhoneSizes.loadingStrokeWidth,
+                        strokeWidth: spec.loadingStrokeWidth,
                         color: Colors.white,
                       ),
                     ),
@@ -128,6 +157,8 @@ class ProfileAvatarWidget extends StatelessWidget {
                 ),
               ),
             ),
+
+          // ── Kamera badge (kendi profil, pulse) ──
           if (isOwnProfile && !isUploading && onTap != null)
             Positioned(
               right: -2.w,
@@ -140,15 +171,31 @@ class ProfileAvatarWidget extends StatelessWidget {
                   color: AppTheme.primaryColor,
                   border: Border.all(
                     color: AppTheme.bg(context),
-                    width: isTablet ? _TabletSizes.badgeBorderWidth : _PhoneSizes.badgeBorderWidth.w,
+                    width: w(spec.badgeBorderWidth),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   Icons.photo_camera_rounded,
                   color: Colors.white,
-                  size: badgeSize * (isTablet ? _TabletSizes.badgeIconScale : _PhoneSizes.badgeIconScale),
+                  size: badgeSize * spec.badgeIconRatio,
                 ),
-              ),
+              )
+                  .animate(
+                    onPlay: (c) => c.repeat(reverse: true),
+                  )
+                  .scaleXY(
+                    begin: 1,
+                    end: 1.08,
+                    duration: 1400.ms,
+                    curve: Curves.easeInOut,
+                  ),
             ),
         ],
       ),
@@ -159,6 +206,7 @@ class ProfileAvatarWidget extends StatelessWidget {
 class _InitialLetter extends StatelessWidget {
   final String username;
   final double size;
+
   const _InitialLetter({required this.username, this.size = 80});
 
   @override
@@ -170,6 +218,7 @@ class _InitialLetter extends StatelessWidget {
           color: Colors.white,
           fontSize: size * 0.4,
           fontWeight: FontWeight.bold,
+          letterSpacing: -1,
         ),
       ),
     );

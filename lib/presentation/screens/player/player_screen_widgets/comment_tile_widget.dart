@@ -1,5 +1,4 @@
 // lib/presentation/screens/player/player_screen_widgets/comment_tile_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -7,89 +6,99 @@ import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 import '../../../../data/models/comment_model.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double cardRadius;
+  final double cardPaddingH;
+  final double cardPaddingV;
+  final double avatarRadius;
+  final double avatarLetterFontSize;
+  final double avatarSpacing;
+  final double usernameTimeSpacing;
+  final double dotSpacing;
+  final double contentSpacing;
+  final double deleteButtonPadding;
+  final double usernameFontSize;
+  final double timeFontSize;
+  final double commentFontSize;
+  final double commentLineHeight;
+  final double deleteIconSize;
+  final double deleteSplashRadius;
+  final double deleteMinWidth;
+  final double deleteMinHeight;
 
-class _PhoneSizes {
-  // Kart
-  static const double cardBorderRadius = 12;
-  static const double cardPaddingHorizontal = 12;
-  static const double cardPaddingVertical = 10;
-  static const double cardBackgroundOpacity = 0.6;
-  static const double cardBorderOpacity = 0.08;
+  const _Sizes._({
+    required this.cardRadius,
+    required this.cardPaddingH,
+    required this.cardPaddingV,
+    required this.avatarRadius,
+    required this.avatarLetterFontSize,
+    required this.avatarSpacing,
+    required this.usernameTimeSpacing,
+    required this.dotSpacing,
+    required this.contentSpacing,
+    required this.deleteButtonPadding,
+    required this.usernameFontSize,
+    required this.timeFontSize,
+    required this.commentFontSize,
+    required this.commentLineHeight,
+    required this.deleteIconSize,
+    required this.deleteSplashRadius,
+    required this.deleteMinWidth,
+    required this.deleteMinHeight,
+  });
 
-  // Avatar
-  static const double avatarRadius = 18;
-  static const double avatarLetterFontSize = 14;
-
-  // Spacing
-  static const double avatarSpacing = 12;
-  static const double usernameTimeSpacing = 8;
-  static const double dotSpacing = 8;
-  static const double contentSpacing = 4;
-  static const double deleteButtonPadding = 4;
-
-  // Font sizes
-  static const double usernameFontSize = 13;
-  static const double timeFontSize = 11;
-  static const double commentFontSize = 13;
-  static const double commentLineHeight = 1.45;
-
-  // Delete button
-  static const double deleteIconSize = 18;
-  static const double deleteSplashRadius = 16;
-  static const double deleteMinWidth = 28;
-  static const double deleteMinHeight = 28;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        cardRadius: 14,
+        cardPaddingH: 16,
+        cardPaddingV: 14,
+        avatarRadius: 22,
+        avatarLetterFontSize: 16,
+        avatarSpacing: 14,
+        usernameTimeSpacing: 10,
+        dotSpacing: 10,
+        contentSpacing: 6,
+        deleteButtonPadding: 6,
+        usernameFontSize: 15,
+        timeFontSize: 13,
+        commentFontSize: 15,
+        commentLineHeight: 1.5,
+        deleteIconSize: 22,
+        deleteSplashRadius: 20,
+        deleteMinWidth: 34,
+        deleteMinHeight: 34,
+      );
+    }
+    return const _Sizes._(
+      cardRadius: 12,
+      cardPaddingH: 12,
+      cardPaddingV: 10,
+      avatarRadius: 18,
+      avatarLetterFontSize: 14,
+      avatarSpacing: 12,
+      usernameTimeSpacing: 8,
+      dotSpacing: 8,
+      contentSpacing: 4,
+      deleteButtonPadding: 4,
+      usernameFontSize: 13,
+      timeFontSize: 11,
+      commentFontSize: 13,
+      commentLineHeight: 1.45,
+      deleteIconSize: 18,
+      deleteSplashRadius: 16,
+      deleteMinWidth: 28,
+      deleteMinHeight: 28,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Kart - tablet için daha büyük
-  static const double cardBorderRadius = 14;
-  static const double cardPaddingHorizontal = 16;
-  static const double cardPaddingVertical = 14;
-  static const double cardBackgroundOpacity = 0.6;
-  static const double cardBorderOpacity = 0.08;
-
-  // Avatar - tablet için daha büyük
-  static const double avatarRadius = 22;
-  static const double avatarLetterFontSize = 16;
-
-  // Spacing - tablet için daha geniş
-  static const double avatarSpacing = 14;
-  static const double usernameTimeSpacing = 10;
-  static const double dotSpacing = 10;
-  static const double contentSpacing = 6;
-  static const double deleteButtonPadding = 6;
-
-  // Font sizes - tablet için daha büyük
-  static const double usernameFontSize = 15;
-  static const double timeFontSize = 13;
-  static const double commentFontSize = 15;
-  static const double commentLineHeight = 1.5;
-
-  // Delete button - tablet için daha büyük
-  static const double deleteIconSize = 22;
-  static const double deleteSplashRadius = 20;
-  static const double deleteMinWidth = 34;
-  static const double deleteMinHeight = 34;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class CommentTileWidget extends StatelessWidget {
+  static const String _kMaskedUsername = 'Gizli Kullanıcı';
+
   final CommentModel comment;
   final bool canDelete;
   final VoidCallback onDelete;
-
-  // BUG FIX: Ayarlar > Gizlilik > "Yorumlar" gizli yapıldığında,
-  // get_video_comments RPC'si başka kullanıcılar için username'i bu
-  // sabit metinle, avatar_url'i de null ile değiştiriyor. Burada bunu
-  // tanıyıp gerçek bir kişisel avatar/isim gibi göstermek yerine belirgin
-  // bir "gizli kullanıcı" görünümü (nötr gri + kişi ikonu) kullanıyoruz.
-  static const String _kMaskedUsername = 'Gizli Kullanıcı';
 
   const CommentTileWidget({
     super.key,
@@ -99,8 +108,7 @@ class CommentTileWidget extends StatelessWidget {
   });
 
   String _timeAgo(DateTime date) {
-    final Duration diff = DateTime.now().difference(date);
-
+    final diff = DateTime.now().difference(date);
     if (diff.inDays > 365) return '${(diff.inDays / 365).floor()} yıl önce';
     if (diff.inDays > 30) return '${(diff.inDays / 30).floor()} ay önce';
     if (diff.inDays > 7) return '${(diff.inDays / 7).floor()} hafta önce';
@@ -113,17 +121,9 @@ class CommentTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     final profile = comment.profile;
     final hasAvatar =
         profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
@@ -131,308 +131,136 @@ class CommentTileWidget extends StatelessWidget {
     final isMasked = username == _kMaskedUsername;
     final initial = username[0].toUpperCase();
 
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.cardPaddingHorizontal.w,
-          vertical: _PhoneSizes.cardPaddingVertical.h,
-        ),
-        decoration: BoxDecoration(
-          color: AppTheme.surface(
-            context,
-          ).withValues(alpha: _PhoneSizes.cardBackgroundOpacity),
-          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
-          border: Border.all(
-            color: AppTheme.textSec(
-              context,
-            ).withValues(alpha: _PhoneSizes.cardBorderOpacity),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ─── Avatar ────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: isMasked
-                    ? null
-                    : LinearGradient(
-                        colors: [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.6),
-                          Theme.of(context).colorScheme.primary,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                color: isMasked
-                    ? AppTheme.textSec(context).withValues(alpha: 0.3)
-                    : null,
-              ),
-              child: CircleAvatar(
-                radius: _PhoneSizes.avatarRadius.r,
-                backgroundColor: Colors.transparent,
-                backgroundImage: (hasAvatar && !isMasked)
-                    ? NetworkImage(profile.avatarUrl!)
-                    : null,
-                child: (hasAvatar && !isMasked)
-                    ? null
-                    : Center(
-                        child: isMasked
-                            ? Icon(
-                                Icons.person_rounded,
-                                color: Colors.white,
-                                size: _PhoneSizes.avatarRadius.r,
-                              )
-                            : Text(
-                                initial,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: _PhoneSizes.avatarLetterFontSize.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-              ),
-            ),
-            SizedBox(width: _PhoneSizes.avatarSpacing.w),
-
-            // ─── İçerik ─────────────────────────────────────────────
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Üst Satır: Kullanıcı Adı ve Zaman
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          username,
-                          style: TextStyle(
-                            color: AppTheme.textPri(context),
-                            fontWeight: FontWeight.w600,
-                            fontSize: _PhoneSizes.usernameFontSize.sp,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: _PhoneSizes.usernameTimeSpacing.w),
-                      Text(
-                        '·',
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: _PhoneSizes.usernameFontSize.sp,
-                        ),
-                      ),
-                      SizedBox(width: _PhoneSizes.dotSpacing.w),
-                      Text(
-                        _timeAgo(comment.createdAt),
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: _PhoneSizes.timeFontSize.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: _PhoneSizes.contentSpacing.h),
-                  Text(
-                    comment.content,
-                    style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.9),
-                      fontSize: _PhoneSizes.commentFontSize.sp,
-                      height: _PhoneSizes.commentLineHeight,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ─── Silme Butonu ───────────────────────────────────
-            if (canDelete)
-              Padding(
-                padding: EdgeInsets.only(
-                  left: _PhoneSizes.deleteButtonPadding.w,
-                ),
-                child: IconButton(
-                  onPressed: onDelete,
-                  icon: Icon(
-                    Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                    size: _PhoneSizes.deleteIconSize.sp,
-                  ),
-                  splashRadius: _PhoneSizes.deleteSplashRadius.r,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: _PhoneSizes.deleteMinWidth.w,
-                    minHeight: _PhoneSizes.deleteMinHeight.h,
-                  ),
-                ),
-              ),
-          ],
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: s.cardPaddingH.w,
+        vertical: s.cardPaddingV.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.surface(context).withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(s.cardRadius.r),
+        border: Border.all(
+          color: AppTheme.textSec(context).withValues(alpha: 0.08),
         ),
       ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final profile = comment.profile;
-    final hasAvatar =
-        profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty;
-    final username = profile?.username ?? 'Anonim';
-    final isMasked = username == _kMaskedUsername;
-    final initial = username[0].toUpperCase();
-
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: _TabletSizes.cardPaddingHorizontal,
-          vertical: _TabletSizes.cardPaddingVertical,
-        ),
-        decoration: BoxDecoration(
-          color: AppTheme.surface(
-            context,
-          ).withValues(alpha: _TabletSizes.cardBackgroundOpacity),
-          borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
-          border: Border.all(
-            color: AppTheme.textSec(
-              context,
-            ).withValues(alpha: _TabletSizes.cardBorderOpacity),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ─── Avatar ────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: isMasked
-                    ? null
-                    : LinearGradient(
-                        colors: [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.6),
-                          Theme.of(context).colorScheme.primary,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                color: isMasked
-                    ? AppTheme.textSec(context).withValues(alpha: 0.3)
-                    : null,
-              ),
-              child: CircleAvatar(
-                radius: _TabletSizes.avatarRadius,
-                backgroundColor: Colors.transparent,
-                backgroundImage: (hasAvatar && !isMasked)
-                    ? NetworkImage(profile.avatarUrl!)
-                    : null,
-                child: (hasAvatar && !isMasked)
-                    ? null
-                    : Center(
-                        child: isMasked
-                            ? Icon(
-                                Icons.person_rounded,
-                                color: Colors.white,
-                                size: _TabletSizes.avatarRadius,
-                              )
-                            : Text(
-                                initial,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: _TabletSizes.avatarLetterFontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-              ),
-            ),
-            SizedBox(width: _TabletSizes.avatarSpacing),
-
-            // ─── İçerik ─────────────────────────────────────────────
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Üst Satır: Kullanıcı Adı ve Zaman
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          username,
-                          style: TextStyle(
-                            color: AppTheme.textPri(context),
-                            fontWeight: FontWeight.w600,
-                            fontSize: _TabletSizes.usernameFontSize,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: _TabletSizes.usernameTimeSpacing),
-                      Text(
-                        '·',
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: _TabletSizes.usernameFontSize,
-                        ),
-                      ),
-                      SizedBox(width: _TabletSizes.dotSpacing),
-                      Text(
-                        _timeAgo(comment.createdAt),
-                        style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: _TabletSizes.timeFontSize,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: _TabletSizes.contentSpacing),
-                  Text(
-                    comment.content,
-                    style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.9),
-                      fontSize: _TabletSizes.commentFontSize,
-                      height: _TabletSizes.commentLineHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Avatar ──
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: isMasked
+                  ? null
+                  : LinearGradient(
+                      colors: [
+                        primary.withValues(alpha: 0.6),
+                        primary,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+              color: isMasked
+                  ? AppTheme.textSec(context).withValues(alpha: 0.3)
+                  : null,
+            ),
+            child: CircleAvatar(
+              radius: s.avatarRadius.r,
+              backgroundColor: Colors.transparent,
+              backgroundImage: (hasAvatar && !isMasked)
+                  ? NetworkImage(profile.avatarUrl!)
+                  : null,
+              child: (hasAvatar && !isMasked)
+                  ? null
+                  : Center(
+                      child: isMasked
+                          ? Icon(
+                              Icons.person_rounded,
+                              color: Colors.white,
+                              size: s.avatarRadius.r,
+                            )
+                          : Text(
+                              initial,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: s.avatarLetterFontSize.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+            ),
+          ),
+          SizedBox(width: s.avatarSpacing.w),
+
+          // ── İçerik ──
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        username,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontWeight: FontWeight.w600,
+                          fontSize: s.usernameFontSize.sp,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: s.usernameTimeSpacing.w),
+                    Text(
+                      '·',
+                      style: TextStyle(
+                        color: AppTheme.textSec(context),
+                        fontSize: s.usernameFontSize.sp,
+                      ),
+                    ),
+                    SizedBox(width: s.dotSpacing.w),
+                    Text(
+                      _timeAgo(comment.createdAt),
+                      style: TextStyle(
+                        color: AppTheme.textSec(context),
+                        fontSize: s.timeFontSize.sp,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: s.contentSpacing.h),
+                Text(
+                  comment.content,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.9),
+                    fontSize: s.commentFontSize.sp,
+                    height: s.commentLineHeight,
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── Sil ──
+          if (canDelete)
+            Padding(
+              padding: EdgeInsets.only(left: s.deleteButtonPadding.w),
+              child: IconButton(
+                onPressed: onDelete,
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                  size: s.deleteIconSize.sp,
+                ),
+                splashRadius: s.deleteSplashRadius.r,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(
+                  minWidth: s.deleteMinWidth.w,
+                  minHeight: s.deleteMinHeight.h,
+                ),
               ),
             ),
-
-            // ─── Silme Butonu ───────────────────────────────────
-            if (canDelete)
-              Padding(
-                padding: EdgeInsets.only(
-                  left: _TabletSizes.deleteButtonPadding,
-                ),
-                child: IconButton(
-                  onPressed: onDelete,
-                  icon: Icon(
-                    Icons.delete_outline_rounded,
-                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                    size: _TabletSizes.deleteIconSize,
-                  ),
-                  splashRadius: _TabletSizes.deleteSplashRadius,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: _TabletSizes.deleteMinWidth,
-                    minHeight: _TabletSizes.deleteMinHeight,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

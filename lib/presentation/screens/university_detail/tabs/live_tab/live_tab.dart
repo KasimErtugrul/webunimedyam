@@ -1,5 +1,4 @@
-// ─── Live Tab ──────────────────────────────────────────────────────────────
-
+// lib/presentation/screens/university_detail/tabs/live_tab/live_tab.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,17 +6,16 @@ import 'package:get/get.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/university_detail_controller.dart';
 import '../../../home/tabs/home_tab/widgets/video_card_widget.dart';
-import '../../utils/university_detail_sizes.dart';
-import '../videos_tab/empty_view.dart';
-import '../videos_tab/error_view.dart';
-import '../videos_tab/error_view_video_shimmer.dart';
+import '../../university_detail_layout_spec.dart';
+import '../../widgets/tab_state_views.dart';
 
 class UniversityDetailLiveTab extends StatelessWidget {
-  final UniversityDetailSizes sizes;
+  final UniversityDetailLayoutSpec spec;
   final UniversityDetailController controller;
+
   const UniversityDetailLiveTab({
     super.key,
-    required this.sizes,
+    required this.spec,
     required this.controller,
   });
 
@@ -29,18 +27,22 @@ class UniversityDetailLiveTab extends StatelessWidget {
       final liveList = controller.liveVideos;
 
       if (isLoading) {
-        return _buildShimmer(context);
+        return UniversityTabSkeleton(
+          child: spec.isTablet
+              ? _buildTabletGrid(context, const [], skeleton: true)
+              : _buildPhoneList(context, const [], skeleton: true),
+        );
       }
       if (error.isNotEmpty) {
-        return UniversityDetailVideosTabErrorView(
-          sizes: sizes,
-          error: error,
+        return UniversityTabErrorView(
+          spec: spec,
+          message: error,
           onRetry: controller.loadLiveVideos,
         );
       }
       if (liveList.isEmpty) {
-        return UniversityDetailVideosTabEmptyView(
-          sizes: sizes,
+        return UniversityTabEmptyView(
+          spec: spec,
           icon: Icons.sensors_off_rounded,
           title: 'Şu anda canlı yayın yok',
           subtitle: 'Bu üniversite şu anda canlı yayın yapmıyor.',
@@ -51,39 +53,25 @@ class UniversityDetailLiveTab extends StatelessWidget {
         color: AppTheme.primaryColor,
         backgroundColor: AppTheme.card(context),
         onRefresh: controller.loadLiveVideos,
-        child: sizes.isTablet
+        child: spec.isTablet
             ? _buildTabletGrid(context, liveList)
             : _buildPhoneList(context, liveList),
       );
     });
   }
 
-  Widget _buildShimmer(BuildContext context) {
-    return sizes.isTablet
-        ? GridView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-                  MediaQuery.orientationOf(context) == Orientation.landscape
-                  ? 3
-                  : 2,
-              childAspectRatio: 0.72,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: 4,
-            itemBuilder: (_, __) =>
-                UniversityDetailVideosTabErrorViewVideoShimmer(sizes: sizes),
-          )
-        : ListView.builder(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            itemCount: 3,
-            itemBuilder: (_, __) =>
-                UniversityDetailVideosTabErrorViewVideoShimmer(sizes: sizes),
-          );
-  }
-
-  Widget _buildPhoneList(BuildContext context, List<dynamic> liveList) {
+  Widget _buildPhoneList(
+    BuildContext context,
+    List<dynamic> liveList, {
+    bool skeleton = false,
+  }) {
+    if (skeleton) {
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        itemCount: 3,
+        itemBuilder: (_, _) => UniversityVideoSkeletonCard(spec: spec),
+      );
+    }
     return ListView.builder(
       padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
       itemCount: liveList.length,
@@ -91,19 +79,31 @@ class UniversityDetailLiveTab extends StatelessWidget {
     );
   }
 
-  Widget _buildTabletGrid(BuildContext context, List<dynamic> liveList) {
-    final crossAxisCount =
-        MediaQuery.orientationOf(context) == Orientation.landscape ? 3 : 2;
+  Widget _buildTabletGrid(
+    BuildContext context,
+    List<dynamic> liveList, {
+    bool skeleton = false,
+  }) {
+    final landscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final cols = landscape ? 3 : 2;
+    final count = skeleton ? 4 : liveList.length;
+
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(12, 10, 12, 40),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        childAspectRatio: 0.72,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+      padding: EdgeInsets.symmetric(
+        horizontal: spec.gridPaddingH,
+        vertical: spec.gridPaddingV,
       ),
-      itemCount: liveList.length,
-      itemBuilder: (_, i) => VideoCardWidget(video: liveList[i]),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cols,
+        childAspectRatio: spec.gridAspectRatio,
+        crossAxisSpacing: spec.gridSpacing,
+        mainAxisSpacing: spec.gridSpacing,
+      ),
+      itemCount: count,
+      itemBuilder: (_, i) => skeleton
+          ? const SizedBox.shrink()
+          : VideoCardWidget(video: liveList[i]),
     );
   }
 }

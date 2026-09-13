@@ -1,67 +1,94 @@
 // lib/presentation/screens/profile/profile_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../app/themes/app_theme.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../controllers/profile_controller.dart';
 import 'widgets/profile_view_widget.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final bool isTablet;
+  final double loadingStrokeWidth;
+  final double maxContentWidth;
+  final double mainPadding;
+  final double avatarSize;
+  final double avatarBorderWidth;
+  final double avatarIconSize;
+  final double titleSpacing;
+  final double subtitleSpacing;
+  final double buttonSpacing;
+  final double titleFontSize;
+  final double subtitleFontSize;
+  final double subtitleLineHeight;
+  final double buttonHeight;
+  final double buttonRadius;
+  final double buttonFontSize;
 
-class _PhoneSizes {
-  // Loading
-  static const double loadingStrokeWidth = 3;
+  const _Sizes._({
+    required this.isTablet,
+    required this.loadingStrokeWidth,
+    required this.maxContentWidth,
+    required this.mainPadding,
+    required this.avatarSize,
+    required this.avatarBorderWidth,
+    required this.avatarIconSize,
+    required this.titleSpacing,
+    required this.subtitleSpacing,
+    required this.buttonSpacing,
+    required this.titleFontSize,
+    required this.subtitleFontSize,
+    required this.subtitleLineHeight,
+    required this.buttonHeight,
+    required this.buttonRadius,
+    required this.buttonFontSize,
+  });
 
-  // NotLoggedIn
-  static const double mainPadding = 32;
-  static const double avatarSize = 96;
-  static const double avatarBorderWidth = 2;
-  static const double avatarIconSize = 48;
-  static const double titleSpacing = 24;
-  static const double subtitleSpacing = 10;
-  static const double buttonSpacing = 36;
-  static const double titleFontSize = 22;
-  static const double subtitleFontSize = 14;
-  static const double subtitleLineHeight = 1.5;
-  static const double buttonHeight = 48;
-  static const double buttonFontSize = 16;
-  /*   static const double buttonPaddingVertical = 14;
-  static const double buttonBorderRadius = 8;
-  static const double buttonSpacingSmall = 12; */
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        loadingStrokeWidth: 3.5,
+        maxContentWidth: 500,
+        mainPadding: 48,
+        avatarSize: 120,
+        avatarBorderWidth: 2.5,
+        avatarIconSize: 56,
+        titleSpacing: 28,
+        subtitleSpacing: 12,
+        buttonSpacing: 40,
+        titleFontSize: 28,
+        subtitleFontSize: 16,
+        subtitleLineHeight: 1.6,
+        buttonHeight: 56,
+        buttonRadius: 16,
+        buttonFontSize: 18,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      loadingStrokeWidth: 3,
+      maxContentWidth: double.infinity,
+      mainPadding: 32,
+      avatarSize: 96,
+      avatarBorderWidth: 2,
+      avatarIconSize: 48,
+      titleSpacing: 24,
+      subtitleSpacing: 10,
+      buttonSpacing: 36,
+      titleFontSize: 22,
+      subtitleFontSize: 14,
+      subtitleLineHeight: 1.5,
+      buttonHeight: 52,
+      buttonRadius: 14,
+      buttonFontSize: 16,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Loading - tablet için daha büyük
-  static const double loadingStrokeWidth = 3.5;
-
-  // NotLoggedIn - tablet için daha büyük
-  static const double mainPadding = 48;
-  static const double avatarSize = 120;
-  static const double avatarBorderWidth = 2.5;
-  static const double avatarIconSize = 56;
-  static const double titleSpacing = 28;
-  static const double subtitleSpacing = 12;
-  static const double buttonSpacing = 40;
-  static const double titleFontSize = 28;
-  static const double subtitleFontSize = 16;
-  static const double subtitleLineHeight = 1.6;
-  static const double buttonHeight = 56;
-  static const double buttonFontSize = 18;
-  static const double buttonPaddingVertical = 16;
-  static const double buttonBorderRadius = 10;
-  static const double buttonSpacingSmall = 14;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -76,17 +103,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
+    final spec = _Sizes.of(context);
     final controller = Get.find<ProfileController>(tag: _tag);
 
     return Obx(() {
@@ -95,41 +112,14 @@ class ProfileScreen extends StatelessWidget {
           body: Center(
             child: CircularProgressIndicator(
               color: AppTheme.primaryColor,
-              strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+              strokeWidth: spec.loadingStrokeWidth,
             ),
           ),
         );
       }
 
       if (!controller.isLoggedIn) {
-        return _NotLoggedInViewPhone();
-      }
-
-      return ProfileViewWidget(controller: controller);
-    });
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final controller = Get.find<ProfileController>(tag: _tag);
-
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(
-              color: AppTheme.primaryColor,
-              strokeWidth: _TabletSizes.loadingStrokeWidth,
-            ),
-          ),
-        );
-      }
-
-      if (!controller.isLoggedIn) {
-        return _NotLoggedInViewTablet();
+        return _NotLoggedInView(spec: spec);
       }
 
       return ProfileViewWidget(controller: controller);
@@ -137,212 +127,93 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (PHONE)
-// ═══════════════════════════════════════════════════════════════════════
+class _NotLoggedInView extends StatelessWidget {
+  final _Sizes spec;
+  const _NotLoggedInView({required this.spec});
 
-class _NotLoggedInViewPhone extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(_PhoneSizes.mainPadding.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: _PhoneSizes.avatarSize.w,
-                height: _PhoneSizes.avatarSize.h,
-                decoration: BoxDecoration(
-                  color: AppTheme.surface(context),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    width: _PhoneSizes.avatarBorderWidth.w,
-                  ),
-                ),
-                child: Icon(
-                  Icons.person_outline_rounded,
-                  color: AppTheme.textSec(context),
-                  size: _PhoneSizes.avatarIconSize.sp,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.titleSpacing.h),
-              Text(
-                'Hesabına Giriş Yap',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.titleFontSize.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.subtitleSpacing.h),
-              Text(
-                'Favorilerini, izleme geçmişini ve tüm aktivitelerini\ngörmek için giriş yap.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.subtitleFontSize.sp,
-                  height: _PhoneSizes.subtitleLineHeight,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.buttonSpacing.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(
-                      double.infinity,
-                      _PhoneSizes.buttonHeight.h,
-                    ),
-                  ),
-                  onPressed: () => Get.toNamed(AppRoutes.login),
-                  child: Text(
-                    'Giriş Yap',
-                    style: TextStyle(fontSize: _PhoneSizes.buttonFontSize.sp),
-                  ),
-                ),
-              ),
-              /* SizedBox(height: _PhoneSizes.buttonSpacingSmall.h),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.textPri(context),
-                    side: BorderSide(
-                      color: AppTheme.surface(context),
-                      width: _PhoneSizes.avatarBorderWidth.w,
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: _PhoneSizes.buttonPaddingVertical.h,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        _PhoneSizes.buttonBorderRadius.r,
-                      ),
-                    ),
-                    minimumSize: Size(
-                      double.infinity,
-                      _PhoneSizes.buttonHeight.h,
-                    ),
-                  ),
-                  onPressed: () => Get.toNamed(AppRoutes.register),
-                  child: Text(
-                    'Kayıt Ol',
-                    style: TextStyle(fontSize: _PhoneSizes.buttonFontSize.sp),
-                  ),
-                ),
-              ), */
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (TABLET)
-// ═══════════════════════════════════════════════════════════════════════
-
-class _NotLoggedInViewTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 500),
+          constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
           child: Padding(
-            padding: EdgeInsets.all(_TabletSizes.mainPadding),
+            padding: EdgeInsets.all(spec.mainPadding.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: _TabletSizes.avatarSize,
-                  height: _TabletSizes.avatarSize,
+                  width: spec.avatarSize.w,
+                  height: spec.avatarSize.w,
                   decoration: BoxDecoration(
-                    color: AppTheme.surface(context),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryColor.withValues(alpha: 0.15),
+                        AppTheme.primaryColor.withValues(alpha: 0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                      width: _TabletSizes.avatarBorderWidth,
+                      width: spec.avatarBorderWidth.w,
                     ),
                   ),
                   child: Icon(
                     Icons.person_outline_rounded,
-                    color: AppTheme.textSec(context),
-                    size: _TabletSizes.avatarIconSize,
+                    color: AppTheme.primaryColor,
+                    size: spec.avatarIconSize.sp,
                   ),
-                ),
-                SizedBox(height: _TabletSizes.titleSpacing),
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms)
+                    .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
+                SizedBox(height: spec.titleSpacing.h),
                 Text(
                   'Hesabına Giriş Yap',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: _TabletSizes.titleFontSize,
+                    fontSize: spec.titleFontSize.sp,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: -0.3,
                   ),
-                ),
-                SizedBox(height: _TabletSizes.subtitleSpacing),
+                ).animate().fadeIn(delay: 150.ms, duration: 350.ms),
+                SizedBox(height: spec.subtitleSpacing.h),
                 Text(
                   'Favorilerini, izleme geçmişini ve tüm aktivitelerini\ngörmek için giriş yap.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: _TabletSizes.subtitleFontSize,
-                    height: _TabletSizes.subtitleLineHeight,
+                    fontSize: spec.subtitleFontSize.sp,
+                    height: spec.subtitleLineHeight,
                   ),
-                ),
-                SizedBox(height: _TabletSizes.buttonSpacing),
+                ).animate().fadeIn(delay: 250.ms, duration: 350.ms),
+                SizedBox(height: spec.buttonSpacing.h),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(
-                        double.infinity,
-                        _TabletSizes.buttonHeight,
+                  height: spec.buttonHeight.h,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          spec.buttonRadius.r,
+                        ),
                       ),
                     ),
                     onPressed: () => Get.toNamed(AppRoutes.login),
                     child: Text(
                       'Giriş Yap',
-                      style: TextStyle(fontSize: _TabletSizes.buttonFontSize),
+                      style: TextStyle(
+                        fontSize: spec.buttonFontSize.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: _TabletSizes.buttonSpacingSmall),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.textPri(context),
-                      side: BorderSide(
-                        color: AppTheme.surface(context),
-                        width: _TabletSizes.avatarBorderWidth,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: _TabletSizes.buttonPaddingVertical,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          _TabletSizes.buttonBorderRadius,
-                        ),
-                      ),
-                      minimumSize: Size(
-                        double.infinity,
-                        _TabletSizes.buttonHeight,
-                      ),
-                    ),
-                    onPressed: () => Get.toNamed(AppRoutes.register),
-                    child: Text(
-                      'Kayıt Ol',
-                      style: TextStyle(fontSize: _TabletSizes.buttonFontSize),
-                    ),
-                  ),
-                ),
+                ).animate().fadeIn(delay: 350.ms, duration: 350.ms),
               ],
             ),
           ),

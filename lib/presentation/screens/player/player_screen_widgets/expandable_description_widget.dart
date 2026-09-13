@@ -1,50 +1,50 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Genişletilebilir Açıklama
-// ═══════════════════════════════════════════════════════════════════════════
-
+// lib/presentation/screens/player/player_screen_widgets/expandable_description_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double fontSize;
+  final double lineHeight;
+  final double buttonSpacing;
+  final double buttonFontSize;
+  final double buttonIconSize;
+  final double buttonIconSpacing;
 
-class _PhoneSizes {
-  // Metin stili
-  static const double descriptionFontSize = 13;
-  static const double descriptionLineHeight = 1.55;
+  const _Sizes._({
+    required this.fontSize,
+    required this.lineHeight,
+    required this.buttonSpacing,
+    required this.buttonFontSize,
+    required this.buttonIconSize,
+    required this.buttonIconSpacing,
+  });
 
-  // Buton
-  static const double buttonSpacing = 4;
-  static const double buttonFontSize = 12;
-  static const double buttonIconSize = 16;
-  static const double buttonIconSpacing = 2;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 300);
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        fontSize: 16,
+        lineHeight: 1.6,
+        buttonSpacing: 6,
+        buttonFontSize: 14,
+        buttonIconSize: 20,
+        buttonIconSpacing: 4,
+      );
+    }
+    return const _Sizes._(
+      fontSize: 13,
+      lineHeight: 1.55,
+      buttonSpacing: 4,
+      buttonFontSize: 12,
+      buttonIconSize: 16,
+      buttonIconSpacing: 2,
+    );
+  }
 }
 
-class _TabletSizes {
-  // Metin stili - tablet için daha büyük
-  static const double descriptionFontSize = 16;
-  static const double descriptionLineHeight = 1.6;
-
-  // Buton - tablet için daha büyük
-  static const double buttonSpacing = 6;
-  static const double buttonFontSize = 14;
-  static const double buttonIconSize = 20;
-  static const double buttonIconSpacing = 4;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 300);
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateful)
-// ═══════════════════════════════════════════════════════════
+const Duration _kAnimDuration = Duration(milliseconds: 300);
 
 class ExpandableDescriptionWidget extends StatefulWidget {
   final String text;
@@ -61,32 +61,23 @@ class _ExpandableDescriptionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    final TextStyle textStyle = TextStyle(
+    final s = _Sizes.of(context);
+    final textStyle = TextStyle(
       color: AppTheme.textSec(context),
-      fontSize: _PhoneSizes.descriptionFontSize.sp,
-      height: _PhoneSizes.descriptionLineHeight,
+      fontSize: s.fontSize.sp,
+      height: s.lineHeight,
     );
+    final primary = Theme.of(context).colorScheme.primary;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final TextPainter textPainter = TextPainter(
+        final textPainter = TextPainter(
           text: TextSpan(text: widget.text, style: textStyle),
           maxLines: 3,
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: constraints.maxWidth);
 
-        final bool isOverflowing = textPainter.didExceedMaxLines;
+        final isOverflowing = textPainter.didExceedMaxLines;
 
         return GestureDetector(
           onTap: isOverflowing
@@ -96,7 +87,7 @@ class _ExpandableDescriptionWidgetState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AnimatedSize(
-                duration: _PhoneSizes.animDuration,
+                duration: _kAnimDuration,
                 curve: Curves.easeInOut,
                 alignment: Alignment.topCenter,
                 child: Text(
@@ -109,100 +100,26 @@ class _ExpandableDescriptionWidgetState
                 ),
               ),
               if (isOverflowing) ...[
-                SizedBox(height: _PhoneSizes.buttonSpacing.h),
+                SizedBox(height: s.buttonSpacing.h),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _expanded ? 'Daha az göster' : 'Devamını gör',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: _PhoneSizes.buttonFontSize.sp,
+                        color: primary,
+                        fontSize: s.buttonFontSize.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(width: _PhoneSizes.buttonIconSpacing.w),
+                    SizedBox(width: s.buttonIconSpacing.w),
                     AnimatedRotation(
-                      duration: _PhoneSizes.animDuration,
+                      duration: _kAnimDuration,
                       turns: _expanded ? 0.5 : 0,
                       child: Icon(
                         Icons.expand_more_rounded,
-                        size: _PhoneSizes.buttonIconSize.sp,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final TextStyle textStyle = TextStyle(
-      color: AppTheme.textSec(context),
-      fontSize: _TabletSizes.descriptionFontSize,
-      height: _TabletSizes.descriptionLineHeight,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final TextPainter textPainter = TextPainter(
-          text: TextSpan(text: widget.text, style: textStyle),
-          maxLines: 3,
-          textDirection: TextDirection.ltr,
-        )..layout(maxWidth: constraints.maxWidth);
-
-        final bool isOverflowing = textPainter.didExceedMaxLines;
-
-        return GestureDetector(
-          onTap: isOverflowing
-              ? () => setState(() => _expanded = !_expanded)
-              : null,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedSize(
-                duration: _TabletSizes.animDuration,
-                curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
-                child: Text(
-                  widget.text,
-                  style: textStyle,
-                  maxLines: _expanded ? null : 3,
-                  overflow: _expanded
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis,
-                ),
-              ),
-              if (isOverflowing) ...[
-                SizedBox(height: _TabletSizes.buttonSpacing),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _expanded ? 'Daha az göster' : 'Devamını gör',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: _TabletSizes.buttonFontSize,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(width: _TabletSizes.buttonIconSpacing),
-                    AnimatedRotation(
-                      duration: _TabletSizes.animDuration,
-                      turns: _expanded ? 0.5 : 0,
-                      child: Icon(
-                        Icons.expand_more_rounded,
-                        size: _TabletSizes.buttonIconSize,
-                        color: Theme.of(context).colorScheme.primary,
+                        size: s.buttonIconSize.sp,
+                        color: primary,
                       ),
                     ),
                   ],

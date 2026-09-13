@@ -1,33 +1,13 @@
 // lib/presentation/screens/home/widgets/tabs/channel_tab/channel_tab_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-
-import '../../../../../../core/responsive.dart';
-import '../../../../../controllers/home_controller.dart';
+import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../data/models/university_stats_model.dart';
+import '../../../../../controllers/home/home_controller.dart';
 import '../../home_tab/universities/university_sections_config.dart';
-
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
-
-class _PhoneSizes {
-  static const double topPadding = 16;
-  static const double bottomPadding = 24;
- // static const double sectionSpacing = 24;
-}
-
-class _TabletSizes {
-  static const double topPadding = 20;
-  static const double bottomPadding = 30;
- // static const double sectionSpacing = 28;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
+import '../discover_layout_spec.dart';
 
 class ChannelTabWidget extends StatelessWidget {
   final HomeController controller;
@@ -35,117 +15,55 @@ class ChannelTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    final statsRxLists = [
-      controller.statsMostWatched,
-      controller.statsMostLiked,
-      controller.statsPopularInApp,
-      controller.statsMostFavorited,
-      controller.statsActiveLast30,
-      controller.statsBiggestChannels,
-      controller.statsRichestArchive,
-      controller.statsNewlyDiscovered,
-    ];
+    final spec = DiscoverLayoutSpec.of(context);
 
     return RefreshIndicator(
-      color: Theme.of(context).colorScheme.primary,
-      onRefresh: () async {
-        await controller.loadUniversityStats();
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: _PhoneSizes.topPadding.h,
-                bottom: _PhoneSizes.bottomPadding.h,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(statsRxLists.length, (index) {
-                  return Obx(() {
-                    final widgets = buildUniversitySections(
-                      configs: [uniSectionConfigs[index]],
-                      allItems: [statsRxLists[index].toList()],
-                      isLoading: controller.isStatsLoading.value,
-                    );
-
-                    if (widgets.length == 1) return widgets.first;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widgets,
-                    );
-                  });
-                }),
-              ),
-            ),
-          ),
+      color: AppTheme.primaryColor,
+      backgroundColor: AppTheme.card(context),
+      onRefresh: controller.loadUniversityStats,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.only(
+          top: spec.contentTopPadding.h,
+          bottom: spec.contentBottomPadding.h,
+        ),
+        children: [
+          for (var i = 0; i < uniSectionConfigs.length; i++)
+            Obx(() {
+              final items = _itemsFor(i);
+              return buildUniversitySections(
+                configs: [uniSectionConfigs[i]],
+                allItems: [items],
+                isLoading: controller.isStatsLoading.value,
+              ).first;
+            }),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final statsRxLists = [
-      controller.statsMostWatched,
-      controller.statsMostLiked,
-      controller.statsPopularInApp,
-      controller.statsMostFavorited,
-      controller.statsActiveLast30,
-      controller.statsBiggestChannels,
-      controller.statsRichestArchive,
-      controller.statsNewlyDiscovered,
-    ];
-
-    return RefreshIndicator(
-      color: Theme.of(context).colorScheme.primary,
-      onRefresh: () async {
-        await controller.loadUniversityStats();
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: _TabletSizes.topPadding,
-                bottom: _TabletSizes.bottomPadding,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(statsRxLists.length, (index) {
-                  return Obx(() {
-                    final widgets = buildUniversitySections(
-                      configs: [uniSectionConfigs[index]],
-                      allItems: [statsRxLists[index].toList()],
-                      isLoading: controller.isStatsLoading.value,
-                    );
-
-                    if (widgets.length == 1) return widgets.first;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widgets,
-                    );
-                  });
-                }),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  List<UniversityStatsModel> _itemsFor(int i) {
+    switch (i) {
+      case 0:
+        return controller.statsMostWatched.toList();
+      case 1:
+        return controller.statsMostLiked.toList();
+      case 2:
+        return controller.statsPopularInApp.toList();
+      case 3:
+        return controller.statsMostFavorited.toList();
+      case 4:
+        return controller.statsActiveLast30.toList();
+      case 5:
+        return controller.statsBiggestChannels.toList();
+      case 6:
+        return controller.statsRichestArchive.toList();
+      case 7:
+        return controller.statsNewlyDiscovered.toList();
+      default:
+        return const [];
+    }
   }
 }

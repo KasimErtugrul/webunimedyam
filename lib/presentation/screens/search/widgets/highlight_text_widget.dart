@@ -1,18 +1,5 @@
 // lib/presentation/screens/search/widgets/highlight_text_widget.dart
-
 import 'package:flutter/material.dart';
-
-
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
-
-// Bu widget'ta sabitler kullanılmıyor, doğrudan parametrelerle çalışıyor.
-// Ancak KURAL 6'ya uygun olarak phone/tablet ayrımı yapılıyor.
-
-// ═══════════════════════════════════════════════════════════
-// WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class HighlightTextWidget extends StatelessWidget {
   final String text;
@@ -30,11 +17,7 @@ class HighlightTextWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    // Bu widget'ta phone/tablet farkı yok, doğrudan render ediliyor.
-    // Ancak KURAL 6'ya uygun olarak ayrı bir widget olarak tanımlandı.
-    
-    if (highlight.isEmpty) {
+    if (highlight.trim().isEmpty || text.isEmpty) {
       return Text(
         text,
         style: style,
@@ -48,7 +31,7 @@ class HighlightTextWidget extends StatelessWidget {
     final spans = <TextSpan>[];
     int start = 0;
 
-    while (true) {
+    while (start < text.length) {
       final idx = lowerText.indexOf(lowerHighlight, start);
       if (idx == -1) {
         spans.add(TextSpan(text: text.substring(start)));
@@ -57,16 +40,26 @@ class HighlightTextWidget extends StatelessWidget {
       if (idx > start) {
         spans.add(TextSpan(text: text.substring(start, idx)));
       }
+      final end = (idx + highlight.length).clamp(0, text.length);
       spans.add(
         TextSpan(
-          text: text.substring(idx, idx + highlight.length),
+          text: text.substring(idx, end),
           style: style.copyWith(
             color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
       );
-      start = idx + highlight.length;
+      start = end;
+    }
+
+    if (spans.isEmpty) {
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return RichText(

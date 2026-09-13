@@ -1,113 +1,119 @@
 // lib/presentation/screens/player/player_screen_widgets/suggested_videos_section_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
-import '../../../controllers/player_controller.dart';
+import '../../../controllers/player/player_controller.dart';
 import 'suggested_video_card_widget.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double titleIconSize;
+  final double titleIconSpacing;
+  final double titleFontSize;
+  final double titleBottomPadding;
+  final double shimmerTitleWidth;
+  final double shimmerTitleHeight;
+  final double shimmerTitleRadius;
+  final double shimmerTitleSpacing;
+  final double shimmerListHeight;
+  final double shimmerCardWidth;
+  final double shimmerCardMarginRight;
+  final double shimmerCardRadius;
+  final int shimmerItemCount;
+  final double listHeight;
 
-class _PhoneSizes {
-  // Başlık
-  static const double titleIconSize = 16;
-  static const double titleIconSpacing = 6;
-  static const double titleFontSize = 13;
-  static const double titleBottomPadding = 10;
+  const _Sizes._({
+    required this.titleIconSize,
+    required this.titleIconSpacing,
+    required this.titleFontSize,
+    required this.titleBottomPadding,
+    required this.shimmerTitleWidth,
+    required this.shimmerTitleHeight,
+    required this.shimmerTitleRadius,
+    required this.shimmerTitleSpacing,
+    required this.shimmerListHeight,
+    required this.shimmerCardWidth,
+    required this.shimmerCardMarginRight,
+    required this.shimmerCardRadius,
+    required this.shimmerItemCount,
+    required this.listHeight,
+  });
 
-  // Shimmer
-  static const double shimmerTitleWidth = 140;
-  static const double shimmerTitleHeight = 14;
-  static const double shimmerTitleRadius = 6;
-  static const double shimmerTitleSpacing = 10;
-  static const double shimmerListHeight = 200;
-  static const double shimmerCardWidth = 160;
-  static const double shimmerCardMarginRight = 12;
-  static const double shimmerCardBorderRadius = 14;
-  static const int shimmerItemCount = 5;
-
-  // Liste
-  static const double listHeight = 200;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        titleIconSize: 20,
+        titleIconSpacing: 8,
+        titleFontSize: 16,
+        titleBottomPadding: 12,
+        shimmerTitleWidth: 180,
+        shimmerTitleHeight: 16,
+        shimmerTitleRadius: 8,
+        shimmerTitleSpacing: 12,
+        shimmerListHeight: 220,
+        shimmerCardWidth: 180,
+        shimmerCardMarginRight: 14,
+        shimmerCardRadius: 16,
+        shimmerItemCount: 4,
+        listHeight: 230,
+      );
+    }
+    return const _Sizes._(
+      titleIconSize: 16,
+      titleIconSpacing: 6,
+      titleFontSize: 13,
+      titleBottomPadding: 10,
+      shimmerTitleWidth: 140,
+      shimmerTitleHeight: 14,
+      shimmerTitleRadius: 6,
+      shimmerTitleSpacing: 10,
+      shimmerListHeight: 200,
+      shimmerCardWidth: 160,
+      shimmerCardMarginRight: 12,
+      shimmerCardRadius: 14,
+      shimmerItemCount: 5,
+      listHeight: 200,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Başlık - tablet için daha büyük
-  static const double titleIconSize = 20;
-  static const double titleIconSpacing = 8;
-  static const double titleFontSize = 16;
-  static const double titleBottomPadding = 12;
-
-  // Shimmer - tablet için daha büyük
-  static const double shimmerTitleWidth = 180;
-  static const double shimmerTitleHeight = 16;
-  static const double shimmerTitleRadius = 8;
-  static const double shimmerTitleSpacing = 12;
-  static const double shimmerListHeight = 220;
-  static const double shimmerCardWidth = 180;
-  static const double shimmerCardMarginRight = 14;
-  static const double shimmerCardBorderRadius = 16;
-  static const int shimmerItemCount = 4;
-
-  // Liste - tablet için daha büyük
-  static const double listHeight = 230;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class SuggestedVideosSectionWidget extends StatelessWidget {
   const SuggestedVideosSectionWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
+    final s = _Sizes.of(context);
     final controller = Get.find<PlayerController>(
       tag: Get.parameters['videoId'] ?? '123',
     );
 
     return Obx(() {
       if (controller.isSuggestedLoading.value) {
-        return _buildShimmerPhone(context);
+        return _buildShimmer(context, s);
       }
-
       if (controller.suggestedVideos.isEmpty) {
         return const SizedBox.shrink();
       }
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: _PhoneSizes.titleBottomPadding.h),
+            padding: EdgeInsets.only(bottom: s.titleBottomPadding.h),
             child: Row(
               children: [
                 Icon(
                   Icons.recommend_rounded,
-                  size: _PhoneSizes.titleIconSize.sp,
+                  size: s.titleIconSize.sp,
                   color: AppTheme.primaryColor,
                 ),
-                SizedBox(width: _PhoneSizes.titleIconSpacing.w),
+                SizedBox(width: s.titleIconSpacing.w),
                 Text(
                   'Önerilen Videolar',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: _PhoneSizes.titleFontSize.sp,
+                    fontSize: s.titleFontSize.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -115,7 +121,7 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: _PhoneSizes.listHeight.h,
+            height: s.listHeight.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -129,133 +135,31 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
     });
   }
 
-  Widget _buildShimmerPhone(BuildContext context) {
+  Widget _buildShimmer(BuildContext context, _Sizes s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: _PhoneSizes.shimmerTitleWidth.w,
-          height: _PhoneSizes.shimmerTitleHeight.h,
+          width: s.shimmerTitleWidth.w,
+          height: s.shimmerTitleHeight.h,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(
-              _PhoneSizes.shimmerTitleRadius.r,
-            ),
+            borderRadius: BorderRadius.circular(s.shimmerTitleRadius.r),
           ),
         ),
-        SizedBox(height: _PhoneSizes.shimmerTitleSpacing.h),
+        SizedBox(height: s.shimmerTitleSpacing.h),
         SizedBox(
-          height: _PhoneSizes.shimmerListHeight.h,
+          height: s.shimmerListHeight.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _PhoneSizes.shimmerItemCount,
+            itemCount: s.shimmerItemCount,
             itemBuilder: (_, _) => Container(
-              width: _PhoneSizes.shimmerCardWidth.w,
-              margin: EdgeInsets.only(
-                right: _PhoneSizes.shimmerCardMarginRight.w,
-              ),
+              width: s.shimmerCardWidth.w,
+              margin: EdgeInsets.only(right: s.shimmerCardMarginRight.w),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(
-                  _PhoneSizes.shimmerCardBorderRadius.r,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final controller = Get.find<PlayerController>(
-      tag: Get.parameters['videoId'] ?? '123',
-    );
-
-    return Obx(() {
-      if (controller.isSuggestedLoading.value) {
-        return _buildShimmerTablet(context);
-      }
-
-      if (controller.suggestedVideos.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: _TabletSizes.titleBottomPadding),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.recommend_rounded,
-                  size: _TabletSizes.titleIconSize,
-                  color: AppTheme.primaryColor,
-                ),
-                SizedBox(width: _TabletSizes.titleIconSpacing),
-                Text(
-                  'Önerilen Videolar',
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontSize: _TabletSizes.titleFontSize,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: _TabletSizes.listHeight,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: controller.suggestedVideos.length,
-              itemBuilder: (_, i) =>
-                  SuggestedVideoCard(video: controller.suggestedVideos[i]),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildShimmerTablet(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: _TabletSizes.shimmerTitleWidth,
-          height: _TabletSizes.shimmerTitleHeight,
-          decoration: BoxDecoration(
-            color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(
-              _TabletSizes.shimmerTitleRadius,
-            ),
-          ),
-        ),
-        SizedBox(height: _TabletSizes.shimmerTitleSpacing),
-        SizedBox(
-          height: _TabletSizes.shimmerListHeight,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _TabletSizes.shimmerItemCount,
-            itemBuilder: (_, _) => Container(
-              width: _TabletSizes.shimmerCardWidth,
-              margin: EdgeInsets.only(
-                right: _TabletSizes.shimmerCardMarginRight,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(
-                  _TabletSizes.shimmerCardBorderRadius,
-                ),
+                borderRadius: BorderRadius.circular(s.shimmerCardRadius.r),
               ),
             ),
           ),

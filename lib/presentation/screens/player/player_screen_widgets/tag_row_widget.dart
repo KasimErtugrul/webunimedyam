@@ -1,38 +1,48 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Etiketler
-// ═══════════════════════════════════════════════════════════════════════════
-
+// lib/presentation/screens/player/player_screen_widgets/tag_row_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double spacing;
+  final double runSpacing;
+  final double paddingH;
+  final double paddingV;
+  final double borderRadius;
+  final double fontSize;
 
-class _PhoneSizes {
-  static const double spacing = 6;
-  static const double runSpacing = 6;
-  static const double paddingHorizontal = 10;
-  static const double paddingVertical = 4;
-  static const double borderRadius = 20;
-  static const double fontSize = 11;
+  const _Sizes._({
+    required this.spacing,
+    required this.runSpacing,
+    required this.paddingH,
+    required this.paddingV,
+    required this.borderRadius,
+    required this.fontSize,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        spacing: 8,
+        runSpacing: 8,
+        paddingH: 14,
+        paddingV: 6,
+        borderRadius: 24,
+        fontSize: 13,
+      );
+    }
+    return const _Sizes._(
+      spacing: 6,
+      runSpacing: 6,
+      paddingH: 10,
+      paddingV: 4,
+      borderRadius: 20,
+      fontSize: 11,
+    );
+  }
 }
-
-class _TabletSizes {
-  static const double spacing = 8;
-  static const double runSpacing = 8;
-  static const double paddingHorizontal = 14;
-  static const double paddingVertical = 6;
-  static const double borderRadius = 24;
-  static const double fontSize = 13;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class TagsRowWidget extends StatelessWidget {
   final List<String> tags;
@@ -40,70 +50,27 @@ class TagsRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
+    final s = _Sizes.of(context);
     return Wrap(
-      spacing: _PhoneSizes.spacing.w,
-      runSpacing: _PhoneSizes.runSpacing.h,
+      spacing: s.spacing.w,
+      runSpacing: s.runSpacing.h,
       children: tags
           .take(8)
           .map(
             (tag) => Container(
               padding: EdgeInsets.symmetric(
-                horizontal: _PhoneSizes.paddingHorizontal.w,
-                vertical: _PhoneSizes.paddingVertical.h,
+                horizontal: s.paddingH.w,
+                vertical: s.paddingV.h,
               ),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
+                borderRadius: BorderRadius.circular(s.borderRadius.r),
               ),
               child: Text(
                 '#$tag',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.fontSize.sp,
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Wrap(
-      spacing: _TabletSizes.spacing,
-      runSpacing: _TabletSizes.runSpacing,
-      children: tags
-          .take(8)
-          .map(
-            (tag) => Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: _TabletSizes.paddingHorizontal,
-                vertical: _TabletSizes.paddingVertical,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(_TabletSizes.borderRadius),
-              ),
-              child: Text(
-                '#$tag',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _TabletSizes.fontSize,
+                  fontSize: s.fontSize.sp,
                 ),
               ),
             ),

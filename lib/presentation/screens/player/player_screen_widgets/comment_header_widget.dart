@@ -1,68 +1,76 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Yorum başlığı
-// ═══════════════════════════════════════════════════════════════════════════
-
+// lib/presentation/screens/player/player_screen_widgets/comment_header_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double titleFontSize;
+  final double badgePaddingH;
+  final double badgePaddingV;
+  final double badgeRadius;
+  final double badgeFontSize;
+  final double badgeSpacing;
+  final double badgeOpacity;
+  final double emptyTopPadding;
+  final double emptyFontSize;
+  final double dividerHeight;
+  final double dividerThickness;
+  final double dividerOpacity;
+  final double dividerTopSpacing;
 
-class _PhoneSizes {
-  // Başlık
-  static const double titleFontSize = 16;
-  static const FontWeight titleFontWeight = FontWeight.bold;  // ✅ FontWeight olarak düzeltildi
+  const _Sizes._({
+    required this.titleFontSize,
+    required this.badgePaddingH,
+    required this.badgePaddingV,
+    required this.badgeRadius,
+    required this.badgeFontSize,
+    required this.badgeSpacing,
+    required this.badgeOpacity,
+    required this.emptyTopPadding,
+    required this.emptyFontSize,
+    required this.dividerHeight,
+    required this.dividerThickness,
+    required this.dividerOpacity,
+    required this.dividerTopSpacing,
+  });
 
-  // Badge
-  static const double badgeHorizontalPadding = 8;
-  static const double badgeVerticalPadding = 3;
-  static const double badgeBorderRadius = 12;
-  static const double badgeFontSize = 12;
-  static const double badgeSpacing = 8;
-  static const double badgeOpacity = 0.15;
-
-  // Boş durum mesajı
-  static const double emptyTopPadding = 4;
-  static const double emptyFontSize = 12;
-
-  // Divider
-  static const double dividerHeight = 1;
-  static const double dividerThickness = 1;
-  static const double dividerOpacity = 0.08;
-  static const double dividerTopSpacing = 12;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        titleFontSize: 20,
+        badgePaddingH: 10,
+        badgePaddingV: 4,
+        badgeRadius: 14,
+        badgeFontSize: 14,
+        badgeSpacing: 10,
+        badgeOpacity: 0.15,
+        emptyTopPadding: 6,
+        emptyFontSize: 14,
+        dividerHeight: 1,
+        dividerThickness: 1,
+        dividerOpacity: 0.08,
+        dividerTopSpacing: 16,
+      );
+    }
+    return const _Sizes._(
+      titleFontSize: 16,
+      badgePaddingH: 8,
+      badgePaddingV: 3,
+      badgeRadius: 12,
+      badgeFontSize: 12,
+      badgeSpacing: 8,
+      badgeOpacity: 0.15,
+      emptyTopPadding: 4,
+      emptyFontSize: 12,
+      dividerHeight: 1,
+      dividerThickness: 1,
+      dividerOpacity: 0.08,
+      dividerTopSpacing: 12,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Başlık - tablet için daha büyük
-  static const double titleFontSize = 20;
-  static const FontWeight titleFontWeight = FontWeight.bold;  // ✅ FontWeight olarak düzeltildi
-
-  // Badge - tablet için daha büyük
-  static const double badgeHorizontalPadding = 10;
-  static const double badgeVerticalPadding = 4;
-  static const double badgeBorderRadius = 14;
-  static const double badgeFontSize = 14;
-  static const double badgeSpacing = 10;
-  static const double badgeOpacity = 0.15;
-
-  // Boş durum mesajı - tablet için daha büyük
-  static const double emptyTopPadding = 6;
-  static const double emptyFontSize = 14;
-
-  // Divider - tablet için
-  static const double dividerHeight = 1;
-  static const double dividerThickness = 1;
-  static const double dividerOpacity = 0.08;
-  static const double dividerTopSpacing = 16;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateless)
-// ═══════════════════════════════════════════════════════════
 
 class CommentsHeaderWidget extends StatelessWidget {
   final int count;
@@ -70,17 +78,9 @@ class CommentsHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -92,31 +92,26 @@ class CommentsHeaderWidget extends StatelessWidget {
               'Yorumlar',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: _PhoneSizes.titleFontSize.sp,
-                fontWeight: _PhoneSizes.titleFontWeight,  // ✅ FontWeight doğru tip
+                fontSize: s.titleFontSize.sp,
+                fontWeight: FontWeight.bold,
               ),
             ),
             if (count > 0) ...[
-              SizedBox(width: _PhoneSizes.badgeSpacing.w),
+              SizedBox(width: s.badgeSpacing.w),
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.badgeHorizontalPadding.w,
-                  vertical: _PhoneSizes.badgeVerticalPadding.h,
+                  horizontal: s.badgePaddingH.w,
+                  vertical: s.badgePaddingV.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha:_PhoneSizes.badgeOpacity),
-                  borderRadius: BorderRadius.circular(
-                    _PhoneSizes.badgeBorderRadius.r,
-                  ),
+                  color: primary.withValues(alpha: s.badgeOpacity),
+                  borderRadius: BorderRadius.circular(s.badgeRadius.r),
                 ),
                 child: Text(
                   '$count',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: _PhoneSizes.badgeFontSize.sp,
+                    color: primary,
+                    fontSize: s.badgeFontSize.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -126,91 +121,21 @@ class CommentsHeaderWidget extends StatelessWidget {
         ),
         if (count == 0)
           Padding(
-            padding: EdgeInsets.only(top: _PhoneSizes.emptyTopPadding.h),
+            padding: EdgeInsets.only(top: s.emptyTopPadding.h),
             child: Text(
               'Henüz yorum yapılmamış. İlk sen yaz!',
               style: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: _PhoneSizes.emptyFontSize.sp,
+                fontSize: s.emptyFontSize.sp,
                 fontStyle: FontStyle.italic,
               ),
             ),
           ),
-        SizedBox(height: _PhoneSizes.dividerTopSpacing.h),
+        SizedBox(height: s.dividerTopSpacing.h),
         Divider(
-          height: _PhoneSizes.dividerHeight,
-          thickness: _PhoneSizes.dividerThickness,
-          color: AppTheme.textSec(context).withValues(alpha:_PhoneSizes.dividerOpacity),
-        ),
-      ],
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Yorumlar',
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: _TabletSizes.titleFontSize,
-                fontWeight: _TabletSizes.titleFontWeight,  // ✅ FontWeight doğru tip
-              ),
-            ),
-            if (count > 0) ...[
-              SizedBox(width: _TabletSizes.badgeSpacing),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _TabletSizes.badgeHorizontalPadding,
-                  vertical: _TabletSizes.badgeVerticalPadding,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha:_TabletSizes.badgeOpacity),
-                  borderRadius: BorderRadius.circular(
-                    _TabletSizes.badgeBorderRadius,
-                  ),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: _TabletSizes.badgeFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        if (count == 0)
-          Padding(
-            padding: EdgeInsets.only(top: _TabletSizes.emptyTopPadding),
-            child: Text(
-              'Henüz yorum yapılmamış. İlk sen yaz!',
-              style: TextStyle(
-                color: AppTheme.textSec(context),
-                fontSize: _TabletSizes.emptyFontSize,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        SizedBox(height: _TabletSizes.dividerTopSpacing),
-        Divider(
-          height: _TabletSizes.dividerHeight,
-          thickness: _TabletSizes.dividerThickness,
-          color: AppTheme.textSec(context).withValues(alpha:_TabletSizes.dividerOpacity),
+          height: s.dividerHeight,
+          thickness: s.dividerThickness,
+          color: AppTheme.textSec(context).withValues(alpha: s.dividerOpacity),
         ),
       ],
     );

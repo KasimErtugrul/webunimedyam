@@ -10,7 +10,7 @@ import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/video_model.dart';
-import '../../../../../controllers/home_controller.dart';
+import '../../../../../controllers/home/home_controller.dart';
 import '../../../../player/player_screen_widgets/comment_input_widget.dart';
 
 // ═══════════════════════════════════════════════════════════════════════

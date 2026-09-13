@@ -1,7 +1,7 @@
 // lib/presentation/controllers/university_sort_controller.dart
 
 import 'dart:async';
-import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,162 +9,109 @@ import '../../../app/utils/university_sort_util.dart';
 import '../../../data/models/university_model.dart';
 
 class UniversitySortController extends GetxController {
-  // Çoklu sıralama listesi
+  /// Aktif çoklu sıralama listesi. Boşsa "isim sıralaması" varsayılan
+  /// davranış olarak kabul edilir (bkz. UniversitiesTabWidget).
   final activeSorts = <SortOption>[].obs;
 
-  // Arama state'leri
+  /// Arama state'i + metin alanı controller'ı.
   final searchQuery = ''.obs;
   final searchController = TextEditingController();
+
   Timer? _debounce;
+  static const _debounceDuration = Duration(milliseconds: 350);
+
+  // ─── Sıralama ─────────────────────────────────────────────────────────────
 
   void addOrRemoveSort(SortCriteria criteria) {
-    try {
-      final existingIndex = activeSorts.indexWhere(
-        (s) => s.criteria == criteria,
-      );
-      if (existingIndex != -1) {
-        activeSorts.removeAt(existingIndex);
-      } else {
-        activeSorts.add(
-          SortOption(criteria: criteria, direction: SortDirection.descending),
-        );
-      }
-    } catch (e, stacktrace) {
-      log(
-        'Sıralama ekleme/kaldırma işlemi sırasında hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
+    final i = activeSorts.indexWhere((s) => s.criteria == criteria);
+    if (i != -1) {
+      activeSorts.removeAt(i);
+    } else {
+      activeSorts.add(
+        SortOption(
+          criteria: criteria,
+          direction: SortDirection.descending,
+        ),
       );
     }
   }
 
   void toggleDirection(SortCriteria criteria) {
-    try {
-      final index = activeSorts.indexWhere((s) => s.criteria == criteria);
-      if (index != -1) {
-        final current = activeSorts[index];
-        activeSorts[index] = SortOption(
-          criteria: current.criteria,
-          direction: current.direction == SortDirection.ascending
-              ? SortDirection.descending
-              : SortDirection.ascending,
-        );
-      }
-    } catch (e, stacktrace) {
-      log(
-        'Sıralama yönü değiştirilirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+    final i = activeSorts.indexWhere((s) => s.criteria == criteria);
+    if (i == -1) return;
+
+    final current = activeSorts[i];
+    activeSorts[i] = current.copyWith(
+      direction: current.direction == SortDirection.ascending
+          ? SortDirection.descending
+          : SortDirection.ascending,
+    );
   }
 
   void removeSort(SortCriteria criteria) {
-    try {
-      activeSorts.removeWhere((s) => s.criteria == criteria);
-    } catch (e, stacktrace) {
-      log(
-        'Sıralama kaldırılırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+    activeSorts.removeWhere((s) => s.criteria == criteria);
   }
 
-  void clearSorts() {
-    try {
-      activeSorts.clear();
-    } catch (e, stacktrace) {
-      log(
-        'Sıralamalar temizlenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
-  }
+  void clearSorts() => activeSorts.clear();
+
+  // ─── Arama ────────────────────────────────────────────────────────────────
 
   void updateSearchQuery(String query) {
-    try {
-      if (_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 350), () {
-        searchQuery.value = query;
-      });
-    } catch (e, stacktrace) {
-      log(
-        'Arama sorgusu güncellenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+    _debounce?.cancel();
+    _debounce = Timer(_debounceDuration, () {
+      searchQuery.value = query.trim();
+    });
   }
 
   void clearSearch() {
-    try {
-      _debounce?.cancel();
-      searchController.clear();
-      searchQuery.value = '';
-    } catch (e, stacktrace) {
-      log(
-        'Arama temizlenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+    _debounce?.cancel();
+    searchController.clear();
+    searchQuery.value = '';
   }
 
-  void reset() {
-    try {
-      activeSorts.clear();
-      clearSearch();
-    } catch (e, stacktrace) {
-      log(
-        'Sıralama ve arama sıfırlanırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+  // ─── Toplu işlem ──────────────────────────────────────────────────────────
+
+  /// Sıralama kriterlerini sıfırlar. Arama kutusuna dokunmaz —
+  /// sort sheet'teki "Sıfırla" butonunun beklenen davranışı budur.
+  void resetSorts() => clearSorts();
+
+  /// Hem sıralama hem aramayı sıfırlar. Boş durum ekranındaki
+  /// "Temizle" aksiyonu için.
+  void resetAll() {
+    clearSorts();
+    clearSearch();
   }
 
-  List<UniversityModel> applySortAndFilter(List<UniversityModel> originalList) {
-    try {
-      var list = originalList;
+  // ─── Uygulama ─────────────────────────────────────────────────────────────
 
-      // 1. Arama filtresi
-      if (searchQuery.value.isNotEmpty) {
-        final query = searchQuery.value.toLowerCase();
-        list = list.where((u) {
-          final nameMatch = (u.name ?? '').toLowerCase().contains(query);
-          final cityMatch = (u.city ?? '').toLowerCase().contains(query);
-          return nameMatch || cityMatch;
-        }).toList();
-      }
+  /// Arama filtresi + çoklu sıralama uygular.
+  /// Sıralama yoksa sadece filtre uygulanır, liste aynı referansla döner.
+  List<UniversityModel> applySortAndFilter(
+    List<UniversityModel> originalList,
+  ) {
+    var list = originalList;
 
-      // 2. Çoklu Sıralama
+    final q = searchQuery.value;
+    if (q.isNotEmpty) {
+      final needle = q.toLowerCase();
+      list = list.where((u) {
+        final name = (u.name ?? '').toLowerCase();
+        final city = (u.city ?? '').toLowerCase();
+        return name.contains(needle) || city.contains(needle);
+      }).toList();
+    }
+
+    if (activeSorts.isNotEmpty) {
       list = UniversitySortUtil.multiSort(list, activeSorts);
-
-      return list;
-    } catch (e, stacktrace) {
-      log(
-        'Sıralama ve filtre uygulanırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-      return originalList;
     }
+
+    return list;
   }
 
   @override
   void onClose() {
-    try {
-      _debounce?.cancel();
-      searchController.dispose();
-    } catch (e, stacktrace) {
-      log(
-        'Controller kapatılırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-    }
+    _debounce?.cancel();
+    searchController.dispose();
     super.onClose();
   }
 }

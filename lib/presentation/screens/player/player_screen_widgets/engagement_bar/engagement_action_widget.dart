@@ -1,42 +1,57 @@
+// lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_action_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double borderRadius;
+  final double horizontalPadding;
+  final double verticalPadding;
+  final double iconSize;
+  final double loadingIndicatorSize;
+  final double loadingStrokeWidth;
+  final double textFontSize;
+  final double textSpacing;
 
-class _PhoneSizes {
-  // Buton
-  static const double borderRadius = 20;
-  static const double horizontalPadding = 12;
-  static const double verticalPadding = 8;
-  static const double iconSize = 20;
-  static const double loadingIndicatorSize = 20;
-  static const double loadingStrokeWidth = 2.0;
-  static const double textFontSize = 13;
-  static const double textSpacing = 6;
+  const _Sizes._({
+    required this.borderRadius,
+    required this.horizontalPadding,
+    required this.verticalPadding,
+    required this.iconSize,
+    required this.loadingIndicatorSize,
+    required this.loadingStrokeWidth,
+    required this.textFontSize,
+    required this.textSpacing,
+  });
+
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        borderRadius: 22,
+        horizontalPadding: 14,
+        verticalPadding: 10,
+        iconSize: 22,
+        loadingIndicatorSize: 22,
+        loadingStrokeWidth: 2.5,
+        textFontSize: 14,
+        textSpacing: 7,
+      );
+    }
+    return const _Sizes._(
+      borderRadius: 20,
+      horizontalPadding: 12,
+      verticalPadding: 8,
+      iconSize: 20,
+      loadingIndicatorSize: 20,
+      loadingStrokeWidth: 2.0,
+      textFontSize: 13,
+      textSpacing: 6,
+    );
+  }
 }
 
-class _TabletSizes {
-  // Buton - tablet için biraz daha büyük ama kompakt
-  static const double borderRadius = 22;
-  static const double horizontalPadding = 14;
-  static const double verticalPadding = 10;
-  static const double iconSize = 22;
-  static const double loadingIndicatorSize = 22;
-  static const double loadingStrokeWidth = 2.5;
-  static const double textFontSize = 14;
-  static const double textSpacing = 7;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
-
-/// Tıklanabilir aksiyon butonu — ikon + sayı (MD3 Tinted ve Animasyonlu)
 class EngagementActionWidget extends StatelessWidget {
   final IconData icon;
   final int count;
@@ -62,50 +77,40 @@ class EngagementActionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    final color = active
-        ? Theme.of(context).colorScheme.primary
-        : AppTheme.textSec(context);
-
+    final color = active ? primary : AppTheme.textSec(context);
     final bgColor = active
-        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.12)
+        ? primary.withValues(alpha: 0.12)
         : Colors.transparent;
+    final countText = _fmt(count);
 
     return InkWell(
       onTap: loading ? null : onTap,
-      borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
-      splashColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
-      highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.05),
+      borderRadius: BorderRadius.circular(s.borderRadius.r),
+      splashColor: primary.withValues(alpha: 0.1),
+      highlightColor: primary.withValues(alpha: 0.05),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.horizontalPadding.w,
-          vertical: _PhoneSizes.verticalPadding.h,
+          horizontal: s.horizontalPadding.w,
+          vertical: s.verticalPadding.h,
         ),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
+          borderRadius: BorderRadius.circular(s.borderRadius.r),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (loading)
               SizedBox(
-                width: _PhoneSizes.loadingIndicatorSize.sp,
-                height: _PhoneSizes.loadingIndicatorSize.sp,
+                width: s.loadingIndicatorSize.sp,
+                height: s.loadingIndicatorSize.sp,
                 child: CircularProgressIndicator(
-                  strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+                  strokeWidth: s.loadingStrokeWidth.w,
                   color: color,
                 ),
               )
@@ -114,100 +119,20 @@ class EngagementActionWidget extends StatelessWidget {
                 scale: active ? 1.15 : 1.0,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOutBack,
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: _PhoneSizes.iconSize.sp,
-                ),
+                child: Icon(icon, color: color, size: s.iconSize.sp),
               ),
-            if (_fmt(count).isNotEmpty) ...[
-              SizedBox(width: _PhoneSizes.textSpacing.w),
+            if (countText.isNotEmpty) ...[
+              SizedBox(width: s.textSpacing.w),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, anim) =>
                     FadeTransition(opacity: anim, child: child),
                 child: Text(
-                  _fmt(count),
+                  countText,
                   key: ValueKey(count),
                   style: TextStyle(
                     color: color,
-                    fontSize: _PhoneSizes.textFontSize.sp,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                    height: 1.0,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final color = active
-        ? Theme.of(context).colorScheme.primary
-        : AppTheme.textSec(context);
-
-    final bgColor = active
-        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.12)
-        : Colors.transparent;
-
-    return InkWell(
-      onTap: loading ? null : onTap,
-      borderRadius: BorderRadius.circular(_TabletSizes.borderRadius),
-      splashColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
-      highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.05),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: _TabletSizes.horizontalPadding,
-          vertical: _TabletSizes.verticalPadding,
-        ),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(_TabletSizes.borderRadius),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (loading)
-              SizedBox(
-                width: _TabletSizes.loadingIndicatorSize,
-                height: _TabletSizes.loadingIndicatorSize,
-                child: CircularProgressIndicator(
-                  strokeWidth: _TabletSizes.loadingStrokeWidth,
-                  color: color,
-                ),
-              )
-            else
-              AnimatedScale(
-                scale: active ? 1.15 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutBack,
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: _TabletSizes.iconSize,
-                ),
-              ),
-            if (_fmt(count).isNotEmpty) ...[
-              SizedBox(width: _TabletSizes.textSpacing),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, anim) =>
-                    FadeTransition(opacity: anim, child: child),
-                child: Text(
-                  _fmt(count),
-                  key: ValueKey(count),
-                  style: TextStyle(
-                    color: color,
-                    fontSize: _TabletSizes.textFontSize,
+                    fontSize: s.textFontSize.sp,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                     height: 1.0,
                   ),

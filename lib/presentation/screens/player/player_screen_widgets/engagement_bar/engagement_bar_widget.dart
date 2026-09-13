@@ -1,5 +1,4 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_bar_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,49 +6,60 @@ import 'package:get/get.dart';
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
-import '../../../../controllers/player_controller.dart';
+import '../../../../controllers/player/player_controller.dart';
 import 'engagement_action_widget.dart';
 import 'stat_badge_widget.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double containerPaddingH;
+  final double containerPaddingV;
+  final double actionSpacing;
+  final double dividerHorizontalMargin;
+  final double rightSpacing;
+  final double dividerWidth;
+  final double dividerHeight;
+  final double dividerOpacity;
+  final double tappableRadius;
 
-class _PhoneSizes {
-  // Container padding
-  static const double containerPaddingHorizontal = 8;
-  static const double containerPaddingVertical = 6;
+  const _Sizes._({
+    required this.containerPaddingH,
+    required this.containerPaddingV,
+    required this.actionSpacing,
+    required this.dividerHorizontalMargin,
+    required this.rightSpacing,
+    required this.dividerWidth,
+    required this.dividerHeight,
+    required this.dividerOpacity,
+    required this.tappableRadius,
+  });
 
-  // Spacing
-  static const double actionSpacing = 6;
-  static const double dividerHorizontalMargin = 8;
-  static const double rightSpacing = 4;
-
-  // Divider
-  static const double dividerWidth = 1;
-  static const double dividerHeight = 16;
-  static const double dividerOpacity = 0.15;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        containerPaddingH: 12,
+        containerPaddingV: 8,
+        actionSpacing: 10,
+        dividerHorizontalMargin: 12,
+        rightSpacing: 6,
+        dividerWidth: 1.5,
+        dividerHeight: 20,
+        dividerOpacity: 0.15,
+        tappableRadius: 20,
+      );
+    }
+    return const _Sizes._(
+      containerPaddingH: 8,
+      containerPaddingV: 6,
+      actionSpacing: 6,
+      dividerHorizontalMargin: 8,
+      rightSpacing: 4,
+      dividerWidth: 1,
+      dividerHeight: 16,
+      dividerOpacity: 0.15,
+      tappableRadius: 16,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Container padding - tablet için daha büyük
-  static const double containerPaddingHorizontal = 12;
-  static const double containerPaddingVertical = 8;
-
-  // Spacing - tablet için daha geniş
-  static const double actionSpacing = 10;
-  static const double dividerHorizontalMargin = 12;
-  static const double rightSpacing = 6;
-
-  // Divider - tablet için daha büyük
-  static const double dividerWidth = 1.5;
-  static const double dividerHeight = 20;
-  static const double dividerOpacity = 0.15;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateless)
-// ═══════════════════════════════════════════════════════════
 
 class EngagementBarWidget extends StatelessWidget {
   final PlayerController controller;
@@ -57,21 +67,12 @@ class EngagementBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    return Container(
+    return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.containerPaddingHorizontal.w,
-        vertical: _PhoneSizes.containerPaddingVertical.h,
+        horizontal: s.containerPaddingH.w,
+        vertical: s.containerPaddingV.h,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,7 +88,7 @@ class EngagementBarWidget extends StatelessWidget {
               onTap: controller.toggleLike,
             ),
           ),
-          SizedBox(width: _PhoneSizes.actionSpacing.w),
+          SizedBox(width: s.actionSpacing.w),
           Obx(
             () => EngagementActionWidget(
               icon: Icons.share_outlined,
@@ -97,7 +98,7 @@ class EngagementBarWidget extends StatelessWidget {
               onTap: controller.shareVideo,
             ),
           ),
-          SizedBox(width: _PhoneSizes.actionSpacing.w),
+          SizedBox(width: s.actionSpacing.w),
           Obx(
             () => EngagementActionWidget(
               icon: controller.isFavorite.value
@@ -111,14 +112,13 @@ class EngagementBarWidget extends StatelessWidget {
           ),
           const Spacer(),
           Container(
-            width: _PhoneSizes.dividerWidth.w,
-            height: _PhoneSizes.dividerHeight.h,
+            width: s.dividerWidth.w,
+            height: s.dividerHeight.h,
             margin: EdgeInsets.symmetric(
-              horizontal: _PhoneSizes.dividerHorizontalMargin.w,
+              horizontal: s.dividerHorizontalMargin.w,
             ),
-            color: AppTheme.textSec(context).withValues(alpha:
-              _PhoneSizes.dividerOpacity,
-            ),
+            color:
+                AppTheme.textSec(context).withValues(alpha: s.dividerOpacity),
           ),
           Obx(
             () => Material(
@@ -127,16 +127,14 @@ class EngagementBarWidget extends StatelessWidget {
                 onTap: controller.isInitialStatsLoading.value
                     ? null
                     : () => Get.toNamed(
-                        AppRoutes.videoViewers,
-                        arguments: {
-                          'videoId':
-                              controller.currentVideo.value?.videoId ?? '',
-                          'totalViewCount': controller.appViewCount.value,
-                        },
-                      ),
-                borderRadius: BorderRadius.circular(
-                  16.r,
-                ),
+                          AppRoutes.videoViewers,
+                          arguments: {
+                            'videoId':
+                                controller.currentVideo.value?.videoId ?? '',
+                            'totalViewCount': controller.appViewCount.value,
+                          },
+                        ),
+                borderRadius: BorderRadius.circular(s.tappableRadius.r),
                 child: StatBadgeWidget(
                   icon: Icons.visibility_outlined,
                   count: controller.appViewCount.value,
@@ -146,7 +144,7 @@ class EngagementBarWidget extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: _PhoneSizes.rightSpacing.w),
+          SizedBox(width: s.rightSpacing.w),
           Obx(
             () => StatBadgeWidget(
               icon: Icons.chat_bubble_outline_rounded,
@@ -154,104 +152,7 @@ class EngagementBarWidget extends StatelessWidget {
               loading: controller.isInitialStatsLoading.value,
             ),
           ),
-          SizedBox(width: _PhoneSizes.rightSpacing.w),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: _TabletSizes.containerPaddingHorizontal,
-        vertical: _TabletSizes.containerPaddingVertical,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Obx(
-            () => EngagementActionWidget(
-              icon: controller.isLiked.value
-                  ? Icons.thumb_up_rounded
-                  : Icons.thumb_up_alt_outlined,
-              count: controller.appLikeCount.value,
-              active: controller.isLiked.value,
-              loading: controller.isLikeLoading.value,
-              onTap: controller.toggleLike,
-            ),
-          ),
-          SizedBox(width: _TabletSizes.actionSpacing),
-          Obx(
-            () => EngagementActionWidget(
-              icon: Icons.share_outlined,
-              count: controller.appShareCount.value,
-              active: false,
-              loading: controller.isShareLoading.value,
-              onTap: controller.shareVideo,
-            ),
-          ),
-          SizedBox(width: _TabletSizes.actionSpacing),
-          Obx(
-            () => EngagementActionWidget(
-              icon: controller.isFavorite.value
-                  ? Icons.bookmark_rounded
-                  : Icons.bookmark_outline_rounded,
-              count: controller.appFavoriteCount.value,
-              active: controller.isFavorite.value,
-              loading: controller.isFavoriteLoading.value,
-              onTap: controller.toggleFavorite,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            width: _TabletSizes.dividerWidth,
-            height: _TabletSizes.dividerHeight,
-            margin: EdgeInsets.symmetric(
-              horizontal: _TabletSizes.dividerHorizontalMargin,
-            ),
-            color: AppTheme.textSec(context).withValues(alpha:
-              _TabletSizes.dividerOpacity,
-            ),
-          ),
-          Obx(
-            () => Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: controller.isInitialStatsLoading.value
-                    ? null
-                    : () => Get.toNamed(
-                        AppRoutes.videoViewers,
-                        arguments: {
-                          'videoId':
-                              controller.currentVideo.value?.videoId ?? '',
-                          'totalViewCount': controller.appViewCount.value,
-                        },
-                      ),
-                borderRadius: BorderRadius.circular(
-                  20,
-                ),
-                child: StatBadgeWidget(
-                  icon: Icons.visibility_outlined,
-                  count: controller.appViewCount.value,
-                  loading: controller.isInitialStatsLoading.value,
-                  tappable: true,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: _TabletSizes.rightSpacing),
-          Obx(
-            () => StatBadgeWidget(
-              icon: Icons.chat_bubble_outline_rounded,
-              count: controller.appCommentCount.value,
-              loading: controller.isInitialStatsLoading.value,
-            ),
-          ),
-          SizedBox(width: _TabletSizes.rightSpacing),
+          SizedBox(width: s.rightSpacing.w),
         ],
       ),
     );

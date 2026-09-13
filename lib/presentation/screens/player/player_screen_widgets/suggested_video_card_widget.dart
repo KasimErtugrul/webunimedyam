@@ -1,5 +1,4 @@
 // lib/presentation/screens/player/player_screen_widgets/suggested_video_card_widget.dart
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,138 +9,210 @@ import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 import '../../../../data/models/video_model.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double cardWidth;
+  final double cardMarginRight;
+  final double cardRadius;
+  final double cardShadowBlur;
+  final double cardShadowOffsetY;
+  final double gradientHeight;
+  final double durationBadgeBottom;
+  final double durationBadgeRight;
+  final double durationBadgePaddingH;
+  final double durationBadgePaddingV;
+  final double durationBadgeRadius;
+  final double durationBadgeFontSize;
+  final double hdBadgeTop;
+  final double hdBadgeRight;
+  final double hdBadgePaddingH;
+  final double hdBadgePaddingV;
+  final double hdBadgeRadius;
+  final double hdBadgeFontSize;
+  final double errorIconSize;
+  final double contentPaddingLeft;
+  final double contentPaddingTop;
+  final double contentPaddingRight;
+  final double contentPaddingBottom;
+  final double titleFontSize;
+  final double titleLineHeight;
+  final double titleSpacing;
+  final double channelFontSize;
+  final double channelSpacing;
+  final double statSpacing;
+  final double statRunSpacing;
+  final double statPaddingH;
+  final double statPaddingV;
+  final double statRadius;
+  final double statIconSize;
+  final double statFontSize;
+  final double statSpacingSmall;
+  final double statLikeIconSize;
+  final double statLikeFontSize;
+  final double statUniversityIconSize;
+  final double statUniversityFontSize;
+  final double statUniversitySpacing;
+  final double timeFontSize;
+  final double timeSpacing;
+  final double schoolIconSize;
+  final double schoolIconSpacing;
 
-class _PhoneSizes {
-  // Kart
-  static const double cardWidth = 160;
-  static const double cardMarginRight = 12;
-  static const double cardBorderRadius = 14;
-  static const double cardShadowBlur = 4;
-  static const double cardShadowOffsetY = 1;
+  const _Sizes._({
+    required this.cardWidth,
+    required this.cardMarginRight,
+    required this.cardRadius,
+    required this.cardShadowBlur,
+    required this.cardShadowOffsetY,
+    required this.gradientHeight,
+    required this.durationBadgeBottom,
+    required this.durationBadgeRight,
+    required this.durationBadgePaddingH,
+    required this.durationBadgePaddingV,
+    required this.durationBadgeRadius,
+    required this.durationBadgeFontSize,
+    required this.hdBadgeTop,
+    required this.hdBadgeRight,
+    required this.hdBadgePaddingH,
+    required this.hdBadgePaddingV,
+    required this.hdBadgeRadius,
+    required this.hdBadgeFontSize,
+    required this.errorIconSize,
+    required this.contentPaddingLeft,
+    required this.contentPaddingTop,
+    required this.contentPaddingRight,
+    required this.contentPaddingBottom,
+    required this.titleFontSize,
+    required this.titleLineHeight,
+    required this.titleSpacing,
+    required this.channelFontSize,
+    required this.channelSpacing,
+    required this.statSpacing,
+    required this.statRunSpacing,
+    required this.statPaddingH,
+    required this.statPaddingV,
+    required this.statRadius,
+    required this.statIconSize,
+    required this.statFontSize,
+    required this.statSpacingSmall,
+    required this.statLikeIconSize,
+    required this.statLikeFontSize,
+    required this.statUniversityIconSize,
+    required this.statUniversityFontSize,
+    required this.statUniversitySpacing,
+    required this.timeFontSize,
+    required this.timeSpacing,
+    required this.schoolIconSize,
+    required this.schoolIconSpacing,
+  });
 
-  // Thumbnail
-  static const double gradientHeight = 32;
-  static const double durationBadgeBottom = 5;
-  static const double durationBadgeRight = 5;
-  static const double durationBadgePaddingHorizontal = 5;
-  static const double durationBadgePaddingVertical = 2;
-  static const double durationBadgeBorderRadius = 4;
-  static const double durationBadgeFontSize = 9;
-  static const double hdBadgeTop = 5;
-  static const double hdBadgeRight = 5;
-  static const double hdBadgePaddingHorizontal = 4;
-  static const double hdBadgePaddingVertical = 2;
-  static const double hdBadgeBorderRadius = 4;
-  static const double hdBadgeFontSize = 8;
-  static const double errorIconSize = 32;
-
-  // Content
-  static const double contentPaddingLeft = 8;
-  static const double contentPaddingTop = 7;
-  static const double contentPaddingRight = 8;
-  static const double contentPaddingBottom = 8;
-  static const double titleFontSize = 10.5;
-  static const double titleLineHeight = 1.25;
-  static const double titleSpacing = 4;
-  static const double channelFontSize = 9;
-  static const double channelSpacing = 4;
-  static const double statSpacing = 6;
-  static const double statRunSpacing = 4;
-  static const double statPaddingHorizontal = 5;
-  static const double statPaddingVertical = 2;
-  static const double statBorderRadius = 6;
-  static const double statIconSize = 9;
-  static const double statFontSize = 8.5;
-  static const double statSpacingSmall = 3;
-  static const double statLikeIconSize = 8;
-  static const double statLikeFontSize = 8;
-  static const double statUniversityIconSize = 8;
-  static const double statUniversityFontSize = 7.5;
-  static const double statUniversitySpacing = 2;
-  static const double timeFontSize = 7.5;
-  static const double timeSpacing = 4;
-  static const double schoolIconSize = 10;
-  static const double schoolIconSpacing = 4;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        cardWidth: 200,
+        cardMarginRight: 14,
+        cardRadius: 16,
+        cardShadowBlur: 6,
+        cardShadowOffsetY: 2,
+        gradientHeight: 36,
+        durationBadgeBottom: 6,
+        durationBadgeRight: 6,
+        durationBadgePaddingH: 6,
+        durationBadgePaddingV: 3,
+        durationBadgeRadius: 5,
+        durationBadgeFontSize: 11,
+        hdBadgeTop: 6,
+        hdBadgeRight: 6,
+        hdBadgePaddingH: 5,
+        hdBadgePaddingV: 3,
+        hdBadgeRadius: 5,
+        hdBadgeFontSize: 9,
+        errorIconSize: 40,
+        contentPaddingLeft: 10,
+        contentPaddingTop: 8,
+        contentPaddingRight: 10,
+        contentPaddingBottom: 10,
+        titleFontSize: 13,
+        titleLineHeight: 1.3,
+        titleSpacing: 6,
+        channelFontSize: 11,
+        channelSpacing: 5,
+        statSpacing: 8,
+        statRunSpacing: 5,
+        statPaddingH: 6,
+        statPaddingV: 3,
+        statRadius: 7,
+        statIconSize: 11,
+        statFontSize: 10,
+        statSpacingSmall: 4,
+        statLikeIconSize: 10,
+        statLikeFontSize: 9,
+        statUniversityIconSize: 10,
+        statUniversityFontSize: 9,
+        statUniversitySpacing: 3,
+        timeFontSize: 9,
+        timeSpacing: 5,
+        schoolIconSize: 12,
+        schoolIconSpacing: 5,
+      );
+    }
+    return const _Sizes._(
+      cardWidth: 160,
+      cardMarginRight: 12,
+      cardRadius: 14,
+      cardShadowBlur: 4,
+      cardShadowOffsetY: 1,
+      gradientHeight: 32,
+      durationBadgeBottom: 5,
+      durationBadgeRight: 5,
+      durationBadgePaddingH: 5,
+      durationBadgePaddingV: 2,
+      durationBadgeRadius: 4,
+      durationBadgeFontSize: 9,
+      hdBadgeTop: 5,
+      hdBadgeRight: 5,
+      hdBadgePaddingH: 4,
+      hdBadgePaddingV: 2,
+      hdBadgeRadius: 4,
+      hdBadgeFontSize: 8,
+      errorIconSize: 32,
+      contentPaddingLeft: 8,
+      contentPaddingTop: 7,
+      contentPaddingRight: 8,
+      contentPaddingBottom: 8,
+      titleFontSize: 10.5,
+      titleLineHeight: 1.25,
+      titleSpacing: 4,
+      channelFontSize: 9,
+      channelSpacing: 4,
+      statSpacing: 6,
+      statRunSpacing: 4,
+      statPaddingH: 5,
+      statPaddingV: 2,
+      statRadius: 6,
+      statIconSize: 9,
+      statFontSize: 8.5,
+      statSpacingSmall: 3,
+      statLikeIconSize: 8,
+      statLikeFontSize: 8,
+      statUniversityIconSize: 8,
+      statUniversityFontSize: 7.5,
+      statUniversitySpacing: 2,
+      timeFontSize: 7.5,
+      timeSpacing: 4,
+      schoolIconSize: 10,
+      schoolIconSpacing: 4,
+    );
+  }
 }
-
-class _TabletSizes {
-  // Kart - tablet için daha büyük
-  static const double cardWidth = 200;
-  static const double cardMarginRight = 14;
-  static const double cardBorderRadius = 16;
-  static const double cardShadowBlur = 6;
-  static const double cardShadowOffsetY = 2;
-
-  // Thumbnail - tablet için daha büyük
-  static const double gradientHeight = 36;
-  static const double durationBadgeBottom = 6;
-  static const double durationBadgeRight = 6;
-  static const double durationBadgePaddingHorizontal = 6;
-  static const double durationBadgePaddingVertical = 3;
-  static const double durationBadgeBorderRadius = 5;
-  static const double durationBadgeFontSize = 11;
-  static const double hdBadgeTop = 6;
-  static const double hdBadgeRight = 6;
-  static const double hdBadgePaddingHorizontal = 5;
-  static const double hdBadgePaddingVertical = 3;
-  static const double hdBadgeBorderRadius = 5;
-  static const double hdBadgeFontSize = 9;
-  static const double errorIconSize = 40;
-
-  // Content - tablet için daha büyük
-  static const double contentPaddingLeft = 10;
-  static const double contentPaddingTop = 8;
-  static const double contentPaddingRight = 10;
-  static const double contentPaddingBottom = 10;
-  static const double titleFontSize = 13;
-  static const double titleLineHeight = 1.3;
-  static const double titleSpacing = 6;
-  static const double channelFontSize = 11;
-  static const double channelSpacing = 5;
-  static const double statSpacing = 8;
-  static const double statRunSpacing = 5;
-  static const double statPaddingHorizontal = 6;
-  static const double statPaddingVertical = 3;
-  static const double statBorderRadius = 7;
-  static const double statIconSize = 11;
-  static const double statFontSize = 10;
-  static const double statSpacingSmall = 4;
-  static const double statLikeIconSize = 10;
-  static const double statLikeFontSize = 9;
-  static const double statUniversityIconSize = 10;
-  static const double statUniversityFontSize = 9;
-  static const double statUniversitySpacing = 3;
-  static const double timeFontSize = 9;
-  static const double timeSpacing = 5;
-  static const double schoolIconSize = 12;
-  static const double schoolIconSpacing = 5;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET
-// ═══════════════════════════════════════════════════════════
 
 class SuggestedVideoCard extends StatelessWidget {
   final VideoModel video;
-
   const SuggestedVideoCard({super.key, required this.video});
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     return GestureDetector(
       onTap: () => Get.offNamed(
         AppRoutes.player,
@@ -149,16 +220,16 @@ class SuggestedVideoCard extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
-        width: _PhoneSizes.cardWidth.w,
-        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
+        width: s.cardWidth.w,
+        margin: EdgeInsets.only(right: s.cardMarginRight.w),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
+          borderRadius: BorderRadius.circular(s.cardRadius.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: _PhoneSizes.cardShadowBlur.r,
-              offset: Offset(0, _PhoneSizes.cardShadowOffsetY.h),
+              blurRadius: s.cardShadowBlur.r,
+              offset: Offset(0, s.cardShadowOffsetY.h),
             ),
           ],
         ),
@@ -166,7 +237,7 @@ class SuggestedVideoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Thumbnail ────────────────────────────────────────────────
+            // ── Thumbnail ──
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Stack(
@@ -182,7 +253,7 @@ class SuggestedVideoCard extends StatelessWidget {
                       child: Icon(
                         Icons.play_circle_outline_rounded,
                         color: AppTheme.textSec(context),
-                        size: _PhoneSizes.errorIconSize.sp,
+                        size: s.errorIconSize.sp,
                       ),
                     ),
                   ),
@@ -190,7 +261,7 @@ class SuggestedVideoCard extends StatelessWidget {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: _PhoneSizes.gradientHeight.h,
+                    height: s.gradientHeight.h,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -206,24 +277,24 @@ class SuggestedVideoCard extends StatelessWidget {
                   ),
                   if (video.formattedDuration.isNotEmpty)
                     Positioned(
-                      bottom: _PhoneSizes.durationBadgeBottom.h,
-                      right: _PhoneSizes.durationBadgeRight.w,
+                      bottom: s.durationBadgeBottom.h,
+                      right: s.durationBadgeRight.w,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: _PhoneSizes.durationBadgePaddingHorizontal.w,
-                          vertical: _PhoneSizes.durationBadgePaddingVertical.h,
+                          horizontal: s.durationBadgePaddingH.w,
+                          vertical: s.durationBadgePaddingV.h,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.75),
                           borderRadius: BorderRadius.circular(
-                            _PhoneSizes.durationBadgeBorderRadius.r,
+                            s.durationBadgeRadius.r,
                           ),
                         ),
                         child: Text(
                           video.formattedDuration,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: _PhoneSizes.durationBadgeFontSize.sp,
+                            fontSize: s.durationBadgeFontSize.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -231,24 +302,23 @@ class SuggestedVideoCard extends StatelessWidget {
                     ),
                   if (video.isHd)
                     Positioned(
-                      top: _PhoneSizes.hdBadgeTop.h,
-                      right: _PhoneSizes.hdBadgeRight.w,
+                      top: s.hdBadgeTop.h,
+                      right: s.hdBadgeRight.w,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: _PhoneSizes.hdBadgePaddingHorizontal.w,
-                          vertical: _PhoneSizes.hdBadgePaddingVertical.h,
+                          horizontal: s.hdBadgePaddingH.w,
+                          vertical: s.hdBadgePaddingV.h,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
-                          borderRadius: BorderRadius.circular(
-                            _PhoneSizes.hdBadgeBorderRadius.r,
-                          ),
+                          color: primary,
+                          borderRadius:
+                              BorderRadius.circular(s.hdBadgeRadius.r),
                         ),
                         child: Text(
                           'HD',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: _PhoneSizes.hdBadgeFontSize.sp,
+                            fontSize: s.hdBadgeFontSize.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -258,13 +328,13 @@ class SuggestedVideoCard extends StatelessWidget {
               ),
             ),
 
-            // ── Alt: Başlık + Kanal + Görüntülenme ──────────────────────
+            // ── Alt bilgi ──
             Padding(
               padding: EdgeInsets.fromLTRB(
-                _PhoneSizes.contentPaddingLeft.w,
-                _PhoneSizes.contentPaddingTop.h,
-                _PhoneSizes.contentPaddingRight.w,
-                _PhoneSizes.contentPaddingBottom.h,
+                s.contentPaddingLeft.w,
+                s.contentPaddingTop.h,
+                s.contentPaddingRight.w,
+                s.contentPaddingBottom.h,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,12 +345,12 @@ class SuggestedVideoCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: _PhoneSizes.titleFontSize.sp,
+                      fontSize: s.titleFontSize.sp,
                       fontWeight: FontWeight.w700,
-                      height: _PhoneSizes.titleLineHeight,
+                      height: s.titleLineHeight,
                     ),
                   ),
-                  SizedBox(height: _PhoneSizes.titleSpacing.h),
+                  SizedBox(height: s.titleSpacing.h),
                   Row(
                     children: [
                       Expanded(
@@ -290,140 +360,75 @@ class SuggestedVideoCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppTheme.textSec(context),
-                            fontSize: _PhoneSizes.channelFontSize.sp,
+                            fontSize: s.channelFontSize.sp,
                           ),
                         ),
                       ),
                       if (video.universityId != null)
                         Padding(
-                          padding: EdgeInsets.only(
-                            left: _PhoneSizes.schoolIconSpacing.w,
-                          ),
+                          padding:
+                              EdgeInsets.only(left: s.schoolIconSpacing.w),
                           child: Icon(
                             Icons.school_rounded,
-                            size: _PhoneSizes.schoolIconSize.sp,
-                            color: AppTheme.primaryColor,
+                            size: s.schoolIconSize.sp,
+                            color: primary,
                           ),
                         ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.channelSpacing.h),
+                  SizedBox(height: s.channelSpacing.h),
                   Wrap(
-                    spacing: _PhoneSizes.statSpacing.w,
-                    runSpacing: _PhoneSizes.statRunSpacing.h,
+                    spacing: s.statSpacing.w,
+                    runSpacing: s.statRunSpacing.h,
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _PhoneSizes.statPaddingHorizontal.w,
-                          vertical: _PhoneSizes.statPaddingVertical.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(
-                            _PhoneSizes.statBorderRadius.r,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.remove_red_eye_outlined,
-                              size: _PhoneSizes.statIconSize.sp,
-                              color: AppTheme.primaryColor,
-                            ),
-                            SizedBox(width: _PhoneSizes.statSpacingSmall.w),
-                            Flexible(
-                              child: Text(
-                                video.formattedViewCount,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontSize: _PhoneSizes.statFontSize.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      _Stat(
+                        bgColor: primary.withValues(alpha: 0.15),
+                        fgColor: primary,
+                        icon: Icons.remove_red_eye_outlined,
+                        iconSize: s.statIconSize.sp,
+                        text: video.formattedViewCount,
+                        fontSize: s.statFontSize.sp,
+                        paddingH: s.statPaddingH.w,
+                        paddingV: s.statPaddingV.h,
+                        radius: s.statRadius.r,
+                        spacing: s.statSpacingSmall.w,
                       ),
                       if (video.likeCount > 0)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: _PhoneSizes.statPaddingHorizontal.w,
-                            vertical: _PhoneSizes.statPaddingVertical.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.textSec(context).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              _PhoneSizes.statBorderRadius.r,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.thumb_up_alt_outlined,
-                                size: _PhoneSizes.statLikeIconSize.sp,
-                                color: AppTheme.textSec(context),
-                              ),
-                              SizedBox(width: _PhoneSizes.statSpacingSmall.w),
-                              Text(
-                                _formatCompact(video.likeCount),
-                                style: TextStyle(
-                                  color: AppTheme.textSec(context),
-                                  fontSize: _PhoneSizes.statLikeFontSize.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
+                        _Stat(
+                          bgColor:
+                              AppTheme.textSec(context).withValues(alpha: 0.1),
+                          fgColor: AppTheme.textSec(context),
+                          icon: Icons.thumb_up_alt_outlined,
+                          iconSize: s.statLikeIconSize.sp,
+                          text: _formatCompact(video.likeCount),
+                          fontSize: s.statLikeFontSize.sp,
+                          paddingH: s.statPaddingH.w,
+                          paddingV: s.statPaddingV.h,
+                          radius: s.statRadius.r,
+                          spacing: s.statSpacingSmall.w,
                         ),
                       if (video.universityName != null &&
                           video.universityName!.isNotEmpty)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: _PhoneSizes.statPaddingHorizontal.w,
-                            vertical: _PhoneSizes.statPaddingVertical.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              _PhoneSizes.statBorderRadius.r,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.school_rounded,
-                                size: _PhoneSizes.statUniversityIconSize.sp,
-                                color: AppTheme.primaryColor,
-                              ),
-                              SizedBox(width: _PhoneSizes.statUniversitySpacing.w),
-                              Flexible(
-                                child: Text(
-                                  video.universityName!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppTheme.primaryColor,
-                                    fontSize: _PhoneSizes.statUniversityFontSize.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        _Stat(
+                          bgColor: primary.withValues(alpha: 0.1),
+                          fgColor: primary,
+                          icon: Icons.school_rounded,
+                          iconSize: s.statUniversityIconSize.sp,
+                          text: video.universityName!,
+                          fontSize: s.statUniversityFontSize.sp,
+                          paddingH: s.statPaddingH.w,
+                          paddingV: s.statPaddingV.h,
+                          radius: s.statRadius.r,
+                          spacing: s.statUniversitySpacing.w,
                         ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.timeSpacing.h),
+                  SizedBox(height: s.timeSpacing.h),
                   Text(
                     _relativeTime(video.publishedAt),
                     style: TextStyle(
                       color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                      fontSize: _PhoneSizes.timeFontSize.sp,
+                      fontSize: s.timeFontSize.sp,
                     ),
                   ),
                 ],
@@ -434,308 +439,6 @@ class SuggestedVideoCard extends StatelessWidget {
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.offNamed(
-        AppRoutes.player,
-        arguments: video,
-        parameters: {'videoId': video.videoId},
-      ),
-      child: Container(
-        width: _TabletSizes.cardWidth,
-        margin: EdgeInsets.only(right: _TabletSizes.cardMarginRight),
-        decoration: BoxDecoration(
-          color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: _TabletSizes.cardShadowBlur,
-              offset: Offset(0, _TabletSizes.cardShadowOffsetY),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Thumbnail ────────────────────────────────────────────────
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: video.bestThumbnail,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, _, _) => Container(
-                      color: AppTheme.surface(context),
-                      child: Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: _TabletSizes.errorIconSize,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: _TabletSizes.gradientHeight,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.7),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (video.formattedDuration.isNotEmpty)
-                    Positioned(
-                      bottom: _TabletSizes.durationBadgeBottom,
-                      right: _TabletSizes.durationBadgeRight,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _TabletSizes.durationBadgePaddingHorizontal,
-                          vertical: _TabletSizes.durationBadgePaddingVertical,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.75),
-                          borderRadius: BorderRadius.circular(
-                            _TabletSizes.durationBadgeBorderRadius,
-                          ),
-                        ),
-                        child: Text(
-                          video.formattedDuration,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: _TabletSizes.durationBadgeFontSize,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (video.isHd)
-                    Positioned(
-                      top: _TabletSizes.hdBadgeTop,
-                      right: _TabletSizes.hdBadgeRight,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _TabletSizes.hdBadgePaddingHorizontal,
-                          vertical: _TabletSizes.hdBadgePaddingVertical,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
-                          borderRadius: BorderRadius.circular(
-                            _TabletSizes.hdBadgeBorderRadius,
-                          ),
-                        ),
-                        child: Text(
-                          'HD',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: _TabletSizes.hdBadgeFontSize,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // ── Alt: Başlık + Kanal + Görüntülenme ──────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                _TabletSizes.contentPaddingLeft,
-                _TabletSizes.contentPaddingTop,
-                _TabletSizes.contentPaddingRight,
-                _TabletSizes.contentPaddingBottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: _TabletSizes.titleFontSize,
-                      fontWeight: FontWeight.w700,
-                      height: _TabletSizes.titleLineHeight,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.titleSpacing),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          video.channelTitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppTheme.textSec(context),
-                            fontSize: _TabletSizes.channelFontSize,
-                          ),
-                        ),
-                      ),
-                      if (video.universityId != null)
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: _TabletSizes.schoolIconSpacing,
-                          ),
-                          child: Icon(
-                            Icons.school_rounded,
-                            size: _TabletSizes.schoolIconSize,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: _TabletSizes.channelSpacing),
-                  Wrap(
-                    spacing: _TabletSizes.statSpacing,
-                    runSpacing: _TabletSizes.statRunSpacing,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _TabletSizes.statPaddingHorizontal,
-                          vertical: _TabletSizes.statPaddingVertical,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(
-                            _TabletSizes.statBorderRadius,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.remove_red_eye_outlined,
-                              size: _TabletSizes.statIconSize,
-                              color: AppTheme.primaryColor,
-                            ),
-                            SizedBox(width: _TabletSizes.statSpacingSmall),
-                            Flexible(
-                              child: Text(
-                                video.formattedViewCount,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontSize: _TabletSizes.statFontSize,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (video.likeCount > 0)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: _TabletSizes.statPaddingHorizontal,
-                            vertical: _TabletSizes.statPaddingVertical,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.textSec(context).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              _TabletSizes.statBorderRadius,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.thumb_up_alt_outlined,
-                                size: _TabletSizes.statLikeIconSize,
-                                color: AppTheme.textSec(context),
-                              ),
-                              SizedBox(width: _TabletSizes.statSpacingSmall),
-                              Text(
-                                _formatCompact(video.likeCount),
-                                style: TextStyle(
-                                  color: AppTheme.textSec(context),
-                                  fontSize: _TabletSizes.statLikeFontSize,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (video.universityName != null &&
-                          video.universityName!.isNotEmpty)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: _TabletSizes.statPaddingHorizontal,
-                            vertical: _TabletSizes.statPaddingVertical,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              _TabletSizes.statBorderRadius,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.school_rounded,
-                                size: _TabletSizes.statUniversityIconSize,
-                                color: AppTheme.primaryColor,
-                              ),
-                              SizedBox(width: _TabletSizes.statUniversitySpacing),
-                              Flexible(
-                                child: Text(
-                                  video.universityName!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppTheme.primaryColor,
-                                    fontSize: _TabletSizes.statUniversityFontSize,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: _TabletSizes.timeSpacing),
-                  Text(
-                    _relativeTime(video.publishedAt),
-                    style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                      fontSize: _TabletSizes.timeFontSize,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // ORTAK YARDIMCI METODLAR
-  // ═══════════════════════════════════════════════════════════════════════
 
   String _formatCompact(int count) {
     if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
@@ -763,5 +466,62 @@ class SuggestedVideoCard extends StatelessWidget {
     } else {
       return '${(diff.inDays / 365).floor()} y önce';
     }
+  }
+}
+
+// Aynı görsel yapı üç kez tekrar etmesin diye küçük ortak kart.
+class _Stat extends StatelessWidget {
+  final Color bgColor;
+  final Color fgColor;
+  final IconData icon;
+  final double iconSize;
+  final String text;
+  final double fontSize;
+  final double paddingH;
+  final double paddingV;
+  final double radius;
+  final double spacing;
+
+  const _Stat({
+    required this.bgColor,
+    required this.fgColor,
+    required this.icon,
+    required this.iconSize,
+    required this.text,
+    required this.fontSize,
+    required this.paddingH,
+    required this.paddingV,
+    required this.radius,
+    required this.spacing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: iconSize, color: fgColor),
+          SizedBox(width: spacing),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: fgColor,
+                fontSize: fontSize,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

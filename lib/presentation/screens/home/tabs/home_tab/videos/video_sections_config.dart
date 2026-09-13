@@ -1,13 +1,14 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/videos/video_sections_config.dart
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../../../../app/routes/app_routes.dart';
+import '../../../../../../core/utils/formatters.dart';
 import '../../../../../../data/models/video_engagement_model.dart';
 import '../../../../../../data/repositories/video_repository.dart';
-import 'video_horizontal_section_widget.dart';
+import '../widgets/horizontal_section.dart';
+import 'video_horizontal_card_widget.dart';
 
-// VideoSectionType enum video_repository.dart'tan re-export edilir;
-// bu dosyadan da erişilebilir.
 export '../../../../../../data/repositories/video_repository.dart'
     show VideoSectionType;
 
@@ -16,7 +17,6 @@ class VideoSectionConfig {
   final VideoSectionType type;
   final String Function(VideoEngagementModel) statLabelBuilder;
   final IconData statIcon;
-  /// Başlık yanındaki ℹ️ butonuna basınca gösterilecek açıklama
   final String description;
 
   const VideoSectionConfig({
@@ -26,30 +26,6 @@ class VideoSectionConfig {
     required this.statIcon,
     required this.description,
   });
-}
-
-// ─── Zaman formatlama yardımcısı ─────────────────────────────────────────────
-
-String _timeAgo(DateTime date) {
-  final diff = DateTime.now().difference(date);
-  if (diff.inDays >= 365) {
-    final y = diff.inDays ~/ 365;
-    return '$y yıl önce';
-  }
-  if (diff.inDays >= 30) {
-    final m = diff.inDays ~/ 30;
-    return '$m ay önce';
-  }
-  if (diff.inDays >= 1) return '${diff.inDays} gün önce';
-  if (diff.inHours >= 1) return '${diff.inHours} saat önce';
-  return '${diff.inMinutes} dakika önce';
-}
-
-// Sayı formatlama (university_horizontal_card_widget.dart'takinin kopyası)
-String formatVideoStatNumber(int n) {
-  if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-  if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}B';
-  return n.toString();
 }
 
 // ─── 6 Seksiyon Konfigürasyonu ───────────────────────────────────────────────
@@ -71,8 +47,7 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '👁️ En Çok İzlenenler',
     type: VideoSectionType.mostWatched,
-    statLabelBuilder: (v) =>
-        '${formatVideoStatNumber(v.ytViewCount)} izlenme',
+    statLabelBuilder: (v) => '${v.ytViewCount.compact} izlenme',
     statIcon: Icons.play_circle_outline_rounded,
     description:
         'YouTube üzerindeki toplam izlenme sayısına göre sıralanan '
@@ -82,7 +57,7 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '❤️ En Beğenilen Videolar',
     type: VideoSectionType.mostLiked,
-    statLabelBuilder: (v) => '${v.appLikeCount} beğeni',
+    statLabelBuilder: (v) => '${v.appLikeCount.compact} beğeni',
     statIcon: Icons.favorite_outline_rounded,
     description:
         'Uygulama içinde en çok beğeni alan videolar. '
@@ -93,7 +68,7 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '⭐ En Favorilenler',
     type: VideoSectionType.mostFavorited,
-    statLabelBuilder: (v) => '${v.appFavoriteCount} favori',
+    statLabelBuilder: (v) => '${v.appFavoriteCount.compact} favori',
     statIcon: Icons.star_outline_rounded,
     description:
         'Uygulama içinde en çok favorilere eklenen videolar. '
@@ -103,7 +78,7 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '💬 En Çok Yorumlananlar',
     type: VideoSectionType.mostCommented,
-    statLabelBuilder: (v) => '${v.appCommentCount} yorum',
+    statLabelBuilder: (v) => '${v.appCommentCount.compact} yorum',
     statIcon: Icons.chat_bubble_outline_rounded,
     description:
         'Uygulama içinde en fazla yorum yapılan videolar. '
@@ -114,7 +89,7 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   VideoSectionConfig(
     title: '🆕 Yeni & Keşfedilmemiş',
     type: VideoSectionType.newUndiscovered,
-    statLabelBuilder: (v) => _timeAgo(v.publishedAt),
+    statLabelBuilder: (v) => timeAgoTr(v.publishedAt),
     statIcon: Icons.explore_outlined,
     description:
         'Son dönemde yayınlanan ve henüz çok fazla etkileşim almamış '
@@ -124,24 +99,37 @@ final List<VideoSectionConfig> videoSectionConfigs = [
   ),
 ];
 
-// ─── home_tab_widget.dart içinde kullanılacak helper ────────────────────────
+// ─── Build helper ────────────────────────────────────────────────────────────
 
 List<Widget> buildVideoSections({
   required List<VideoSectionConfig> configs,
   required List<List<VideoEngagementModel>> allVideoItems,
   required bool isLoading,
 }) {
-  final widgets = <Widget>[];
-  for (var i = 0; i < configs.length; i++) {
-    final cfg = configs[i];
-    widgets.add(
-      VideoHorizontalSection(
-        config: cfg,
-        items: allVideoItems[i],
-        isLoading: isLoading,
+  return [
+    for (var i = 0; i < configs.length; i++)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: HorizontalSection<VideoEngagementModel>(
+          title: configs[i].title,
+          description: configs[i].description,
+          items: allVideoItems[i],
+          isLoading: isLoading,
+          animationIndex: i,
+          onSeeAll: () => Get.toNamed(
+            AppRoutes.videoSectionDetail,
+            arguments: {
+              'type': configs[i].type,
+              'title': configs[i].title,
+              'initialItems': allVideoItems[i],
+            },
+          ),
+          itemBuilder: (ctx, v) => VideoHorizontalCard(
+            video: v,
+            statLabelBuilder: configs[i].statLabelBuilder,
+            statIcon: configs[i].statIcon,
+          ),
+        ),
       ),
-    );
-    widgets.add(const SizedBox(height: 24));
-  }
-  return widgets;
+  ];
 }

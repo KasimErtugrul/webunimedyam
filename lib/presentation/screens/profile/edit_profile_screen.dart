@@ -1,11 +1,6 @@
 // lib/presentation/screens/profile/edit_profile_screen.dart
-//
-// Profili düzenleme ekranı. Yalnızca kendi profilimiz için erişilebilir
-// (ProfileHeaderWidget'taki "Profili Düzenle" butonu üzerinden açılır).
-// Ayrı bir binding'i yok: mevcut, zaten ProfileBinding tarafından kayıt
-// edilmiş ProfileController örneğini aynı tag ile bulur.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -16,75 +11,128 @@ import '../../controllers/profile_controller.dart';
 import 'widgets/profile_header/avatar_source_sheet.dart';
 import 'widgets/profile_header/avatar_widget.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final bool isTablet;
+  final double maxContentWidth;
+  final double appBarTitleSize;
+  final double paddingH;
+  final double paddingTop;
+  final double paddingBottom;
+  final double avatarSize;
+  final double avatarSpacing;
+  final double avatarChangeButtonFontSize;
+  final double formSpacing;
+  final double labelSpacing;
+  final double labelFontSize;
+  final double labelLetterSpacing;
+  final double fieldFontSize;
+  final int fieldMaxLength;
+  final int fieldMaxLengthFull;
+  final double fieldIconSize;
+  final double fieldRadius;
+  final double fieldPaddingH;
+  final double fieldPaddingV;
+  final double hintFontSize;
+  final double hintLineHeight;
+  final double buttonHeight;
+  final double buttonRadius;
+  final double buttonFontSize;
+  final double savingIndicatorSize;
+  final double savingStrokeWidth;
 
-class _PhoneSizes {
-  // AppBar
-  static const double appBarTitleSize = 20;
+  const _Sizes._({
+    required this.isTablet,
+    required this.maxContentWidth,
+    required this.appBarTitleSize,
+    required this.paddingH,
+    required this.paddingTop,
+    required this.paddingBottom,
+    required this.avatarSize,
+    required this.avatarSpacing,
+    required this.avatarChangeButtonFontSize,
+    required this.formSpacing,
+    required this.labelSpacing,
+    required this.labelFontSize,
+    required this.labelLetterSpacing,
+    required this.fieldFontSize,
+    required this.fieldMaxLength,
+    required this.fieldMaxLengthFull,
+    required this.fieldIconSize,
+    required this.fieldRadius,
+    required this.fieldPaddingH,
+    required this.fieldPaddingV,
+    required this.hintFontSize,
+    required this.hintLineHeight,
+    required this.buttonHeight,
+    required this.buttonRadius,
+    required this.buttonFontSize,
+    required this.savingIndicatorSize,
+    required this.savingStrokeWidth,
+  });
 
-  // Padding
-  static const double paddingHorizontal = 20;
-  static const double paddingTop = 24;
-  static const double paddingBottom = 24;
-
-  // Avatar
-  static const double avatarSize = 104;
-  static const double avatarSpacing = 10;
-  static const double avatarChangeButtonFontSize = 13;
-
-  // Form
-  static const double formSpacing = 24;
-  static const double labelSpacing = 8;
-  static const double labelFontSize = 12;
-  static const double labelLetterSpacing = 0.6;
-  static const double fieldFontSize = 15;
-  static const int fieldMaxLength = 30;
-  static const int fieldMaxLengthFull = 60;
-  static const double fieldIconSize = 20;
-  static const double hintFontSize = 11.5;
-  static const double hintLineHeight = 1.4;
-  static const double buttonHeight = 50;
-  static const double buttonFontSize = 16;
-  static const double savingIndicatorSize = 20;
-  static const double savingStrokeWidth = 2.4;
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        maxContentWidth: 560,
+        appBarTitleSize: 24,
+        paddingH: 32,
+        paddingTop: 32,
+        paddingBottom: 32,
+        avatarSize: 128,
+        avatarSpacing: 14,
+        avatarChangeButtonFontSize: 15,
+        formSpacing: 28,
+        labelSpacing: 10,
+        labelFontSize: 13,
+        labelLetterSpacing: 0.7,
+        fieldFontSize: 17,
+        fieldMaxLength: 30,
+        fieldMaxLengthFull: 60,
+        fieldIconSize: 24,
+        fieldRadius: 14,
+        fieldPaddingH: 18,
+        fieldPaddingV: 18,
+        hintFontSize: 13,
+        hintLineHeight: 1.5,
+        buttonHeight: 58,
+        buttonRadius: 16,
+        buttonFontSize: 18,
+        savingIndicatorSize: 24,
+        savingStrokeWidth: 2.8,
+      );
+    }
+    return const _Sizes._(
+      isTablet: false,
+      maxContentWidth: double.infinity,
+      appBarTitleSize: 20,
+      paddingH: 20,
+      paddingTop: 24,
+      paddingBottom: 24,
+      avatarSize: 104,
+      avatarSpacing: 10,
+      avatarChangeButtonFontSize: 13,
+      formSpacing: 22,
+      labelSpacing: 8,
+      labelFontSize: 11.5,
+      labelLetterSpacing: 0.6,
+      fieldFontSize: 15,
+      fieldMaxLength: 30,
+      fieldMaxLengthFull: 60,
+      fieldIconSize: 20,
+      fieldRadius: 12,
+      fieldPaddingH: 14,
+      fieldPaddingV: 16,
+      hintFontSize: 11.5,
+      hintLineHeight: 1.4,
+      buttonHeight: 52,
+      buttonRadius: 14,
+      buttonFontSize: 16,
+      savingIndicatorSize: 20,
+      savingStrokeWidth: 2.4,
+    );
+  }
 }
-
-class _TabletSizes {
-  // AppBar - tablet için daha büyük
-  static const double appBarTitleSize = 24;
-
-  // Padding - tablet için daha büyük
-  static const double paddingHorizontal = 32;
-  static const double paddingTop = 32;
-  static const double paddingBottom = 32;
-
-  // Avatar - tablet için daha büyük
-  static const double avatarSize = 128;
-  static const double avatarSpacing = 14;
-  static const double avatarChangeButtonFontSize = 15;
-
-  // Form - tablet için daha büyük
-  static const double formSpacing = 32;
-  static const double labelSpacing = 10;
-  static const double labelFontSize = 14;
-  static const double labelLetterSpacing = 0.7;
-  static const double fieldFontSize = 17;
-  static const int fieldMaxLength = 30;
-  static const int fieldMaxLengthFull = 60;
-  static const double fieldIconSize = 24;
-  static const double hintFontSize = 13;
-  static const double hintLineHeight = 1.5;
-  static const double buttonHeight = 58;
-  static const double buttonFontSize = 18;
-  static const double savingIndicatorSize = 24;
-  static const double savingStrokeWidth = 2.8;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateful)
-// ═══════════════════════════════════════════════════════════
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -144,198 +192,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  String? _validateUsername(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Kullanıcı adı boş olamaz.';
+    if (v.length < 3) return 'En az 3 karakter olmalı.';
+    if (!RegExp(r'^[a-zA-Z0-9_.]+$').hasMatch(v)) {
+      return 'Sadece harf, rakam, "_" ve "." kullanılabilir.';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final spec = _Sizes.of(context);
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Profili Düzenle',
-          style: TextStyle(fontSize: _PhoneSizes.appBarTitleSize.sp),
-        ),
-      ),
-      body: Obx(() {
-        final profile = _controller.profile.value;
-        final isSaving = _controller.isSavingProfile.value;
-        final isUploading = _controller.isUploadingAvatar.value;
-
-        return Form(
-          key: _formKey,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(
-              _PhoneSizes.paddingHorizontal.w,
-              _PhoneSizes.paddingTop.h,
-              _PhoneSizes.paddingHorizontal.w,
-              _PhoneSizes.paddingBottom.h,
-            ),
-            children: [
-              // ── Avatar ────────────────────────────────────────────────
-              Center(
-                child: ProfileAvatarWidget(
-                  avatarUrl: profile?.avatarUrl,
-                  username: profile?.username ?? 'U',
-                  isOwnProfile: true,
-                  isUploading: isUploading,
-                  size: _PhoneSizes.avatarSize.w,
-                  onTap: () => showAvatarSourceSheet(context, _controller),
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.avatarSpacing.h),
-              Center(
-                child: TextButton(
-                  onPressed: isUploading
-                      ? null
-                      : () => showAvatarSourceSheet(context, _controller),
-                  child: Text(
-                    'Fotoğrafı Değiştir',
-                    style: TextStyle(
-                      fontSize: _PhoneSizes.avatarChangeButtonFontSize.sp,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.formSpacing.h),
-
-              // ── Kullanıcı adı ─────────────────────────────────────────
-              Text(
-                'Kullanıcı Adı',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.labelFontSize.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: _PhoneSizes.labelLetterSpacing,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.labelSpacing.h),
-              TextFormField(
-                controller: _usernameCtrl,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.fieldFontSize.sp,
-                ),
-                maxLength: _PhoneSizes.fieldMaxLength,
-                decoration: InputDecoration(
-                  hintText: 'kullanici_adi',
-                  prefixIcon: Icon(
-                    Icons.alternate_email_rounded,
-                    color: AppTheme.textSec(context),
-                    size: _PhoneSizes.fieldIconSize.sp,
-                  ),
-                  counterText: '',
-                ),
-                validator: (value) {
-                  final v = value?.trim() ?? '';
-                  if (v.isEmpty) return 'Kullanıcı adı boş olamaz.';
-                  if (v.length < 3) return 'En az 3 karakter olmalı.';
-                  if (!RegExp(r'^[a-zA-Z0-9_.]+$').hasMatch(v)) {
-                    return 'Sadece harf, rakam, "_" ve "." kullanılabilir.';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: _PhoneSizes.formSpacing.h),
-
-              // ── Ad Soyad ──────────────────────────────────────────────
-              Text(
-                'Ad Soyad',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.labelFontSize.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: _PhoneSizes.labelLetterSpacing,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.labelSpacing.h),
-              TextFormField(
-                controller: _fullNameCtrl,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.fieldFontSize.sp,
-                ),
-                maxLength: _PhoneSizes.fieldMaxLengthFull,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  hintText: 'Ad Soyad',
-                  prefixIcon: Icon(
-                    Icons.badge_outlined,
-                    color: AppTheme.textSec(context),
-                    size: _PhoneSizes.fieldIconSize.sp,
-                  ),
-                  counterText: '',
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.labelSpacing.h),
-              Text(
-                'Ad soyad boş bırakılabilir; boş bırakılırsa profilinde '
-                'kullanıcı adın öne çıkar.',
-                style: TextStyle(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                  fontSize: _PhoneSizes.hintFontSize.sp,
-                  height: _PhoneSizes.hintLineHeight,
-                ),
-              ),
-              SizedBox(height: _PhoneSizes.formSpacing.h),
-
-              // ── Kaydet ────────────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(
-                      double.infinity,
-                      _PhoneSizes.buttonHeight.h,
-                    ),
-                  ),
-                  onPressed: isSaving ? null : _save,
-                  child: isSaving
-                      ? SizedBox(
-                          width: _PhoneSizes.savingIndicatorSize.w,
-                          height: _PhoneSizes.savingIndicatorSize.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: _PhoneSizes.savingStrokeWidth,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          'Kaydet',
-                          style: TextStyle(
-                            fontSize: _PhoneSizes.buttonFontSize.sp,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Profili Düzenle',
-          style: TextStyle(fontSize: _TabletSizes.appBarTitleSize),
+          style: TextStyle(fontSize: spec.appBarTitleSize.sp),
         ),
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
+          constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
           child: Obx(() {
             final profile = _controller.profile.value;
             final isSaving = _controller.isSavingProfile.value;
@@ -344,152 +224,226 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             return Form(
               key: _formKey,
               child: ListView(
+                physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
-                  _TabletSizes.paddingHorizontal,
-                  _TabletSizes.paddingTop,
-                  _TabletSizes.paddingHorizontal,
-                  _TabletSizes.paddingBottom,
+                  spec.paddingH.w,
+                  spec.paddingTop.h,
+                  spec.paddingH.w,
+                  spec.paddingBottom.h,
                 ),
                 children: [
-                  // ── Avatar ────────────────────────────────────────────────
+                  // ── Avatar ──
                   Center(
                     child: ProfileAvatarWidget(
                       avatarUrl: profile?.avatarUrl,
                       username: profile?.username ?? 'U',
                       isOwnProfile: true,
                       isUploading: isUploading,
-                      size: _TabletSizes.avatarSize,
+                      size: spec.avatarSize.w,
                       onTap: () => showAvatarSourceSheet(context, _controller),
                     ),
-                  ),
-                  SizedBox(height: _TabletSizes.avatarSpacing),
+                  ).animate().fadeIn(duration: 400.ms).scaleXY(
+                        begin: 0.8,
+                        end: 1,
+                        duration: 500.ms,
+                        curve: Curves.easeOutBack,
+                      ),
+                  SizedBox(height: spec.avatarSpacing.h),
                   Center(
                     child: TextButton(
                       onPressed: isUploading
                           ? null
                           : () => showAvatarSourceSheet(context, _controller),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.primaryColor,
+                      ),
                       child: Text(
                         'Fotoğrafı Değiştir',
                         style: TextStyle(
-                          fontSize: _TabletSizes.avatarChangeButtonFontSize,
+                          fontSize: spec.avatarChangeButtonFontSize.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: _TabletSizes.formSpacing),
+                  ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
+                  SizedBox(height: spec.formSpacing.h),
 
-                  // ── Kullanıcı adı ─────────────────────────────────────────
-                  Text(
-                    'Kullanıcı Adı',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _TabletSizes.labelFontSize,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: _TabletSizes.labelLetterSpacing,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.labelSpacing),
+                  // ── Kullanıcı adı ──
+                  _FieldLabel(text: 'Kullanıcı Adı', spec: spec),
+                  SizedBox(height: spec.labelSpacing.h),
                   TextFormField(
                     controller: _usernameCtrl,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: _TabletSizes.fieldFontSize,
+                      fontSize: spec.fieldFontSize.sp,
+                      fontWeight: FontWeight.w500,
                     ),
-                    maxLength: _TabletSizes.fieldMaxLength,
-                    decoration: InputDecoration(
-                      hintText: 'kullanici_adi',
-                      prefixIcon: Icon(
-                        Icons.alternate_email_rounded,
-                        color: AppTheme.textSec(context),
-                        size: _TabletSizes.fieldIconSize,
-                      ),
-                      counterText: '',
+                    maxLength: spec.fieldMaxLength,
+                    decoration: _fieldDecoration(
+                      context,
+                      spec: spec,
+                      hint: 'kullanici_adi',
+                      icon: Icons.alternate_email_rounded,
                     ),
-                    validator: (value) {
-                      final v = value?.trim() ?? '';
-                      if (v.isEmpty) return 'Kullanıcı adı boş olamaz.';
-                      if (v.length < 3) return 'En az 3 karakter olmalı.';
-                      if (!RegExp(r'^[a-zA-Z0-9_.]+$').hasMatch(v)) {
-                        return 'Sadece harf, rakam, "_" ve "." kullanılabilir.';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: _TabletSizes.formSpacing),
+                    validator: _validateUsername,
+                  ).animate().fadeIn(delay: 250.ms, duration: 300.ms),
+                  SizedBox(height: spec.formSpacing.h),
 
-                  // ── Ad Soyad ──────────────────────────────────────────────
-                  Text(
-                    'Ad Soyad',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _TabletSizes.labelFontSize,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: _TabletSizes.labelLetterSpacing,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.labelSpacing),
+                  // ── Ad Soyad ──
+                  _FieldLabel(text: 'Ad Soyad', spec: spec),
+                  SizedBox(height: spec.labelSpacing.h),
                   TextFormField(
                     controller: _fullNameCtrl,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: _TabletSizes.fieldFontSize,
+                      fontSize: spec.fieldFontSize.sp,
+                      fontWeight: FontWeight.w500,
                     ),
-                    maxLength: _TabletSizes.fieldMaxLengthFull,
+                    maxLength: spec.fieldMaxLengthFull,
                     textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      hintText: 'Ad Soyad',
-                      prefixIcon: Icon(
-                        Icons.badge_outlined,
-                        color: AppTheme.textSec(context),
-                        size: _TabletSizes.fieldIconSize,
+                    decoration: _fieldDecoration(
+                      context,
+                      spec: spec,
+                      hint: 'Ad Soyad',
+                      icon: Icons.badge_outlined,
+                    ),
+                  ).animate().fadeIn(delay: 350.ms, duration: 300.ms),
+                  SizedBox(height: spec.labelSpacing.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: spec.hintFontSize.sp + 2,
+                        color: AppTheme.textSec(context).withValues(alpha: 0.6),
                       ),
-                      counterText: '',
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.labelSpacing),
-                  Text(
-                    'Ad soyad boş bırakılabilir; boş bırakılırsa profilinde '
-                    'kullanıcı adın öne çıkar.',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                      fontSize: _TabletSizes.hintFontSize,
-                      height: _TabletSizes.hintLineHeight,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.formSpacing),
+                      SizedBox(width: 6.w),
+                      Expanded(
+                        child: Text(
+                          'Boş bırakılırsa profilinde kullanıcı adın öne çıkar.',
+                          style: TextStyle(
+                            color: AppTheme.textSec(context)
+                                .withValues(alpha: 0.75),
+                            fontSize: spec.hintFontSize.sp,
+                            height: spec.hintLineHeight,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ).animate().fadeIn(delay: 400.ms, duration: 300.ms),
+                  SizedBox(height: spec.formSpacing.h),
 
-                  // ── Kaydet ────────────────────────────────────────────────
+                  // ── Kaydet ──
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                          double.infinity,
-                          _TabletSizes.buttonHeight,
+                    height: spec.buttonHeight.h,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            spec.buttonRadius.r,
+                          ),
                         ),
                       ),
                       onPressed: isSaving ? null : _save,
-                      child: isSaving
+                      icon: isSaving
                           ? SizedBox(
-                              width: _TabletSizes.savingIndicatorSize,
-                              height: _TabletSizes.savingIndicatorSize,
+                              width: spec.savingIndicatorSize.w,
+                              height: spec.savingIndicatorSize.w,
                               child: CircularProgressIndicator(
-                                strokeWidth: _TabletSizes.savingStrokeWidth,
+                                strokeWidth: spec.savingStrokeWidth,
                                 color: Colors.white,
                               ),
                             )
-                          : Text(
-                              'Kaydet',
-                              style: TextStyle(
-                                fontSize: _TabletSizes.buttonFontSize,
-                              ),
-                            ),
+                          : const Icon(Icons.check_rounded, size: 20),
+                      label: Text(
+                        'Kaydet',
+                        style: TextStyle(
+                          fontSize: spec.buttonFontSize.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ),
+                  ).animate().fadeIn(delay: 500.ms, duration: 300.ms),
                 ],
               ),
             );
           }),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required _Sizes spec,
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        color: AppTheme.textSec(context).withValues(alpha: 0.5),
+        fontWeight: FontWeight.w400,
+      ),
+      prefixIcon: Icon(
+        icon,
+        color: AppTheme.textSec(context),
+        size: spec.fieldIconSize.sp,
+      ),
+      counterText: '',
+      filled: true,
+      fillColor: AppTheme.card(context),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: spec.fieldPaddingH.w,
+        vertical: spec.fieldPaddingV.h,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderSide: BorderSide(
+          color: AppTheme.textSec(context).withValues(alpha: 0.08),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderSide: BorderSide(
+          color: AppTheme.primaryColor.withValues(alpha: 0.6),
+          width: 1.5,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  final _Sizes spec;
+  const _FieldLabel({required this.text, required this.spec});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppTheme.textSec(context),
+          fontSize: spec.labelFontSize.sp,
+          fontWeight: FontWeight.w700,
+          letterSpacing: spec.labelLetterSpacing,
         ),
       ),
     );

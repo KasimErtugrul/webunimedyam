@@ -1,76 +1,82 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/stat_badge_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
+class _Sizes {
+  final double verticalPadding;
+  final double horizontalPadding;
+  final double iconSize;
+  final double loadingSize;
+  final double loadingStrokeWidth;
+  final double iconTextSpacing;
+  final double skeletonWidth;
+  final double skeletonHeight;
+  final double skeletonRadius;
+  final double skeletonOpacity;
+  final double textFontSize;
+  final double textLineHeight;
+  final double textDecorationThickness;
+  final double textDecorationOpacity;
 
-class _PhoneSizes {
-  // Padding
-  static const double verticalPadding = 4;
-  static const double horizontalPadding = 2;
+  const _Sizes._({
+    required this.verticalPadding,
+    required this.horizontalPadding,
+    required this.iconSize,
+    required this.loadingSize,
+    required this.loadingStrokeWidth,
+    required this.iconTextSpacing,
+    required this.skeletonWidth,
+    required this.skeletonHeight,
+    required this.skeletonRadius,
+    required this.skeletonOpacity,
+    required this.textFontSize,
+    required this.textLineHeight,
+    required this.textDecorationThickness,
+    required this.textDecorationOpacity,
+  });
 
-  // Icon / Loading
-  static const double iconSize = 15;
-  static const double loadingSize = 15;
-  static const double loadingStrokeWidth = 1.5;
-
-  // Spacing
-  static const double iconTextSpacing = 4;
-
-  // Loading skeleton
-  static const double skeletonWidth = 24;
-  static const double skeletonHeight = 8;
-  static const double skeletonBorderRadius = 4;
-  static const double skeletonOpacity = 0.15;
-
-  // Text
-  static const double textFontSize = 12;
-  static const double textLineHeight = 1.2;
-  static const double textDecorationThickness = 1.2;
-  static const double textDecorationOpacity = 0.3;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 200);
+  factory _Sizes.of(BuildContext context) {
+    if (Responsive.isTablet(context)) {
+      return const _Sizes._(
+        verticalPadding: 6,
+        horizontalPadding: 3,
+        iconSize: 18,
+        loadingSize: 18,
+        loadingStrokeWidth: 2,
+        iconTextSpacing: 5,
+        skeletonWidth: 30,
+        skeletonHeight: 10,
+        skeletonRadius: 5,
+        skeletonOpacity: 0.15,
+        textFontSize: 14,
+        textLineHeight: 1.2,
+        textDecorationThickness: 1.5,
+        textDecorationOpacity: 0.3,
+      );
+    }
+    return const _Sizes._(
+      verticalPadding: 4,
+      horizontalPadding: 2,
+      iconSize: 15,
+      loadingSize: 15,
+      loadingStrokeWidth: 1.5,
+      iconTextSpacing: 4,
+      skeletonWidth: 24,
+      skeletonHeight: 8,
+      skeletonRadius: 4,
+      skeletonOpacity: 0.15,
+      textFontSize: 12,
+      textLineHeight: 1.2,
+      textDecorationThickness: 1.2,
+      textDecorationOpacity: 0.3,
+    );
+  }
 }
 
-class _TabletSizes {
-  // Padding - tablet için daha büyük
-  static const double verticalPadding = 6;
-  static const double horizontalPadding = 3;
-
-  // Icon / Loading - tablet için daha büyük
-  static const double iconSize = 18;
-  static const double loadingSize = 18;
-  static const double loadingStrokeWidth = 2;
-
-  // Spacing - tablet için daha büyük
-  static const double iconTextSpacing = 5;
-
-  // Loading skeleton - tablet için daha büyük
-  static const double skeletonWidth = 30;
-  static const double skeletonHeight = 10;
-  static const double skeletonBorderRadius = 5;
-  static const double skeletonOpacity = 0.15;
-
-  // Text - tablet için daha büyük
-  static const double textFontSize = 14;
-  static const double textLineHeight = 1.2;
-  static const double textDecorationThickness = 1.5;
-  static const double textDecorationOpacity = 0.3;
-
-  // Animasyon
-  static const Duration animDuration = Duration(milliseconds: 200);
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateless)
-// ═══════════════════════════════════════════════════════════
+const Duration _kAnimDuration = Duration(milliseconds: 200);
 
 class StatBadgeWidget extends StatelessWidget {
   final IconData icon;
@@ -94,29 +100,18 @@ class StatBadgeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
+    final s = _Sizes.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
-    final Color iconColor = tappable
-        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.7)
+    final iconColor = tappable
+        ? primary.withValues(alpha: 0.7)
         : AppTheme.textSec(context);
-
-    final Color textColor = tappable
-        ? Theme.of(context).colorScheme.primary
-        : AppTheme.textSec(context);
+    final textColor = tappable ? primary : AppTheme.textSec(context);
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: _PhoneSizes.verticalPadding.h,
-        horizontal: _PhoneSizes.horizontalPadding.w,
+        vertical: s.verticalPadding.h,
+        horizontal: s.horizontalPadding.w,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -124,36 +119,29 @@ class StatBadgeWidget extends StatelessWidget {
         children: [
           if (loading)
             SizedBox(
-              width: _PhoneSizes.loadingSize.sp,
-              height: _PhoneSizes.loadingSize.sp,
+              width: s.loadingSize.sp,
+              height: s.loadingSize.sp,
               child: CircularProgressIndicator(
-                strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
-                color: AppTheme.textSec(context).withValues(alpha:0.5),
+                strokeWidth: s.loadingStrokeWidth.w,
+                color: AppTheme.textSec(context).withValues(alpha: 0.5),
               ),
             )
           else
-            Icon(
-              icon,
-              color: iconColor,
-              size: _PhoneSizes.iconSize.sp,
-            ),
-          SizedBox(width: _PhoneSizes.iconTextSpacing.w),
+            Icon(icon, color: iconColor, size: s.iconSize.sp),
+          SizedBox(width: s.iconTextSpacing.w),
           if (loading)
             Container(
-              width: _PhoneSizes.skeletonWidth.w,
-              height: _PhoneSizes.skeletonHeight.h,
+              width: s.skeletonWidth.w,
+              height: s.skeletonHeight.h,
               decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withValues(alpha:
-                  _PhoneSizes.skeletonOpacity,
-                ),
-                borderRadius: BorderRadius.circular(
-                  _PhoneSizes.skeletonBorderRadius.r,
-                ),
+                color: AppTheme.textSec(context)
+                    .withValues(alpha: s.skeletonOpacity),
+                borderRadius: BorderRadius.circular(s.skeletonRadius.r),
               ),
             )
           else
             AnimatedSwitcher(
-              duration: _PhoneSizes.animDuration,
+              duration: _kAnimDuration,
               transitionBuilder: (child, anim) =>
                   FadeTransition(opacity: anim, child: child),
               child: Text(
@@ -161,97 +149,15 @@ class StatBadgeWidget extends StatelessWidget {
                 key: ValueKey(count),
                 style: TextStyle(
                   color: textColor,
-                  fontSize: _PhoneSizes.textFontSize.sp,
+                  fontSize: s.textFontSize.sp,
                   fontWeight: tappable ? FontWeight.w600 : FontWeight.normal,
-                  height: _PhoneSizes.textLineHeight,
+                  height: s.textLineHeight,
                   decoration: tappable
                       ? TextDecoration.underline
                       : TextDecoration.none,
-                  decorationColor: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha:_PhoneSizes.textDecorationOpacity),
-                  decorationThickness: _PhoneSizes.textDecorationThickness,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    final Color iconColor = tappable
-        ? Theme.of(context).colorScheme.primary.withValues(alpha:0.7)
-        : AppTheme.textSec(context);
-
-    final Color textColor = tappable
-        ? Theme.of(context).colorScheme.primary
-        : AppTheme.textSec(context);
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: _TabletSizes.verticalPadding,
-        horizontal: _TabletSizes.horizontalPadding,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (loading)
-            SizedBox(
-              width: _TabletSizes.loadingSize,
-              height: _TabletSizes.loadingSize,
-              child: CircularProgressIndicator(
-                strokeWidth: _TabletSizes.loadingStrokeWidth,
-                color: AppTheme.textSec(context).withValues(alpha:0.5),
-              ),
-            )
-          else
-            Icon(
-              icon,
-              color: iconColor,
-              size: _TabletSizes.iconSize,
-            ),
-          SizedBox(width: _TabletSizes.iconTextSpacing),
-          if (loading)
-            Container(
-              width: _TabletSizes.skeletonWidth,
-              height: _TabletSizes.skeletonHeight,
-              decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withValues(alpha:
-                  _TabletSizes.skeletonOpacity,
-                ),
-                borderRadius: BorderRadius.circular(
-                  _TabletSizes.skeletonBorderRadius,
-                ),
-              ),
-            )
-          else
-            AnimatedSwitcher(
-              duration: _TabletSizes.animDuration,
-              transitionBuilder: (child, anim) =>
-                  FadeTransition(opacity: anim, child: child),
-              child: Text(
-                _fmt(count),
-                key: ValueKey(count),
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: _TabletSizes.textFontSize,
-                  fontWeight: tappable ? FontWeight.w600 : FontWeight.normal,
-                  height: _TabletSizes.textLineHeight,
-                  decoration: tappable
-                      ? TextDecoration.underline
-                      : TextDecoration.none,
-                  decorationColor: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha:_TabletSizes.textDecorationOpacity),
-                  decorationThickness: _TabletSizes.textDecorationThickness,
+                  decorationColor: primary
+                      .withValues(alpha: s.textDecorationOpacity),
+                  decorationThickness: s.textDecorationThickness,
                 ),
               ),
             ),

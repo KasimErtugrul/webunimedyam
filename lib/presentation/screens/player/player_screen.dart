@@ -1,5 +1,4 @@
 // lib/presentation/screens/player/player_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,8 +6,8 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
-import '../../../core/responsive.dart';
-import '../../controllers/player_controller.dart';
+import '../../controllers/player/player_controller.dart';
+import 'player_layout_spec.dart';
 import 'player_screen_widgets/comment_header_widget.dart';
 import 'player_screen_widgets/comment_input_widget.dart';
 import 'player_screen_widgets/comment_tile_widget.dart';
@@ -17,118 +16,6 @@ import 'player_screen_widgets/expandable_description_widget.dart';
 import 'player_screen_widgets/tag_row_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
 import 'player_screen_widgets/suggested_videos_section_widget.dart';
-
-// ═══════════════════════════════════════════════════════════
-// KURAL 3 — SABİTLER
-// ═══════════════════════════════════════════════════════════
-
-class _PhoneSizes {
-  // Player
-  static const double miniW = 192.0;
-  static const double miniH = 108.0;
-  static const double miniPad = 14.0;
-  static const double miniBorderRadius = 10.0;
-  static const double miniShadowBlur = 18.0;
-  static const Duration animDur = Duration(milliseconds: 280);
-  static const Curve animCurve = Curves.easeInOutCubic;
-  static const double dragTapThreshold = 6.0;
-
-  // Back button
-  static const double backButtonLeft = 4.0;
-  static const double backButtonTop = 8.0;
-  static const double backButtonPadding = 8.0;
-  static const double backButtonRadius = 20.0;
-  static const double backButtonSize = 18.0;
-  static const double backButtonAlpha = 0.55;
-
-  // Content
-  static const double contentPaddingLeft = 16.0;
-  static const double contentPaddingTop = 14.0;
-  static const double contentPaddingRight = 16.0;
-  static const double contentPaddingBottom = 16.0;
-  static const double dateFontSize = 11.0;
-  static const double dateDurationDotSpacing = 6.0;
-  static const double titleFontSize = 15.0;
-  static const double titleLineHeight = 1.4;
-  static const double titleSpacing = 6.0;
-  static const double universitySpacing = 4.0;
-  static const double engagementSpacing = 14.0;
-  static const double engagementBottomSpacing = 20.0;
-  static const double descriptionSpacing = 12.0;
-  static const double tagsSpacing = 14.0;
-  static const double tagsBottomSpacing = 20.0;
-  static const double suggestedSpacing = 20.0;
-  static const double dividerSpacing = 16.0;
-  static const double commentsHeaderSpacing = 12.0;
-  static const double commentsInputSpacing = 16.0;
-  static const double commentsLoadingSpacing = 24.0;
-  static const double commentsEmptySpacing = 20.0;
-  static const double commentsEmptyFontSize = 13.0;
-  static const double bottomSpacing = 32.0;
-
-  // Loading
-  static const double loadingStrokeWidth = 3.0;
-
-  // Auth dialog
-  static const double dialogBorderRadius = 16.0;
-  static const double dialogButtonRadius = 8.0;
-}
-
-class _TabletSizes {
-  // Player - tablet için daha büyük
-  static const double miniW = 320.0;
-  static const double miniH = 180.0;
-  static const double miniPad = 20.0;
-  static const double miniBorderRadius = 12.0;
-  static const double miniShadowBlur = 24.0;
-  static const Duration animDur = Duration(milliseconds: 300);
-  static const Curve animCurve = Curves.easeInOutCubic;
-  static const double dragTapThreshold = 8.0;
-
-  // Back button - tablet için daha büyük
-  static const double backButtonLeft = 8.0;
-  static const double backButtonTop = 12.0;
-  static const double backButtonPadding = 10.0;
-  static const double backButtonRadius = 24.0;
-  static const double backButtonSize = 22.0;
-  static const double backButtonAlpha = 0.55;
-
-  // Content - tablet için daha büyük
-  static const double contentPaddingLeft = 24.0;
-  static const double contentPaddingTop = 18.0;
-  static const double contentPaddingRight = 24.0;
-  static const double contentPaddingBottom = 24.0;
-  static const double dateFontSize = 13.0;
-  static const double dateDurationDotSpacing = 8.0;
-  static const double titleFontSize = 20.0;
-  static const double titleLineHeight = 1.45;
-  static const double titleSpacing = 8.0;
-  static const double universitySpacing = 6.0;
-  static const double engagementSpacing = 18.0;
-  static const double engagementBottomSpacing = 24.0;
-  static const double descriptionSpacing = 16.0;
-  static const double tagsSpacing = 18.0;
-  static const double tagsBottomSpacing = 24.0;
-  static const double suggestedSpacing = 24.0;
-  static const double dividerSpacing = 20.0;
-  static const double commentsHeaderSpacing = 16.0;
-  static const double commentsInputSpacing = 20.0;
-  static const double commentsLoadingSpacing = 30.0;
-  static const double commentsEmptySpacing = 24.0;
-  static const double commentsEmptyFontSize = 15.0;
-  static const double bottomSpacing = 40.0;
-
-  // Loading - tablet için daha büyük
-  static const double loadingStrokeWidth = 3.5;
-
-  // Auth dialog - tablet için daha büyük
-  static const double dialogBorderRadius = 20.0;
-  static const double dialogButtonRadius = 10.0;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateful)
-// ═══════════════════════════════════════════════════════════
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -189,41 +76,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   void _insertOverlay() {
-    final isTablet = Responsive.isTablet(context);
+    final spec = PlayerLayoutSpec.of(context);
     _overlayEntry = OverlayEntry(
-      builder: (_) => isTablet
-          ? _OverlayButtonsTablet(
-              isMini: _isMini,
-              bigH: _bigH,
-              miniW: _TabletSizes.miniW,
-              miniH: _TabletSizes.miniH,
-              miniPad: _TabletSizes.miniPad,
-              animDur: _TabletSizes.animDur,
-              animCurve: _TabletSizes.animCurve,
-              miniPosition: _miniPosition,
-              isDragging: _dragTotal > _TabletSizes.dragTapThreshold,
-              isPanning: _isPanningMini,
-              onBack: () => Get.back(),
-              onPanStart: _onMiniPanStart,
-              onPanUpdate: _onMiniPanUpdate,
-              onPanEnd: _onMiniPanEnd,
-            )
-          : _OverlayButtonsPhone(
-              isMini: _isMini,
-              bigH: _bigH,
-              miniW: _PhoneSizes.miniW,
-              miniH: _PhoneSizes.miniH,
-              miniPad: _PhoneSizes.miniPad,
-              animDur: _PhoneSizes.animDur,
-              animCurve: _PhoneSizes.animCurve,
-              miniPosition: _miniPosition,
-              isDragging: _dragTotal > _PhoneSizes.dragTapThreshold,
-              isPanning: _isPanningMini,
-              onBack: () => Get.back(),
-              onPanStart: _onMiniPanStart,
-              onPanUpdate: _onMiniPanUpdate,
-              onPanEnd: _onMiniPanEnd,
-            ),
+      builder: (_) => _OverlayButtons(
+        isMini: _isMini,
+        bigH: _bigH,
+        spec: spec,
+        miniPosition: _miniPosition,
+        isDragging: _dragTotal > spec.dragTapThreshold,
+        isPanning: _isPanningMini,
+        onBack: () => Get.back(),
+        onPanStart: _onMiniPanStart,
+        onPanUpdate: _onMiniPanUpdate,
+        onPanEnd: _onMiniPanEnd,
+      ),
     );
     Overlay.of(context).insert(_overlayEntry!);
   }
@@ -242,23 +108,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
     }
   }
 
-  double _defaultMiniLeft(double screenW) {
-    final isTablet = Responsive.isTablet(context);
-    final miniW = isTablet ? _TabletSizes.miniW : _PhoneSizes.miniW;
-    final miniPad = isTablet ? _TabletSizes.miniPad : _PhoneSizes.miniPad;
-    return screenW - miniW - miniPad;
+  double _defaultMiniLeft(double screenW, PlayerLayoutSpec spec) {
+    return screenW - spec.miniW - spec.miniPad;
   }
 
   double _defaultMiniTop(
     double screenH,
-    double botPad, [
+    double botPad,
+    PlayerLayoutSpec spec, [
     double keyboardInset = 0,
   ]) {
-    final isTablet = Responsive.isTablet(context);
-    final miniH = isTablet ? _TabletSizes.miniH : _PhoneSizes.miniH;
-    final miniPad = isTablet ? _TabletSizes.miniPad : _PhoneSizes.miniPad;
-    // Klavye açıkken mini player'ı klavyenin üstüne it, altında kalmasın.
-    return screenH - miniH - miniPad - botPad - 56 - keyboardInset;
+    return screenH -
+        spec.miniH -
+        spec.miniPad -
+        botPad -
+        spec.miniBottomOffset -
+        keyboardInset;
   }
 
   void _onMiniPanStart(DragStartDetails details) {
@@ -267,22 +132,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
     _isPanningMini = true;
     if (_miniPosition == null) {
       final mq = MediaQuery.of(context);
+      final spec = PlayerLayoutSpec.of(context);
       _miniPosition = Offset(
-        _defaultMiniLeft(mq.size.width),
-        _defaultMiniTop(
-          mq.size.height,
-          mq.padding.bottom,
-          mq.viewInsets.bottom,
-        ),
+        _defaultMiniLeft(mq.size.width, spec),
+        _defaultMiniTop(mq.size.height, mq.padding.bottom, spec, mq.viewInsets.bottom),
       );
     }
   }
 
   void _onMiniPanUpdate(DragUpdateDetails details) {
     if (!_isMini || _miniPosition == null) return;
-    final isTablet = Responsive.isTablet(context);
-    final miniW = isTablet ? _TabletSizes.miniW : _PhoneSizes.miniW;
-    final miniH = isTablet ? _TabletSizes.miniH : _PhoneSizes.miniH;
+    final spec = PlayerLayoutSpec.of(context);
 
     _dragTotal += details.delta.distance;
 
@@ -292,14 +152,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
 
-    final newX = (_miniPosition!.dx + details.delta.dx).clamp(
-      0.0,
-      screenW - miniW,
-    );
-    final newY = (_miniPosition!.dy + details.delta.dy).clamp(
-      topPad,
-      screenH - miniH - botPad,
-    );
+    final newX = (_miniPosition!.dx + details.delta.dx)
+        .clamp(0.0, screenW - spec.miniW);
+    final newY = (_miniPosition!.dy + details.delta.dy)
+        .clamp(topPad, screenH - spec.miniH - botPad);
 
     setState(() {
       _miniPosition = Offset(newX, newY);
@@ -309,23 +165,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   void _onMiniPanEnd(DragEndDetails details) {
     if (!_isMini) return;
-    final isTablet = Responsive.isTablet(context);
-    final threshold = isTablet
-        ? _TabletSizes.dragTapThreshold
-        : _PhoneSizes.dragTapThreshold;
-    if (_dragTotal < threshold) {
-      _scrollToTop();
+    final spec = PlayerLayoutSpec.of(context);
+    if (_dragTotal < spec.dragTapThreshold) {
+      _scrollToTop(spec);
     }
     _dragTotal = 0;
     _isPanningMini = false;
     _overlayEntry?.markNeedsBuild();
   }
 
-  void _scrollToTop() {
+  void _scrollToTop(PlayerLayoutSpec spec) {
     _scrollController.animateTo(
       0,
-      duration: _PhoneSizes.animDur,
-      curve: _PhoneSizes.animCurve,
+      duration: spec.animDur,
+      curve: spec.animCurve,
     );
   }
 
@@ -341,16 +194,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive.isTablet(context)
-        ? _buildTablet(context)
-        : _buildPhone(context);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhone(BuildContext context) {
+    final spec = PlayerLayoutSpec.of(context);
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
       body: Obx(() {
@@ -358,16 +202,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
           return Center(
             child: CircularProgressIndicator(
               color: Theme.of(context).colorScheme.primary,
-              strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+              strokeWidth: spec.loadingStrokeWidth,
             ),
           );
         }
-        return _buildBodyPhone(context);
+        return _buildBody(context, spec);
       }),
     );
   }
 
-  Widget _buildBodyPhone(BuildContext context) {
+  // ─────────────────────────────────────────────────────────────────────
+  // BODY
+  // ─────────────────────────────────────────────────────────────────────
+
+  Widget _buildBody(BuildContext context, PlayerLayoutSpec spec) {
     final mq = MediaQuery.of(context);
     final screenW = mq.size.width;
     final screenH = mq.size.height;
@@ -377,18 +225,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
 
     final double targetLeft = _isMini
-        ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW))
+        ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW, spec))
         : 0;
     final double targetTop = _isMini
         ? (_miniPosition == null
-              ? _defaultMiniTop(screenH, botPad, keyboardInset)
-              : (_miniPosition!.dy - keyboardInset).clamp(
-                  topPad,
-                  screenH - _PhoneSizes.miniH - botPad,
-                ))
+              ? _defaultMiniTop(screenH, botPad, spec, keyboardInset)
+              : (_miniPosition!.dy - keyboardInset)
+                  .clamp(topPad, screenH - spec.miniH - botPad))
         : topPad;
-    final double targetW = _isMini ? _PhoneSizes.miniW : screenW;
-    final double targetH = _isMini ? _PhoneSizes.miniH : bigH;
+    final double targetW = _isMini ? spec.miniW : screenW;
+    final double targetH = _isMini ? spec.miniH : bigH;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _overlayEntry?.markNeedsBuild();
@@ -403,46 +249,46 @@ class _PlayerScreenState extends State<PlayerScreen> {
             SliverToBoxAdapter(child: SizedBox(height: topPad + bigH)),
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                _PhoneSizes.contentPaddingLeft.w,
-                _PhoneSizes.contentPaddingTop.h,
-                _PhoneSizes.contentPaddingRight.w,
-                _PhoneSizes.contentPaddingBottom.h,
+                spec.contentPaddingLeft.w,
+                spec.contentPaddingTop.h,
+                spec.contentPaddingRight.w,
+                spec.contentPaddingBottom.h,
               ),
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
-                  _buildContentItemsPhone(context),
+                  _buildContentItems(context, spec),
                 ),
               ),
             ),
           ],
         ),
         AnimatedPositioned(
-          duration: _isPanningMini ? Duration.zero : _PhoneSizes.animDur,
-          curve: _PhoneSizes.animCurve,
+          duration: _isPanningMini ? Duration.zero : spec.animDur,
+          curve: spec.animCurve,
           left: targetLeft,
           top: targetTop,
           width: targetW,
           height: targetH,
           child: AnimatedContainer(
-            duration: _PhoneSizes.animDur,
-            curve: _PhoneSizes.animCurve,
+            duration: spec.animDur,
+            curve: spec.animCurve,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(
-                _isMini ? _PhoneSizes.miniBorderRadius.r : 0,
+                _isMini ? spec.miniBorderRadius.r : 0,
               ),
               boxShadow: _isMini
                   ? [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.45),
-                        blurRadius: _PhoneSizes.miniShadowBlur.r,
+                        blurRadius: spec.miniShadowBlur.r,
                         offset: const Offset(0, 6),
                       ),
                     ]
-                  : [],
+                  : const [],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(
-                _isMini ? _PhoneSizes.miniBorderRadius.r : 0,
+                _isMini ? spec.miniBorderRadius.r : 0,
               ),
               child: YoutubePlayer(
                 controller: _controller.youtubeController!,
@@ -455,7 +301,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  List<Widget> _buildContentItemsPhone(BuildContext context) {
+  // ─────────────────────────────────────────────────────────────────────
+  // CONTENT
+  // ─────────────────────────────────────────────────────────────────────
+
+  List<Widget> _buildContentItems(BuildContext context, PlayerLayoutSpec spec) {
     return [
       Obx(() {
         final v = _controller.currentVideo.value;
@@ -465,7 +315,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
         final sure = v.formattedDuration;
         return Padding(
-          padding: EdgeInsets.only(bottom: _PhoneSizes.universitySpacing.h),
+          padding: EdgeInsets.only(bottom: spec.universitySpacing.h),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -473,19 +323,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 tarih,
                 style: TextStyle(
                   color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                  fontSize: _PhoneSizes.dateFontSize.sp,
+                  fontSize: spec.dateFontSize.sp,
                 ),
               ),
               if (sure.isNotEmpty) ...[
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _PhoneSizes.dateDurationDotSpacing.w,
+                    horizontal: spec.dateDurationDotSpacing.w,
                   ),
                   child: Text(
                     '•',
                     style: TextStyle(
                       color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                      fontSize: _PhoneSizes.dateFontSize.sp,
+                      fontSize: spec.dateFontSize.sp,
                     ),
                   ),
                 ),
@@ -493,7 +343,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   sure,
                   style: TextStyle(
                     color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                    fontSize: _PhoneSizes.dateFontSize.sp,
+                    fontSize: spec.dateFontSize.sp,
                   ),
                 ),
               ],
@@ -506,299 +356,24 @@ class _PlayerScreenState extends State<PlayerScreen> {
           _controller.currentVideo.value?.title ?? '',
           style: TextStyle(
             color: AppTheme.textPri(context),
-            fontSize: _PhoneSizes.titleFontSize.sp,
+            fontSize: spec.titleFontSize.sp,
             fontWeight: FontWeight.w700,
-            height: _PhoneSizes.titleLineHeight,
+            height: spec.titleLineHeight,
           ),
         ),
       ),
-      SizedBox(height: _PhoneSizes.titleSpacing.h),
-      Obx(() {
-        if (_controller.currentVideo.value?.universityName?.isNotEmpty ==
-            true) {
-          return Padding(
-            padding: EdgeInsets.only(top: _PhoneSizes.universitySpacing.h),
-            child: UniversityRowWidget(
-              universityName: _controller.currentVideo.value!.universityName!,
-              // BUG FIX: Üniversite adına basılınca player ekranı stack'te
-              // kalmamalı — Get.toNamed yerine Get.offNamed kullanılarak
-              // player rotası kaldırılıp üniversite detayına geçiliyor.
-              // Geri tuşuna basınca kullanıcı player'a değil, player'dan
-              // önceki ekrana döner.
-              onTap: _controller.currentVideo.value!.universityId != null
-                  ? () => Get.offNamed(
-                      AppRoutes.universityDetail,
-                      arguments: _controller.currentVideo.value!.universityId,
-                    )
-                  : null,
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      }),
-      SizedBox(height: _PhoneSizes.engagementSpacing.h),
-      EngagementBarWidget(controller: _controller),
-      SizedBox(height: _PhoneSizes.engagementBottomSpacing.h),
-      Obx(() {
-        if (_controller.currentVideo.value?.description.isNotEmpty == true) {
-          return ExpandableDescriptionWidget(
-            text: _controller.currentVideo.value!.description,
-          );
-        }
-        return const SizedBox.shrink();
-      }),
-      SizedBox(height: _PhoneSizes.descriptionSpacing.h),
-      Obx(() {
-        if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
-          return Padding(
-            padding: EdgeInsets.only(top: _PhoneSizes.tagsSpacing.h),
-            child: TagsRowWidget(tags: _controller.currentVideo.value!.tags),
-          );
-        }
-        return const SizedBox.shrink();
-      }),
-      SizedBox(height: _PhoneSizes.tagsBottomSpacing.h),
-      const SuggestedVideosSectionWidget(),
-      SizedBox(height: _PhoneSizes.suggestedSpacing.h),
-      Divider(color: AppTheme.surface(context), height: 1.h, thickness: 1.h),
-      SizedBox(height: _PhoneSizes.dividerSpacing.h),
-      Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
-      SizedBox(height: _PhoneSizes.commentsHeaderSpacing.h),
-      CommentInputWidget(
-        onSend: (String text) {
-          _controller.addComment(text);
-        },
-      ),
-      SizedBox(height: _PhoneSizes.commentsInputSpacing.h),
-      Obx(() {
-        if (_controller.isCommentsLoading.value) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: _PhoneSizes.commentsLoadingSpacing.h,
-            ),
-            child: Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-                strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
-              ),
-            ),
-          );
-        }
-        if (_controller.comments.isEmpty) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: _PhoneSizes.commentsEmptySpacing.h,
-            ),
-            child: Center(
-              child: Text(
-                'Henüz yorum yok. İlk yorumu sen yap!',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.commentsEmptyFontSize.sp,
-                ),
-              ),
-            ),
-          );
-        }
-        return ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _controller.comments.length,
-          separatorBuilder: (_, _) =>
-              Divider(color: AppTheme.surface(context), height: 1.h),
-          itemBuilder: (ctx, i) => CommentTileWidget(
-            comment: _controller.comments[i],
-            canDelete:
-                _controller.comments[i].userId == _controller.currentUserId,
-            onDelete: () =>
-                _controller.deleteComment(_controller.comments[i].id),
-          ),
-        );
-      }),
-      SizedBox(height: _PhoneSizes.bottomSpacing.h),
-    ];
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildTablet(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.bg(context),
-      body: Obx(() {
-        if (!_controller.isPlayerReady.value) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.primary,
-              strokeWidth: _TabletSizes.loadingStrokeWidth,
-            ),
-          );
-        }
-        return _buildBodyTablet(context);
-      }),
-    );
-  }
-
-  Widget _buildBodyTablet(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final screenW = mq.size.width;
-    final screenH = mq.size.height;
-    final topPad = mq.padding.top;
-    final botPad = mq.padding.bottom;
-    final keyboardInset = mq.viewInsets.bottom;
-    final bigH = _bigH > 0 ? _bigH : screenW * 9 / 16;
-
-    final double targetLeft = _isMini
-        ? (_miniPosition?.dx ?? _defaultMiniLeft(screenW))
-        : 0;
-    final double targetTop = _isMini
-        ? (_miniPosition == null
-              ? _defaultMiniTop(screenH, botPad, keyboardInset)
-              : (_miniPosition!.dy - keyboardInset).clamp(
-                  topPad,
-                  screenH - _TabletSizes.miniH - botPad,
-                ))
-        : topPad;
-    final double targetW = _isMini ? _TabletSizes.miniW : screenW;
-    final double targetH = _isMini ? _TabletSizes.miniH : bigH;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _overlayEntry?.markNeedsBuild();
-    });
-
-    return Stack(
-      children: [
-        CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: topPad + bigH)),
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                _TabletSizes.contentPaddingLeft,
-                _TabletSizes.contentPaddingTop,
-                _TabletSizes.contentPaddingRight,
-                _TabletSizes.contentPaddingBottom,
-              ),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate(
-                  _buildContentItemsTablet(context),
-                ),
-              ),
-            ),
-          ],
-        ),
-        AnimatedPositioned(
-          duration: _isPanningMini ? Duration.zero : _TabletSizes.animDur,
-          curve: _TabletSizes.animCurve,
-          left: targetLeft,
-          top: targetTop,
-          width: targetW,
-          height: targetH,
-          child: AnimatedContainer(
-            duration: _TabletSizes.animDur,
-            curve: _TabletSizes.animCurve,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(
-                _isMini ? _TabletSizes.miniBorderRadius : 0,
-              ),
-              boxShadow: _isMini
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.45),
-                        blurRadius: _TabletSizes.miniShadowBlur,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : [],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(
-                _isMini ? _TabletSizes.miniBorderRadius : 0,
-              ),
-              child: YoutubePlayer(
-                controller: _controller.youtubeController!,
-                aspectRatio: 16 / 9,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildContentItemsTablet(BuildContext context) {
-    return [
+      SizedBox(height: spec.titleSpacing.h),
       Obx(() {
         final v = _controller.currentVideo.value;
-        if (v == null) return const SizedBox.shrink();
-        final d = v.publishedAt;
-        final tarih =
-            '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-        final sure = v.formattedDuration;
-        return Padding(
-          padding: EdgeInsets.only(bottom: _TabletSizes.universitySpacing),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                tarih,
-                style: TextStyle(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                  fontSize: _TabletSizes.dateFontSize,
-                ),
-              ),
-              if (sure.isNotEmpty) ...[
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: _TabletSizes.dateDurationDotSpacing,
-                  ),
-                  child: Text(
-                    '•',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                      fontSize: _TabletSizes.dateFontSize,
-                    ),
-                  ),
-                ),
-                Text(
-                  sure,
-                  style: TextStyle(
-                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                    fontSize: _TabletSizes.dateFontSize,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        );
-      }),
-      Obx(
-        () => Text(
-          _controller.currentVideo.value?.title ?? '',
-          style: TextStyle(
-            color: AppTheme.textPri(context),
-            fontSize: _TabletSizes.titleFontSize,
-            fontWeight: FontWeight.w700,
-            height: _TabletSizes.titleLineHeight,
-          ),
-        ),
-      ),
-      SizedBox(height: _TabletSizes.titleSpacing),
-      Obx(() {
-        if (_controller.currentVideo.value?.universityName?.isNotEmpty ==
-            true) {
+        if (v?.universityName?.isNotEmpty == true) {
           return Padding(
-            padding: EdgeInsets.only(top: _TabletSizes.universitySpacing),
+            padding: EdgeInsets.only(top: spec.universitySpacing.h),
             child: UniversityRowWidget(
-              universityName: _controller.currentVideo.value!.universityName!,
-              // BUG FIX: bkz. telefon dalındaki aynı not — Get.offNamed ile
-              // player rotası stack'ten kaldırılıp üniversite detayına geçiliyor.
-              onTap: _controller.currentVideo.value!.universityId != null
+              universityName: v!.universityName!,
+              onTap: v.universityId != null
                   ? () => Get.offNamed(
                       AppRoutes.universityDetail,
-                      arguments: _controller.currentVideo.value!.universityId,
+                      arguments: v.universityId,
                     )
                   : null,
             ),
@@ -806,50 +381,48 @@ class _PlayerScreenState extends State<PlayerScreen> {
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: _TabletSizes.engagementSpacing),
+      SizedBox(height: spec.engagementSpacing.h),
       EngagementBarWidget(controller: _controller),
-      SizedBox(height: _TabletSizes.engagementBottomSpacing),
+      SizedBox(height: spec.engagementBottomSpacing.h),
       Obx(() {
-        if (_controller.currentVideo.value?.description.isNotEmpty == true) {
-          return ExpandableDescriptionWidget(
-            text: _controller.currentVideo.value!.description,
-          );
+        final v = _controller.currentVideo.value;
+        if (v?.description.isNotEmpty == true) {
+          return ExpandableDescriptionWidget(text: v!.description);
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: _TabletSizes.descriptionSpacing),
+      SizedBox(height: spec.descriptionSpacing.h),
       Obx(() {
-        if (_controller.currentVideo.value?.tags.isNotEmpty == true) {
+        final v = _controller.currentVideo.value;
+        if (v?.tags.isNotEmpty == true) {
           return Padding(
-            padding: EdgeInsets.only(top: _TabletSizes.tagsSpacing),
-            child: TagsRowWidget(tags: _controller.currentVideo.value!.tags),
+            padding: EdgeInsets.only(top: spec.tagsSpacing.h),
+            child: TagsRowWidget(tags: v!.tags),
           );
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: _TabletSizes.tagsBottomSpacing),
+      SizedBox(height: spec.tagsBottomSpacing.h),
       const SuggestedVideosSectionWidget(),
-      SizedBox(height: _TabletSizes.suggestedSpacing),
+      SizedBox(height: spec.suggestedSpacing.h),
       Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
-      SizedBox(height: _TabletSizes.dividerSpacing),
+      SizedBox(height: spec.dividerSpacing.h),
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
-      SizedBox(height: _TabletSizes.commentsHeaderSpacing),
+      SizedBox(height: spec.commentsHeaderSpacing.h),
       CommentInputWidget(
-        onSend: (String text) {
-          _controller.addComment(text);
-        },
+        onSend: (String text) => _controller.addComment(text),
       ),
-      SizedBox(height: _TabletSizes.commentsInputSpacing),
+      SizedBox(height: spec.commentsInputSpacing.h),
       Obx(() {
         if (_controller.isCommentsLoading.value) {
           return Padding(
             padding: EdgeInsets.symmetric(
-              vertical: _TabletSizes.commentsLoadingSpacing,
+              vertical: spec.commentsLoadingSpacing.h,
             ),
             child: Center(
               child: CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.primary,
-                strokeWidth: _TabletSizes.loadingStrokeWidth,
+                strokeWidth: spec.loadingStrokeWidth,
               ),
             ),
           );
@@ -857,14 +430,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
         if (_controller.comments.isEmpty) {
           return Padding(
             padding: EdgeInsets.symmetric(
-              vertical: _TabletSizes.commentsEmptySpacing,
+              vertical: spec.commentsEmptySpacing.h,
             ),
             child: Center(
               child: Text(
                 'Henüz yorum yok. İlk yorumu sen yap!',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: _TabletSizes.commentsEmptyFontSize,
+                  fontSize: spec.commentsEmptyFontSize.sp,
                 ),
               ),
             ),
@@ -885,24 +458,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         );
       }),
-      SizedBox(height: _TabletSizes.bottomSpacing),
+      SizedBox(height: spec.bottomSpacing.h),
     ];
   }
 
+  // ─────────────────────────────────────────────────────────────────────
+  // AUTH DIALOG
+  // ─────────────────────────────────────────────────────────────────────
+
   void _showAuthDialog() {
-    final isTablet = Responsive.isTablet(context);
-    final borderRadius = isTablet
-        ? _TabletSizes.dialogBorderRadius
-        : _PhoneSizes.dialogBorderRadius.r;
-    final buttonRadius = isTablet
-        ? _TabletSizes.dialogButtonRadius
-        : _PhoneSizes.dialogButtonRadius.r;
+    final spec = PlayerLayoutSpec.of(context);
 
     Get.dialog(
       AlertDialog(
         backgroundColor: const Color(0xFF1E1E2E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(spec.dialogBorderRadius.r),
         ),
         title: const Text(
           'Giriş Gerekiyor',
@@ -925,7 +496,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(buttonRadius),
+                borderRadius: BorderRadius.circular(spec.dialogButtonRadius.r),
               ),
             ),
             onPressed: () {
@@ -941,18 +512,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (PHONE)
+// Overlay buttons (phone + tablet tek widget)
 // ═══════════════════════════════════════════════════════════════════════
 
-class _OverlayButtonsPhone extends StatelessWidget {
-  const _OverlayButtonsPhone({
+class _OverlayButtons extends StatelessWidget {
+  const _OverlayButtons({
     required this.isMini,
     required this.bigH,
-    required this.miniW,
-    required this.miniH,
-    required this.miniPad,
-    required this.animDur,
-    required this.animCurve,
+    required this.spec,
     required this.onBack,
     this.miniPosition,
     this.isDragging = false,
@@ -964,11 +531,7 @@ class _OverlayButtonsPhone extends StatelessWidget {
 
   final bool isMini;
   final double bigH;
-  final double miniW;
-  final double miniH;
-  final double miniPad;
-  final Duration animDur;
-  final Curve animCurve;
+  final PlayerLayoutSpec spec;
   final VoidCallback onBack;
   final Offset? miniPosition;
   final bool isDragging;
@@ -985,175 +548,62 @@ class _OverlayButtonsPhone extends StatelessWidget {
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
 
-    final double defaultLeft = screenW - miniW - miniPad;
-    final double defaultTop = screenH - miniH - miniPad - botPad - 56;
+    final double defaultLeft = screenW - spec.miniW - spec.miniPad;
+    final double defaultTop =
+        screenH - spec.miniH - spec.miniPad - botPad - spec.miniBottomOffset;
 
     final double targetLeft = isMini ? (miniPosition?.dx ?? defaultLeft) : 0;
     final double targetTop = isMini ? (miniPosition?.dy ?? defaultTop) : topPad;
-    final double targetW = isMini ? miniW : screenW;
-    final Duration effectiveDur = isPanning ? Duration.zero : animDur;
+    final double targetW = isMini ? spec.miniW : screenW;
+    final Duration effectiveDur = isPanning ? Duration.zero : spec.animDur;
 
-    return IgnorePointer(
-      ignoring: false,
-      child: Stack(
-        children: [
-          if (!isMini)
-            AnimatedPositioned(
-              duration: effectiveDur,
-              curve: animCurve,
-              left: targetLeft + _PhoneSizes.backButtonLeft.w,
-              top: targetTop + _PhoneSizes.backButtonTop.h,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(
-                    _PhoneSizes.backButtonRadius.r,
+    return Stack(
+      children: [
+        if (!isMini)
+          AnimatedPositioned(
+            duration: effectiveDur,
+            curve: spec.animCurve,
+            left: targetLeft + spec.backButtonLeft.w,
+            top: targetTop + spec.backButtonTop.h,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius:
+                    BorderRadius.circular(spec.backButtonRadius.r),
+                onTap: onBack,
+                child: Container(
+                  padding: EdgeInsets.all(spec.backButtonPadding.w),
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.black.withValues(alpha: spec.backButtonAlpha),
+                    shape: BoxShape.circle,
                   ),
-                  onTap: onBack,
-                  child: Container(
-                    padding: EdgeInsets.all(_PhoneSizes.backButtonPadding.w),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(
-                        alpha: _PhoneSizes.backButtonAlpha,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: _PhoneSizes.backButtonSize.sp,
-                    ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: spec.backButtonSize.sp,
                   ),
                 ),
               ),
-            )
-          else
-            AnimatedPositioned(
-              duration: effectiveDur,
-              curve: animCurve,
-              left: targetLeft,
-              top: targetTop,
-              width: targetW,
-              height: miniH,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
-                child: const ColoredBox(color: Colors.transparent),
-              ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// KURAL 6 — ALT WIDGET (TABLET)
-// ═══════════════════════════════════════════════════════════════════════
-
-class _OverlayButtonsTablet extends StatelessWidget {
-  const _OverlayButtonsTablet({
-    required this.isMini,
-    required this.bigH,
-    required this.miniW,
-    required this.miniH,
-    required this.miniPad,
-    required this.animDur,
-    required this.animCurve,
-    required this.onBack,
-    this.miniPosition,
-    this.isDragging = false,
-    this.isPanning = false,
-    this.onPanStart,
-    this.onPanUpdate,
-    this.onPanEnd,
-  });
-
-  final bool isMini;
-  final double bigH;
-  final double miniW;
-  final double miniH;
-  final double miniPad;
-  final Duration animDur;
-  final Curve animCurve;
-  final VoidCallback onBack;
-  final Offset? miniPosition;
-  final bool isDragging;
-  final bool isPanning;
-  final GestureDragStartCallback? onPanStart;
-  final GestureDragUpdateCallback? onPanUpdate;
-  final GestureDragEndCallback? onPanEnd;
-
-  @override
-  Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final screenW = mq.size.width;
-    final screenH = mq.size.height;
-    final topPad = mq.padding.top;
-    final botPad = mq.padding.bottom;
-
-    final double defaultLeft = screenW - miniW - miniPad;
-    final double defaultTop = screenH - miniH - miniPad - botPad - 56;
-
-    final double targetLeft = isMini ? (miniPosition?.dx ?? defaultLeft) : 0;
-    final double targetTop = isMini ? (miniPosition?.dy ?? defaultTop) : topPad;
-    final double targetW = isMini ? miniW : screenW;
-    final Duration effectiveDur = isPanning ? Duration.zero : animDur;
-
-    return IgnorePointer(
-      ignoring: false,
-      child: Stack(
-        children: [
-          if (!isMini)
-            AnimatedPositioned(
-              duration: effectiveDur,
-              curve: animCurve,
-              left: targetLeft + _TabletSizes.backButtonLeft,
-              top: targetTop + _TabletSizes.backButtonTop,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(
-                    _TabletSizes.backButtonRadius,
-                  ),
-                  onTap: onBack,
-                  child: Container(
-                    padding: EdgeInsets.all(_TabletSizes.backButtonPadding),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(
-                        alpha: _TabletSizes.backButtonAlpha,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: _TabletSizes.backButtonSize,
-                    ),
-                  ),
-                ),
-              ),
-            )
-          else
-            AnimatedPositioned(
-              duration: effectiveDur,
-              curve: animCurve,
-              left: targetLeft,
-              top: targetTop,
-              width: targetW,
-              height: miniH,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanStart: onPanStart,
-                onPanUpdate: onPanUpdate,
-                onPanEnd: onPanEnd,
-                child: const ColoredBox(color: Colors.transparent),
-              ),
+          )
+        else
+          AnimatedPositioned(
+            duration: effectiveDur,
+            curve: spec.animCurve,
+            left: targetLeft,
+            top: targetTop,
+            width: targetW,
+            height: spec.miniH,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: onPanStart,
+              onPanUpdate: onPanUpdate,
+              onPanEnd: onPanEnd,
+              child: const ColoredBox(color: Colors.transparent),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

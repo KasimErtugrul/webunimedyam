@@ -1,24 +1,34 @@
 // lib/presentation/screens/settings/settings_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
-import '../../../core/responsive.dart';
 import '../../../data/models/user_settings_model.dart';
 import '../../controllers/settings_controller.dart';
-import 'utils/settings_sizes.dart';
-import 'widgets/ceiling_note.dart';
-import 'widgets/section_header.dart';
-import 'widgets/settings_divider.dart';
+import 'settings_layout_spec.dart';
+import 'widgets/settings_ceiling_note.dart';
+import 'widgets/settings_hero.dart';
+import 'widgets/settings_pickers.dart';
+import 'widgets/settings_section.dart';
 import 'widgets/settings_tile.dart';
-import 'widgets/switch_tile.dart';
-import 'widgets/visibility_tile.dart';
 
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (TEK DALLANMA NOKTASI)
-// ═══════════════════════════════════════════════════════════
+// Renk paleti — her grubun kendi rengi
+const _cTheme = Color(0xFF8B5CF6);       // mor
+const _cLayout = Color(0xFF14B8A6);      // teal
+const _cAutoplay = Color(0xFFF59E0B);    // amber
+const _cNotifications = Color(0xFFEC4899); // pembe
+const _cNewVideos = Color(0xFFEF4444);   // kırmızı
+const _cProfile = Color(0xFF3B82F6);     // mavi
+const _cHistory = Color(0xFF6366F1);     // indigo
+const _cLikes = Color(0xFF06B6D4);       // cyan
+const _cFavorites = Color(0xFFF43F5E);   // rose
+const _cComments = Color(0xFF10B981);    // yeşil
+const _cPassword = Color(0xFF8B5CF6);    // mor
+const _cCache = Color(0xFF64748B);       // slate
+const _cLogout = Color(0xFFEF4444);      // kırmızı
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,6 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red.withValues(alpha: 0.9),
           colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
         );
         _controller.errorMessage.value = null;
       }
@@ -57,173 +68,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final SettingsSizes sizes = Responsive.isTablet(context)
-        ? const SettingsTabletSizes()
-        : const SettingsPhoneSizes();
+    final spec = SettingsLayoutSpec.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      backgroundColor: AppTheme.bg(context),
       body: Obx(() {
         final s = _controller.settings.value;
         final isLoading = _controller.isLoading.value;
-        final profVis = _controller.profileVisibility.value;
 
         if (isLoading && s == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          );
         }
 
-        return ListView(
-          padding: EdgeInsets.only(bottom: sizes.listBottomPadding),
-          children: [
-            // ═══ GÖRÜNÜM ═══════════════════════════════════════
-            SettingsSectionHeader(sizes: sizes, title: 'Görünüm'),
-            SettingsTile(
-              sizes: sizes,
-              icon: Icons.palette_outlined,
-              title: 'Tema',
-              subtitle: _themeLabel(s?.theme),
-              onTap: () => _showThemeDialog(context, sizes),
-            ),
-            Obx(
-              () => SettingsTile(
-                sizes: sizes,
-                icon: Icons.view_agenda_outlined,
-                title: 'Ana Sayfa Görünümü',
-                subtitle: _homeLayoutLabel(_controller.homeLayout.value),
-                onTap: () => _showHomeLayoutDialog(context, sizes),
-              ),
-            ),
-
-            // ═══ OYNATMA ═══════════════════════════════════════
-            SettingsDivider(sizes: sizes),
-            SettingsSectionHeader(sizes: sizes, title: 'Oynatma'),
-            SettingsSwitchTile(
-              sizes: sizes,
-              value: s?.autoplay ?? true,
-              onChanged: (_) => _controller.toggleAutoplay(),
-              icon: Icons.play_circle_outline,
-              title: 'Otomatik Oynat',
-              subtitle: 'Sıradaki videoyu otomatik başlat',
-            ),
-
-            // ═══ BİLDİRİMLER ════════════════════════════════════
-            SettingsDivider(sizes: sizes),
-            SettingsSectionHeader(sizes: sizes, title: 'Bildirimler'),
-            SettingsSwitchTile(
-              sizes: sizes,
-              value: s?.notificationsEnabled ?? true,
-              onChanged: (_) => _controller.toggleNotifications(),
-              icon: Icons.notifications_outlined,
-              title: 'Bildirimler',
-              subtitle: 'Tüm bildirimleri aç/kapat',
-            ),
-            if (s?.notificationsEnabled ?? true) ...[
-              SettingsSwitchTile(
-                sizes: sizes,
-                value: s?.notifyNewVideos ?? true,
-                onChanged: (_) => _controller.toggleNotifyNewVideos(),
-                icon: Icons.ondemand_video_outlined,
-                title: 'Yeni Video',
-                subtitle: 'Takip ettiğin kanalların yeni videoları',
-              ),
-            ],
-
-            // ═══ GİZLİLİK ═══════════════════════════════════════
-            SettingsDivider(sizes: sizes),
-            SettingsSectionHeader(sizes: sizes, title: 'Gizlilik'),
-
-            SettingsVisibilityTile(
-              sizes: sizes,
-              icon: Icons.account_circle_outlined,
-              title: 'Profil Görünürlüğü',
-              subtitle: 'Profilini kimler görebilir?',
-              current: profVis,
-              ceiling: null,
-              onChanged: _controller.changeProfileVisibility,
-            ),
-
-            SettingsCeilingNote(sizes: sizes, profileVisibility: profVis),
-
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                sizes.sectionHeaderPaddingLeft,
-                sizes.sectionHeaderPaddingTop,
-                sizes.sectionHeaderPaddingRight,
-                sizes.sectionHeaderPaddingBottom,
-              ),
-              child: Text(
-                'Aktivite Görünürlüğü'.toUpperCase(),
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: sizes.sectionHeaderFontSize,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: sizes.sectionHeaderLetterSpacing,
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: SettingsHero(spec: spec)),
+            SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spec.contentPaddingH.w,
+                      vertical: spec.sectionSpacing.h,
+                    ),
+                    child: _buildContent(context, spec, s),
+                  ),
                 ),
               ),
             ),
-
-            SettingsVisibilityTile(
-              sizes: sizes,
-              icon: Icons.history_outlined,
-              title: 'İzleme Geçmişi',
-              subtitle: 'İzlediğin videolar',
-              current: s?.watchHistoryVisibility ?? VisibilityOption.public,
-              ceiling: profVis,
-              onChanged: _controller.changeWatchHistoryVisibility,
-            ),
-            SettingsVisibilityTile(
-              sizes: sizes,
-              icon: Icons.thumb_up_outlined,
-              title: 'Beğeniler',
-              subtitle: 'Beğendiğin videolar',
-              current: s?.likesVisibility ?? VisibilityOption.public,
-              ceiling: profVis,
-              onChanged: _controller.changeLikesVisibility,
-            ),
-            SettingsVisibilityTile(
-              sizes: sizes,
-              icon: Icons.bookmark_border_outlined,
-              title: 'Favoriler',
-              subtitle: 'Favori listelerin',
-              current: s?.favoritesVisibility ?? VisibilityOption.public,
-              ceiling: profVis,
-              onChanged: _controller.changeFavoritesVisibility,
-            ),
-            SettingsVisibilityTile(
-              sizes: sizes,
-              icon: Icons.chat_bubble_outline,
-              title: 'Yorumlar',
-              subtitle:
-                  'Profilinde "yorum yaptığın videolar" listesi görünür mü? '
-                  '(Yorumların, videoların altında her zaman herkese açıktır)',
-              current: s?.commentsVisibility ?? VisibilityOption.public,
-              ceiling: profVis,
-              onChanged: _controller.changeCommentsVisibility,
-            ),
-
-            // ═══ HESAP ══════════════════════════════════════════
-            SettingsDivider(sizes: sizes),
-            SettingsSectionHeader(sizes: sizes, title: 'Hesap'),
-            SettingsTile(
-              sizes: sizes,
-              icon: Icons.lock_outline,
-              title: 'Şifre Değiştir',
-              onTap: () => Get.toNamed(AppRoutes.changePassword),
-            ),
-            SettingsTile(
-              sizes: sizes,
-              icon: Icons.delete_sweep_outlined,
-              title: 'Cache Temizle',
-              subtitle: 'Yerel verileri temizle',
-              onTap: _controller.clearCache,
-            ),
-            SettingsTile(
-              sizes: sizes,
-              icon: Icons.logout_outlined,
-              title: 'Çıkış Yap',
-              titleColor: Colors.red,
-              onTap: _controller.signOut,
+            SliverToBoxAdapter(
+              child: SizedBox(height: spec.contentPaddingBottom.h),
             ),
           ],
         );
@@ -231,115 +109,281 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showThemeDialog(BuildContext context, SettingsSizes sizes) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(
-          'Tema',
-          style: TextStyle(fontSize: sizes.dialogTitleFontSize),
-        ),
-        content: Obx(() {
-          final String current = _controller.settings.value?.theme ?? 'system';
-          return RadioGroup<String>(
-            groupValue: current,
-            onChanged: (String? v) {
-              if (v != null) {
-                _controller.changeTheme(v);
-                Get.back();
-              }
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: ['system', 'light', 'dark']
-                  .map(
-                    (theme) => RadioListTile<String>(
-                      title: Text(_themeLabel(theme)),
-                      value: theme,
-                    ),
-                  )
-                  .toList(),
+  Widget _buildContent(
+    BuildContext context,
+    SettingsLayoutSpec spec,
+    UserSettingsModel? s,
+  ) {
+    final profVis = _controller.profileVisibility.value;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ═══ GÖRÜNÜM ═══════════════════════════════════════════════
+        SettingsSection(
+          spec: spec,
+          title: 'Görünüm',
+          children: [
+            SettingsTile(
+              spec: spec,
+              icon: Icons.palette_rounded,
+              iconColor: _cTheme,
+              title: 'Tema',
+              subtitle: _themeLabel(s?.theme),
+              onTap: () => showSettingsThemePicker(
+                context: context,
+                spec: spec,
+                current: s?.theme ?? 'system',
+                onChanged: (v) => _controller.changeTheme(v),
+              ),
             ),
-          );
-        }),
-      ),
+            Obx(
+              () => SettingsTile(
+                spec: spec,
+                icon: Icons.dashboard_customize_rounded,
+                iconColor: _cLayout,
+                title: 'Ana Sayfa Görünümü',
+                subtitle: _layoutLabel(_controller.homeLayout.value),
+                onTap: () => showSettingsHomeLayoutPicker(
+                  context: context,
+                  spec: spec,
+                  current: _controller.homeLayout.value,
+                  onChanged: (v) => _controller.changeHomeLayout(v),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: spec.sectionSpacing.h),
+
+        // ═══ OYNATMA ═══════════════════════════════════════════════
+        SettingsSection(
+          spec: spec,
+          title: 'Oynatma',
+          children: [
+            SettingsSwitchTile(
+              spec: spec,
+              icon: Icons.play_circle_rounded,
+              iconColor: _cAutoplay,
+              title: 'Otomatik Oynat',
+              subtitle: 'Sıradaki videoyu otomatik başlat',
+              value: s?.autoplay ?? true,
+              onChanged: (_) => _controller.toggleAutoplay(),
+            ),
+          ],
+        ),
+
+        SizedBox(height: spec.sectionSpacing.h),
+
+        // ═══ BİLDİRİMLER ═══════════════════════════════════════════
+        SettingsSection(
+          spec: spec,
+          title: 'Bildirimler',
+          children: [
+            SettingsSwitchTile(
+              spec: spec,
+              icon: Icons.notifications_rounded,
+              iconColor: _cNotifications,
+              title: 'Bildirimler',
+              subtitle: 'Tüm bildirimleri aç/kapat',
+              value: s?.notificationsEnabled ?? true,
+              onChanged: (_) => _controller.toggleNotifications(),
+            ),
+            if (s?.notificationsEnabled ?? true)
+              SettingsSwitchTile(
+                spec: spec,
+                icon: Icons.ondemand_video_rounded,
+                iconColor: _cNewVideos,
+                title: 'Yeni Video',
+                subtitle: 'Takip ettiğin kanalların yeni videoları',
+                value: s?.notifyNewVideos ?? true,
+                onChanged: (_) => _controller.toggleNotifyNewVideos(),
+              ),
+          ],
+        ),
+
+        SizedBox(height: spec.sectionSpacing.h),
+
+        // ═══ GİZLİLİK ══════════════════════════════════════════════
+        SettingsSection(
+          spec: spec,
+          title: 'Gizlilik',
+          children: [
+            SettingsVisibilityTile(
+              spec: spec,
+              icon: Icons.account_circle_rounded,
+              iconColor: _cProfile,
+              title: 'Profil Görünürlüğü',
+              subtitle: 'Profilini kimler görebilir?',
+              current: profVis,
+              ceiling: null,
+              onChanged: _controller.changeProfileVisibility,
+            ),
+          ],
+        ),
+
+        SettingsCeilingNote(spec: spec, profileVisibility: profVis),
+
+        SizedBox(height: 12.h),
+
+        SettingsSection(
+          spec: spec,
+          title: 'Aktivite Görünürlüğü',
+          children: [
+            SettingsVisibilityTile(
+              spec: spec,
+              icon: Icons.history_rounded,
+              iconColor: _cHistory,
+              title: 'İzleme Geçmişi',
+              subtitle: 'İzlediğin videolar',
+              current: s?.watchHistoryVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
+              onChanged: _controller.changeWatchHistoryVisibility,
+            ),
+            SettingsVisibilityTile(
+              spec: spec,
+              icon: Icons.thumb_up_rounded,
+              iconColor: _cLikes,
+              title: 'Beğeniler',
+              subtitle: 'Beğendiğin videolar',
+              current: s?.likesVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
+              onChanged: _controller.changeLikesVisibility,
+            ),
+            SettingsVisibilityTile(
+              spec: spec,
+              icon: Icons.bookmark_rounded,
+              iconColor: _cFavorites,
+              title: 'Favoriler',
+              subtitle: 'Favori listelerin',
+              current: s?.favoritesVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
+              onChanged: _controller.changeFavoritesVisibility,
+            ),
+            SettingsVisibilityTile(
+              spec: spec,
+              icon: Icons.chat_bubble_rounded,
+              iconColor: _cComments,
+              title: 'Yorumlar',
+              subtitle: 'Profilinde görünen yorumlar',
+              current: s?.commentsVisibility ?? VisibilityOption.public,
+              ceiling: profVis,
+              onChanged: _controller.changeCommentsVisibility,
+            ),
+          ],
+        ),
+
+        SizedBox(height: spec.sectionSpacing.h),
+
+        // ═══ HESAP ═════════════════════════════════════════════════
+        SettingsSection(
+          spec: spec,
+          title: 'Hesap',
+          children: [
+            SettingsTile(
+              spec: spec,
+              icon: Icons.lock_rounded,
+              iconColor: _cPassword,
+              title: 'Şifre Değiştir',
+              subtitle: 'Hesap şifreni güncelle',
+              onTap: () => Get.toNamed(AppRoutes.changePassword),
+            ),
+            SettingsTile(
+              spec: spec,
+              icon: Icons.cleaning_services_rounded,
+              iconColor: _cCache,
+              title: 'Cache Temizle',
+              subtitle: 'Yerel verileri temizle',
+              onTap: _controller.clearCache,
+            ),
+            SettingsTile(
+              spec: spec,
+              icon: Icons.logout_rounded,
+              iconColor: _cLogout,
+              title: 'Çıkış Yap',
+              subtitle: 'Hesabından güvenli çıkış',
+              titleColor: _cLogout,
+              trailing: Icon(
+                Icons.chevron_right_rounded,
+                color: _cLogout.withValues(alpha: 0.6),
+                size: spec.tileTrailingIconSize.sp,
+              ),
+              onTap: () => _confirmSignOut(context, spec),
+            ),
+          ],
+        ),
+      ]
+          .animate(interval: 60.ms)
+          .fadeIn(duration: 300.ms)
+          .slideY(begin: 0.06, end: 0, curve: Curves.easeOut),
     );
   }
 
-  String _themeLabel(String? theme) {
-    switch (theme) {
-      case 'dark':
-        return 'Koyu';
-      case 'light':
-        return 'Açık';
-      default:
-        return 'Sistem';
-    }
-  }
-
-  void _showHomeLayoutDialog(BuildContext context, SettingsSizes sizes) {
-    showDialog(
+  Future<void> _confirmSignOut(
+    BuildContext context,
+    SettingsLayoutSpec spec,
+  ) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(
-          'Ana Sayfa Görünümü',
-          style: TextStyle(fontSize: sizes.dialogTitleFontSize),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(spec.dialogRadius.r),
         ),
-        content: Obx(() {
-          final String currentLayout = _controller.homeLayout.value;
-          return RadioGroup<String>(
-            groupValue: currentLayout,
-            onChanged: (String? v) {
-              if (v != null) {
-                _controller.changeHomeLayout(v);
-                Get.back();
-              }
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: ['list', 'wheel']
-                  .map(
-                    (layout) => RadioListTile<String>(
-                      title: Text(_homeLayoutLabel(layout)),
-                      subtitle: Text(_homeLayoutSublabel(layout)),
-                      value: layout,
-                    ),
-                  )
-                  .toList(),
+        icon: Icon(
+          Icons.logout_rounded,
+          color: _cLogout,
+          size: 32.sp,
+        ),
+        title: Text(
+          'Çıkış Yap?',
+          style: TextStyle(
+            fontSize: spec.dialogTitleFontSize.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: const Text(
+          'Hesabından çıkmak istediğine emin misin?',
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: _cLogout,
+              minimumSize: Size(120.w, spec.dialogButtonHeight.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
             ),
-          );
-        }),
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              'Çıkış Yap',
+              style: TextStyle(
+                fontSize: spec.dialogButtonFontSize.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
       ),
     );
-  }
 
-  String _homeLayoutLabel(String? layout) {
-    switch (layout) {
-      case 'wheel':
-        return 'Wheel Görünümü';
-      default:
-        return 'Liste Görünümü';
+    if (confirmed == true) {
+      await _controller.signOut();
     }
   }
 
-  String _homeLayoutSublabel(String layout) {
-    switch (layout) {
-      case 'wheel':
-        return 'Videolar döner bir çark şeklinde gösterilir';
-      default:
-        return 'Videolar tam genişlikte alt alta listelenir';
-    }
-  }
+  String _themeLabel(String? theme) => switch (theme) {
+        'dark' => 'Koyu',
+        'light' => 'Açık',
+        _ => 'Sistem',
+      };
+
+  String _layoutLabel(String? layout) =>
+      layout == 'wheel' ? 'Wheel Görünümü' : 'Liste Görünümü';
 }
-
-// ═══════════════════════════════════════════════════════════
-// TEKİL WIDGET'LAR (TEK SINIF, sizes İLE)
-// ═══════════════════════════════════════════════════════════
-
-
-
-
-
-
-
-
