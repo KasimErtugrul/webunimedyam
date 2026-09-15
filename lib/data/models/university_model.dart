@@ -9,6 +9,7 @@ class UniversityModel extends Equatable {
   final String? uploadsPlaylistId;
   final String? description;
   final String? city;
+  final String? address; // ← YENİ
   final String? websiteUrl;
   final int? foundedYear;
   final String? kgMid;
@@ -20,6 +21,8 @@ class UniversityModel extends Equatable {
   final String? channelSyncedAt;
   final String? radioLink;
   final int? idx;
+  final int? syncGroup;
+  final String? universityType;
 
   const UniversityModel({
     this.id,
@@ -30,6 +33,7 @@ class UniversityModel extends Equatable {
     this.uploadsPlaylistId,
     this.description,
     this.city,
+    this.address,
     this.websiteUrl,
     this.foundedYear,
     this.kgMid,
@@ -41,7 +45,39 @@ class UniversityModel extends Equatable {
     this.channelSyncedAt,
     this.radioLink,
     this.idx,
+    this.syncGroup,
+    this.universityType,
   });
+
+  /// DB'de tutulan ham `university_type` değerini kullanıcıya
+  /// gösterilecek biçime çevirir.
+  ///
+  ///   'devlet'      → 'Devlet'
+  ///   'ozel'/'özel' → 'Vakıf'
+  ///   'kktc'        → 'KKTC'
+  ///   'vakif_myo'   → 'Vakıf MYO'
+  ///   'kurum'       → 'Kurum'
+  ///   diğer         → ilk harfi büyütülmüş hâli
+  ///   null / boş    → null
+  String? get displayUniversityType {
+    final v = universityType?.trim();
+    if (v == null || v.isEmpty) return null;
+    switch (v.toLowerCase()) {
+      case 'ozel':
+      case 'özel':
+        return 'Vakıf';
+      case 'devlet':
+        return 'Devlet';
+      case 'kktc':
+        return 'KKTC';
+      case 'vakif_myo':
+        return 'Vakıf MYO';
+      case 'kurum':
+        return 'Kurum';
+      default:
+        return v[0].toUpperCase() + v.substring(1);
+    }
+  }
 
   UniversityModel copyWith({
     int? id,
@@ -52,6 +88,7 @@ class UniversityModel extends Equatable {
     String? uploadsPlaylistId,
     String? description,
     String? city,
+    String? address,
     String? websiteUrl,
     int? foundedYear,
     String? kgMid,
@@ -63,6 +100,8 @@ class UniversityModel extends Equatable {
     String? channelSyncedAt,
     String? radioLink,
     int? idx,
+    int? syncGroup,
+    String? universityType,
   }) => UniversityModel(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -72,6 +111,7 @@ class UniversityModel extends Equatable {
     uploadsPlaylistId: uploadsPlaylistId ?? this.uploadsPlaylistId,
     description: description ?? this.description,
     city: city ?? this.city,
+    address: address ?? this.address,
     websiteUrl: websiteUrl ?? this.websiteUrl,
     foundedYear: foundedYear ?? this.foundedYear,
     kgMid: kgMid ?? this.kgMid,
@@ -83,6 +123,8 @@ class UniversityModel extends Equatable {
     channelSyncedAt: channelSyncedAt ?? this.channelSyncedAt,
     radioLink: radioLink ?? this.radioLink,
     idx: idx ?? this.idx,
+    syncGroup: syncGroup ?? this.syncGroup,
+    universityType: universityType ?? this.universityType,
   );
 
   factory UniversityModel.fromSupabase(Map<String, dynamic> json) =>
@@ -95,6 +137,7 @@ class UniversityModel extends Equatable {
         uploadsPlaylistId: json["uploads_playlist_id"],
         description: json["description"],
         city: json["city"],
+        address: json["address"],
         websiteUrl: json["website_url"],
         foundedYear: json["founded_year"],
         kgMid: json["kg_mid"],
@@ -106,6 +149,8 @@ class UniversityModel extends Equatable {
         channelSyncedAt: json["channel_synced_at"],
         radioLink: json["radio_link"],
         idx: json["idx"],
+        syncGroup: json["sync_group"],
+        universityType: json["university_type"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -117,6 +162,7 @@ class UniversityModel extends Equatable {
     "uploads_playlist_id": uploadsPlaylistId,
     "description": description,
     "city": city,
+    "address": address,
     "website_url": websiteUrl,
     "founded_year": foundedYear,
     "kg_mid": kgMid,
@@ -128,6 +174,8 @@ class UniversityModel extends Equatable {
     "channel_synced_at": channelSyncedAt,
     "radio_link": radioLink,
     "idx": idx,
+    "sync_group": syncGroup,
+    "university_type": universityType,
   };
 
   @override
@@ -140,6 +188,7 @@ class UniversityModel extends Equatable {
     uploadsPlaylistId,
     description,
     city,
+    address,
     websiteUrl,
     foundedYear,
     kgMid,
@@ -151,10 +200,12 @@ class UniversityModel extends Equatable {
     channelSyncedAt,
     radioLink,
     idx,
+    syncGroup,
+    universityType,
   ];
 
   @override
   String toString() {
-    return 'UniversityModel{id=$id, createdAt=$createdAt, name=$name, channelId=$channelId, logoUrl=$logoUrl, uploadsPlaylistId=$uploadsPlaylistId, description=$description, city=$city, websiteUrl=$websiteUrl, foundedYear=$foundedYear, kgMid=$kgMid, kgSyncedAt=$kgSyncedAt, subscriberCount=$subscriberCount, viewCount=$viewCount, videoCount=$videoCount, customUrl=$customUrl, channelSyncedAt=$channelSyncedAt, radioLink=$radioLink, idx=$idx}';
+    return 'UniversityModel{id=$id, createdAt=$createdAt, name=$name, channelId=$channelId, logoUrl=$logoUrl, uploadsPlaylistId=$uploadsPlaylistId, description=$description, city=$city, address=$address, websiteUrl=$websiteUrl, foundedYear=$foundedYear, kgMid=$kgMid, kgSyncedAt=$kgSyncedAt, subscriberCount=$subscriberCount, viewCount=$viewCount, videoCount=$videoCount, customUrl=$customUrl, channelSyncedAt=$channelSyncedAt, radioLink=$radioLink, idx=$idx, syncGroup=$syncGroup, universityType=$universityType}';
   }
 }

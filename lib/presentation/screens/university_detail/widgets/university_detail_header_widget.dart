@@ -29,6 +29,9 @@ class UniversityDetailHeader extends StatelessWidget {
       }
 
       final hasLogo = uni.logoUrl?.isNotEmpty == true;
+      final hasCity = uni.city?.isNotEmpty == true;
+      final typeText = uni.displayUniversityType;
+      final hasType = typeText != null && typeText.isNotEmpty;
       final primary = AppTheme.primaryColor;
 
       return Container(
@@ -50,58 +53,58 @@ class UniversityDetailHeader extends StatelessWidget {
 
             // ── Logo ──
             Container(
-              width: spec.headerLogoOuter.w,
-              height: spec.headerLogoOuter.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    primary.withValues(alpha: 0.15),
-                    Colors.transparent,
-                  ],
-                  radius: 0.6,
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  width: spec.headerLogoInner.w,
-                  height: spec.headerLogoInner.w,
-                  padding: EdgeInsets.all(spec.headerLogoPadding.w),
+                  width: spec.headerLogoOuter.w,
+                  height: spec.headerLogoOuter.w,
                   decoration: BoxDecoration(
-                    color: AppTheme.card(context),
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: primary.withValues(alpha: 0.2),
-                      width: 2,
+                    gradient: RadialGradient(
+                      colors: [
+                        primary.withValues(alpha: 0.15),
+                        Colors.transparent,
+                      ],
+                      radius: 0.6,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primary.withValues(alpha: 0.18),
-                        blurRadius: 24,
-                        spreadRadius: 2,
-                      ),
-                    ],
                   ),
-                  child: ClipOval(
-                    child: hasLogo
-                        ? CachedNetworkImage(
-                            imageUrl: uni.logoUrl!,
-                            fit: BoxFit.contain,
-                            errorWidget: (_, _, _) => Icon(
-                              Icons.school_rounded,
-                              color: primary,
-                              size: spec.headerLogoInner.w * 0.4,
-                            ),
-                          )
-                        : Icon(
-                            Icons.school_rounded,
-                            color: primary,
-                            size: spec.headerLogoInner.w * 0.4,
+                  child: Center(
+                    child: Container(
+                      width: spec.headerLogoInner.w,
+                      height: spec.headerLogoInner.w,
+                      padding: EdgeInsets.all(spec.headerLogoPadding.w),
+                      decoration: BoxDecoration(
+                        color: AppTheme.card(context),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: primary.withValues(alpha: 0.2),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primary.withValues(alpha: 0.18),
+                            blurRadius: 24,
+                            spreadRadius: 2,
                           ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: hasLogo
+                            ? CachedNetworkImage(
+                                imageUrl: uni.logoUrl!,
+                                fit: BoxFit.contain,
+                                errorWidget: (_, _, _) => Icon(
+                                  Icons.school_rounded,
+                                  color: primary,
+                                  size: spec.headerLogoInner.w * 0.4,
+                                ),
+                              )
+                            : Icon(
+                                Icons.school_rounded,
+                                color: primary,
+                                size: spec.headerLogoInner.w * 0.4,
+                              ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            )
+                )
                 .animate()
                 .fadeIn(duration: 400.ms)
                 .scaleXY(begin: 0.85, end: 1, curve: Curves.easeOutBack),
@@ -125,25 +128,63 @@ class UniversityDetailHeader extends StatelessWidget {
               ),
             ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
 
-            // ── Şehir ──
-            if (uni.city != null) ...[
-              SizedBox(height: 6.h),
+            // ── Şehir · Tip (yan yana) ──
+            if (hasCity || hasType) ...[
+              SizedBox(height: 8.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.location_on_rounded,
-                    size: (spec.headerCityFontSize + 1).sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                  SizedBox(width: 4.w),
-                  Text(
-                    uni.city!,
-                    style: TextStyle(
-                      fontSize: spec.headerCityFontSize.sp,
+                  // Şehir
+                  if (hasCity) ...[
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: (spec.headerCityFontSize + 1).sp,
                       color: AppTheme.textSec(context),
                     ),
-                  ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      uni.city!,
+                      style: TextStyle(
+                        fontSize: spec.headerCityFontSize.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                    ),
+                  ],
+
+                  // Ayraç
+                  if (hasCity && hasType) ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      child: Text(
+                        '•',
+                        style: TextStyle(
+                          fontSize: spec.headerCityFontSize.sp,
+                          color: AppTheme.textSec(
+                            context,
+                          ).withValues(alpha: 0.5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // Tip
+                  if (hasType) ...[
+                    Icon(
+                      Icons.account_balance_rounded,
+                      size: (spec.headerCityFontSize + 1).sp,
+                      color: AppTheme.textSec(context),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      typeText,
+                      style: TextStyle(
+                        fontSize: spec.headerCityFontSize.sp,
+                        color: AppTheme.textSec(context),
+                      ),
+                    ),
+                  ],
                 ],
               ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
             ],
@@ -154,35 +195,35 @@ class UniversityDetailHeader extends StatelessWidget {
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spec.headerBadgePaddingH.w,
-                  vertical: spec.headerBadgePaddingV.h,
-                ),
-                decoration: BoxDecoration(
-                  color: primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(color: primary.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.bookmark_rounded,
-                      size: spec.headerBadgeFontSize.sp + 2,
-                      color: primary,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spec.headerBadgePaddingH.w,
+                      vertical: spec.headerBadgePaddingV.h,
                     ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'Favorilerimde',
-                      style: TextStyle(
-                        fontSize: spec.headerBadgeFontSize.sp,
-                        fontWeight: FontWeight.w600,
-                        color: primary,
-                      ),
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(color: primary.withValues(alpha: 0.3)),
                     ),
-                  ],
-                ),
-              )
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.bookmark_rounded,
+                          size: spec.headerBadgeFontSize.sp + 2,
+                          color: primary,
+                        ),
+                        SizedBox(width: 5.w),
+                        Text(
+                          'Favorilerimde',
+                          style: TextStyle(
+                            fontSize: spec.headerBadgeFontSize.sp,
+                            fontWeight: FontWeight.w600,
+                            color: primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                   .animate()
                   .fadeIn(duration: 300.ms)
                   .scaleXY(begin: 0.9, end: 1, curve: Curves.easeOutBack);

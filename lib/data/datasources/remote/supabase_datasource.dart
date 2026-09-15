@@ -348,7 +348,7 @@ class SupabaseDataSource {
     }
   }
 
-  Future<List<UniversityModel>> getUniversities({int limit = 500}) async {
+ /*  Future<List<UniversityModel>> getUniversities({int limit = 500}) async {
     try {
       final data = await _client
           .from('universities')
@@ -362,7 +362,7 @@ class SupabaseDataSource {
       log('Üniversiteler getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception('Üniversiteler yüklenemedi. Lütfen tekrar deneyin.');
     }
-  }
+  } */
 
   Future<UniversityModel> getUniversityById(int id) async {
     try {

@@ -95,12 +95,14 @@ class UniversityListCardWidget extends StatelessWidget {
                         ],
                       ),
 
-                      // ── Meta (şehir · yıl · radyo) ─────────
+                      // ── Meta (şehir · yıl · tip · radyo) ───
                       SizedBox(height: 6.h),
                       _MetaLine(
                         spec: spec,
                         city: university.city,
                         foundedYear: university.foundedYear,
+                        universityType:
+                            university.displayUniversityType, // ← değişti
                         hasRadio: hasRadio,
                       ),
 
@@ -178,24 +180,29 @@ class _Logo extends StatelessWidget {
   }
 }
 
-// ─── Meta satırı: 📍Bolu · 📅1992 · 📻Radyo ────────────────────────────────
+// ─── Meta satırı: 📍Bolu · 📅1992 · 🏛Devlet · 📻Radyo ─────────────────────
 
 class _MetaLine extends StatelessWidget {
   final UniversitiesTabLayoutSpec spec;
   final String? city;
   final int? foundedYear;
+  final String? universityType; // artık formatlanmış geliyor
   final bool hasRadio;
 
   const _MetaLine({
     required this.spec,
     required this.city,
     required this.foundedYear,
+    required this.universityType,
     required this.hasRadio,
   });
+
+  // ❌ _formatType helper'ı silinecek
 
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[];
+    final typeText = universityType; // direkt kullan
 
     if (city != null && city!.isNotEmpty) {
       items.add(
@@ -210,6 +217,12 @@ class _MetaLine extends StatelessWidget {
           icon: Icons.calendar_today_rounded,
           text: '$foundedYear',
         ),
+      );
+    }
+    if (typeText != null && typeText.isNotEmpty) {
+      if (items.isNotEmpty) items.add(const _Dot());
+      items.add(
+        _Item(spec: spec, icon: Icons.account_balance_rounded, text: typeText),
       );
     }
     if (hasRadio) {

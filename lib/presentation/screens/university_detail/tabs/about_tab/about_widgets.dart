@@ -82,9 +82,7 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
                   ),
                 )
               : Icon(
-                  isFav
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_add_outlined,
+                  isFav ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
                   size: spec.favButtonIconSize.sp,
                 ),
           label: Text(
@@ -95,10 +93,10 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isFav ? AppTheme.card(context) : AppTheme.primaryColor,
-            foregroundColor:
-                isFav ? AppTheme.primaryColor : Colors.white,
+            backgroundColor: isFav
+                ? AppTheme.card(context)
+                : AppTheme.primaryColor,
+            foregroundColor: isFav ? AppTheme.primaryColor : Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(spec.favButtonRadius.r),
@@ -181,17 +179,19 @@ class UniversityAboutInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final typeText = uni.displayUniversityType;
+    final hasAddress = uni.address?.isNotEmpty == true;
+
     final rows = <(IconData, String, String)>[
-      (
-        Icons.location_on_rounded,
-        'Şehir',
-        uni.city ?? '—',
-      ),
+      (Icons.location_on_rounded, 'Şehir', uni.city ?? '—'),
       (
         Icons.calendar_today_rounded,
         'Kuruluş Yılı',
         uni.foundedYear != null ? '${uni.foundedYear}' : '—',
       ),
+      (Icons.account_balance_rounded, 'Üniversite Tipi', typeText ?? '—'),
+      // ↓↓↓ YENİ: Adres (varsa gösterilir)
+      if (hasAddress) (Icons.location_city_rounded, 'Adres', uni.address!),
       (
         Icons.play_circle_rounded,
         'Video Sayısı',
@@ -262,6 +262,7 @@ class _InfoRow extends StatelessWidget {
         vertical: spec.rowPaddingV.h,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: spec.rowIconBoxSize.w,
@@ -296,6 +297,7 @@ class _InfoRow extends StatelessWidget {
                     fontSize: spec.rowValueFontSize.sp,
                     color: AppTheme.textPri(context),
                     fontWeight: FontWeight.w600,
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -411,10 +413,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isThisPlaying
-                ? [
-                    _kRadioColor.withValues(alpha: 0.15),
-                    AppTheme.card(context),
-                  ]
+                ? [_kRadioColor.withValues(alpha: 0.15), AppTheme.card(context)]
                 : [AppTheme.card(context), AppTheme.card(context)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -445,8 +444,8 @@ class UniversityAboutRadioCard extends StatelessWidget {
                     buffering
                         ? Icons.hdr_weak_rounded
                         : (playing
-                            ? Icons.equalizer_rounded
-                            : Icons.radio_rounded),
+                              ? Icons.equalizer_rounded
+                              : Icons.radio_rounded),
                     color: _kRadioColor,
                     size: spec.radioIconSize.sp,
                   ),
@@ -470,10 +469,10 @@ class UniversityAboutRadioCard extends StatelessWidget {
                   Text(
                     isThisPlaying
                         ? (playing
-                            ? 'Canlı Yayın Dinleniyor...'
-                            : (buffering
-                                ? 'Yayına Bağlanılıyor...'
-                                : 'Yayın Duraklatıldı'))
+                              ? 'Canlı Yayın Dinleniyor...'
+                              : (buffering
+                                    ? 'Yayına Bağlanılıyor...'
+                                    : 'Yayın Duraklatıldı'))
                         : 'Canlı yayını dinlemek için tıkla',
                     style: TextStyle(
                       fontSize: spec.radioSubtitleFontSize.sp,
@@ -552,7 +551,7 @@ class _RadioWave extends StatelessWidget {
         children: List.generate(3, (i) {
           final h = isActive
               ? (spec.radioIconSize.sp +
-                  (i % 2 == 0 ? spec.radioIconSize.sp * 0.5 : 0))
+                    (i % 2 == 0 ? spec.radioIconSize.sp * 0.5 : 0))
               : spec.radioIconSize.sp * 0.4;
           return AnimatedContainer(
             duration: Duration(milliseconds: 400 + i * 120),

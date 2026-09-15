@@ -48,14 +48,14 @@ class UniversitiesTabWidget extends StatelessWidget {
           slivers: [
             // ── Hero + Search ────────────────────────────────
             // Sonrası:
-SliverToBoxAdapter(
-  child: UniversitiesHeroHeader(
-    spec: spec,
-    sortController: sortController,
-    onSortTap: () => showUniversitiesSortSheet(context, spec),
-    activeSortCount: sortController.activeSorts.length,
-  ),
-),
+            SliverToBoxAdapter(
+              child: UniversitiesHeroHeader(
+                spec: spec,
+                sortController: sortController,
+                onSortTap: () => showUniversitiesSortSheet(context, spec),
+                activeSortCount: sortController.activeSorts.length,
+              ),
+            ),
 
             // ── Aktif chip'ler ────────────────────────────────
             Obx(() {
