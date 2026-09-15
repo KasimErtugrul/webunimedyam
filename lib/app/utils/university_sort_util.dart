@@ -6,7 +6,7 @@ import '../../data/models/university_model.dart';
 import 'turkish_alphabet_sort_util.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Sıralama kriterleri — enhanced enum: label + icon taşır
+// Sıralama kriterleri — filtreler (tip, radyo) buradan ÇIKARILDI
 // ═══════════════════════════════════════════════════════════════════════════
 
 enum SortCriteria {
@@ -21,6 +21,43 @@ enum SortCriteria {
 
   final String label;
   final IconData icon;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Üniversite tipi filtresi (radio group)
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum UniversityTypeFilter {
+  all('Tümü', Icons.apps_rounded),
+  devlet('Devlet', Icons.account_balance_rounded),
+  ozel('Vakıf', Icons.school_rounded),
+  kktc('KKTC', Icons.flag_rounded),
+  vakifMyo('Vakıf MYO', Icons.school_outlined);
+
+  const UniversityTypeFilter(this.label, this.icon);
+
+  final String label;
+  final IconData icon;
+
+  bool get isAll => this == UniversityTypeFilter.all;
+
+  /// DB'deki `university_type` değeriyle eşleşiyor mu?
+  bool matches(String? type) {
+    if (this == all) return true;
+    final t = type?.trim().toLowerCase();
+    switch (this) {
+      case all:
+        return true;
+      case devlet:
+        return t == 'devlet';
+      case ozel:
+        return t == 'ozel' || t == 'özel';
+      case kktc:
+        return t == 'kktc';
+      case vakifMyo:
+        return t == 'vakif_myo';
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

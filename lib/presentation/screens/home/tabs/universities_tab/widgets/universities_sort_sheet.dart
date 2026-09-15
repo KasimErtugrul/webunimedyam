@@ -21,16 +21,30 @@ Future<void> showUniversitiesSortSheet(
   );
 }
 
-class _SortSheet extends StatelessWidget {
+// ═══════════════════════════════════════════════════════════════════════════
+// SHEET
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SortSheet extends StatefulWidget {
   final UniversitiesTabLayoutSpec spec;
   final UniversitySortController sortController;
 
   const _SortSheet({required this.spec, required this.sortController});
 
   @override
+  State<_SortSheet> createState() => _SortSheetState();
+}
+
+class _SortSheetState extends State<_SortSheet> {
+  bool _typeExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final spec = widget.spec;
+    final sortController = widget.sortController;
+
     return Container(
-      constraints: BoxConstraints(maxHeight: 0.82.sh),
+      constraints: BoxConstraints(maxHeight: 0.85.sh),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
         borderRadius: BorderRadius.vertical(
@@ -58,7 +72,7 @@ class _SortSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Sıralama Kriterleri',
+                  'Filtrele & Sırala',
                   style: TextStyle(
                     fontSize: spec.sheetTitleFontSize.sp,
                     fontWeight: FontWeight.w700,
@@ -67,7 +81,7 @@ class _SortSheet extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton.icon(
-onPressed: sortController.resetSorts,
+                  onPressed: sortController.resetSortsAndFilters,
                   icon: Icon(Icons.refresh_rounded, size: 18.sp),
                   label: Text(
                     'Sıfırla',
@@ -82,32 +96,44 @@ onPressed: sortController.resetSorts,
             ),
           ),
 
+          SizedBox(height: 8.h),
+
+          // ─── FİLTRELER ────────────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14.sp,
-                  color: AppTheme.textSec(context).withValues(alpha: 0.7),
-                ),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    'İsim sıralaması seçildiğinde hızlı A-Z navigasyonu açılır.',
-                    style: TextStyle(
-                      fontSize: spec.sheetSubtitleFontSize.sp,
-                      color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                    ),
-                  ),
-                ),
-              ],
+            child: const _SectionHeader(title: 'FİLTRELER'),
+          ),
+          SizedBox(height: 10.h),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            child: _TypeFilterTile(
+              spec: spec,
+              sortController: sortController,
+              expanded: _typeExpanded,
+              onToggle: () => setState(() => _typeExpanded = !_typeExpanded),
             ),
           ),
 
-          SizedBox(height: 14.h),
+          SizedBox(height: 8.h),
 
-          // Opsiyonlar
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            child: _RadioFilterTile(
+              spec: spec,
+              sortController: sortController,
+            ),
+          ),
+
+          SizedBox(height: 18.h),
+
+          // ─── SIRALAMA ─────────────────────────────────────────────────
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            child: const _SectionHeader(title: 'SIRALAMA'),
+          ),
+          SizedBox(height: 10.h),
+
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(
@@ -135,6 +161,367 @@ onPressed: sortController.resetSorts,
     );
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Section Header
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 3.w,
+          height: 13.h,
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor,
+            borderRadius: BorderRadius.circular(2.r),
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.textSec(context),
+            letterSpacing: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Üniversite Tipi — expandable radio group
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _TypeFilterTile extends StatelessWidget {
+  final UniversitiesTabLayoutSpec spec;
+  final UniversitySortController sortController;
+  final bool expanded;
+  final VoidCallback onToggle;
+
+  const _TypeFilterTile({
+    required this.spec,
+    required this.sortController,
+    required this.expanded,
+    required this.onToggle,
+  });
+
+  static const _typeColor = Color(0xFF7C3AED);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final selected = sortController.typeFilter.value;
+      final isFiltered = !selected.isAll;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Header tile (tıklanabilir, expand tetikler) ──
+          Material(
+            color: isFiltered
+                ? _typeColor.withValues(alpha: 0.12)
+                : AppTheme.surface(context).withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(14.r),
+            child: InkWell(
+              onTap: onToggle,
+              borderRadius: BorderRadius.circular(14.r),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 10.h,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: spec.sheetOptionIconBox.w,
+                      height: spec.sheetOptionIconBox.w,
+                      decoration: BoxDecoration(
+                        color: _typeColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(
+                          spec.sheetOptionIconBoxRadius.r,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.account_balance_rounded,
+                        size: spec.sheetOptionIconSize.sp,
+                        color: _typeColor,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Üniversite Tipi',
+                            style: TextStyle(
+                              fontSize: spec.sheetOptionFontSize.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPri(context),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            selected.label,
+                            style: TextStyle(
+                              fontSize: (spec.sheetOptionFontSize - 2).sp,
+                              color: isFiltered
+                                  ? _typeColor
+                                  : AppTheme.textSec(context),
+                              fontWeight: isFiltered
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AnimatedRotation(
+                      duration: const Duration(milliseconds: 200),
+                      turns: expanded ? 0.5 : 0,
+                      child: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: AppTheme.textSec(context),
+                        size: 24.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ── Radio group (expand) ──
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            child: expanded
+                ? Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Column(
+                      children: UniversityTypeFilter.values
+                          .map((f) => _TypeRadioRow(
+                                spec: spec,
+                                filter: f,
+                                selected: sortController.typeFilter.value == f,
+                                color: _typeColor,
+                                onTap: () => sortController.setTypeFilter(f),
+                              ))
+                          .toList(),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _TypeRadioRow extends StatelessWidget {
+  final UniversitiesTabLayoutSpec spec;
+  final UniversityTypeFilter filter;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TypeRadioRow({
+    required this.spec,
+    required this.filter,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: Material(
+        color: selected
+            ? color.withValues(alpha: 0.10)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(10.r),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 8.h,
+            ),
+            child: Row(
+              children: [
+                // Radio circle
+                Container(
+                  width: 20.w,
+                  height: 20.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selected ? color : Colors.transparent,
+                    border: Border.all(
+                      color: selected
+                          ? color
+                          : AppTheme.textSec(context)
+                              .withValues(alpha: 0.4),
+                      width: 1.8,
+                    ),
+                  ),
+                  child: selected
+                      ? Icon(
+                          Icons.check_rounded,
+                          size: 13.sp,
+                          color: Colors.white,
+                        )
+                      : null,
+                ),
+                SizedBox(width: 10.w),
+                Icon(
+                  filter.icon,
+                  size: 16.sp,
+                  color: selected
+                      ? color
+                      : AppTheme.textSec(context),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    filter.label,
+                    style: TextStyle(
+                      fontSize: spec.sheetOptionFontSize.sp,
+                      color: selected
+                          ? color
+                          : AppTheme.textPri(context),
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Radyo Yayını — switch filtresi
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _RadioFilterTile extends StatelessWidget {
+  final UniversitiesTabLayoutSpec spec;
+  final UniversitySortController sortController;
+
+  const _RadioFilterTile({
+    required this.spec,
+    required this.sortController,
+  });
+
+  static const _radioColor = Color(0xFFEF4444);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final value = sortController.onlyWithRadio.value;
+
+      return Material(
+        color: value
+            ? _radioColor.withValues(alpha: 0.12)
+            : AppTheme.surface(context).withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(14.r),
+        child: InkWell(
+          onTap: () => sortController.setOnlyWithRadio(!value),
+          borderRadius: BorderRadius.circular(14.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 12.w,
+              vertical: 10.h,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: spec.sheetOptionIconBox.w,
+                  height: spec.sheetOptionIconBox.w,
+                  decoration: BoxDecoration(
+                    color: _radioColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(
+                      spec.sheetOptionIconBoxRadius.r,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.radio_rounded,
+                    size: spec.sheetOptionIconSize.sp,
+                    color: _radioColor,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Radyo Yayını',
+                        style: TextStyle(
+                          fontSize: spec.sheetOptionFontSize.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPri(context),
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        value
+                            ? 'Sadece radyosu olanlar'
+                            : 'Tüm üniversiteler',
+                        style: TextStyle(
+                          fontSize: (spec.sheetOptionFontSize - 2).sp,
+                          color: value
+                              ? _radioColor
+                              : AppTheme.textSec(context),
+                          fontWeight:
+                              value ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Transform.scale(
+                  scale: 0.9,
+                  child: Switch(
+                    value: value,
+                    onChanged: (v) => sortController.setOnlyWithRadio(v),
+                    activeThumbColor: Colors.white,
+                    activeTrackColor: _radioColor,
+                    inactiveThumbColor: Colors.white,
+                    inactiveTrackColor: AppTheme.textSec(context)
+                        .withValues(alpha: 0.25),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Sıralama kriter satırı
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _SortOptionTile extends StatelessWidget {
   final UniversitiesTabLayoutSpec spec;
@@ -201,14 +588,14 @@ class _SortOptionTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // İkon kutusu
                 Container(
                   width: spec.sheetOptionIconBox.w,
                   height: spec.sheetOptionIconBox.w,
                   decoration: BoxDecoration(
                     color: _color.withValues(alpha: 0.15),
-                    borderRadius:
-                        BorderRadius.circular(spec.sheetOptionIconBoxRadius.r),
+                    borderRadius: BorderRadius.circular(
+                      spec.sheetOptionIconBoxRadius.r,
+                    ),
                   ),
                   child: Icon(
                     _icon,
@@ -230,7 +617,6 @@ class _SortOptionTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Yön (aktifse)
                 if (isActive)
                   IconButton(
                     icon: Icon(
@@ -251,7 +637,6 @@ class _SortOptionTile extends StatelessWidget {
                       minHeight: 32,
                     ),
                   ),
-                // Check
                 Container(
                   width: 22.w,
                   height: 22.w,

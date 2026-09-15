@@ -13,6 +13,12 @@ class UniversitySortController extends GetxController {
   /// davranış olarak kabul edilir (bkz. UniversitiesTabWidget).
   final activeSorts = <SortOption>[].obs;
 
+  /// Üniversite tipi filtresi (radio group).
+  final typeFilter = UniversityTypeFilter.all.obs;
+
+  /// Sadece radyo yayını olan üniversiteleri göster (switch).
+  final onlyWithRadio = false.obs;
+
   /// Arama state'i + metin alanı controller'ı.
   final searchQuery = ''.obs;
   final searchController = TextEditingController();
@@ -54,6 +60,40 @@ class UniversitySortController extends GetxController {
 
   void clearSorts() => activeSorts.clear();
 
+  // ─── Filtreler ────────────────────────────────────────────────────────────
+
+  void setTypeFilter(UniversityTypeFilter filter) {
+    typeFilter.value = filter;
+  }
+
+  void clearTypeFilter() {
+    typeFilter.value = UniversityTypeFilter.all;
+  }
+
+  void setOnlyWithRadio(bool value) {
+    onlyWithRadio.value = value;
+  }
+
+  void toggleOnlyWithRadio() {
+    onlyWithRadio.value = !onlyWithRadio.value;
+  }
+
+  void clearOnlyWithRadio() {
+    onlyWithRadio.value = false;
+  }
+
+  /// En az bir filtre aktif mi?
+  bool get hasActiveFilters =>
+      !typeFilter.value.isAll || onlyWithRadio.value;
+
+  /// Aktif filtre sayısı — hero badge gibi yerlerde kullanılabilir.
+  int get activeFilterCount {
+    var n = 0;
+    if (!typeFilter.value.isAll) n++;
+    if (onlyWithRadio.value) n++;
+    return n;
+  }
+
   // ─── Arama ────────────────────────────────────────────────────────────────
 
   void updateSearchQuery(String query) {
@@ -71,26 +111,48 @@ class UniversitySortController extends GetxController {
 
   // ─── Toplu işlem ──────────────────────────────────────────────────────────
 
-  /// Sıralama kriterlerini sıfırlar. Arama kutusuna dokunmaz —
-  /// sort sheet'teki "Sıfırla" butonunun beklenen davranışı budur.
+  /// Sadece sıralamayı sıfırlar.
   void resetSorts() => clearSorts();
 
-  /// Hem sıralama hem aramayı sıfırlar. Boş durum ekranındaki
-  /// "Temizle" aksiyonu için.
-  void resetAll() {
+  /// Sadece filtreleri sıfırlar (tip + radyo).
+  void resetFilters() {
+    clearTypeFilter();
+    clearOnlyWithRadio();
+  }
+
+  /// Sıralama + filtreleri sıfırlar. Sheet'teki "Sıfırla" butonu için.
+  void resetSortsAndFilters() {
     clearSorts();
+    resetFilters();
+  }
+
+  /// Sıralama + filtre + arama hepsini sıfırlar. Boş durum ekranı için.
+  void resetAll() {
+    resetSortsAndFilters();
     clearSearch();
   }
 
   // ─── Uygulama ─────────────────────────────────────────────────────────────
 
-  /// Arama filtresi + çoklu sıralama uygular.
-  /// Sıralama yoksa sadece filtre uygulanır, liste aynı referansla döner.
+  /// Filtreleri (tip + radyo) + arama + sıralamayı uygular.
+  /// Hiçbir filtre/sıralama yoksa liste aynı referansla döner.
   List<UniversityModel> applySortAndFilter(
     List<UniversityModel> originalList,
   ) {
     var list = originalList;
 
+    // 1) Üniversite tipi filtresi
+    final tf = typeFilter.value;
+    if (!tf.isAll) {
+      list = list.where((u) => tf.matches(u.universityType)).toList();
+    }
+
+    // 2) Radyo filtresi
+    if (onlyWithRadio.value) {
+      list = list.where((u) => u.radioLink?.isNotEmpty == true).toList();
+    }
+
+    // 3) Arama
     final q = searchQuery.value;
     if (q.isNotEmpty) {
       final needle = q.toLowerCase();
@@ -101,6 +163,7 @@ class UniversitySortController extends GetxController {
       }).toList();
     }
 
+    // 4) Sıralama
     if (activeSorts.isNotEmpty) {
       list = UniversitySortUtil.multiSort(list, activeSorts);
     }
