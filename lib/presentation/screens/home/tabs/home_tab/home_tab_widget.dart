@@ -74,6 +74,30 @@ class _PhoneSizes {
   static const double contentTitleFontSize = 18;
   static const double contentTitleSubSpacing = 4;
   static const double contentSubtitleFontSize = 12;
+
+  // ── Utility Bar (Canlı Radyo Pili + Liste/Çark Anahtarı) ────────────────
+  // NOT: Bu değerler ScreenUtil (.w/.h/.sp/.r) İLE ÇARPILIR — bu yüzden
+  // sadece GERÇEK telefonlarda kullanılmalı. Responsive.isTablet(context)
+  // true dönen (katlanır telefon açık hâli, tablet, split-screen vb.) HER
+  // GENİŞ EKRANDA bunun yerine _TabletSizes'taki SABİT (ScreenUtil'siz)
+  // karşılıkları kullanılır — aksi hâlde ScreenUtil'in ölçek katsayısı
+  // (ekranGenişliği / 375 tasarım genişliği) geniş ekranlarda 2x'in üzerine
+  // çıkıp bu küçük kontrolleri (pil, hap, anahtar) orantısızca büyütür.
+  static const double radioDotSize = 8;
+  static const double radioIconSize = 16;
+  static const double radioGapSmall = 6;
+  static const double radioGapTiny = 4;
+  static const double radioPadH = 12;
+  static const double radioPadV = 6;
+  static const double radioBadgePadH = 6;
+  static const double radioBadgePadV = 2;
+  static const double radioBadgeRadius = 4;
+  static const double viewToggleOuterPad = 2;
+  static const double viewToggleOuterRadius = 8;
+  static const double viewToggleButtonSize = 32;
+  static const double viewToggleIconSize = 18;
+  static const double categoryChipPadH = 14;
+  static const double categoryChipPadV = 8;
 }
 
 class _TabletSizes {
@@ -131,6 +155,25 @@ class _TabletSizes {
   static const double contentTitleFontSize = 20;
   static const double contentTitleSubSpacing = 4;
   static const double contentSubtitleFontSize = 13;
+
+  // ── Utility Bar (Canlı Radyo Pili + Liste/Çark Anahtarı) — SABİT PİKSEL ──
+  // ScreenUtil'e HİÇ dokunmaz; geniş/tablet/katlanır-açık ekranlarda bu
+  // sabit değerler kullanılır (bkz. _PhoneSizes'taki açıklama).
+  static const double radioDotSize = 9;
+  static const double radioIconSize = 18;
+  static const double radioGapSmall = 7;
+  static const double radioGapTiny = 5;
+  static const double radioPadH = 14;
+  static const double radioPadV = 7;
+  static const double radioBadgePadH = 7;
+  static const double radioBadgePadV = 2.5;
+  static const double radioBadgeRadius = 5;
+  static const double viewToggleOuterPad = 3;
+  static const double viewToggleOuterRadius = 9;
+  static const double viewToggleButtonSize = 36;
+  static const double viewToggleIconSize = 20;
+  static const double categoryChipPadH = 16;
+  static const double categoryChipPadV = 9;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -316,6 +359,14 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               // ── İçerik Alanı ─────────────────────────────────────────────
               Obx(() => _buildContentSliver(context)),
 
+              // ── Yaklaşan Canlı Yayın Şeridi ──────────────────────────────
+              SliverToBoxAdapter(
+                child: _buildUpcomingLiveBanner(
+                  context,
+                  isTablet: Responsive.isTablet(context),
+                ),
+              ),
+
               // ── Alt Boşluk ──────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -429,9 +480,34 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
   // Tasarımdaki "Kampüs FM Canlı" pili + Liste/Çark görünüm anahtarı.
   // (Header'ın hemen altında, ayrı bir yatay şerit.)
+  //
+  // ÖNEMLİ: Bu bölümdeki TÜM ölçüler artık `isTablet` parametresine göre
+  // _PhoneSizes (ScreenUtil .w/.h/.sp/.r ile ölçeklenen) veya _TabletSizes
+  // (sabit piksel) sabitlerinden seçiliyor. Önceden buradaki iç elemanlar
+  // (radyo noktası, ikon, rozet, görünüm anahtarı düğmeleri) HER ZAMAN
+  // ScreenUtil ile ölçekleniyordu; katlanır bir telefon açıldığında ekran
+  // "tablet" sayılsa bile (Responsive.isTablet == true) bu küçük kontroller
+  // hâlâ ScreenUtil'in telefon tasarımına (375 genişlik) göre hesapladığı
+  // orantısız büyük bir ölçek katsayısıyla çarpılıyor, bu da düğmelerin
+  // saçma şekilde büyümesine yol açıyordu. Artık tablet/geniş ekranda sabit
+  // piksel değerleri kullanılıyor.
   Widget _buildUtilityBar(BuildContext context, {required bool isTablet}) {
     final scheme = Theme.of(context).colorScheme;
     final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+
+    final double dotSize = isTablet ? _TabletSizes.radioDotSize : _PhoneSizes.radioDotSize.w;
+    final double radioIconSize = isTablet ? _TabletSizes.radioIconSize : _PhoneSizes.radioIconSize.sp;
+    final double gapSmall = isTablet ? _TabletSizes.radioGapSmall : _PhoneSizes.radioGapSmall.w;
+    final double gapTiny = isTablet ? _TabletSizes.radioGapTiny : _PhoneSizes.radioGapTiny.w;
+    final double radioPadH = isTablet ? _TabletSizes.radioPadH : _PhoneSizes.radioPadH.w;
+    final double radioPadV = isTablet ? _TabletSizes.radioPadV : _PhoneSizes.radioPadV.h;
+    final double badgePadH = isTablet ? _TabletSizes.radioBadgePadH : _PhoneSizes.radioBadgePadH.w;
+    final double badgePadV = isTablet ? _TabletSizes.radioBadgePadV : _PhoneSizes.radioBadgePadV.h;
+    final double badgeRadius = isTablet ? _TabletSizes.radioBadgeRadius : _PhoneSizes.radioBadgeRadius.r;
+    final double toggleOuterPad = isTablet ? _TabletSizes.viewToggleOuterPad : _PhoneSizes.viewToggleOuterPad.w;
+    final double toggleOuterRadius = isTablet ? _TabletSizes.viewToggleOuterRadius : _PhoneSizes.viewToggleOuterRadius.r;
+    final double toggleButtonSize = isTablet ? _TabletSizes.viewToggleButtonSize : _PhoneSizes.viewToggleButtonSize.w;
+    final double toggleIconSize = isTablet ? _TabletSizes.viewToggleIconSize : _PhoneSizes.viewToggleIconSize.sp;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8.h),
@@ -443,7 +519,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             borderRadius: BorderRadius.circular(AppTheme.radiusFull),
             onTap: () => Get.toNamed(AppRoutes.radio),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: radioPadH, vertical: radioPadV),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -452,28 +528,28 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 8.w,
-                    height: 8.w,
+                    width: dotSize,
+                    height: dotSize,
                     decoration: BoxDecoration(
                       color: scheme.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 6.w),
-                  Icon(Icons.radio_rounded, color: scheme.primary, size: 16.sp),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: gapSmall),
+                  Icon(Icons.radio_rounded, color: scheme.primary, size: radioIconSize),
+                  SizedBox(width: gapSmall),
                   Text(
                     'Kampüs FM Canlı',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: scheme.onSurface,
                     ),
                   ),
-                  SizedBox(width: 4.w),
+                  SizedBox(width: gapTiny),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(horizontal: badgePadH, vertical: badgePadV),
                     decoration: BoxDecoration(
                       color: scheme.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: BorderRadius.circular(badgeRadius),
                     ),
                     child: Text(
                       'YAYINDA',
@@ -490,10 +566,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           // Görünüm Modu Seçici (Liste vs Çark)
           Obx(
             () => Container(
-              padding: EdgeInsets.all(2.w),
+              padding: EdgeInsets.all(toggleOuterPad),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(toggleOuterRadius),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -502,6 +578,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     icon: Icons.view_agenda_rounded,
                     tooltip: 'Liste Görünümü',
                     selected: !controller.isWheelView.value,
+                    size: toggleButtonSize,
+                    iconSize: toggleIconSize,
                     onTap: () {
                       if (controller.isWheelView.value) {
                         controller.toggleWheelView();
@@ -512,6 +590,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     icon: Icons.grid_view_rounded,
                     tooltip: 'Çark / Grid Görünümü',
                     selected: controller.isWheelView.value,
+                    size: toggleButtonSize,
+                    iconSize: toggleIconSize,
                     onTap: () {
                       if (!controller.isWheelView.value) {
                         controller.toggleWheelView();
@@ -535,6 +615,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   Widget _buildCategoryChips(BuildContext context, {required bool isTablet}) {
     final scheme = Theme.of(context).colorScheme;
     final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    final rowHeight = isTablet ? 44.0 : 40.h;
+    final chipGap = isTablet ? 10.0 : 8.w;
+    final chipPadH = isTablet ? _TabletSizes.categoryChipPadH : _PhoneSizes.categoryChipPadH.w;
+    final chipPadV = isTablet ? _TabletSizes.categoryChipPadV : _PhoneSizes.categoryChipPadV.h;
     const categories = [
       'Tümü',
       'Mühendislik & Teknoloji',
@@ -544,12 +628,12 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     ];
 
     return SizedBox(
-      height: 40.h,
+      height: rowHeight,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: hPad),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        separatorBuilder: (_, __) => SizedBox(width: chipGap),
         itemBuilder: (context, index) {
           final selected = _selectedCategoryIndex == index;
           return _CategoryChip(
@@ -557,6 +641,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             selected: selected,
             onTap: () => setState(() => _selectedCategoryIndex = index),
             scheme: scheme,
+            padH: chipPadH,
+            padV: chipPadV,
           );
         },
       ),
@@ -652,6 +738,192 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
   // ═══════════════════════════════════════════════════════════════════════
 
+  // "Üniversitelerin Son Videoları" bölüm başlığı.
+  // Tasarım: sol → 📹 ikon + başlık (altında bizim ek açıklama satırımız
+  // duruyor — tasarımda yok ama bilgi amaçlı olduğu için kaldırılmadı);
+  // sağ → "En Yeniler ⌄" sıralama seçici. Backend'de henüz alternatif bir
+  // sıralama (örn. "En Popüler") endpoint'i olmadığından bu menü şimdilik
+  // sadece "En Yeniler" gösterir ve onTap boş bırakıldı.
+  Widget _buildContentHeader(BuildContext context, {required bool isTablet}) {
+    final titleFontSize = isTablet
+        ? _TabletSizes.contentTitleFontSize
+        : _PhoneSizes.contentTitleFontSize.sp;
+    final subSpacing = isTablet
+        ? _TabletSizes.contentTitleSubSpacing
+        : _PhoneSizes.contentTitleSubSpacing.h;
+    final subtitleFontSize = isTablet
+        ? _TabletSizes.contentSubtitleFontSize
+        : _PhoneSizes.contentSubtitleFontSize.sp;
+    final iconSize = isTablet ? 22.0 : 20.sp;
+    final iconSpacing = isTablet ? 8.0 : 6.w;
+    final sortFontSize = isTablet ? 14.0 : 13.sp;
+    final sortIconSize = isTablet ? 20.0 : 18.sp;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.video_library_rounded,
+                    size: iconSize,
+                    color: AppTheme.primaryColor,
+                  ),
+                  SizedBox(width: iconSpacing),
+                  Flexible(
+                    child: Text(
+                      'Üniversitelerin Son Videoları',
+                      style: TextStyle(
+                        color: AppTheme.textPri(context),
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: subSpacing),
+              Text(
+                'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: subtitleFontSize,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // TODO(kasım): "En Yeniler" dışında bir sıralama seçeneği eklenince
+        // bu menü açılır bir seçiciye bağlanacak; şimdilik onTap boş.
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {},
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 6 : 4.w,
+              vertical: isTablet ? 4 : 4.h,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'En Yeniler',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: sortFontSize,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: sortIconSize,
+                  color: AppTheme.textSec(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // "Yaklaşan Canlı Yayın" alt şeridi.
+  // DÜRÜST NOT: Bu bölüm tasarımda var ama backend'de henüz "yaklaşan canlı
+  // yayın" verisini döndüren bir endpoint/controller alanı yok — bu yüzden
+  // metinler şimdilik tasarımdaki örnekle aynı şekilde SABİT (placeholder).
+  // Gerçek veri (etkinlik başlığı/saati) eklenince buraya bağlanmalı;
+  // "Hatırlat" butonunun onTap'i de bu sebeple boş bırakıldı.
+  Widget _buildUpcomingLiveBanner(BuildContext context, {required bool isTablet}) {
+    final scheme = Theme.of(context).colorScheme;
+    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    final vGap = isTablet ? 24.0 : 24.h;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hPad, vGap, hPad, isTablet ? 16 : 16.h),
+      child: Container(
+        padding: EdgeInsets.all(isTablet ? 16 : 16.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [scheme.surfaceContainerHigh, scheme.surfaceContainer],
+          ),
+          borderRadius: BorderRadius.circular(isTablet ? 20 : 20.r),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: isTablet ? 40 : 40.w,
+              height: isTablet ? 40 : 40.w,
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(isTablet ? 12 : 12.r),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.live_tv_rounded,
+                color: scheme.primary,
+                size: isTablet ? 24 : 24.sp,
+              ),
+            ),
+            SizedBox(width: isTablet ? 12 : 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Yaklaşan Canlı Yayın',
+                    style: TextStyle(
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isTablet ? 14 : 14.sp,
+                    ),
+                  ),
+                  Text(
+                    'Yarın 14:00 • ODTÜ Mezuniyet Töreni',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: isTablet ? 12 : 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: isTablet ? 8 : 8.w),
+            InkWell(
+              borderRadius: BorderRadius.circular(isTablet ? 8 : 8.r),
+              onTap: () {},
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 14 : 14.w,
+                  vertical: isTablet ? 8 : 8.h,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.primary,
+                  borderRadius: BorderRadius.circular(isTablet ? 8 : 8.r),
+                ),
+                child: Text(
+                  'Hatırlat',
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: isTablet ? 13 : 13.sp,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildContentSliver(BuildContext context) {
     if (controller.isLoading.value) {
       return SliverToBoxAdapter(
@@ -728,27 +1000,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 _TabletSizes.contentTitlePadHorizontal,
                 _TabletSizes.contentTitlePadBottom,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Üniversitelerin Son Videoları',
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: _TabletSizes.contentTitleFontSize,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.contentTitleSubSpacing),
-                  Text(
-                    'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _TabletSizes.contentSubtitleFontSize,
-                    ),
-                  ),
-                ],
-              ),
+              child: _buildContentHeader(context, isTablet: true),
             ),
           ),
           SliverPadding(
@@ -815,27 +1067,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               _PhoneSizes.titleSpacingLarge.w,
               _PhoneSizes.contentTitlePadBottom.h,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Üniversitelerin Son Videoları',
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontSize: _PhoneSizes.contentTitleFontSize.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: _PhoneSizes.contentTitleSubSpacing.h),
-                Text(
-                  'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: _PhoneSizes.contentSubtitleFontSize.sp,
-                  ),
-                ),
-              ],
-            ),
+            child: _buildContentHeader(context, isTablet: false),
           ),
         ),
         SliverList(
@@ -1222,12 +1454,18 @@ class _ViewModeButton extends StatelessWidget {
     required this.tooltip,
     required this.selected,
     required this.onTap,
+    required this.size,
+    required this.iconSize,
   });
 
   final IconData icon;
   final String tooltip;
   final bool selected;
   final VoidCallback onTap;
+  // Artık ScreenUtil'e körü körüne güvenmiyor — çağıran taraf (isTablet'e
+  // göre _PhoneSizes/_TabletSizes'tan seçilmiş) sabit değeri veriyor.
+  final double size;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -1238,8 +1476,8 @@ class _ViewModeButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         onTap: onTap,
         child: Container(
-          width: 32.w,
-          height: 32.w,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: selected ? scheme.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(AppTheme.radiusSm),
@@ -1247,7 +1485,7 @@ class _ViewModeButton extends StatelessWidget {
           alignment: Alignment.center,
           child: Icon(
             icon,
-            size: 18.sp,
+            size: iconSize,
             color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
           ),
         ),
@@ -1267,12 +1505,16 @@ class _CategoryChip extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.scheme,
+    required this.padH,
+    required this.padV,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
   final ColorScheme scheme;
+  final double padH;
+  final double padV;
 
   @override
   Widget build(BuildContext context) {
@@ -1280,7 +1522,7 @@ class _CategoryChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppTheme.radiusFull),
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
         decoration: BoxDecoration(
           color: selected
               ? scheme.primary.withValues(alpha: 0.20)

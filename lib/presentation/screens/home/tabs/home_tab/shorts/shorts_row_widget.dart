@@ -184,7 +184,8 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     });
   }
 
-  // ── "Shorts" Bölüm Başlığı — Phone ─────────────────────────────────────
+  // ── "Üniversite Shorts" Bölüm Başlığı — Phone ──────────────────────────
+  // Tasarım: sol → ⚡ ikon + "Üniversite Shorts" başlığı; sağ → "Tümü >" linki
   Widget _buildSectionTitlePhone(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -194,19 +195,51 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         _PhoneSizes.sectionPadBottom.h,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.bolt_rounded,
-            size: _PhoneSizes.sectionIconSize.sp,
-            color: AppTheme.primaryColor,
+          Row(
+            children: [
+              Icon(
+                Icons.bolt_rounded,
+                size: _PhoneSizes.sectionIconSize.sp,
+                color: AppTheme.primaryColor,
+              ),
+              SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
+              Text(
+                'Üniversite Shorts',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: _PhoneSizes.sectionTitleFontSize.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
-          Text(
-            'Shorts',
-            style: TextStyle(
-              color: AppTheme.textPri(context),
-              fontSize: _PhoneSizes.sectionTitleFontSize.sp,
-              fontWeight: FontWeight.bold,
+          // TODO(kasım): "Tümü" — tüm shorts'ları gösteren ayrı bir ekrana
+          // yönlendirme henüz bağlanmadı; onTap boş bırakıldı.
+          InkWell(
+            borderRadius: BorderRadius.circular(6.r),
+            onTap: () {},
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tümü',
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 16.sp,
+                    color: AppTheme.primaryColor,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -214,7 +247,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     );
   }
 
-  // ── "Shorts" Bölüm Başlığı — Tablet ────────────────────────────────────
+  // ── "Üniversite Shorts" Bölüm Başlığı — Tablet ─────────────────────────
   Widget _buildSectionTitleTablet(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -224,19 +257,50 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         _TabletSizes.sectionPadBottom,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.bolt_rounded,
-            size: _TabletSizes.sectionIconSize,
-            color: AppTheme.primaryColor,
+          Row(
+            children: [
+              Icon(
+                Icons.bolt_rounded,
+                size: _TabletSizes.sectionIconSize,
+                color: AppTheme.primaryColor,
+              ),
+              SizedBox(width: _TabletSizes.sectionIconSpacing),
+              Text(
+                'Üniversite Shorts',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: _TabletSizes.sectionTitleFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: _TabletSizes.sectionIconSpacing),
-          Text(
-            'Shorts',
-            style: TextStyle(
-              color: AppTheme.textPri(context),
-              fontSize: _TabletSizes.sectionTitleFontSize,
-              fontWeight: FontWeight.bold,
+          // TODO(kasım): "Tümü" — onTap boş bırakıldı, bkz. phone versiyonu.
+          InkWell(
+            borderRadius: BorderRadius.circular(6),
+            onTap: () {},
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tümü',
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: AppTheme.primaryColor,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

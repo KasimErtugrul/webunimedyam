@@ -1,8 +1,15 @@
 // lib/presentation/screens/home/tabs/home_tab/widgets/continue_watching_section_widget.dart
 //
 // "İzlemeye Devam Et" — ana sayfada, kullanıcının yarıda bıraktığı videoları
-// gösteren yatay liste. Veri tamamen local (Hive) kaynaklıdır; herhangi bir
-// ağ isteği yapılmaz.
+// gösteren DİKEY (üst üste dizili) liste. Veri tamamen local (Hive)
+// kaynaklıdır; herhangi bir ağ isteği yapılmaz.
+//
+// TASARIM NOTU: stitch_nitv_mobile_platform/ana_sayfa tasarımındaki "BÖLÜM 2"
+// ile birebir aynı: tam genişlik kartlar (yatay mini-thumbnail + sağda
+// başlık/kanal/ilerleme metni + sağ üstte X butonu), kartın en altında
+// tam genişlikte ince ilerleme çubuğu. Önceki sürüm yatay kaydırmalı, büyük
+// 16:9 thumbnail'li kartlar kullanıyordu — tasarımda öyle değil, bu yüzden
+// aşağıdaki yapı tasarıma göre yeniden yazıldı.
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +17,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
-import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/watch_progress_model.dart';
 
@@ -27,45 +33,45 @@ class _PhoneSizes {
   static const double sectionIconSize = 18;
   static const double sectionIconSpacing = 6;
   static const double sectionTitleFontSize = 16;
+  static const double sectionCountFontSize = 12;
 
-  // Liste
-  static const double listHeight = 178;
+  // Liste (dikey — kartlar arası boşluk)
   static const double listPadHorizontal = 16;
+  static const double listGap = 8;
   static const double listBottomSpacing = 8;
 
   // Kart
-  static const double cardWidth = 168;
-  static const double cardMarginRight = 12;
-  static const double cardBorderRadius = 14;
+  static const double cardBorderRadius = 12;
+  static const double cardInnerPadding = 8;
+  static const double cardGap = 8;
 
-  // Küçük resim (thumbnail)
-  static const double gradientHeight = 30;
-  static const double remainingBottom = 9;
-  static const double remainingLeft = 8;
-  static const double remainingFontSize = 9.5;
-  static const double removeTop = 6;
-  static const double removeRight = 6;
-  static const double removePadding = 3;
-  static const double removeIconSize = 14;
-  static const double playIconSize = 34;
-  static const double progressMinHeight = 3;
-  static const double errorIconSize = 32;
+  // Küçük resim (thumbnail) — tasarım: w-28 h-20 (112x80)
+  static const double thumbWidth = 112;
+  static const double thumbHeight = 80;
+  static const double thumbBorderRadius = 8;
+  static const double playOverlaySize = 32;
+  static const double playIconSize = 20;
+  static const double errorIconSize = 24;
 
-  // Metin alanı
-  static const double textPadLeft = 8;
-  static const double textPadTop = 6;
-  static const double textPadRight = 8;
-  static const double textPadBottom = 8;
-  static const double titleFontSize = 11;
+  // İçerik
+  static const double contentPaddingRight = 22;
+  static const double verifiedIconSize = 13;
+  static const double channelFontSize = 11;
+  static const double channelIconSpacing = 4;
+  static const double titleFontSize = 13.5;
   static const double titleLineHeight = 1.25;
-  static const double titleSubSpacing = 3;
-  static const double subtitleFontSize = 9.5;
+  static const double titleTopSpacing = 2;
+  static const double metaTopSpacing = 6;
+  static const double metaFontSize = 11;
 
-  // Opaklıklar
-  static const double removeBgAlpha = 0.55;
-  static const double gradientEndAlpha = 0.75;
-  static const double playIconAlpha = 0.85;
-  static const double progressBgAlpha = 0.3;
+  // Kaldır (X) butonu
+  static const double removeSize = 26;
+  static const double removeIconSize = 15;
+  static const double removeTop = 8;
+  static const double removeRight = 8;
+
+  // İlerleme çubuğu
+  static const double progressHeight = 3;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -81,45 +87,45 @@ class _TabletSizes {
   static const double sectionIconSize = 20;
   static const double sectionIconSpacing = 8;
   static const double sectionTitleFontSize = 18;
+  static const double sectionCountFontSize = 13;
 
-  // Liste
-  static const double listHeight = 176;
+  // Liste (dikey — kartlar arası boşluk)
   static const double listPadHorizontal = 24;
+  static const double listGap = 10;
   static const double listBottomSpacing = 8;
 
   // Kart
-  static const double cardWidth = 200;
-  static const double cardMarginRight = 16;
-  static const double cardBorderRadius = 12;
+  static const double cardBorderRadius = 14;
+  static const double cardInnerPadding = 10;
+  static const double cardGap = 10;
 
   // Küçük resim (thumbnail)
-  static const double gradientHeight = 28;
-  static const double remainingBottom = 8;
-  static const double remainingLeft = 8;
-  static const double remainingFontSize = 10;
-  static const double removeTop = 6;
-  static const double removeRight = 6;
-  static const double removePadding = 4;
-  static const double removeIconSize = 14;
-  static const double playIconSize = 36;
-  static const double progressMinHeight = 3;
-  static const double errorIconSize = 34;
+  static const double thumbWidth = 132;
+  static const double thumbHeight = 94;
+  static const double thumbBorderRadius = 10;
+  static const double playOverlaySize = 36;
+  static const double playIconSize = 22;
+  static const double errorIconSize = 28;
 
-  // Metin alanı
-  static const double textPadLeft = 8;
-  static const double textPadTop = 6;
-  static const double textPadRight = 8;
-  static const double textPadBottom = 8;
-  static const double titleFontSize = 12;
+  // İçerik
+  static const double contentPaddingRight = 26;
+  static const double verifiedIconSize = 14;
+  static const double channelFontSize = 12;
+  static const double channelIconSpacing = 4;
+  static const double titleFontSize = 15;
   static const double titleLineHeight = 1.25;
-  static const double titleSubSpacing = 3;
-  static const double subtitleFontSize = 10;
+  static const double titleTopSpacing = 2;
+  static const double metaTopSpacing = 6;
+  static const double metaFontSize = 12;
 
-  // Opaklıklar
-  static const double removeBgAlpha = 0.55;
-  static const double gradientEndAlpha = 0.75;
-  static const double playIconAlpha = 0.85;
-  static const double progressBgAlpha = 0.3;
+  // Kaldır (X) butonu
+  static const double removeSize = 28;
+  static const double removeIconSize = 16;
+  static const double removeTop = 8;
+  static const double removeRight = 8;
+
+  // İlerleme çubuğu
+  static const double progressHeight = 4;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -147,6 +153,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
 
   // ── Phone ──────────────────────────────────────────────
   Widget _buildPhone(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -160,40 +167,46 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.play_circle_fill_rounded,
+                Icons.history_rounded,
                 size: _PhoneSizes.sectionIconSize.sp,
-                color: AppTheme.primaryColor,
+                color: scheme.primary,
               ),
               SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
               Expanded(
                 child: Text(
                   'İzlemeye Devam Et',
                   style: TextStyle(
-                    color: AppTheme.textPri(context),
+                    color: scheme.onSurface,
                     fontSize: _PhoneSizes.sectionTitleFontSize.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+              Text(
+                '${items.length} video',
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: _PhoneSizes.sectionCountFontSize.sp,
+                ),
+              ),
             ],
           ),
         ),
-        SizedBox(
-          height: _PhoneSizes.listHeight.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: _PhoneSizes.listPadHorizontal.w,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _CardPhone(
-                key: ValueKey(item.video.videoId),
-                item: item,
-                onRemove: () => onRemove(item.video.videoId),
-              );
-            },
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: _PhoneSizes.listPadHorizontal.w,
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                if (i > 0) SizedBox(height: _PhoneSizes.listGap.h),
+                _CardPhone(
+                  key: ValueKey(items[i].video.videoId),
+                  item: items[i],
+                  onRemove: () => onRemove(items[i].video.videoId),
+                ),
+              ],
+            ],
           ),
         ),
         SizedBox(height: _PhoneSizes.listBottomSpacing.h),
@@ -203,6 +216,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
 
   // ── Tablet ─────────────────────────────────────────────
   Widget _buildTablet(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,40 +230,46 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.play_circle_fill_rounded,
+                Icons.history_rounded,
                 size: _TabletSizes.sectionIconSize,
-                color: AppTheme.primaryColor,
+                color: scheme.primary,
               ),
               SizedBox(width: _TabletSizes.sectionIconSpacing),
               Expanded(
                 child: Text(
                   'İzlemeye Devam Et',
                   style: TextStyle(
-                    color: AppTheme.textPri(context),
+                    color: scheme.onSurface,
                     fontSize: _TabletSizes.sectionTitleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+              Text(
+                '${items.length} video',
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: _TabletSizes.sectionCountFontSize,
+                ),
+              ),
             ],
           ),
         ),
-        SizedBox(
-          height: _TabletSizes.listHeight,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(
-              horizontal: _TabletSizes.listPadHorizontal,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _CardTablet(
-                key: ValueKey(item.video.videoId),
-                item: item,
-                onRemove: () => onRemove(item.video.videoId),
-              );
-            },
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: _TabletSizes.listPadHorizontal,
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                if (i > 0) SizedBox(height: _TabletSizes.listGap),
+                _CardTablet(
+                  key: ValueKey(items[i].video.videoId),
+                  item: items[i],
+                  onRemove: () => onRemove(items[i].video.videoId),
+                ),
+              ],
+            ],
           ),
         ),
         SizedBox(height: _TabletSizes.listBottomSpacing),
@@ -259,7 +279,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// PHONE KARTI
+// PHONE KARTI — tam genişlik, tasarımdaki "Devam Kartı" ile birebir
 // ═══════════════════════════════════════════════════════════════════════
 
 class _CardPhone extends StatelessWidget {
@@ -270,6 +290,7 @@ class _CardPhone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final video = item.video;
 
     return GestureDetector(
@@ -279,157 +300,189 @@ class _CardPhone extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
-        width: _PhoneSizes.cardWidth.w,
-        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
         decoration: BoxDecoration(
-          color: AppTheme.card(context),
+          color: scheme.surfaceContainer,
           borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Thumbnail + ilerleme çubuğu ───────────────────────────
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: video.bestThumbnail,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, _, _) => Container(
-                      color: AppTheme.surface(context),
-                      child: Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: _PhoneSizes.errorIconSize.sp,
-                      ),
-                    ),
-                  ),
-                  // Karartma gradyanı (alt taraf)
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: _PhoneSizes.gradientHeight.h,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(
-                              alpha: _PhoneSizes.gradientEndAlpha,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Kalan süre
-                  Positioned(
-                    bottom: _PhoneSizes.remainingBottom.h,
-                    left: _PhoneSizes.remainingLeft.w,
-                    child: Text(
-                      '${item.formattedRemaining} kaldı',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: _PhoneSizes.remainingFontSize.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  // Kaldır butonu
-                  Positioned(
-                    top: _PhoneSizes.removeTop.h,
-                    right: _PhoneSizes.removeRight.w,
-                    child: GestureDetector(
-                      onTap: onRemove,
-                      child: Container(
-                        padding: EdgeInsets.all(_PhoneSizes.removePadding.w),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(
-                            alpha: _PhoneSizes.removeBgAlpha,
+            Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(_PhoneSizes.cardInnerPadding.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── Thumbnail + oynat overlay ─────────────────────
+                      SizedBox(
+                        width: _PhoneSizes.thumbWidth.w,
+                        height: _PhoneSizes.thumbHeight.h,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            _PhoneSizes.thumbBorderRadius.r,
                           ),
-                          shape: BoxShape.circle,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: video.bestThumbnail,
+                                fit: BoxFit.cover,
+                                placeholder: (_, _) =>
+                                    Container(color: scheme.surfaceContainerHigh),
+                                errorWidget: (_, _, _) => Container(
+                                  color: scheme.surfaceContainerHigh,
+                                  child: Icon(
+                                    Icons.play_circle_outline_rounded,
+                                    color: scheme.onSurfaceVariant,
+                                    size: _PhoneSizes.errorIconSize.sp,
+                                  ),
+                                ),
+                              ),
+                              Container(color: Colors.black.withValues(alpha: 0.25)),
+                              Center(
+                                child: Container(
+                                  width: _PhoneSizes.playOverlaySize.w,
+                                  height: _PhoneSizes.playOverlaySize.w,
+                                  decoration: BoxDecoration(
+                                    color: scheme.primary.withValues(alpha: 0.9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: scheme.onPrimary,
+                                    size: _PhoneSizes.playIconSize.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                          size: _PhoneSizes.removeIconSize.sp,
+                      ),
+                      SizedBox(width: _PhoneSizes.cardGap.w),
+                      // ── İçerik: kanal + başlık + süre ─────────────────
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: _PhoneSizes.contentPaddingRight.w,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          video.universityName ??
+                                              video.channelTitle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: scheme.primary,
+                                            fontSize:
+                                                _PhoneSizes.channelFontSize.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            _PhoneSizes.channelIconSpacing.w,
+                                      ),
+                                      Icon(
+                                        Icons.verified_rounded,
+                                        size:
+                                            _PhoneSizes.verifiedIconSize.sp,
+                                        color: scheme.primary,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: _PhoneSizes.titleTopSpacing.h),
+                                  Text(
+                                    video.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: scheme.onSurface,
+                                      fontSize: _PhoneSizes.titleFontSize.sp,
+                                      fontWeight: FontWeight.w600,
+                                      height: _PhoneSizes.titleLineHeight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: _PhoneSizes.metaTopSpacing.h,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${item.formattedPosition} / ${item.formattedDuration}',
+                                      style: TextStyle(
+                                        color: scheme.onSurfaceVariant,
+                                        fontSize:
+                                            _PhoneSizes.metaFontSize.sp,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${item.formattedRemaining} kaldı',
+                                      style: TextStyle(
+                                        color: scheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize:
+                                            _PhoneSizes.metaFontSize.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                // ── Kaldır (X) butonu ────────────────────────────────
+                Positioned(
+                  top: _PhoneSizes.removeTop.h,
+                  right: _PhoneSizes.removeRight.w,
+                  child: GestureDetector(
+                    onTap: onRemove,
+                    child: Container(
+                      width: _PhoneSizes.removeSize.w,
+                      height: _PhoneSizes.removeSize.w,
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceContainerHigh,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: scheme.onSurfaceVariant,
+                        size: _PhoneSizes.removeIconSize.sp,
                       ),
                     ),
                   ),
-                  // Oynat ikonu (ortada, hafif)
-                  Center(
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white.withValues(
-                        alpha: _PhoneSizes.playIconAlpha,
-                      ),
-                      size: _PhoneSizes.playIconSize.sp,
-                    ),
-                  ),
-                  // İlerleme çubuğu — thumbnail'in en altında
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: ClipRRect(
-                      child: LinearProgressIndicator(
-                        value: item.progressFraction,
-                        minHeight: _PhoneSizes.progressMinHeight.h,
-                        backgroundColor: Colors.white.withValues(
-                          alpha: _PhoneSizes.progressBgAlpha,
-                        ),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // ── Başlık + üniversite ────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                _PhoneSizes.textPadLeft.w,
-                _PhoneSizes.textPadTop.h,
-                _PhoneSizes.textPadRight.w,
-                _PhoneSizes.textPadBottom.h,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: _PhoneSizes.titleFontSize.sp,
-                      fontWeight: FontWeight.w700,
-                      height: _PhoneSizes.titleLineHeight,
-                    ),
-                  ),
-                  SizedBox(height: _PhoneSizes.titleSubSpacing.h),
-                  Text(
-                    video.universityName ?? video.channelTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _PhoneSizes.subtitleFontSize.sp,
-                    ),
-                  ),
-                ],
+            // ── İlerleme çubuğu — kartın tam altında, tam genişlik ────
+            SizedBox(
+              width: double.infinity,
+              height: _PhoneSizes.progressHeight.h,
+              child: LinearProgressIndicator(
+                value: item.progressFraction,
+                minHeight: _PhoneSizes.progressHeight.h,
+                backgroundColor: scheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
               ),
             ),
           ],
@@ -440,7 +493,7 @@ class _CardPhone extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TABLET KARTI
+// TABLET KARTI — aynı yapı, sabit piksel ölçüleriyle
 // ═══════════════════════════════════════════════════════════════════════
 
 class _CardTablet extends StatelessWidget {
@@ -451,6 +504,7 @@ class _CardTablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final video = item.video;
 
     return GestureDetector(
@@ -460,157 +514,187 @@ class _CardTablet extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
-        width: _TabletSizes.cardWidth,
-        margin: EdgeInsets.only(right: _TabletSizes.cardMarginRight),
         decoration: BoxDecoration(
-          color: AppTheme.card(context),
+          color: scheme.surfaceContainer,
           borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Thumbnail + ilerleme çubuğu ───────────────────────────
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: video.bestThumbnail,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        Container(color: AppTheme.surface(context)),
-                    errorWidget: (_, _, _) => Container(
-                      color: AppTheme.surface(context),
-                      child: Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.textSec(context),
-                        size: _TabletSizes.errorIconSize,
-                      ),
-                    ),
-                  ),
-                  // Karartma gradyanı (alt taraf)
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: _TabletSizes.gradientHeight,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(
-                              alpha: _TabletSizes.gradientEndAlpha,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Kalan süre
-                  Positioned(
-                    bottom: _TabletSizes.remainingBottom,
-                    left: _TabletSizes.remainingLeft,
-                    child: Text(
-                      '${item.formattedRemaining} kaldı',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: _TabletSizes.remainingFontSize,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  // Kaldır butonu
-                  Positioned(
-                    top: _TabletSizes.removeTop,
-                    right: _TabletSizes.removeRight,
-                    child: GestureDetector(
-                      onTap: onRemove,
-                      child: Container(
-                        padding: EdgeInsets.all(_TabletSizes.removePadding),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(
-                            alpha: _TabletSizes.removeBgAlpha,
+            Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(_TabletSizes.cardInnerPadding),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: _TabletSizes.thumbWidth,
+                        height: _TabletSizes.thumbHeight,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            _TabletSizes.thumbBorderRadius,
                           ),
-                          shape: BoxShape.circle,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: video.bestThumbnail,
+                                fit: BoxFit.cover,
+                                placeholder: (_, _) =>
+                                    Container(color: scheme.surfaceContainerHigh),
+                                errorWidget: (_, _, _) => Container(
+                                  color: scheme.surfaceContainerHigh,
+                                  child: Icon(
+                                    Icons.play_circle_outline_rounded,
+                                    color: scheme.onSurfaceVariant,
+                                    size: _TabletSizes.errorIconSize,
+                                  ),
+                                ),
+                              ),
+                              Container(color: Colors.black.withValues(alpha: 0.25)),
+                              Center(
+                                child: Container(
+                                  width: _TabletSizes.playOverlaySize,
+                                  height: _TabletSizes.playOverlaySize,
+                                  decoration: BoxDecoration(
+                                    color: scheme.primary.withValues(alpha: 0.9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: scheme.onPrimary,
+                                    size: _TabletSizes.playIconSize,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                          size: _TabletSizes.removeIconSize,
+                      ),
+                      SizedBox(width: _TabletSizes.cardGap),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: _TabletSizes.contentPaddingRight,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          video.universityName ??
+                                              video.channelTitle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: scheme.primary,
+                                            fontSize:
+                                                _TabletSizes.channelFontSize,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            _TabletSizes.channelIconSpacing,
+                                      ),
+                                      Icon(
+                                        Icons.verified_rounded,
+                                        size:
+                                            _TabletSizes.verifiedIconSize,
+                                        color: scheme.primary,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: _TabletSizes.titleTopSpacing,
+                                  ),
+                                  Text(
+                                    video.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: scheme.onSurface,
+                                      fontSize: _TabletSizes.titleFontSize,
+                                      fontWeight: FontWeight.w600,
+                                      height: _TabletSizes.titleLineHeight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: _TabletSizes.metaTopSpacing,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${item.formattedPosition} / ${item.formattedDuration}',
+                                      style: TextStyle(
+                                        color: scheme.onSurfaceVariant,
+                                        fontSize:
+                                            _TabletSizes.metaFontSize,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${item.formattedRemaining} kaldı',
+                                      style: TextStyle(
+                                        color: scheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize:
+                                            _TabletSizes.metaFontSize,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: _TabletSizes.removeTop,
+                  right: _TabletSizes.removeRight,
+                  child: GestureDetector(
+                    onTap: onRemove,
+                    child: Container(
+                      width: _TabletSizes.removeSize,
+                      height: _TabletSizes.removeSize,
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceContainerHigh,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: scheme.onSurfaceVariant,
+                        size: _TabletSizes.removeIconSize,
                       ),
                     ),
                   ),
-                  // Oynat ikonu (ortada, hafif)
-                  Center(
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white.withValues(
-                        alpha: _TabletSizes.playIconAlpha,
-                      ),
-                      size: _TabletSizes.playIconSize,
-                    ),
-                  ),
-                  // İlerleme çubuğu — thumbnail'in en altında
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: ClipRRect(
-                      child: LinearProgressIndicator(
-                        value: item.progressFraction,
-                        minHeight: _TabletSizes.progressMinHeight,
-                        backgroundColor: Colors.white.withValues(
-                          alpha: _TabletSizes.progressBgAlpha,
-                        ),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // ── Başlık + üniversite ────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                _TabletSizes.textPadLeft,
-                _TabletSizes.textPadTop,
-                _TabletSizes.textPadRight,
-                _TabletSizes.textPadBottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textPri(context),
-                      fontSize: _TabletSizes.titleFontSize,
-                      fontWeight: FontWeight.w700,
-                      height: _TabletSizes.titleLineHeight,
-                    ),
-                  ),
-                  SizedBox(height: _TabletSizes.titleSubSpacing),
-                  Text(
-                    video.universityName ?? video.channelTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _TabletSizes.subtitleFontSize,
-                    ),
-                  ),
-                ],
+            SizedBox(
+              width: double.infinity,
+              height: _TabletSizes.progressHeight,
+              child: LinearProgressIndicator(
+                value: item.progressFraction,
+                minHeight: _TabletSizes.progressHeight,
+                backgroundColor: scheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
               ),
             ),
           ],
