@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface": "#0b1322", "on-secondary-fixed-variant": "#005137", "primary-fixed-dim": "#4edea3", "tertiary": "#ffb3ad", "on-tertiary-fixed": "#410004", "outline": "#86948a", "surface-variant": "#2d3545", "surface-container-low": "#141c2b", "surface-container-high": "#222a3a", "on-error-container": "#ffdad6", "surface-dim": "#0b1322", "inverse-surface": "#dbe2f7", "surface-container-lowest": "#060e1d", "primary": "#4edea3", "on-primary-fixed-variant": "#005236", "secondary": "#45dfa4", "tertiary-container": "#ff7a73", "error": "#ffb4ab", "background": "#0b1322", "on-background": "#dbe2f7", "secondary-fixed-dim": "#45dfa4", "inverse-primary": "#006c49", "on-surface": "#dbe2f7", "on-tertiary-fixed-variant": "#930013", "on-error": "#690005", "tertiary-fixed": "#ffdad7", "on-primary": "#003824", "secondary-fixed": "#68fcbf", "on-secondary-container": "#00452e", "on-tertiary": "#68000a", "secondary-container": "#00bd85", "on-surface-variant": "#bbcabf", "on-tertiary-container": "#79000e", "surface-container": "#18202f", "on-primary-container": "#00422b", "on-secondary": "#003825", "inverse-on-surface": "#293040", "surface-container-highest": "#2d3545", "surface-bright": "#31394a", "on-primary-fixed": "#002113", "primary-fixed": "#6ffbbe", "on-secondary-fixed": "#002114", "outline-variant": "#3c4a42", "tertiary-fixed-dim": "#ffb3ad", "error-container": "#93000a", "surface-tint": "#4edea3", "primary-container": "#10b981" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-sm": "0.75rem", "space-xs": "0.25rem", "gutter-sm": "0.75rem", "margin": "1rem", "space-lg": "1.5rem", "space-xl": "2rem", "gutter": "1rem", "space-sm": "0.5rem", "space-md": "1rem", "margin-lg": "1.5rem" }, "fontFamily": { "headline-xl-mobile": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"] }, "fontSize": { "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.025em", "fontWeight": "800" }], "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;background-color:#0b1322;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[24px]">play_circle</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface flex items-center gap-1">Üni<span class="text-primary">TV</span></span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none uppercase tracking-wider">Kampüs Yayını</span></div></div><div class="flex items-center gap-space-sm"><span class="hidden">Ana Sayfa</span><button aria-label="Canlı Yayınlar" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[22px]">sensors</span></button><button aria-label="Bildirimler" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full text-on-surface">
+<!-- Üst Yardımcı Çubuk: Canlı Radyo & Mod Değiştirici -->
+<section class="px-margin py-space-sm flex items-center justify-between bg-surface-container-lowest/60 backdrop-blur-md">
+<!-- Canlı Kampüs Radyosu Düğmesi -->
+<button class="flex items-center gap-space-sm py-1.5 px-3 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors active:scale-95 group">
+<div class="relative flex items-center justify-center">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping absolute opacity-75"></span>
+<span class="w-2 h-2 rounded-full bg-primary relative"></span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-primary group-hover:rotate-12 transition-transform">radio</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Kampüs FM Canlı</span>
+<span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-bold ml-0.5">YAYINDA</span>
+</button>
+<!-- Görünüm Modu Seçici (Liste vs Çark) -->
+<div class="flex items-center bg-surface-container rounded-lg p-0.5">
+<button class="flex items-center justify-center w-8 h-8 rounded bg-primary text-on-primary shadow-sm transition-all" id="view-mode-list" title="Liste Görünümü">
+<span class="material-symbols-outlined text-[18px]">view_agenda</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded text-on-surface-variant hover:text-on-surface transition-all" id="view-mode-wheel" title="Çark / Grid Görünümü">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+</div>
+</section>
+<!-- Kategori / Filtre Hapları -->
+<section class="px-margin py-space-sm overflow-x-auto flex items-center gap-space-sm no-scrollbar">
+<button class="px-3.5 py-1.5 rounded-full bg-primary/20 text-primary font-label-md text-label-md font-bold shrink-0">Tümü</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md shrink-0">Mühendislik &amp; Teknoloji</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md shrink-0">Tıp &amp; Sağlık</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md shrink-0">Kampüs &amp; Kültür</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md shrink-0">Akademik Dersler</button>
+</section>
+<!-- BÖLÜM 1: Üniversite Shorts (9:16 Carousel) -->
+<section class="mt-space-md flex flex-col">
+<div class="px-margin flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">electric_bolt</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Üniversite Shorts</h2>
+</div>
+<a class="flex items-center gap-0.5 font-label-md text-label-md text-primary font-bold hover:underline" href="#">
+        Tümü <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<!-- Yatay Kaydırmalı Kartlar -->
+<div class="flex overflow-x-auto px-margin gap-space-sm pb-space-xs no-scrollbar snap-x">
+<!-- Shorts Kart 1: İTÜ -->
+<div class="relative shrink-0 w-36 aspect-[9/16] rounded-xl overflow-hidden snap-start bg-surface-container-high group cursor-pointer shadow-md">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Modern university laboratory interior at night with students testing a lightweight carbon fiber electric race car with neon emerald lights reflecting on metallic surfaces." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDkA-5nVCelWK4ZsWjvSWO4Q6hAFTc2aJ9a3-rUMI2nt1pr_7a13p404umZW3cQ8oi6ENJQ5BztrOOYoT-rsOJ-jCrSGyw8NdyIQ5hJ0Sj9Y0Vt-q3CR_jSuf-Y-7ZHH2_xPKrQr11B-gZBQhxzoshoPQxnDK-4xs-dYv87DBYAkyXCLE4OBDLIJI-E6eZGLheKJMzSXL2bsJRJA_IAK7RZ_Zp31ovWpbjEm0cePDqSPsVlGX28druS')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<!-- Süre Rozeti -->
+<div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+          0:45
+        </div>
+<!-- Canlı/Yeni İkonu -->
+<div class="absolute top-2 left-2 w-6 h-6 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+</div>
+<!-- Alt Bilgi -->
+<div class="absolute bottom-2 inset-x-2 flex flex-col gap-1">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-[9px] shrink-0">
+              İTÜ
+            </div>
+<span class="font-label-sm text-label-sm text-on-surface font-bold truncate">İTÜ Racing</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-2 leading-tight">
+            Kampüste Bir Gün: Atölye Maratonu!
+          </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">2 saat önce</span>
+</div>
+</div>
+<!-- Shorts Kart 2: ODTÜ -->
+<div class="relative shrink-0 w-36 aspect-[9/16] rounded-xl overflow-hidden snap-start bg-surface-container-high group cursor-pointer shadow-md">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Cinematic drone shot of ODTU sunny campus forest pathway with students walking under autumn trees, modern brutalist architecture in the background." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWA8eAXcD6m6QO8QX5olAUFHnprTJO_I8ZrGZyX1JlMvtDZC-s3YltW6zVe_cHkSOXNfk2cpG0Lx8I2izGJaZflQZDDl0vqpaSdgvFjRDSYoWXWA6Uh0jwyaSzmRO5yuQwkA2Z-AxhRaTZ7U_vH6WaOcVbObdkQFdXl1tZJCUAWxRkbd4_efDV2KVQXEPjbL_vpEt3APaBCfJbVE612slwZrk3tI_3YtDND04SUDTk5oTkZv29XbmO')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+          1:15
+        </div>
+<div class="absolute bottom-2 inset-x-2 flex flex-col gap-1">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container font-bold text-[8px] shrink-0">
+              ODTÜ
+            </div>
+<span class="font-label-sm text-label-sm text-on-surface font-bold truncate">ODTÜ Robotik</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-2 leading-tight">
+            Yapay Zeka Laboratuvarı Turu
+          </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">4 saat önce</span>
+</div>
+</div>
+<!-- Shorts Kart 3: Boğaziçi -->
+<div class="relative shrink-0 w-36 aspect-[9/16] rounded-xl overflow-hidden snap-start bg-surface-container-high group cursor-pointer shadow-md">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Historical stone university quad overlooking the blue Bosphorus strait in Istanbul, students sitting on green lawns studying with laptops." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTjsEgdec035LSQXTgAUajuMvY7fJ7bvSSqtL3n8RxZ2gvIqMjEIea4KAXMOYThmqIKIR83mWNTqYFKU6kJs4hrPEyUYwd_f28U34fH83Vr82VL1F642THcQrUc2eh4WeScSLu3Ce13-onjHzfmvO2DDhHzictRgY8rV3Nh8n_BghzFmD5dsKLtWwn6sQrnaRO2fznLhDEMbPAPM5xRX0ggnzmHPFOQLMUIT1OldkoQ304gPBOjHpy')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+          0:58
+        </div>
+<div class="absolute bottom-2 inset-x-2 flex flex-col gap-1">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-[8px] shrink-0">
+              BÜ
+            </div>
+<span class="font-label-sm text-label-sm text-on-surface font-bold truncate">Boğaziçi Müzik</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-2 leading-tight">
+            Güney Meydan Akustik Dinletisi
+          </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">6 saat önce</span>
+</div>
+</div>
+<!-- Shorts Kart 4: Hacettepe -->
+<div class="relative shrink-0 w-36 aspect-[9/16] rounded-xl overflow-hidden snap-start bg-surface-container-high group cursor-pointer shadow-md">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Medical students in white lab coats operating advanced surgical virtual reality training equipment in a high-tech university simulation center." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrDZWZuHcFT8gnWe6w-5en84OMB1euNt10qHrMCzaCXMpANmIHhhakTXs0XQbr5N63xRvGCEOaGEOrqY6yHuPw6sJv-NCdu8XHFWNKA-UTd1lloBosInDrsimz6zmas9h5Pv-N-vsqKfmyzMKkIYvBe8O290kTnc02GCatwpNUF6tYuNjlHB6Dd8V0hExsyNNyg7PgZ0gMFyJElltQQkiNWS3ucdCFgNiAF-tPKMXA023iEXhTys2a')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/30 to-transparent"></div>
+<div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+          1:02
+        </div>
+<div class="absolute bottom-2 inset-x-2 flex flex-col gap-1">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-[8px] shrink-0">
+              HÜ
+            </div>
+<span class="font-label-sm text-label-sm text-on-surface font-bold truncate">Hacettepe Tıp</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-2 leading-tight">
+            Sanal Ameliyathanede İlk Gün
+          </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">1 gün önce</span>
+</div>
+</div>
+</div>
+</section>
+<!-- BÖLÜM 2: İzlemeye Devam Et -->
+<section class="mt-space-lg px-margin flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">history</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">İzlemeye Devam Et</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 video</span>
+</div>
+<!-- Yatay Kartlar Container -->
+<div class="flex flex-col gap-space-sm">
+<!-- Devam Kartı 1: ODTÜ Kuantum -->
+<div class="relative flex flex-col bg-surface-container rounded-xl overflow-hidden shadow-sm group" id="continue-card-1">
+<div class="flex p-space-sm gap-space-sm">
+<!-- Thumbnail + Play Overlay -->
+<div class="relative w-28 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-container-high">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Physics professor writing complex quantum mechanics equations on a large glass blackboard in a modern amphitheater with green laser projections." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyQSvLKMbuDLfF0Ht6T0j0DavvasWNY29k3kwI-p2LO7ILY6-D0EnhR-9X2k-23r4r6usOKCfVDVd816c7dBzOcd5-rCrRCs84PGjH2A6nR-DseGv5PyDgjwaFRzDTc47tMFniqRRL-ey-p5sDHC8sFLXttqgs3UkMi1C09lqYImvnqpFPckOYnnbDAM5G8Cxa-Y3eGt9jjcyPJBW4CjVuu9-DbrboW2Qipdrsmi3rOcI2xhIFdql-')">
+</div>
+<div class="absolute inset-0 bg-surface-container-lowest/40 flex items-center justify-center group-hover:bg-surface-container-lowest/20 transition-colors">
+<div class="w-8 h-8 rounded-full bg-primary/90 text-on-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+</div>
+</div>
+</div>
+<!-- İçerik Detayı -->
+<div class="flex flex-col justify-between flex-1 min-w-0 pr-6">
+<div>
+<div class="flex items-center gap-1 mb-0.5">
+<span class="font-label-sm text-label-sm text-primary font-bold">ODTÜ Fizik</span>
+<span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold truncate leading-snug">
+                Kuantum Fiziğine Giriş - Bölüm 2
+              </h3>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mt-1">
+<span>14:20 / 22:00</span>
+<span class="text-primary font-semibold">7:40 kaldı</span>
+</div>
+</div>
+<!-- Kapatma (X) Butonu -->
+<button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" onclick="document.getElementById('continue-card-1').style.display='none'" title="Listeden Kaldır">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- İlerleme Çubuğu (%65) -->
+<div class="w-full h-1 bg-surface-container-highest">
+<div class="h-full bg-primary rounded-r" style="width: 65%;"></div>
+</div>
+</div>
+<!-- Devam Kartı 2: Hacettepe Tıp Tanıtımı -->
+<div class="relative flex flex-col bg-surface-container rounded-xl overflow-hidden shadow-sm group" id="continue-card-2">
+<div class="flex p-space-sm gap-space-sm">
+<div class="relative w-28 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-container-high">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Modern medical faculty library and laboratory building exterior with green landscaped garden and university students discussing in small groups." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfWENtGD5e-5QPFf_QWELJORCCyTeQHrQLMz6T3aaBq3VuYJUs0T92uSxGRrXQYgEXRn4fvdwuWrFIHLcWE5LSBnMbtCJJf6o4LdF4I6VaMTddo_mIO3uEXOHh3GGz3kyF9ezaaSuacrB_vLbD16UjXzvylOF-gLfUPhOMe4FGkY5CzKW0uJ5fN9DjNB6yrw4snCb42IPddz631b1M2zR8zl_DAT228hFfas9nGd_IqBzdxzgGjhHr')">
+</div>
+<div class="absolute inset-0 bg-surface-container-lowest/40 flex items-center justify-center group-hover:bg-surface-container-lowest/20 transition-colors">
+<div class="w-8 h-8 rounded-full bg-primary/90 text-on-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0 pr-6">
+<div>
+<div class="flex items-center gap-1 mb-0.5">
+<span class="font-label-sm text-label-sm text-primary font-bold">Hacettepe Üniversitesi</span>
+<span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold truncate leading-snug">
+                Tıp Fakültesi &amp; Klinik Tanıtımı
+              </h3>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mt-1">
+<span>08:10 / 25:30</span>
+<span class="text-primary font-semibold">17:20 kaldı</span>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" onclick="document.getElementById('continue-card-2').style.display='none'" title="Listeden Kaldır">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- İlerleme Çubuğu (%32) -->
+<div class="w-full h-1 bg-surface-container-highest">
+<div class="h-full bg-primary rounded-r" style="width: 32%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- BÖLÜM 3: Üniversitelerin Son Videoları (Dikey Akış) -->
+<section class="mt-space-lg px-margin flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">video_library</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Üniversitelerin Son Videoları</h2>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md">
+<span>En Yeniler</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Video Feed Container -->
+<div class="flex flex-col gap-space-lg" id="video-feed-container">
+<!-- Video Kart 1: İTÜ Güneş Arabası -->
+<article class="flex flex-col bg-surface-container rounded-2xl overflow-hidden shadow-md">
+<!-- Kanal Başlığı & Meta -->
+<div class="p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-label-md">
+              İTÜ
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">İTÜ Resmi Kanalı</span>
+<span class="material-symbols-outlined text-primary text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-none">3 saat önce • Mühendislik Kulübü</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- 16:9 Thumbnail -->
+<div class="relative w-full aspect-video bg-surface-container-high overflow-hidden cursor-pointer group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-102" data-alt="Futuristic solar powered race car surrounded by student engineers smiling in front of Istanbul Technical University faculty of mechanical engineering." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB63DHSTBCEiG-YnIT168FlajOpu2pFlVLNWAR_oR7kAZpeOzvOhhx8cKDwZXBHpQJ0Gj8o1apsbxT3lIZpk5TSz_xYhmsTxs5qlLd8U4IceGf1FVOp9Jqi9Au2_zJ8rljirkaKwyKVU7Efjsebk1ew_LUs0lpmicEEtTRh6Hs2wabR0AVvn4Oqm9rXouEskTgiXVuaKJnpHhw89bIs4pqbAYd42Kl1kB7qtFcxDP3XZ_d7k_tcmtL0')">
+</div>
+<!-- Canlı/Süre Rozeti -->
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-surface-container-lowest/85 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+            18:42
+          </div>
+<!-- Hafif Karartma & Oynat Butonu -->
+<div class="absolute inset-0 bg-surface-container-lowest/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-xl transform scale-90 group-hover:scale-100 transition-transform">
+<span class="material-symbols-outlined text-[28px]">play_arrow</span>
+</div>
+</div>
+</div>
+<!-- Video Başlık ve Açıklama -->
+<div class="p-space-sm flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug hover:text-primary transition-colors cursor-pointer">
+            Güneş Arabası Takımı Yeni Aracını Tanıttı: ARIBA X Piste Çıkıyor!
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Avustralya Dünya Güneş Yarışması için geliştirilen aerodinamik gövde ve yeni batarya teknolojileri tanıtım lansmanı.
+          </p>
+</div>
+<!-- Etkileşim Butonları -->
+<div class="px-space-sm pb-space-sm pt-1 flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="font-bold">1.2K</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+<span>84</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="hidden xs:inline">Paylaş</span>
+</button>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>14K izlenme</span>
+</div>
+</div>
+</article>
+<!-- Video Kart 2: Boğaziçi Konser Kaydı -->
+<article class="flex flex-col bg-surface-container rounded-2xl overflow-hidden shadow-md">
+<div class="p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-label-md">
+              BÜ
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Boğaziçi Üniversitesi</span>
+<span class="material-symbols-outlined text-primary text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-none">5 saat önce • Kültür &amp; Sanat</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="relative w-full aspect-video bg-surface-container-high overflow-hidden cursor-pointer group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-102" data-alt="Open air spring university festival stage packed with energetic college students singing under vibrant neon stage lighting at sunset by the seaside." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA3OT4LzvP2_GkE-alQQxVOYwhAtq1NaiYnhm5umt3LlUbkM_mHdMxXHhxuVE8GWJfmVg0XxrkywVsdRsCu8rSqbP3ag0dIJv9UKo8vn-PsaQwrHIztzOdXfLi06Vl6nlwHRW18Dz3NQ9i9Ppi4lwBS2j1Y9PsanaHncn2SijYuL7ItT3tqMKn7gdLMEmIPSfJ1itj9oLfzjHHUDt-a8kKLn9g9pvVHUN7fXIoDjtnnkM-5qFJI8UvJ')">
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-surface-container-lowest/85 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+            32:10
+          </div>
+</div>
+<div class="p-space-sm flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug hover:text-primary transition-colors cursor-pointer">
+            Bahar Şenlikleri Konser Kaydı: Kampüs Sahnesinde Caz Gecesi
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Albert Long Hall salonunda ve Güney Meydan açık sahnesinde gerçekleştirilen öğrenci orkestrası performansının tamamı.
+          </p>
+</div>
+<div class="px-space-sm pb-space-sm pt-1 flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="font-bold">3.8K</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+<span>156</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>28K izlenme</span>
+</div>
+</div>
+</article>
+<!-- Video Kart 3: ÇOMÜ TV Deniz Bilimleri -->
+<article class="flex flex-col bg-surface-container rounded-2xl overflow-hidden shadow-md">
+<div class="p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold text-label-md">
+              ÇOMÜ
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">ÇOMÜ TV</span>
+<span class="material-symbols-outlined text-primary text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-none">1 gün önce • Araştırma &amp; Bilim</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="relative w-full aspect-video bg-surface-container-high overflow-hidden cursor-pointer group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-102" data-alt="Oceanographic marine research vessel on the deep blue Aegean sea with scientists and students deploying underwater monitoring sensors from the ship deck." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAe3KMbthgOOUVvSXW0EFRCZJJjv8bdz8hbxpeN_u2cH6gS48LJ-r4e0_VXnVAPPOxTyEZaW3jYcAPei45k6GilPeUMBie8qW0IpywEqsh1s5s4gn4__U46gv7fzCSjt8v-k6s5QtuvaJr7nDRRE2-xJWkg40HZJcipjv38aj9BulUxbBDxMmB0C8nKAVOnyoup-XlTX1X2jyX1orEhYFNHMle_X23MaJXVcaCzs7cnc9huwqFuOueB')">
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-surface-container-lowest/85 backdrop-blur-md text-on-surface font-label-sm text-label-sm font-semibold">
+            24:15
+          </div>
+</div>
+<div class="p-space-sm flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug hover:text-primary transition-colors cursor-pointer">
+            Deniz Bilimleri Araştırma Gemisi Seferi: Çanakkale Boğazı Ekosistemi
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Çanakkale Onsekiz Mart Üniversitesi akademisyenlerinin derin deniz habitatı ve su altı biyoçeşitliliği araştırması.
+          </p>
+</div>
+<div class="px-space-sm pb-space-sm pt-1 flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="font-bold">950</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+<span>42</span>
+</button>
+<button class="flex items-center gap-1.5 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>9.4K izlenme</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Alt Canlı Etkinlik Şeridi / Bildirim Kartı -->
+<section class="mt-space-lg px-margin pb-space-md">
+<div class="p-space-md rounded-2xl bg-gradient-to-r from-surface-container-high to-surface-container flex items-center justify-between shadow-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">live_tv</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Yaklaşan Canlı Yayın</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yarın 14:00 • ODTÜ Mezuniyet Töreni</span>
+</div>
+</div>
+<button class="px-3.5 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-secondary transition-colors">
+        Hatırlat
+      </button>
+</div>
+</section>
+</div>
+<script>
+  (function () {
+    const listBtn = document.getElementById('view-mode-list');
+    const wheelBtn = document.getElementById('view-mode-wheel');
+    const container = document.getElementById('video-feed-container');
+
+    if (listBtn && wheelBtn && container) {
+      wheelBtn.addEventListener('click', function () {
+        wheelBtn.classList.remove('text-on-surface-variant');
+        wheelBtn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+        listBtn.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+        listBtn.classList.add('text-on-surface-variant');
+        container.classList.add('grid', 'grid-cols-2', 'gap-space-sm');
+        container.classList.remove('flex', 'flex-col', 'gap-space-lg');
+      });
+
+      listBtn.addEventListener('click', function () {
+        listBtn.classList.remove('text-on-surface-variant');
+        listBtn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+        wheelBtn.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+        wheelBtn.classList.add('text-on-surface-variant');
+        container.classList.remove('grid', 'grid-cols-2', 'gap-space-sm');
+        container.classList.add('flex', 'flex-col', 'gap-space-lg');
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/85 backdrop-blur-xl" data-active-classes="text-primary"><div class="flex justify-around items-center h-16 px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-space-xs transition-colors group relative text-primary" data-path="ana-sayfa" href="#"><span class="material-symbols-outlined text-[24px]">home</span><span class="font-label-sm text-label-sm mt-0.5">Ana Sayfa</span></a><a class="flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-space-xs text-on-surface-variant transition-colors group relative" data-path="kesfet" href="#"><span class="material-symbols-outlined text-[24px]">explore</span><span class="font-label-sm text-label-sm mt-0.5">Keşfet</span></a><a class="flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-space-xs text-on-surface-variant transition-colors group relative" data-path="universiteler" href="#"><span class="material-symbols-outlined text-[24px]">school</span><span class="font-label-sm text-label-sm mt-0.5">Üniversiteler</span></a><a class="flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-space-xs text-on-surface-variant transition-colors group relative" data-path="ara" href="#"><span class="material-symbols-outlined text-[24px]">search</span><span class="font-label-sm text-label-sm mt-0.5">Ara</span></a><a class="flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-space-xs text-on-surface-variant transition-colors group relative" data-path="profil" href="#"><span class="material-symbols-outlined text-[24px]">account_circle</span><span class="font-label-sm text-label-sm mt-0.5">Profil</span></a></div></nav></body></html>

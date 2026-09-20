@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {"darkMode":"class","theme":{"extend":{"colors":{"on-error-container":"#ffdad6","surface":"#0b1322","tertiary-container":"#ff7a73","primary-fixed":"#6ffbbe","surface-container-low":"#141c2b","on-tertiary-fixed-variant":"#930013","on-tertiary":"#68000a","outline":"#86948a","inverse-primary":"#006c49","secondary-container":"#00bd85","primary-container":"#10b981","on-secondary-fixed-variant":"#005137","outline-variant":"#3c4a42","primary":"#4edea3","on-background":"#dbe2f7","on-primary-container":"#00422b","error-container":"#93000a","on-primary":"#003824","on-primary-fixed":"#002113","tertiary":"#ffb3ad","surface-tint":"#4edea3","surface-container":"#18202f","surface-container-highest":"#2d3545","surface-container-high":"#222a3a","on-secondary":"#003825","secondary-fixed-dim":"#45dfa4","secondary-fixed":"#68fcbf","on-surface-variant":"#bbcabf","surface-bright":"#31394a","on-secondary-container":"#00452e","surface-variant":"#2d3545","on-surface":"#dbe2f7","background":"#0b1322","secondary":"#45dfa4","tertiary-fixed-dim":"#ffb3ad","on-tertiary-fixed":"#410004","primary-fixed-dim":"#4edea3","inverse-on-surface":"#293040","on-secondary-fixed":"#002114","surface-dim":"#0b1322","on-tertiary-container":"#79000e","tertiary-fixed":"#ffdad7","error":"#ffb4ab","on-error":"#690005","on-primary-fixed-variant":"#005236","surface-container-lowest":"#060e1d","inverse-surface":"#dbe2f7"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2rem","space-sm":"0.5rem","gutter-sm":"0.75rem","margin":"1rem","space-md":"1rem","margin-sm":"0.75rem","margin-lg":"1.5rem","gutter":"1rem","space-xs":"0.25rem","space-lg":"1.5rem"},"fontFamily":{"headline-md":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"]},"fontSize":{"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"headline-xl-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.025em","fontWeight":"800"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.04em","fontWeight":"700"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter md:px-margin-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-shrink-0"><a class="flex items-center gap-space-sm" data-path="campus-radio-live" href="#"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[22px]">podcasts</span></div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">ÜniTV</span><span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">Radyo</span></div></div></a><div class="hidden sm:flex items-center gap-space-xs pl-space-sm"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span></span><span class="font-label-sm text-label-sm uppercase font-bold text-error tracking-wider">Canlı</span></div></div><nav class="hidden lg:flex items-center gap-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm rounded-lg"><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-headline-sm rounded-lg" data-path="campus-radio-live" href="#">Yayın Akışı</a><a class="px-space-md py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="campus-radio-podcasts" href="#">Kayıtlar</a><a class="px-space-md py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="campus-radio-schedule" href="#">Program Rehberi</a></nav><div class="flex items-center gap-space-md flex-1 max-w-xs justify-end"><div class="relative w-full hidden md:block max-w-[220px]"><span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span><input class="w-full h-9 pl-8 pr-space-sm rounded-lg bg-surface-container-high text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Yayın veya şarkı ara..." type="text"/></div><button class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button class="relative flex items-center justify-center w-9 h-9 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Dynamic Audio Atmosphere Background Aura -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[850px] h-[550px] bg-gradient-to-b from-primary/15 via-primary-container/10 to-transparent blur-3xl pointer-events-none rounded-full"></div>
+<div class="absolute top-96 -left-32 w-96 h-96 bg-primary-container/5 blur-3xl pointer-events-none rounded-full"></div>
+<div class="w-full max-w-7xl mx-auto px-margin md:px-margin-lg py-space-md lg:py-space-xl flex flex-col gap-space-lg relative z-10">
+<!-- Station Identity Bar -->
+<section class="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-md md:p-space-lg shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-md">
+<span class="material-symbols-outlined text-primary text-[32px]">graphic_eq</span>
+</div>
+<span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-primary text-[12px] font-bold">verified</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-primary/10 text-primary">103.8 FM</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant">Web HD 320 Kbps</span>
+<span class="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">school</span> .edu.tr Onaylı
+              </span>
+</div>
+<h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface tracking-tight truncate mt-0.5">
+              İstanbul Teknik Üniversitesi — İTÜ Radyosu
+            </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[15px] text-outline">location_on</span>
+              Ayazağa Kampüsü Medya Merkezi, Stüdyo A • Rock &amp; Kampüs Frekansı
+            </p>
+</div>
+</div>
+<!-- Live Listener Stat Badge -->
+<div class="flex items-center gap-space-md self-stretch md:self-auto justify-between md:justify-end bg-surface-container-high/60 md:bg-transparent p-space-sm md:p-0 rounded-lg">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high shadow-inner">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-error"></span>
+</span>
+<span class="font-label-sm text-label-sm uppercase text-error tracking-wider font-bold">Canlı Yayında</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px]">headphones</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold" id="liveListenerCount">2,348</span>
+<span class="font-body-sm text-body-sm hidden sm:inline text-outline">dinleyici</span>
+</div>
+</div>
+</section>
+<!-- Main Central Grid: Audio Visualizer & Player (Left) + Interactive Live Room (Right) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Visual Hero Audio Section (7 cols on desktop) -->
+<section class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="bg-surface-container-low rounded-xl p-space-md md:p-space-lg shadow-xl relative overflow-hidden flex flex-col gap-space-md">
+<!-- Spectrum & Album Art Deck -->
+<div class="relative w-full aspect-video sm:aspect-[16/10] md:aspect-[16/9] rounded-xl overflow-hidden bg-surface-container-lowest flex items-center justify-center group shadow-2xl">
+<img class="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 ease-out group-hover:scale-105" data-alt="A glowing neon emerald green pair of studio audio headphones suspended over an electric soundwave audio spectrum grid in deep navy dark night university campus backdrop, cinematic neon teal ambient lighting, ultra sharp fidelity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzmc4RVYmdfX_x5uqyCJgQh74liEFFWTqVtzpi9vna6ZYtb51upwClDDve1PpAWJ_1T3yHkkcVXa4gh9qteJlfFF2AqkHQvXYyQ1ZyddhTaedHEAxuR02d4EnhAGo5dxecOuLz3tg7E8n-bru-8--P8bwPttwYhDdtTiGjo42XKqZEZLsZHEJMn0wOUPL29RxlsYEgsBWr-J8YvDM3E3iM80vP2P_UWevdidLAytUHeWeyT3w7flc4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/40 to-transparent"></div>
+<!-- Floating Live Watermark -->
+<div class="absolute top-space-md left-space-md flex items-center gap-space-xs bg-surface-container-lowest/80 backdrop-blur-md px-space-sm py-1 rounded-full shadow-lg">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">İTÜ Frekans 103.8 FM</span>
+</div>
+<!-- Low Latency Badge -->
+<div class="absolute top-space-md right-space-md flex items-center gap-1 bg-surface-container-lowest/80 backdrop-blur-md px-space-sm py-1 rounded-full text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-[14px]">bolt</span>
+<span>Gecikme: &lt; 0.9 sn</span>
+</div>
+<!-- Sound Aura Center Circle -->
+<div class="relative z-10 flex flex-col items-center justify-center pointer-events-none">
+<div class="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center">
+<div class="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-60"></div>
+<div class="w-20 h-20 md:w-28 md:h-28 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center shadow-xl">
+<span class="material-symbols-outlined text-primary text-[40px] md:text-[52px]">podcasts</span>
+</div>
+</div>
+</div>
+<!-- Animated Waveform Spectrum Overlay at bottom of album art -->
+<div class="absolute bottom-0 left-0 right-0 h-16 md:h-20 px-space-md flex items-end justify-between gap-1 z-10 pointer-events-none pb-2">
+<div class="w-full h-full flex items-end justify-between gap-[3px] opacity-90">
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[30%] animate-pulse"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[65%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[90%] animate-pulse"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[45%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[80%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[100%] animate-pulse"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[70%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[40%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[85%]"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[60%] animate-pulse"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[95%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[50%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[75%]"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[35%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[90%] animate-pulse"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[100%]"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[80%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[55%] animate-pulse"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[40%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[70%]"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[95%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[60%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[85%] animate-pulse"></div>
+<div class="w-1.5 bg-secondary rounded-t transition-all duration-150 h-[45%]"></div>
+<div class="w-1.5 bg-primary rounded-t transition-all duration-150 h-[30%]"></div>
+</div>
+</div>
+</div>
+<!-- Current Track & Show Meta Details -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pt-space-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Şu An Çalıyor</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Program: Gece Nöbeti &amp; Alternatif Kampüs</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight truncate mt-1">
+                  Mor ve Ötesi – Cambaz
+                </h2>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-body-md text-body-md text-on-surface-variant truncate">
+                    Akustik Canlı Kayıt • DJ: Emre Aksoy &amp; Zeynep Kurt
+                  </span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant uppercase">FLAC HD</span>
+</div>
+</div>
+<!-- Quick Heart & Action Pill -->
+<div class="flex items-center gap-space-sm flex-shrink-0">
+<button class="h-10 px-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center gap-2 group text-on-surface" id="likeTrackBtn" type="button">
+<span class="material-symbols-outlined text-outline group-hover:text-error transition-colors text-[20px]" id="heartIcon">favorite</span>
+<span class="font-label-md text-label-md font-bold text-on-surface" id="likeCount">1,420</span>
+</button>
+<button class="h-10 w-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" title="Spotify'da Dinle" type="button">
+<span class="material-symbols-outlined text-[20px]">open_in_new</span>
+</button>
+<button class="h-10 w-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="shareBtn" title="Yayını Paylaş" type="button">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</div>
+<!-- Master Player Control Bar -->
+<div class="bg-surface-container rounded-xl p-space-md flex flex-col md:flex-row items-center justify-between gap-space-md shadow-inner">
+<!-- Play / Live Status -->
+<div class="flex items-center gap-space-md w-full md:w-auto justify-between md:justify-start">
+<button class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-all" id="masterPlayBtn" type="button">
+<span class="material-symbols-outlined text-[32px]" id="playIcon">pause</span>
+</button>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-md text-label-md uppercase font-bold text-primary">Canlı Radyo Akışı</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Tampon: 0.4s • Kesintisiz</span>
+</div>
+</div>
+<!-- Stream Quality Switcher -->
+<div class="flex items-center gap-1 bg-surface-container-high p-1 rounded-xl w-full md:w-auto justify-center">
+<button class="quality-btn px-3 py-1.5 rounded-lg font-label-sm text-label-sm font-bold bg-primary text-on-primary shadow-sm transition-all" data-quality="320" type="button">
+                  320k HD
+                </button>
+<button class="quality-btn px-3 py-1.5 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-quality="128" type="button">
+                  128k Veri Dostu
+                </button>
+<button class="quality-btn px-3 py-1.5 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-quality="flac" type="button">
+                  FLAC Lossless
+                </button>
+</div>
+<!-- Volume & Output Routing -->
+<div class="flex items-center gap-space-sm w-full md:w-48 justify-end">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-1" id="muteBtn" type="button">
+<span class="material-symbols-outlined text-[22px]" id="volumeIcon">volume_up</span>
+</button>
+<div class="w-24 h-1.5 rounded-full bg-surface-container-highest overflow-hidden relative cursor-pointer group">
+<div class="h-full bg-primary rounded-full w-[78%] transition-all" id="volumeBarFill"></div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors ml-1 p-1" title="AirPlay / Bluetooth Cast" type="button">
+<span class="material-symbols-outlined text-[20px]">cast</span>
+</button>
+</div>
+</div>
+<!-- Studio Host & Song Request Bar Row -->
+<div class="bg-surface-container-high/50 rounded-xl p-space-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">mic</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Stüdyo Masası: Canlı Bağlantı Açık</div>
+<div class="font-body-sm text-body-sm text-outline">Sıradaki parça: Teoman - İstanbul'da Sonbahar (İstek)</div>
+</div>
+</div>
+<button class="w-full sm:w-auto h-9 px-space-md rounded-lg bg-primary/15 hover:bg-primary/25 text-primary font-label-md text-label-md font-bold transition-all flex items-center justify-center gap-2" id="openRequestModal" type="button">
+<span class="material-symbols-outlined text-[18px]">queue_music</span>
+                Şarkı İsteğinde Bulun
+              </button>
+</div>
+</div>
+<!-- Günün Yayın Akışı (Horizontal Timeline / Schedule) -->
+<div class="bg-surface-container-low rounded-xl p-space-md md:p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">event_note</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Bugün İTÜ Radyosu'nda</h3>
+</div>
+<span class="font-label-sm text-label-sm text-outline">19 Kasım Salı Akışı</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<!-- Item 1: Current -->
+<div class="p-space-md rounded-xl bg-surface-container-high border-l-4 border-l-primary flex flex-col gap-1 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold">18:00 – 20:00 • YAYINDA</span>
+<span class="material-symbols-outlined text-primary text-[16px] animate-pulse">radio_button_checked</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Kampüs Indie &amp; Alternatif</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">DJ Emre Aksoy ile bağımsız Türkçe alternatif rock ve yerel sahne kayıtları.</p>
+</div>
+<!-- Item 2: Next -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">20:00 – 21:30</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">Akademik</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Rektörlük &amp; Akademik Sohbetler</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Konuk Prof. Dr. Alperen Çetin: Yapay Zekâ ve Mühendisliğin Geleceği.</p>
+</div>
+<!-- Item 3 -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">21:30 – 23:00</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-medium">Kütüphane Özel</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Gece Odaklanma &amp; Lo-Fi Beats</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Vize haftası çalışma salonlarına özel ambient, low-tempo konsantrasyon müzikleri.</p>
+</div>
+<!-- Item 4 -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">23:00 – 01:00</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">Nostalji</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">İTÜ Rock Klasikleri</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">90'lar Anadolu rock, klasik hard rock efsaneleri ve kulüp arşiv bantları.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Live Studio Chat & Song Requests (5 cols on desktop) -->
+<section class="lg:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-container-low rounded-xl p-space-md md:p-space-lg shadow-xl flex flex-col h-[680px] relative">
+<!-- Chat Header -->
+<div class="flex items-center justify-between pb-space-sm border-b border-surface-container-highest">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[18px]">forum</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Stüdyo Canlı Sohbet</h3>
+<p class="font-label-sm text-label-sm text-outline">Sadece onaylı üniversite öğrencileri</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm font-semibold">412 Online</span>
+</div>
+</div>
+<!-- Pinned DJ Announcement -->
+<div class="mt-space-sm p-space-sm rounded-lg bg-surface-container-high/90 flex items-start gap-space-xs shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0 mt-0.5">push_pin</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm font-bold text-primary">DJ Emre • İğnelenen Duyuru</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-tight mt-0.5">
+                  15 dakika sonra vizeler öncesi motivasyon şarkı isteklerini çalıyoruz! İstek parça butonunu kullanabilirsiniz.
+                </p>
+</div>
+</div>
+<!-- Messages Stream (Scrollable) -->
+<div class="flex-1 overflow-y-auto space-y-space-sm pr-1 my-space-sm" id="chatMessageContainer">
+<!-- Message 1 -->
+<div class="flex items-start gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-primary/20 text-primary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+                  M
+                </div>
+<div class="flex flex-col bg-surface-container rounded-xl rounded-tl-none p-space-sm max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Mert K.</span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-primary font-medium">İTÜ Makine</span>
+<span class="font-label-sm text-label-sm text-outline">19:42</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Muhteşem akustik kayıt! Gitar solosunda tüyler diken diken oldu 🔥🎸</p>
+</div>
+</div>
+<!-- Message 2 -->
+<div class="flex items-start gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+                  S
+                </div>
+<div class="flex flex-col bg-surface-container rounded-xl rounded-tl-none p-space-sm max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Selin A.</span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-on-surface-variant font-medium">ODTÜ Mimarlık</span>
+<span class="font-label-sm text-label-sm text-outline">19:44</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Selam İTÜ! Ankara kampüsünden dinliyoruz, yayın akışı harika ilerliyor 🎧✨</p>
+</div>
+</div>
+<!-- Message 3 -->
+<div class="flex items-start gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-primary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+                  K
+                </div>
+<div class="flex flex-col bg-surface-container rounded-xl rounded-tl-none p-space-sm max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Kaan Y.</span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-on-surface-variant font-medium">Boğaziçi</span>
+<span class="font-label-sm text-label-sm text-outline">19:45</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Kuzey Kütüphane 3. katta 8 kişi yayına bağlandık, kahveler hazır ☕📚</p>
+</div>
+</div>
+<!-- Message 4: DJ Response -->
+<div class="flex items-start gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-primary text-on-primary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+                  DJ
+                </div>
+<div class="flex flex-col bg-primary-container/20 rounded-xl rounded-tl-none p-space-sm max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-primary">DJ Zeynep (Stüdyo)</span>
+<span class="material-symbols-outlined text-primary text-[14px]">verified</span>
+<span class="font-label-sm text-label-sm text-outline">19:47</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Kütüphanelere selam olsun! Birazdan Duman - Helal Olsun gelecek, masaları sallamayın :)</p>
+</div>
+</div>
+<!-- Message 5 -->
+<div class="flex items-start gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-primary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+                  B
+                </div>
+<div class="flex flex-col bg-surface-container rounded-xl rounded-tl-none p-space-sm max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Burak T.</span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-primary font-medium">İTÜ Bilgisayar</span>
+<span class="font-label-sm text-label-sm text-outline">19:48</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">FLAC stream kalitesi cam gibi, emeğinize sağlık radyo ekibi 💚</p>
+</div>
+</div>
+</div>
+<!-- Quick Reaction Emoji Toolbar -->
+<div class="flex items-center gap-2 py-1.5 px-1 overflow-x-auto">
+<button class="reaction-emoji-btn px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-label-sm font-label-sm transition-all flex items-center gap-1 text-on-surface" type="button">
+<span>🔥</span> <span class="text-outline text-[11px]">84</span>
+</button>
+<button class="reaction-emoji-btn px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-label-sm font-label-sm transition-all flex items-center gap-1 text-on-surface" type="button">
+<span>🎧</span> <span class="text-outline text-[11px]">112</span>
+</button>
+<button class="reaction-emoji-btn px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-label-sm font-label-sm transition-all flex items-center gap-1 text-on-surface" type="button">
+<span>🎸</span> <span class="text-outline text-[11px]">67</span>
+</button>
+<button class="reaction-emoji-btn px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-label-sm font-label-sm transition-all flex items-center gap-1 text-on-surface" type="button">
+<span>☕</span> <span class="text-outline text-[11px]">53</span>
+</button>
+<button class="reaction-emoji-btn px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-label-sm font-label-sm transition-all flex items-center gap-1 text-on-surface" type="button">
+<span>💚</span> <span class="text-outline text-[11px]">198</span>
+</button>
+</div>
+<!-- Chat Input Form -->
+<form class="mt-space-xs flex items-center gap-space-xs" id="liveChatForm">
+<input class="flex-1 h-10 px-space-md rounded-xl bg-surface-container-high text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" id="chatInput" placeholder="Mesajınızı yazın (.edu.tr ile)..." type="text"/>
+<button class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:opacity-90 active:scale-95 transition-all flex-shrink-0" type="submit">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</form>
+</div>
+<!-- Studio Live Request Status Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">music_cast</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Sıradaki İstek Parçalar</div>
+<div class="font-body-sm text-body-sm text-outline">Kuyrukta bekleyen: 4 şarkı • İstekler açık</div>
+</div>
+</div>
+<button class="font-label-sm text-label-sm text-primary underline underline-offset-2 hover:text-secondary transition-colors" id="quickSongRequestTrigger" type="button">
+              Listeyi Gör
+            </button>
+</div>
+</section>
+</div>
+<!-- Campus Radio Ecosystem Hub: Related Academic Stations -->
+<section class="mt-space-md bg-surface-container-low rounded-xl p-space-md md:p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Diğer Kampüs Canlı Kanalları</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tek tıkla diğer üniversite radyo stüdyolarına geçiş yapın</p>
+</div>
+<a class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1" href="#">
+            Tüm Üniversite Radyoları (18 Aktif)
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-space-md">
+<!-- Station 1 -->
+<div class="p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">radio</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Radyo ODTÜ</span>
+<span class="font-body-sm text-body-sm text-outline">103.1 FM • Ankara</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">play_circle</span>
+</div>
+<!-- Station 2 -->
+<div class="p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">podcasts</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Radyo Boğaziçi</span>
+<span class="font-body-sm text-body-sm text-outline">Web Stream • Bebek</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">play_circle</span>
+</div>
+<!-- Station 3 -->
+<div class="p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">sensors</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Yıldız FM (YTÜ)</span>
+<span class="font-body-sm text-body-sm text-outline">Web HD • Beşiktaş</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">play_circle</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Interactive Song Request Dialog / Modal Overlay -->
+<div class="fixed inset-0 z-50 bg-surface-container-lowest/80 backdrop-blur-md hidden flex items-center justify-center p-gutter" id="requestModal">
+<div class="bg-surface-container rounded-2xl max-w-lg w-full p-space-lg shadow-2xl relative border-none">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">queue_music</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Stüdyoya İstek Şarkı Gönder</h4>
+<p class="font-label-sm text-label-sm text-primary">Bugün kalan istek hakkınız: 2 parça</p>
+</div>
+</div>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center" id="closeRequestModal" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<form class="flex flex-col gap-space-md mt-space-md" id="songRequestForm">
+<div>
+<label class="block font-label-sm text-label-sm uppercase text-outline mb-1">Şarkı Adı ve Sanatçı</label>
+<input class="w-full h-10 px-space-md rounded-xl bg-surface-container-high text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary" id="requestSongTitle" placeholder="Örn: Manga - Dünyanın Sonuna Doğmuşum" required="" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm uppercase text-outline mb-1">DJ'e Notunuz (Opsiyonel)</label>
+<textarea class="w-full p-space-md rounded-xl bg-surface-container-high text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none" id="requestSongNote" placeholder="Örn: Mustafa İnan Kütüphanesi'nde sınava hazırlanan tüm İTÜ'lülere armağan..." rows="2"></textarea>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-1.5 text-outline">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-label-sm text-label-sm">DJ onayından sonra yayında çalınır.</span>
+</div>
+<button class="h-10 px-space-lg rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold hover:opacity-90 active:scale-95 transition-all" type="submit">
+            İsteği İlet
+          </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Micro-interaction JS Logic -->
+<script>
+    (function () {
+      // Play/Pause State
+      const playBtn = document.getElementById('masterPlayBtn');
+      const playIcon = document.getElementById('playIcon');
+      let isPlaying = true;
+
+      playBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        playIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+      });
+
+      // Like / Heart Counter
+      const likeBtn = document.getElementById('likeTrackBtn');
+      const heartIcon = document.getElementById('heartIcon');
+      const likeCount = document.getElementById('likeCount');
+      let isLiked = false;
+      let likes = 1420;
+
+      likeBtn.addEventListener('click', () => {
+        isLiked = !isLiked;
+        likes += isLiked ? 1 : -1;
+        likeCount.textContent = likes.toLocaleString('tr-TR');
+        if (isLiked) {
+          heartIcon.textContent = 'favorite';
+          heartIcon.classList.remove('text-outline');
+          heartIcon.classList.add('text-error');
+        } else {
+          heartIcon.textContent = 'favorite';
+          heartIcon.classList.add('text-outline');
+          heartIcon.classList.remove('text-error');
+        }
+      });
+
+      // Stream Quality Switcher
+      const qualityButtons = document.querySelectorAll('.quality-btn');
+      qualityButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          qualityButtons.forEach(b => {
+            b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+          btn.classList.remove('text-on-surface-variant');
+        });
+      });
+
+      // Mute / Volume Toggle
+      const muteBtn = document.getElementById('muteBtn');
+      const volumeIcon = document.getElementById('volumeIcon');
+      const volumeBarFill = document.getElementById('volumeBarFill');
+      let isMuted = false;
+
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        if (isMuted) {
+          volumeIcon.textContent = 'volume_off';
+          volumeBarFill.style.width = '0%';
+        } else {
+          volumeIcon.textContent = 'volume_up';
+          volumeBarFill.style.width = '78%';
+        }
+      });
+
+      // Live Chat Submission
+      const chatForm = document.getElementById('liveChatForm');
+      const chatInput = document.getElementById('chatInput');
+      const chatContainer = document.getElementById('chatMessageContainer');
+
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        const now = new Date();
+        const timeString = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+        const messageEl = document.createElement('div');
+        messageEl.className = 'flex items-start gap-space-xs';
+        messageEl.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-primary/20 text-primary font-bold font-label-sm text-label-sm flex items-center justify-center flex-shrink-0">
+            S
+          </div>
+          <div class="flex flex-col bg-surface-container rounded-xl rounded-tl-none p-space-sm max-w-[85%] animate-fade-in">
+            <div class="flex items-center gap-1.5">
+              <span class="font-label-sm text-label-sm font-bold text-on-surface">Sen</span>
+              <span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-primary font-medium">İTÜ .edu.tr</span>
+              <span class="font-label-sm text-label-sm text-outline">${timeString}</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface mt-0.5">${escapeHtml(text)}</p>
+          </div>
+        `;
+        chatContainer.appendChild(messageEl);
+        chatInput.value = '';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
+
+      // Quick Emoji Reactions
+      const reactionButtons = document.querySelectorAll('.reaction-emoji-btn');
+      reactionButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const countSpan = btn.querySelector('span:last-child');
+          if (countSpan) {
+            let current = parseInt(countSpan.textContent, 10) || 0;
+            countSpan.textContent = current + 1;
+            btn.classList.add('bg-primary/20', 'text-primary');
+          }
+        });
+      });
+
+      // Song Request Modal Toggle
+      const openModalBtn = document.getElementById('openRequestModal');
+      const quickTrigger = document.getElementById('quickSongRequestTrigger');
+      const closeModalBtn = document.getElementById('closeRequestModal');
+      const requestModal = document.getElementById('requestModal');
+      const songRequestForm = document.getElementById('songRequestForm');
+
+      function showModal() {
+        requestModal.classList.remove('hidden');
+      }
+
+      function hideModal() {
+        requestModal.classList.add('hidden');
+      }
+
+      if (openModalBtn) openModalBtn.addEventListener('click', showModal);
+      if (quickTrigger) quickTrigger.addEventListener('click', showModal);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
+
+      requestModal.addEventListener('click', (e) => {
+        if (e.target === requestModal) hideModal();
+      });
+
+      songRequestForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const titleInput = document.getElementById('requestSongTitle');
+        alert('İstek parçanız stüdyo yayınına iletildi: ' + titleInput.value);
+        titleInput.value = '';
+        document.getElementById('requestSongNote').value = '';
+        hideModal();
+      });
+
+      // Share button native navigator support or clipboard
+      const shareBtn = document.getElementById('shareBtn');
+      shareBtn.addEventListener('click', () => {
+        if (navigator.share) {
+          navigator.share({
+            title: 'İTÜ Radyosu 103.8 FM Canlı Yayını',
+            text: 'Mor ve Ötesi - Cambaz çalıyor, ÜniTV Kampüs Radyoları üzerinden dinle!',
+            url: window.location.href
+          }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          alert('Canlı yayın bağlantısı panoya kopyalandı!');
+        }
+      });
+
+      function escapeHtml(string) {
+        return String(string).replace(/[&<>"']/g, function (s) {
+          return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          }[s];
+        });
+      }
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest py-space-lg"><div class="w-full px-gutter md:px-margin-lg flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><div class="w-6 h-6 rounded bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[14px]">podcasts</span></div><span class="font-label-md text-label-md text-on-surface-variant">© 2024 ÜniTV Dijital Medya ve Kampüs Radyoları Birliği</span></div><div class="flex items-center gap-space-md"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="campus-radio-live" href="#">Gizlilik</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="campus-radio-live" href="#">Kullanım Şartları</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="campus-radio-live" href="#">Stüdyo İletişim</a></div></div></footer></body></html>
