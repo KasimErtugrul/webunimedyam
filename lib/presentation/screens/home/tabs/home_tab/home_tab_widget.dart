@@ -154,6 +154,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       GlobalKey<RefreshIndicatorState>();
   Worker? _authWorker;
   Worker? _homeResetWorker;
+  // Kategori çipleri şimdilik yerel/görsel state (bkz. _buildCategoryChips).
+  int _selectedCategoryIndex = 0;
 
   @override
   void initState() {
@@ -263,6 +265,22 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   ? _buildAppBarTablet(context)
                   : _buildAppBarPhone(context),
 
+              // ── Canlı Radyo Pili + Görünüm Anahtarı ─────────────────────
+              SliverToBoxAdapter(
+                child: _buildUtilityBar(
+                  context,
+                  isTablet: Responsive.isTablet(context),
+                ),
+              ),
+
+              // ── Kategori / Filtre Hapları ────────────────────────────────
+              SliverToBoxAdapter(
+                child: _buildCategoryChips(
+                  context,
+                  isTablet: Responsive.isTablet(context),
+                ),
+              ),
+
               // ── Shorts — artık listenin en üstünde, ayrı bir sliver ────
               const SliverToBoxAdapter(child: ShortsRowWidget()),
 
@@ -318,6 +336,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildAppBarPhone(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       pinned: false,
       floating: true,
@@ -329,48 +348,217 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       titleSpacing: _PhoneSizes.titleSpacingLarge.w,
       toolbarHeight: kToolbarHeight,
       actions: [
-        Obx(
-          () => IconButton(
-            icon: Icon(
-              controller.isWheelView.value
-                  ? Icons.view_list_rounded
-                  : Icons.blur_circular_rounded,
-            ),
-            tooltip: controller.isWheelView.value
-                ? 'Liste Görünümü'
-                : 'Wheel Görünümü',
-            onPressed: controller.toggleWheelView,
-          ),
+        IconButton(
+          tooltip: 'Canlı Yayınlar',
+          icon: const Icon(Icons.sensors_rounded),
+          color: scheme.onSurfaceVariant,
+          onPressed: () => Get.toNamed(AppRoutes.radio),
         ),
         IconButton(
-          icon: const Icon(Icons.radio_rounded),
-          onPressed: () => Get.toNamed(AppRoutes.radio),
+          tooltip: 'Bildirimler',
+          icon: const Icon(Icons.notifications_outlined),
+          color: scheme.onSurfaceVariant,
+          onPressed: () => Get.toNamed(AppRoutes.notifications),
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: _PhoneSizes.titleSpacingLarge.w),
+          child: CircleAvatar(
+            radius: 16.r,
+            backgroundColor: scheme.primary,
+            child: Icon(
+              Icons.person_rounded,
+              color: scheme.onPrimary,
+              size: 18.sp,
+            ),
+            // TODO: Profil ekranındaki gibi kullanıcı avatar url'i eklenince
+            // buraya NetworkImage bağlanacak; şimdilik tasarımdaki gibi
+            // ikon içeren dolu daire kullanılıyor.
+          ),
         ),
       ],
       title: Row(
         children: [
+          // Logo kutusu — tasarım: rounded-lg, bg-primary-container/20, text-primary
           Container(
             width: _PhoneSizes.titleIconSize.w,
             height: _PhoneSizes.titleIconSize.w,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: scheme.primaryContainer.withValues(alpha: 0.20),
               borderRadius: BorderRadius.circular(
                 _PhoneSizes.titleIconBorderRadius.r,
               ),
             ),
             child: Icon(
-              Icons.play_arrow_rounded,
-              color: Colors.white,
+              Icons.play_circle_rounded,
+              color: scheme.primary,
               size: _PhoneSizes.titleIconInnerSize.sp,
             ),
           ),
           SizedBox(width: _PhoneSizes.titleSpacing.w),
-          Text('ÜniTV'),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: scheme.onSurface,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Üni'),
+                    TextSpan(
+                      text: 'TV',
+                      style: TextStyle(color: scheme.primary),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                'KAMPÜS YAYINI',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  // Tasarımdaki "Kampüs FM Canlı" pili + Liste/Çark görünüm anahtarı.
+  // (Header'ın hemen altında, ayrı bir yatay şerit.)
+  Widget _buildUtilityBar(BuildContext context, {required bool isTablet}) {
+    final scheme = Theme.of(context).colorScheme;
+    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Canlı Kampüs Radyosu Düğmesi
+          InkWell(
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+            onTap: () => Get.toNamed(AppRoutes.radio),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: BoxDecoration(
+                      color: scheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Icon(Icons.radio_rounded, color: scheme.primary, size: 16.sp),
+                  SizedBox(width: 6.w),
+                  Text(
+                    'Kampüs FM Canlı',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      'YAYINDA',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Görünüm Modu Seçici (Liste vs Çark)
+          Obx(
+            () => Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ViewModeButton(
+                    icon: Icons.view_agenda_rounded,
+                    tooltip: 'Liste Görünümü',
+                    selected: !controller.isWheelView.value,
+                    onTap: () {
+                      if (controller.isWheelView.value) {
+                        controller.toggleWheelView();
+                      }
+                    },
+                  ),
+                  _ViewModeButton(
+                    icon: Icons.grid_view_rounded,
+                    tooltip: 'Çark / Grid Görünümü',
+                    selected: controller.isWheelView.value,
+                    onTap: () {
+                      if (!controller.isWheelView.value) {
+                        controller.toggleWheelView();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Tasarımdaki kategori/filtre hapları.
+  // NOT: Backend'de henüz kategoriye göre video filtreleme endpoint'i
+  // olmadığı için bu satır şimdilik SADECE GÖRSEL (tasarımla birebir) —
+  // seçili çip yerelde tutuluyor, gerçek bir filtreleme tetiklemiyor.
+  // Kategori filtreleme API'si eklendiğinde `controller`'a bağlanabilir.
+  Widget _buildCategoryChips(BuildContext context, {required bool isTablet}) {
+    final scheme = Theme.of(context).colorScheme;
+    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    const categories = [
+      'Tümü',
+      'Mühendislik & Teknoloji',
+      'Tıp & Sağlık',
+      'Kampüs & Kültür',
+      'Akademik Dersler',
+    ];
+
+    return SizedBox(
+      height: 40.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: hPad),
+        itemCount: categories.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (context, index) {
+          final selected = _selectedCategoryIndex == index;
+          return _CategoryChip(
+            label: categories[index],
+            selected: selected,
+            onTap: () => setState(() => _selectedCategoryIndex = index),
+            scheme: scheme,
+          );
+        },
       ),
     );
   }
@@ -380,6 +568,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildAppBarTablet(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       pinned: false,
       floating: true,
@@ -391,22 +580,25 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       titleSpacing: _TabletSizes.titleSpacingLarge,
       toolbarHeight: kToolbarHeight,
       actions: [
-        Obx(
-          () => IconButton(
-            icon: Icon(
-              controller.isWheelView.value
-                  ? Icons.view_list_rounded
-                  : Icons.blur_circular_rounded,
-            ),
-            tooltip: controller.isWheelView.value
-                ? 'Liste Görünümü'
-                : 'Wheel Görünümü',
-            onPressed: controller.toggleWheelView,
-          ),
+        IconButton(
+          tooltip: 'Canlı Yayınlar',
+          icon: const Icon(Icons.sensors_rounded),
+          color: scheme.onSurfaceVariant,
+          onPressed: () => Get.toNamed(AppRoutes.radio),
         ),
         IconButton(
-          icon: const Icon(Icons.radio_rounded),
-          onPressed: () => Get.toNamed(AppRoutes.radio),
+          tooltip: 'Bildirimler',
+          icon: const Icon(Icons.notifications_outlined),
+          color: scheme.onSurfaceVariant,
+          onPressed: () => Get.toNamed(AppRoutes.notifications),
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: _TabletSizes.titleSpacingLarge),
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: scheme.primary,
+            child: Icon(Icons.person_rounded, color: scheme.onPrimary, size: 20),
+          ),
         ),
       ],
       title: Row(
@@ -415,23 +607,42 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             width: _TabletSizes.titleIconSize,
             height: _TabletSizes.titleIconSize,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE1306C), Color(0xFFFCAF45)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: scheme.primaryContainer.withValues(alpha: 0.20),
               borderRadius: BorderRadius.circular(
                 _TabletSizes.titleIconBorderRadius,
               ),
             ),
-            child: Image.asset(
-              'assets/logo/logo.png',
-              width: _TabletSizes.titleIconInnerSize,
-              height: _TabletSizes.titleIconInnerSize,
+            child: Icon(
+              Icons.play_circle_rounded,
+              color: scheme.primary,
+              size: _TabletSizes.titleIconInnerSize,
             ),
           ),
           SizedBox(width: _TabletSizes.titleSpacing),
-          Text('ÜniTV'),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: scheme.onSurface,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Üni'),
+                    TextSpan(text: 'TV', style: TextStyle(color: scheme.primary)),
+                  ],
+                ),
+              ),
+              Text(
+                'KAMPÜS YAYINI',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -995,6 +1206,95 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             child: const Text('Giriş Yap'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Görünüm modu anahtarı içindeki tek düğme (Liste / Çark)
+// Tasarım: seçili → bg-primary + text-on-primary; seçili değil → şeffaf +
+// text-on-surface-variant. 32x32 dokunma alanı, rounded (radiusSm).
+// ═══════════════════════════════════════════════════════════════════════
+class _ViewModeButton extends StatelessWidget {
+  const _ViewModeButton({
+    required this.icon,
+    required this.tooltip,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        onTap: onTap,
+        child: Container(
+          width: 32.w,
+          height: 32.w,
+          decoration: BoxDecoration(
+            color: selected ? scheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            icon,
+            size: 18.sp,
+            color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Kategori/filtre hapı (chip)
+// Tasarım: seçili → bg-primary/20 + text-primary + bold; seçili değil →
+// bg-surface-container + text-on-surface-variant. rounded-full pill.
+// ═══════════════════════════════════════════════════════════════════════
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.scheme,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: selected
+              ? scheme.primary.withValues(alpha: 0.20)
+              : scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

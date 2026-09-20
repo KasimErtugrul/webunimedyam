@@ -144,19 +144,8 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
         vertical: s.containerPaddingV.h,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface(context),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(s.containerRadius.r),
-        border: Border.all(
-          color: AppTheme.textSec(context)
-              .withValues(alpha: s.containerBorderOpacity),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: s.containerShadowOpacity),
-            blurRadius: s.containerShadowBlur.r,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         children: [

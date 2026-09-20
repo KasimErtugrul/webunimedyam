@@ -80,10 +80,13 @@ class EngagementActionWidget extends StatelessWidget {
     final s = _Sizes.of(context);
     final primary = Theme.of(context).colorScheme.primary;
 
-    final color = active ? primary : AppTheme.textSec(context);
+    final scheme = Theme.of(context).colorScheme;
+    // Tasarımda tüm etkileşim düğmeleri her zaman dolgulu bir "chip" —
+    // pasif durumda surface-container-high, aktifken primary/12.
+    final color = active ? primary : AppTheme.textPri(context);
     final bgColor = active
         ? primary.withValues(alpha: 0.12)
-        : Colors.transparent;
+        : scheme.surfaceContainerHigh;
     final countText = _fmt(count);
 
     return InkWell(

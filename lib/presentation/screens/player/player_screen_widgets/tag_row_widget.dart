@@ -63,8 +63,8 @@ class TagsRowWidget extends StatelessWidget {
                 vertical: s.paddingV.h,
               ),
               decoration: BoxDecoration(
-                color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(s.borderRadius.r),
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
               ),
               child: Text(
                 '#$tag',

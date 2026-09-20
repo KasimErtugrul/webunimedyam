@@ -137,11 +137,8 @@ class CommentTileWidget extends StatelessWidget {
         vertical: s.cardPaddingV.h,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.surface(context).withValues(alpha: 0.6),
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(s.cardRadius.r),
-        border: Border.all(
-          color: AppTheme.textSec(context).withValues(alpha: 0.08),
-        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

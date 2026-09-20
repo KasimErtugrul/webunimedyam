@@ -1,4 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/university_row_widget.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,6 +12,9 @@ class _Sizes {
   final double fontSize;
   final double lineHeight;
   final double chevronSize;
+  final double avatarSize;
+  final double avatarSpacing;
+  final double avatarIconSize;
 
   const _Sizes._({
     required this.borderRadius,
@@ -18,6 +22,9 @@ class _Sizes {
     required this.fontSize,
     required this.lineHeight,
     required this.chevronSize,
+    required this.avatarSize,
+    required this.avatarSpacing,
+    required this.avatarIconSize,
   });
 
   factory _Sizes.of(BuildContext context) {
@@ -28,6 +35,9 @@ class _Sizes {
         fontSize: 16,
         lineHeight: 1.35,
         chevronSize: 22,
+        avatarSize: 44,
+        avatarSpacing: 12,
+        avatarIconSize: 22,
       );
     }
     return const _Sizes._(
@@ -36,6 +46,9 @@ class _Sizes {
       fontSize: 13,
       lineHeight: 1.3,
       chevronSize: 18,
+      avatarSize: 36,
+      avatarSpacing: 10,
+      avatarIconSize: 18,
     );
   }
 }
@@ -63,6 +76,34 @@ class UniversityRowWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Tasarımdaki kanal satırı: yuvarlak üniversite logosu/avatarı.
+            // `logoUrl` parametresi önceden alınıp hiç çizilmiyordu; artık
+            // gerçekten kullanılıyor (uydurma bir görsel eklenmedi).
+            Container(
+              width: s.avatarSize.w,
+              height: s.avatarSize.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: (logoUrl != null && logoUrl!.isNotEmpty)
+                  ? CachedNetworkImage(
+                      imageUrl: logoUrl!,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) => Icon(
+                        Icons.school_rounded,
+                        color: AppTheme.textSec(context),
+                        size: s.avatarIconSize.sp,
+                      ),
+                    )
+                  : Icon(
+                      Icons.school_rounded,
+                      color: AppTheme.textSec(context),
+                      size: s.avatarIconSize.sp,
+                    ),
+            ),
+            SizedBox(width: s.avatarSpacing.w),
             Expanded(
               child: Text(
                 universityName,

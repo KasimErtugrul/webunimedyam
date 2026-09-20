@@ -13,9 +13,9 @@ import 'player_screen_widgets/comment_input_widget.dart';
 import 'player_screen_widgets/comment_tile_widget.dart';
 import 'player_screen_widgets/engagement_bar/engagement_bar_widget.dart';
 import 'player_screen_widgets/expandable_description_widget.dart';
+import 'player_screen_widgets/suggested_videos_section_widget.dart';
 import 'player_screen_widgets/tag_row_widget.dart';
 import 'player_screen_widgets/university_row_widget.dart';
-import 'player_screen_widgets/suggested_videos_section_widget.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -85,7 +85,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         miniPosition: _miniPosition,
         isDragging: _dragTotal > spec.dragTapThreshold,
         isPanning: _isPanningMini,
-        onBack: () => Get.back(),
         onPanStart: _onMiniPanStart,
         onPanUpdate: _onMiniPanUpdate,
         onPanEnd: _onMiniPanEnd,
@@ -135,7 +134,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final spec = PlayerLayoutSpec.of(context);
       _miniPosition = Offset(
         _defaultMiniLeft(mq.size.width, spec),
-        _defaultMiniTop(mq.size.height, mq.padding.bottom, spec, mq.viewInsets.bottom),
+        _defaultMiniTop(
+          mq.size.height,
+          mq.padding.bottom,
+          spec,
+          mq.viewInsets.bottom,
+        ),
       );
     }
   }
@@ -152,10 +156,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
 
-    final newX = (_miniPosition!.dx + details.delta.dx)
-        .clamp(0.0, screenW - spec.miniW);
-    final newY = (_miniPosition!.dy + details.delta.dy)
-        .clamp(topPad, screenH - spec.miniH - botPad);
+    final newX = (_miniPosition!.dx + details.delta.dx).clamp(
+      0.0,
+      screenW - spec.miniW,
+    );
+    final newY = (_miniPosition!.dy + details.delta.dy).clamp(
+      topPad,
+      screenH - spec.miniH - botPad,
+    );
 
     setState(() {
       _miniPosition = Offset(newX, newY);
@@ -230,8 +238,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final double targetTop = _isMini
         ? (_miniPosition == null
               ? _defaultMiniTop(screenH, botPad, spec, keyboardInset)
-              : (_miniPosition!.dy - keyboardInset)
-                  .clamp(topPad, screenH - spec.miniH - botPad))
+              : (_miniPosition!.dy - keyboardInset).clamp(
+                  topPad,
+                  screenH - spec.miniH - botPad,
+                ))
         : topPad;
     final double targetW = _isMini ? spec.miniW : screenW;
     final double targetH = _isMini ? spec.miniH : bigH;
@@ -403,15 +413,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return const SizedBox.shrink();
       }),
       SizedBox(height: spec.tagsBottomSpacing.h),
-      const SuggestedVideosSectionWidget(),
-      SizedBox(height: spec.suggestedSpacing.h),
-      Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
-      SizedBox(height: spec.dividerSpacing.h),
+      // Tasarımdaki sıra: önce Yorumlar, en altta Önerilen Kampüs Yayınları.
+      // (Önceden bu iki bölüm ters sıradaydı — Önerilenler Yorumlar'ın
+      // üzerinde çıkıyordu, tasarımla eşleşmiyordu.)
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
       SizedBox(height: spec.commentsHeaderSpacing.h),
-      CommentInputWidget(
-        onSend: (String text) => _controller.addComment(text),
-      ),
+      CommentInputWidget(onSend: (String text) => _controller.addComment(text)),
       SizedBox(height: spec.commentsInputSpacing.h),
       Obx(() {
         if (_controller.isCommentsLoading.value) {
@@ -458,6 +465,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         );
       }),
+      SizedBox(height: spec.suggestedSpacing.h),
+      Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
+      SizedBox(height: spec.dividerSpacing.h),
+      const SuggestedVideosSectionWidget(),
       SizedBox(height: spec.bottomSpacing.h),
     ];
   }
@@ -513,6 +524,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
 // ═══════════════════════════════════════════════════════════════════════
 // Overlay buttons (phone + tablet tek widget)
+// Non-mini modda artık hiçbir ikon gösterilmiyor; sadece mini modda
+// video üzerinde sürükleme alanı var.
 // ═══════════════════════════════════════════════════════════════════════
 
 class _OverlayButtons extends StatelessWidget {
@@ -520,7 +533,6 @@ class _OverlayButtons extends StatelessWidget {
     required this.isMini,
     required this.bigH,
     required this.spec,
-    required this.onBack,
     this.miniPosition,
     this.isDragging = false,
     this.isPanning = false,
@@ -532,7 +544,6 @@ class _OverlayButtons extends StatelessWidget {
   final bool isMini;
   final double bigH;
   final PlayerLayoutSpec spec;
-  final VoidCallback onBack;
   final Offset? miniPosition;
   final bool isDragging;
   final bool isPanning;
@@ -542,68 +553,38 @@ class _OverlayButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!isMini) {
+      // Non-mini modda video üzerinde hiçbir overlay ikon yok.
+      return const SizedBox.shrink();
+    }
+
     final mq = MediaQuery.of(context);
     final screenW = mq.size.width;
     final screenH = mq.size.height;
-    final topPad = mq.padding.top;
     final botPad = mq.padding.bottom;
 
     final double defaultLeft = screenW - spec.miniW - spec.miniPad;
     final double defaultTop =
         screenH - spec.miniH - spec.miniPad - botPad - spec.miniBottomOffset;
 
-    final double targetLeft = isMini ? (miniPosition?.dx ?? defaultLeft) : 0;
-    final double targetTop = isMini ? (miniPosition?.dy ?? defaultTop) : topPad;
-    final double targetW = isMini ? spec.miniW : screenW;
+    final double targetLeft = miniPosition?.dx ?? defaultLeft;
+    final double targetTop = miniPosition?.dy ?? defaultTop;
     final Duration effectiveDur = isPanning ? Duration.zero : spec.animDur;
 
-    return Stack(
-      children: [
-        if (!isMini)
-          AnimatedPositioned(
-            duration: effectiveDur,
-            curve: spec.animCurve,
-            left: targetLeft + spec.backButtonLeft.w,
-            top: targetTop + spec.backButtonTop.h,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius:
-                    BorderRadius.circular(spec.backButtonRadius.r),
-                onTap: onBack,
-                child: Container(
-                  padding: EdgeInsets.all(spec.backButtonPadding.w),
-                  decoration: BoxDecoration(
-                    color:
-                        Colors.black.withValues(alpha: spec.backButtonAlpha),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: spec.backButtonSize.sp,
-                  ),
-                ),
-              ),
-            ),
-          )
-        else
-          AnimatedPositioned(
-            duration: effectiveDur,
-            curve: spec.animCurve,
-            left: targetLeft,
-            top: targetTop,
-            width: targetW,
-            height: spec.miniH,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onPanStart: onPanStart,
-              onPanUpdate: onPanUpdate,
-              onPanEnd: onPanEnd,
-              child: const ColoredBox(color: Colors.transparent),
-            ),
-          ),
-      ],
+    return AnimatedPositioned(
+      duration: effectiveDur,
+      curve: spec.animCurve,
+      left: targetLeft,
+      top: targetTop,
+      width: spec.miniW,
+      height: spec.miniH,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanStart: onPanStart,
+        onPanUpdate: onPanUpdate,
+        onPanEnd: onPanEnd,
+        child: const ColoredBox(color: Colors.transparent),
+      ),
     );
   }
 }
