@@ -12,6 +12,7 @@ import '../../../../../core/responsive.dart';
 import '../../../../../core/utils/formatters.dart';
 import '../../../../../data/models/university_model.dart';
 import '../../../../controllers/home/home_controller.dart';
+import 'widgets/universities_alphabet_list.dart';
 
 class UniversitiesTabWidget extends StatefulWidget {
   const UniversitiesTabWidget({super.key});
@@ -23,20 +24,36 @@ class UniversitiesTabWidget extends StatefulWidget {
 class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   final HomeController controller = Get.find<HomeController>();
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
 
   // Filtre Hapları (Tümü, Devlet, Vakıf, KKTC)
   String _selectedTypeFilter = 'all'; // all, devlet, vakif, kktc
 
-  // Sıralama Seçimi (alpha: Alfabetik A-Z, followers: Takipçi Sayısı, videos: Video Sayısı)
-  String _currentSort = 'alpha';
+  // Sıralama Seçimi
+  String _currentSort = 'alpha'; // alpha | followers | videos
 
-  // HUD Harf Göstergesi için State
-  String _activeHUDLetter = '';
-  bool _showHUD = false;
+  // ═══════════════════════════════════════════════════════════════════
+  // A-Z LİSTESİ ÖLÇÜLERİ
+  // ═══════════════════════════════════════════════════════════════════
+  // UniversitiesAlphabetList sabit satır yüksekliğiyle (itemExtent) çalışır:
+  // bir satır = kart yüksekliği + kartlar arası boşluk.
+  // NOT: Kart tasarımını değiştirirseniz bu değeri güncelleyin.
+  static const double _cardGap = 8;
 
-  // Harf index anahtarları (A-Z zıplama için)
-  final Map<String, GlobalKey> _letterKeys = {};
+  double _alphabetItemExtent(bool isTablet) =>
+      ((isTablet ? 110.0 : 96.0) + _cardGap).w;
+
+  /// A-Z listesinin layout spec'i.
+  /// ⚠️ GEÇİCİ DEĞERLER: UniversitiesTabLayoutSpec kurucusu farklıysa
+  /// (fazla/zorunlu alan, factory vb.) dosyayı gönderin, birebir uyarlayayım.
+  /* UniversitiesTabLayoutSpec _buildAlphabetSpec(bool isTablet) {
+    return UniversitiesTabLayoutSpec(
+      contentHPadding: isTablet ? 24 : 16,
+      sidebarWidth: isTablet ? 32 : 26,
+      sidebarPillWidth: isTablet ? 26 : 22,
+      sidebarActiveFontSize: isTablet ? 13 : 12,
+      sidebarInactiveFontSize: isTablet ? 10 : 9,
+    );
+  } */
 
   @override
   void initState() {
@@ -51,31 +68,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _triggerHUD(String letter) {
-    setState(() {
-      _activeHUDLetter = letter;
-      _showHUD = true;
-    });
-
-    // Harfe Scroll Et
-    final key = _letterKeys[letter];
-    if (key != null && key.currentContext != null) {
-      Scrollable.ensureVisible(
-        key.currentContext!,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-      );
-    }
-
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) {
-        setState(() => _showHUD = false);
-      }
-    });
   }
 
   @override
@@ -87,279 +80,110 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       backgroundColor: AppTheme.bg(context),
       body: SafeArea(
         top: false,
-        child: Stack(
+        child: Column(
           children: [
-            RefreshIndicator(
-              color: scheme.primary,
-              backgroundColor: scheme.surfaceContainerHigh,
-              onRefresh: controller.loadUniversitiesAndPlaylists,
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+            _buildTopHeader(context, scheme, isTablet: isTablet),
+            _buildTitleAndSearch(context, scheme, isTablet: isTablet),
+            _buildFilterPills(context, scheme, isTablet: isTablet),
+            _buildCounterAndSortRow(context, scheme, isTablet: isTablet),
+            // Liste kalan alanı kaplar; UniversitiesAlphabetList kendi
+            // ScrollController'ını (ve A-Z şeridini) yönetir.
+            Expanded(
+              child: RefreshIndicator(
+                color: scheme.primary,
+                backgroundColor: scheme.surfaceContainerHigh,
+                onRefresh: controller.loadUniversitiesAndPlaylists,
+                child: Obx(
+                  () => _buildListBody(context, scheme, isTablet: isTablet),
                 ),
-                slivers: [
-                  // ── 1. ÜST HEADER BAR (Logo, Canlı Odalar, Bildirim, Avatar) ──
-                  SliverToBoxAdapter(
-                    child: _buildTopHeader(context, scheme, isTablet: isTablet),
-                  ),
-
-                  // ── 2. BAŞLIK, CANLI ODALAR VE ARAMA KUTUSU ──
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Başlık ve Canlı Odalar Rozeti
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Üniversiteler',
-                                    style: TextStyle(
-                                      color: scheme.onSurface,
-                                      fontSize: isTablet ? 24.sp : 20.sp,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Türkiye & KKTC akademik yayın ağları',
-                                    style: TextStyle(
-                                      color: scheme.onSurfaceVariant,
-                                      fontSize: isTablet ? 13.sp : 11.5.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10.w,
-                                  vertical: 4.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: scheme.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 6.w,
-                                      height: 6.w,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: scheme.primary,
-                                      ),
-                                    )
-                                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                                        .scale(
-                                          begin: const Offset(0.8, 0.8),
-                                          end: const Offset(1.4, 1.4),
-                                          duration: 800.ms,
-                                        ),
-                                    SizedBox(width: 5.w),
-                                    Text(
-                                      'Canlı Odalar',
-                                      style: TextStyle(
-                                        color: scheme.primary,
-                                        fontSize: isTablet ? 11.sp : 9.5.sp,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 12.h),
-
-                          // Arama Giriş Kutusu (Temizle Butonlu)
-                          Container(
-                            height: isTablet ? 46.h : 42.h,
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            decoration: BoxDecoration(
-                              color: scheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.search_rounded,
-                                  color: scheme.outline,
-                                  size: 20.sp,
-                                ),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _searchController,
-                                    onChanged: (_) => setState(() {}),
-                                    style: TextStyle(
-                                      color: scheme.onSurface,
-                                      fontSize: isTablet ? 14.sp : 12.5.sp,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Üniversite veya şehir ara...',
-                                      hintStyle: TextStyle(
-                                        color: scheme.outline,
-                                        fontSize: isTablet ? 13.5.sp : 12.sp,
-                                      ),
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    ),
-                                  ),
-                                ),
-                                if (_searchController.text.isNotEmpty)
-                                  GestureDetector(
-                                    onTap: () {
-                                      _searchController.clear();
-                                      setState(() {});
-                                    },
-                                    child: Icon(
-                                      Icons.cancel_rounded,
-                                      color: scheme.outline,
-                                      size: 18.sp,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // ── 3. YATAY FİLTRE HAPLARI (Tümü, Devlet, Vakıf, KKTC) ──
-                  SliverToBoxAdapter(
-                    child: _buildFilterPills(context, scheme, isTablet: isTablet),
-                  ),
-
-                  // ── 4. SAYAÇ VE SIRALAMA MENÜSÜ SATIRI ──
-                  SliverToBoxAdapter(
-                    child: Obx(() {
-                      final filtered = _getFilteredUniversities();
-                      return Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.school_rounded,
-                                  color: scheme.primary,
-                                  size: 16.sp,
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  '${filtered.length} Üniversite',
-                                  style: TextStyle(
-                                    color: scheme.onSurface,
-                                    fontSize: isTablet ? 13.5.sp : 12.5.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // Sırala Dropdown Butonu
-                            _buildSortDropdown(context, scheme, isTablet: isTablet),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
-
-                  // ── 5. ÜNİVERSİTE KARTLARI LİSTESİ ──
-                  Obx(() {
-                    final isLoading = controller.isUniversitiesLoading.value;
-                    final filtered = _getFilteredUniversities();
-
-                    if (isLoading) {
-                      return SliverPadding(
-                        padding: EdgeInsets.fromLTRB(16.w, 0, 38.w, 24.h),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (_, _) => _buildCardShimmer(context, scheme),
-                            childCount: 6,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (filtered.isEmpty) {
-                      return SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: _buildEmptyState(context, scheme, isTablet: isTablet),
-                      );
-                    }
-
-                    return _buildUniversityStream(context, scheme, filtered, isTablet: isTablet);
-                  }),
-
-                  // Alt güvenli boşluk
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 32.h),
-                  ),
-                ],
               ),
             ),
-
-            // ── SAĞ SABİT A-Z HIZLI İNDEKS ŞERİDİ ──
-            Positioned(
-              right: 2.w,
-              top: 130.h,
-              bottom: 40.h,
-              child: _buildAlphabetIndexSidebar(scheme, isTablet: isTablet),
-            ),
-
-            // ── MICRO-TOAST / HUD HARF GÖSTERGESİ ──
-            if (_showHUD)
-              Center(
-                child: Container(
-                  width: 64.w,
-                  height: 64.w,
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _activeHUDLetter,
-                    style: TextStyle(
-                      color: scheme.primary,
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ).animate().scale(
-                      begin: const Offset(0.7, 0.7),
-                      end: const Offset(1, 1),
-                      duration: 150.ms,
-                      curve: Curves.easeOutBack,
-                    ),
-              ),
           ],
         ),
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 1. ÜST HEADER (Tasarım: h-16, logo, sensör canlı, bildirim, avatar)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // LİSTE GÖVDESİ — yükleme / boş / alfabetik (A-Z şeritli) / diğer sıralama
+  // ═══════════════════════════════════════════════════════════════════
+  Widget _buildListBody(
+    BuildContext context,
+    ColorScheme scheme, {
+    required bool isTablet,
+  }) {
+    final isLoading = controller.isUniversitiesLoading.value;
+    final filtered = _getFilteredUniversities();
+
+    if (isLoading) {
+      return ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+        itemCount: 6,
+        itemBuilder: (_, _) => _buildCardShimmer(context, scheme),
+      );
+    }
+
+    if (filtered.isEmpty) {
+      // RefreshIndicator'ın çalışabilmesi için kaydırılabilir olmalı.
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.only(bottom: 24.h),
+        children: [
+          SizedBox(height: 60.h),
+          _buildEmptyState(context, scheme, isTablet: isTablet),
+        ],
+      );
+    }
+
+    // Alfabetik sıralama → hazır A-Z hızlı indeksli liste.
+    // Harf grupları controller tarafından otomatik türetilir; liste kaydırınca
+    // aktif harf güncellenir, şeride dokununca/sürükleyince liste kayar.
+    if (_currentSort == 'alpha') {
+      return Padding(
+        padding: EdgeInsets.only(bottom: 24.h),
+        child: UniversitiesAlphabetList(
+          //spec: _buildAlphabetSpec(isTablet),
+          universities: filtered,
+          itemExtent: _alphabetItemExtent(isTablet),
+          itemBuilder: (context, index, university) => _buildUniversityCard(
+            context,
+            scheme,
+            university,
+            isTablet: isTablet,
+          ),
+        ),
+      );
+    }
+
+    // Takipçi / video sayısına göre sıralama → şeritsiz düz liste.
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+      itemCount: filtered.length,
+      itemBuilder: (_, i) => Padding(
+        padding: EdgeInsets.only(
+          bottom: i == filtered.length - 1 ? 0 : _cardGap.h,
+        ),
+        child: _buildUniversityCard(
+          context,
+          scheme,
+          filtered[i],
+          isTablet: isTablet,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 1. ÜST HEADER — değişmedi
+  // ═══════════════════════════════════════════════════════════════════
   Widget _buildTopHeader(
     BuildContext context,
     ColorScheme scheme, {
@@ -373,7 +197,6 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Sol: Logo & Marka
           Row(
             children: [
               Container(
@@ -424,8 +247,6 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               ),
             ],
           ),
-
-          // Sağ: Aksiyon İkonları
           Row(
             children: [
               IconButton(
@@ -462,106 +283,276 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 2. FILTER PILLS (Tümü, Devlet, Vakıf, KKTC)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // 2. BAŞLIK + ARAMA — değişmedi (build'den metoda alındı)
+  // ═══════════════════════════════════════════════════════════════════
+  Widget _buildTitleAndSearch(
+    BuildContext context,
+    ColorScheme scheme, {
+    required bool isTablet,
+  }) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Üniversiteler',
+                    style: TextStyle(
+                      color: scheme.onSurface,
+                      fontSize: isTablet ? 24.sp : 20.sp,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  Text(
+                    'Türkiye & KKTC akademik yayın ağları',
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: isTablet ? 13.sp : 11.5.sp,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                          width: 6.w,
+                          height: 6.w,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: scheme.primary,
+                          ),
+                        )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scale(
+                          begin: const Offset(0.8, 0.8),
+                          end: const Offset(1.4, 1.4),
+                          duration: 800.ms,
+                        ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      'Canlı Odalar',
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontSize: isTablet ? 11.sp : 9.5.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            height: isTablet ? 46.h : 42.h,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.search_rounded, color: scheme.outline, size: 20.sp),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
+                    style: TextStyle(
+                      color: scheme.onSurface,
+                      fontSize: isTablet ? 14.sp : 12.5.sp,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Üniversite veya şehir ara...',
+                      hintStyle: TextStyle(
+                        color: scheme.outline,
+                        fontSize: isTablet ? 13.5.sp : 12.sp,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+                if (_searchController.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _searchController.clear();
+                      setState(() {});
+                    },
+                    child: Icon(
+                      Icons.cancel_rounded,
+                      color: scheme.outline,
+                      size: 18.sp,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 3. FILTER PILLS — değişmedi (sayaçların RxList'e tepki vermesi için Obx'e alındı)
+  // ═══════════════════════════════════════════════════════════════════
   Widget _buildFilterPills(
     BuildContext context,
     ColorScheme scheme, {
     required bool isTablet,
   }) {
-    final universities = controller.universities;
-    final devletCount = universities
-        .where((u) => u.universityType?.toLowerCase() == 'devlet')
-        .length;
-    final vakifCount = universities
-        .where((u) =>
-            u.universityType?.toLowerCase() == 'ozel' ||
-            u.universityType?.toLowerCase() == 'özel' ||
-            u.universityType?.toLowerCase() == 'vakif')
-        .length;
-    final kktcCount = universities
-        .where((u) => u.universityType?.toLowerCase() == 'kktc')
-        .length;
+    return Obx(() {
+      final universities = controller.universities;
+      final devletCount = universities
+          .where((u) => u.universityType?.toLowerCase() == 'devlet')
+          .length;
+      final vakifCount = universities
+          .where(
+            (u) =>
+                u.universityType?.toLowerCase() == 'ozel' ||
+                u.universityType?.toLowerCase() == 'özel' ||
+                u.universityType?.toLowerCase() == 'vakif',
+          )
+          .length;
+      final kktcCount = universities
+          .where((u) => u.universityType?.toLowerCase() == 'kktc')
+          .length;
 
-    final pills = [
-      {'key': 'all', 'label': 'Tümü', 'count': universities.length},
-      {'key': 'devlet', 'label': 'Devlet', 'count': devletCount},
-      {'key': 'vakif', 'label': 'Vakıf', 'count': vakifCount},
-      {'key': 'kktc', 'label': 'KKTC', 'count': kktcCount},
-    ];
+      final pills = [
+        {'key': 'all', 'label': 'Tümü', 'count': universities.length},
+        {'key': 'devlet', 'label': 'Devlet', 'count': devletCount},
+        {'key': 'vakif', 'label': 'Vakıf', 'count': vakifCount},
+        {'key': 'kktc', 'label': 'KKTC', 'count': kktcCount},
+      ];
 
-    return SizedBox(
-      height: isTablet ? 38.h : 34.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: pills.length,
-        separatorBuilder: (_, _) => SizedBox(width: 8.w),
-        itemBuilder: (context, index) {
-          final p = pills[index];
-          final isSelected = _selectedTypeFilter == p['key'];
-          final count = p['count'] as int;
+      return SizedBox(
+        height: isTablet ? 38.h : 34.h,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          itemCount: pills.length,
+          separatorBuilder: (_, _) => SizedBox(width: 8.w),
+          itemBuilder: (context, index) {
+            final p = pills[index];
+            final isSelected = _selectedTypeFilter == p['key'];
+            final count = p['count'] as int;
 
-          return GestureDetector(
-            onTap: () => setState(() => _selectedTypeFilter = p['key'] as String),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? 14.w : 12.w,
-                vertical: 6.h,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? scheme.primary.withValues(alpha: 0.2)
-                    : scheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: isSelected
-                      ? scheme.primary.withValues(alpha: 0.4)
-                      : Colors.transparent,
-                  width: 1,
+            return GestureDetector(
+              onTap: () =>
+                  setState(() => _selectedTypeFilter = p['key'] as String),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 14.w : 12.w,
+                  vertical: 6.h,
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    p['label'] as String,
-                    style: TextStyle(
-                      color: isSelected
-                          ? scheme.primary
-                          : scheme.onSurfaceVariant,
-                      fontSize: isTablet ? 12.5.sp : 11.5.sp,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? scheme.primary.withValues(alpha: 0.2)
+                      : scheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? scheme.primary.withValues(alpha: 0.4)
+                        : Colors.transparent,
+                    width: 1,
                   ),
-                  if (count > 0 && p['key'] != 'all') ...[
-                    SizedBox(width: 3.w),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Text(
-                      '($count)',
+                      p['label'] as String,
                       style: TextStyle(
-                        color: (isSelected
-                                ? scheme.primary
-                                : scheme.onSurfaceVariant)
-                            .withValues(alpha: 0.6),
-                        fontSize: isTablet ? 10.5.sp : 9.5.sp,
+                        color: isSelected
+                            ? scheme.primary
+                            : scheme.onSurfaceVariant,
+                        fontSize: isTablet ? 12.5.sp : 11.5.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                       ),
                     ),
+                    if (count > 0 && p['key'] != 'all') ...[
+                      SizedBox(width: 3.w),
+                      Text(
+                        '($count)',
+                        style: TextStyle(
+                          color:
+                              (isSelected
+                                      ? scheme.primary
+                                      : scheme.onSurfaceVariant)
+                                  .withValues(alpha: 0.6),
+                          fontSize: isTablet ? 10.5.sp : 9.5.sp,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
+    });
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 3. SORT DROPDOWN MENÜ
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // 4. SAYAÇ + SIRALAMA SATIRI
+  // ═══════════════════════════════════════════════════════════════════
+  Widget _buildCounterAndSortRow(
+    BuildContext context,
+    ColorScheme scheme, {
+    required bool isTablet,
+  }) {
+    return Obx(() {
+      final filtered = _getFilteredUniversities();
+      return Padding(
+        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.school_rounded, color: scheme.primary, size: 16.sp),
+                SizedBox(width: 5.w),
+                Text(
+                  '${filtered.length} Üniversite',
+                  style: TextStyle(
+                    color: scheme.onSurface,
+                    fontSize: isTablet ? 13.5.sp : 12.5.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            _buildSortDropdown(context, scheme, isTablet: isTablet),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 5. SORT DROPDOWN — değişmedi
+  // ═══════════════════════════════════════════════════════════════════
   Widget _buildSortDropdown(
     BuildContext context,
     ColorScheme scheme, {
@@ -673,152 +664,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 4. ALPHABET INDEX SIDEBAR (A-Z)
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildAlphabetIndexSidebar(
-    ColorScheme scheme, {
-    required bool isTablet,
-  }) {
-    const letters = [
-      'A', 'B', 'C', 'Ç', 'D', 'E', 'F', 'G', 'H',
-      'İ', 'K', 'M', 'O', 'P', 'S', 'T', 'Y', 'Z'
-    ];
-
-    return Container(
-      width: 24.w,
-      padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: letters.map((l) {
-          final hasKey = _letterKeys.containsKey(l);
-          return GestureDetector(
-            onTap: () => _triggerHUD(l),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 1.h),
-              child: Text(
-                l,
-                style: TextStyle(
-                  color: hasKey ? scheme.primary : scheme.outline.withValues(alpha: 0.6),
-                  fontSize: isTablet ? 11.sp : 9.sp,
-                  fontWeight: hasKey ? FontWeight.w800 : FontWeight.w600,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 5. UNIVERSITY CARDS STREAM & SECTION ANCHORS
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildUniversityStream(
-    BuildContext context,
-    ColorScheme scheme,
-    List<UniversityModel> list, {
-    required bool isTablet,
-  }) {
-    _letterKeys.clear();
-
-    // Alfabetik sıralıysa harf başlıklarıyla grupla
-    if (_currentSort == 'alpha') {
-      final groups = <String, List<UniversityModel>>{};
-      for (final u in list) {
-        final initial = getTurkishInitialTag(u.name);
-        groups.putIfAbsent(initial, () => []).add(u);
-      }
-
-      final keys = groups.keys.toList()
-        ..sort((a, b) => turkishAlphabetCompare(a, b));
-
-      return SliverPadding(
-        padding: EdgeInsets.fromLTRB(16.w, 0, 32.w, 24.h),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final letter = keys[index];
-              final items = groups[letter]!;
-              final groupKey = GlobalKey();
-              _letterKeys[letter] = groupKey;
-
-              return Column(
-                key: groupKey,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Harf Başlığı Anchor Çizgisi
-                  Padding(
-                    padding: EdgeInsets.only(top: 10.h, bottom: 6.h),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 24.w,
-                          height: 24.w,
-                          decoration: BoxDecoration(
-                            color: scheme.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            letter,
-                            style: TextStyle(
-                              color: scheme.primary,
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            color: scheme.surfaceContainerHighest.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Bu harfe ait üniversite kartları
-                  for (final uni in items) ...[
-                    _buildUniversityCard(context, scheme, uni, isTablet: isTablet),
-                    SizedBox(height: 8.h),
-                  ],
-                ],
-              );
-            },
-            childCount: keys.length,
-          ),
-        ),
-      );
-    }
-
-    // Takipçi veya video sayısına göre sıralıysa direkt düz liste
-    return SliverPadding(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 32.w, 24.h),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: 8.h),
-              child: _buildUniversityCard(
-                context,
-                scheme,
-                list[index],
-                isTablet: isTablet,
-              ),
-            );
-          },
-          childCount: list.length,
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 6. SINGLE UNIVERSITY CARD (Tasarım: Logo, Başlık, Meta, Metrikler, Takip)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // 6. TEK ÜNİVERSİTE KARTI — değişmedi
+  // ═══════════════════════════════════════════════════════════════════
   Widget _buildUniversityCard(
     BuildContext context,
     ColorScheme scheme,
@@ -833,10 +681,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     final isPopuler = (uni.subscriberCount ?? 0) > 50000;
 
     return GestureDetector(
-      onTap: () => Get.toNamed(
-        AppRoutes.universityDetail,
-        arguments: uni,
-      ),
+      onTap: () => Get.toNamed(AppRoutes.universityDetail, arguments: uni),
       child: Container(
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
@@ -844,7 +689,6 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         ),
         child: Stack(
           children: [
-            // Popüler Şeridi (Ribbon)
             if (isPopuler)
               Positioned(
                 top: 0,
@@ -869,16 +713,13 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                   ),
                 ),
               ),
-
             Padding(
               padding: EdgeInsets.all(10.w),
               child: Column(
                 children: [
-                  // Üst Satır: Logo + İsim + Takip Butonu
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Logo Badge
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -928,10 +769,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           ),
                         ],
                       ),
-
                       SizedBox(width: 10.w),
-
-                      // İsim & Meta Satırı
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -973,13 +811,11 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           ],
                         ),
                       ),
-
                       SizedBox(width: 6.w),
-
-                      // Takip Et / Takipte Butonu
                       Obx(() {
-                        final isFav =
-                            controller.favoriteUniversityIds.contains(uni.id);
+                        final isFav = controller.favoriteUniversityIds.contains(
+                          uni.id,
+                        );
 
                         return GestureDetector(
                           onTap: () => controller.toggleUniversityFavorite(uni),
@@ -1022,10 +858,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                       }),
                     ],
                   ),
-
                   SizedBox(height: 8.h),
-
-                  // Alt Metrikler Satırı (Takipçi · İzlenme · Video)
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 10.w,
@@ -1140,9 +973,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     return parts.isEmpty ? 'Akademik Kanal' : parts.join(' · ');
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 7. EMPTY & SHIMMER STATES
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // 7. EMPTY & SHIMMER — değişmedi
+  // ═══════════════════════════════════════════════════════════════════
   Widget _buildEmptyState(
     BuildContext context,
     ColorScheme scheme, {
@@ -1224,24 +1057,24 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 8. FİLTRE VE SIRALAMA UYGULAMA METODU
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════
+  // 8. FİLTRE + SIRALAMA — değişmedi
+  // ═══════════════════════════════════════════════════════════════════
   List<UniversityModel> _getFilteredUniversities() {
     var list = controller.universities.toList();
 
-    // 1) Tip Filtresi
     if (_selectedTypeFilter != 'all') {
       list = list.where((u) {
         final t = (u.universityType ?? '').toLowerCase();
         if (_selectedTypeFilter == 'devlet') return t == 'devlet';
-        if (_selectedTypeFilter == 'vakif') return t == 'ozel' || t == 'özel' || t == 'vakif';
+        if (_selectedTypeFilter == 'vakif') {
+          return t == 'ozel' || t == 'özel' || t == 'vakif';
+        }
         if (_selectedTypeFilter == 'kktc') return t == 'kktc';
         return true;
       }).toList();
     }
 
-    // 2) Arama Kutusu Filtresi
     final query = _searchController.text.trim().toLowerCase();
     if (query.isNotEmpty) {
       list = list.where((u) {
@@ -1251,11 +1084,12 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       }).toList();
     }
 
-    // 3) Sıralama
     if (_currentSort == 'alpha') {
       list.sort((a, b) => turkishAlphabetCompare(a.name ?? '', b.name ?? ''));
     } else if (_currentSort == 'followers') {
-      list.sort((a, b) => (b.subscriberCount ?? 0).compareTo(a.subscriberCount ?? 0));
+      list.sort(
+        (a, b) => (b.subscriberCount ?? 0).compareTo(a.subscriberCount ?? 0),
+      );
     } else if (_currentSort == 'videos') {
       list.sort((a, b) => (b.videoCount ?? 0).compareTo(a.videoCount ?? 0));
     }

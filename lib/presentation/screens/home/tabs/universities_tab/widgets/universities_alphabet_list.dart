@@ -1,24 +1,65 @@
-// lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/universities_alphabet_list.dart
+// lib/presentation/screens/home/tabs/universities_tab/widgets/universities_alphabet_list.dart
+//
+// Üniversiteler sekmesinin A-Z hızlı indeksli listesi.
+// NOT: Artık UniversitiesTabLayoutSpec'e bağımlı DEĞİL — sidebar ölçüleri
+// (genişlik, hap, font boyutları) bu dosyadaki phone/tablet sabitlerinden
+// gelir. Kart, dışarıdan verilen itemBuilder ile üretilir.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../core/responsive.dart';
 import '../../../../../../data/models/university_model.dart';
 import '../../../../../controllers/university_alphabet_controller.dart';
-import '../universities_tab_layout_spec.dart';
-import 'university_list_card_widget.dart';
+
+// ═══════════════════════════════════════════════════════════════════
+// ÖLÇÜ SABİTLERİ
+// ═══════════════════════════════════════════════════════════════════
+
+class _PhoneSizes {
+  static const double sidebarWidth = 26;
+  static const double sidebarPill = 22;
+  static const double sidebarActiveFontSize = 12;
+  static const double sidebarInactiveFontSize = 9;
+  static const double sidebarVerticalPadding = 8;
+  static const double listPadHorizontal = 16;
+}
+
+class _TabletSizes {
+  static const double sidebarWidth = 34;
+  static const double sidebarPill = 28;
+  static const double sidebarActiveFontSize = 14;
+  static const double sidebarInactiveFontSize = 11;
+  static const double sidebarVerticalPadding = 10;
+  static const double listPadHorizontal = 24;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// WIDGET
+// ═══════════════════════════════════════════════════════════════════
 
 class UniversitiesAlphabetList extends StatefulWidget {
-  final UniversitiesTabLayoutSpec spec;
   final List<UniversityModel> universities;
+
+  /// Bir satırın (kart + alt boşluk) toplam yüksekliği. Controller,
+  /// kaydırma konumunu "offset = index * itemExtent" kabulüyle hesapladığı
+  /// için bu değer tek ve sabit olmalıdır.
   final double itemExtent;
+
+  /// Kart üreticisi — sekme kendi kart tasarımını buradan enjekte eder.
+  final Widget Function(
+    BuildContext context,
+    int index,
+    UniversityModel university,
+  ) itemBuilder;
 
   const UniversitiesAlphabetList({
     super.key,
-    required this.spec,
     required this.universities,
     required this.itemExtent,
+    required this.itemBuilder,
   });
 
   @override
@@ -26,8 +67,7 @@ class UniversitiesAlphabetList extends StatefulWidget {
       _UniversitiesAlphabetListState();
 }
 
-class _UniversitiesAlphabetListState
-    extends State<UniversitiesAlphabetList> {
+class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
   static const _tag = 'uni_alpha_list';
   late final UniversityAlphabetController _controller;
 
@@ -44,30 +84,37 @@ class _UniversitiesAlphabetListState
   @override
   void didUpdateWidget(covariant UniversitiesAlphabetList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.universities, widget.universities)) {
+    if (!identical(oldWidget.universities, widget.universities) ||
+        oldWidget.itemExtent != widget.itemExtent) {
       _controller.setData(widget.universities, widget.itemExtent);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
+    final hPad = isTablet
+        ? _TabletSizes.listPadHorizontal
+        : _PhoneSizes.listPadHorizontal.w;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: ListView.builder(
             controller: _controller.scrollController,
+            // RefreshIndicator kısa listelerde de çalışabilsin.
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            // DİKKAT: padding sıfır kalmalı — controller, offset → index
+            // dönüşümünü "offset = index * itemExtent" kabulüyle yapıyor.
             padding: EdgeInsets.zero,
             itemExtent: widget.itemExtent,
             itemCount: widget.universities.length,
-            itemBuilder: (_, i) => Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.spec.contentHPadding.w,
-              ),
-              child: UniversityListCardWidget(
-                spec: widget.spec,
-                university: widget.universities[i],
-              ),
+            itemBuilder: (context, i) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: widget.itemBuilder(context, i, widget.universities[i]),
             ),
           ),
         ),
@@ -75,7 +122,6 @@ class _UniversitiesAlphabetListState
           final letters = _controller.availableLetters;
           if (letters.isEmpty) return const SizedBox.shrink();
           return _AlphabetSidebar(
-            spec: widget.spec,
             letters: letters,
             currentLetter: _controller.currentLetter.value,
             onTapLetter: _controller.jumpToLetter,
@@ -87,26 +133,24 @@ class _UniversitiesAlphabetListState
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// SAĞ A-Z ŞERİDİ
+// ═══════════════════════════════════════════════════════════════════
+
 class _AlphabetSidebar extends StatelessWidget {
-  final UniversitiesTabLayoutSpec spec;
   final List<String> letters;
   final String currentLetter;
   final ValueChanged<String> onTapLetter;
   final ValueChanged<String> onDragLetter;
 
   const _AlphabetSidebar({
-    required this.spec,
     required this.letters,
     required this.currentLetter,
     required this.onTapLetter,
     required this.onDragLetter,
   });
 
-  void _handlePosition(
-    Offset local,
-    double height,
-    ValueChanged<String> cb,
-  ) {
+  void _handlePosition(Offset local, double height, ValueChanged<String> cb) {
     if (letters.isEmpty || height <= 0) return;
     final itemHeight = height / letters.length;
     final index =
@@ -116,6 +160,22 @@ class _AlphabetSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
+    final width = isTablet
+        ? _TabletSizes.sidebarWidth
+        : _PhoneSizes.sidebarWidth.w;
+    final pill =
+        isTablet ? _TabletSizes.sidebarPill : _PhoneSizes.sidebarPill.w;
+    final activeFont = isTablet
+        ? _TabletSizes.sidebarActiveFontSize
+        : _PhoneSizes.sidebarActiveFontSize.sp;
+    final inactiveFont = isTablet
+        ? _TabletSizes.sidebarInactiveFontSize
+        : _PhoneSizes.sidebarInactiveFontSize.sp;
+    final vPad = isTablet
+        ? _TabletSizes.sidebarVerticalPadding
+        : _PhoneSizes.sidebarVerticalPadding.h;
+
     return LayoutBuilder(
       builder: (context, c) {
         final height = c.maxHeight;
@@ -126,9 +186,9 @@ class _AlphabetSidebar extends StatelessWidget {
           onVerticalDragUpdate: (d) =>
               _handlePosition(d.localPosition, height, onDragLetter),
           child: Container(
-            width: spec.sidebarWidth.w,
+            width: width,
             alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: EdgeInsets.symmetric(vertical: vPad),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: letters.map((letter) {
@@ -137,8 +197,8 @@ class _AlphabetSidebar extends StatelessWidget {
                   child: Center(
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: isActive ? spec.sidebarPillWidth.w : 0,
-                      height: spec.sidebarPillWidth.w,
+                      width: isActive ? pill : 0,
+                      height: pill,
                       decoration: BoxDecoration(
                         color: isActive
                             ? AppTheme.primaryColor
@@ -149,9 +209,7 @@ class _AlphabetSidebar extends StatelessWidget {
                       child: Text(
                         letter,
                         style: TextStyle(
-                          fontSize: isActive
-                              ? spec.sidebarActiveFontSize.sp
-                              : spec.sidebarInactiveFontSize.sp,
+                          fontSize: isActive ? activeFont : inactiveFont,
                           fontWeight:
                               isActive ? FontWeight.w800 : FontWeight.w500,
                           color: isActive

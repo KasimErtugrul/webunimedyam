@@ -1,15 +1,16 @@
 // lib/presentation/screens/home/tabs/home_tab/widgets/continue_watching_section_widget.dart
 //
 // "İzlemeye Devam Et" — ana sayfada, kullanıcının yarıda bıraktığı videoları
-// gösteren DİKEY (üst üste dizili) liste. Veri tamamen local (Hive)
-// kaynaklıdır; herhangi bir ağ isteği yapılmaz.
+// gösteren YATAY KAYDIRILABİLİR, 2 SIRALI (üst üste iki kart) liste.
+// Veri tamamen local (Hive) kaynaklıdır; herhangi bir ağ isteği yapılmaz.
 //
-// TASARIM NOTU: stitch_nitv_mobile_platform/ana_sayfa tasarımındaki "BÖLÜM 2"
-// ile birebir aynı: tam genişlik kartlar (yatay mini-thumbnail + sağda
-// başlık/kanal/ilerleme metni + sağ üstte X butonu), kartın en altında
-// tam genişlikte ince ilerleme çubuğu. Önceki sürüm yatay kaydırmalı, büyük
-// 16:9 thumbnail'li kartlar kullanıyordu — tasarımda öyle değil, bu yüzden
-// aşağıdaki yapı tasarıma göre yeniden yazıldı.
+// TASARIM NOTU: KART TASARIMI DEĞİŞMEDİ — hâlâ tam genişlik kart (yatay
+// mini-thumbnail + sağda başlık/kanal/ilerleme metni + sağ üstte X butonu,
+// kartın en altında tam genişlikte ince ilerleme çubuğu). Yalnızca DİZİLİM
+// değişti: kartlar 2'li gruplara ayrılır, her gruptaki 2 kart ÜST ÜSTE
+// dizilir ve bu sütunlar yatayda kaydırılır. Sütun genişliği ekran
+// genişliğinden geriye hesaplanır; sağda küçük bir "peek" (sonraki
+// sütunun ucu) görünerek yapının kaydırılabilir olduğunu belli eder.
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -35,9 +36,12 @@ class _PhoneSizes {
   static const double sectionTitleFontSize = 16;
   static const double sectionCountFontSize = 12;
 
-  // Liste (dikey — kartlar arası boşluk)
+  // Yatay kaydırma — her sütunda üst üste 2 kart
   static const double listPadHorizontal = 16;
-  static const double listGap = 8;
+  static const double columnGap = 12; // sütunlar arasındaki yatay boşluk
+  static const double listGap =
+      8; // aynı sütundaki 2 kart arasındaki dikey boşluk
+  static const double listPeek = 24; // sağdan görünen sonraki sütunun ucu
   static const double listBottomSpacing = 8;
 
   // Kart
@@ -89,9 +93,12 @@ class _TabletSizes {
   static const double sectionTitleFontSize = 18;
   static const double sectionCountFontSize = 13;
 
-  // Liste (dikey — kartlar arası boşluk)
+  // Yatay kaydırma — her sütunda üst üste 2 kart
   static const double listPadHorizontal = 24;
-  static const double listGap = 10;
+  static const double columnGap = 16; // sütunlar arasındaki yatay boşluk
+  static const double listGap =
+      10; // aynı sütundaki 2 kart arasındaki dikey boşluk
+  static const double listPeek = 32; // sağdan görünen sonraki sütunun ucu
   static const double listBottomSpacing = 8;
 
   // Kart
@@ -154,6 +161,16 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   // ── Phone ──────────────────────────────────────────────
   Widget _buildPhone(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
+    // Bir "sütun" = üst üste 2 kart. Sütun genişliği, ekranın kullanılabilir
+    // genişliğinden geriye hesaplanır (sağdaki "peek" kadar pay bırakılarak)
+    // — böylece kart tasarımı (tam genişlik) bozulmadan ekranda TAM 2 KART
+    // görünür ve yapı yatayda kaydırılabilir olur.
+    final double columnWidth =
+        ScreenUtil().screenWidth -
+        2 * _PhoneSizes.listPadHorizontal.w -
+        _PhoneSizes.listPeek.w;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -192,18 +209,38 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             ],
           ),
         ),
-        Padding(
+        // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
             horizontal: _PhoneSizes.listPadHorizontal.w,
           ),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) SizedBox(height: _PhoneSizes.listGap.h),
-                _CardPhone(
-                  key: ValueKey(items[i].video.videoId),
-                  item: items[i],
-                  onRemove: () => onRemove(items[i].video.videoId),
+              // Kartlar 2'li gruplara ayrılır: her yatay adım bir sütun,
+              // sütunun içinde 2 kart üst üste durur.
+              for (int i = 0; i < items.length; i += 2) ...[
+                if (i > 0) SizedBox(width: _PhoneSizes.columnGap.w),
+                SizedBox(
+                  width: columnWidth,
+                  child: Column(
+                    children: [
+                      _CardPhone(
+                        key: ValueKey(items[i].video.videoId),
+                        item: items[i],
+                        onRemove: () => onRemove(items[i].video.videoId),
+                      ),
+                      if (i + 1 < items.length) ...[
+                        SizedBox(height: _PhoneSizes.listGap.h),
+                        _CardPhone(
+                          key: ValueKey(items[i + 1].video.videoId),
+                          item: items[i + 1],
+                          onRemove: () => onRemove(items[i + 1].video.videoId),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ],
@@ -217,6 +254,13 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   // ── Tablet ─────────────────────────────────────────────
   Widget _buildTablet(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
+    // Tablet tarafı da aynı düzen; ölçüler sabit piksel.
+    final double columnWidth =
+        MediaQuery.sizeOf(context).width -
+        2 * _TabletSizes.listPadHorizontal -
+        _TabletSizes.listPeek;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -255,18 +299,36 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             ],
           ),
         ),
-        Padding(
+        // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
             horizontal: _TabletSizes.listPadHorizontal,
           ),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) SizedBox(height: _TabletSizes.listGap),
-                _CardTablet(
-                  key: ValueKey(items[i].video.videoId),
-                  item: items[i],
-                  onRemove: () => onRemove(items[i].video.videoId),
+              for (int i = 0; i < items.length; i += 2) ...[
+                if (i > 0) SizedBox(width: _TabletSizes.columnGap),
+                SizedBox(
+                  width: columnWidth,
+                  child: Column(
+                    children: [
+                      _CardTablet(
+                        key: ValueKey(items[i].video.videoId),
+                        item: items[i],
+                        onRemove: () => onRemove(items[i].video.videoId),
+                      ),
+                      if (i + 1 < items.length) ...[
+                        SizedBox(height: _TabletSizes.listGap),
+                        _CardTablet(
+                          key: ValueKey(items[i + 1].video.videoId),
+                          item: items[i + 1],
+                          onRemove: () => onRemove(items[i + 1].video.videoId),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ],
@@ -279,7 +341,8 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// PHONE KARTI — tam genişlik, tasarımdaki "Devam Kartı" ile birebir
+// PHONE KARTI — DEĞİŞMEDİ (orijinal tasarım: yatay mini-thumbnail + sağda
+// içerik + sağ üstte X + en altta tam genişlik ilerleme çubuğu)
 // ═══════════════════════════════════════════════════════════════════════
 
 class _CardPhone extends StatelessWidget {
@@ -328,8 +391,9 @@ class _CardPhone extends StatelessWidget {
                               CachedNetworkImage(
                                 imageUrl: video.bestThumbnail,
                                 fit: BoxFit.cover,
-                                placeholder: (_, _) =>
-                                    Container(color: scheme.surfaceContainerHigh),
+                                placeholder: (_, _) => Container(
+                                  color: scheme.surfaceContainerHigh,
+                                ),
                                 errorWidget: (_, _, _) => Container(
                                   color: scheme.surfaceContainerHigh,
                                   child: Icon(
@@ -339,13 +403,17 @@ class _CardPhone extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Container(color: Colors.black.withValues(alpha: 0.25)),
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.25),
+                              ),
                               Center(
                                 child: Container(
                                   width: _PhoneSizes.playOverlaySize.w,
                                   height: _PhoneSizes.playOverlaySize.w,
                                   decoration: BoxDecoration(
-                                    color: scheme.primary.withValues(alpha: 0.9),
+                                    color: scheme.primary.withValues(
+                                      alpha: 0.9,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -390,18 +458,18 @@ class _CardPhone extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        width:
-                                            _PhoneSizes.channelIconSpacing.w,
+                                        width: _PhoneSizes.channelIconSpacing.w,
                                       ),
                                       Icon(
                                         Icons.verified_rounded,
-                                        size:
-                                            _PhoneSizes.verifiedIconSize.sp,
+                                        size: _PhoneSizes.verifiedIconSize.sp,
                                         color: scheme.primary,
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: _PhoneSizes.titleTopSpacing.h),
+                                  SizedBox(
+                                    height: _PhoneSizes.titleTopSpacing.h,
+                                  ),
                                   Text(
                                     video.title,
                                     maxLines: 1,
@@ -427,8 +495,7 @@ class _CardPhone extends StatelessWidget {
                                       '${item.formattedPosition} / ${item.formattedDuration}',
                                       style: TextStyle(
                                         color: scheme.onSurfaceVariant,
-                                        fontSize:
-                                            _PhoneSizes.metaFontSize.sp,
+                                        fontSize: _PhoneSizes.metaFontSize.sp,
                                       ),
                                     ),
                                     Text(
@@ -436,8 +503,7 @@ class _CardPhone extends StatelessWidget {
                                       style: TextStyle(
                                         color: scheme.primary,
                                         fontWeight: FontWeight.w600,
-                                        fontSize:
-                                            _PhoneSizes.metaFontSize.sp,
+                                        fontSize: _PhoneSizes.metaFontSize.sp,
                                       ),
                                     ),
                                   ],
@@ -493,7 +559,7 @@ class _CardPhone extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TABLET KARTI — aynı yapı, sabit piksel ölçüleriyle
+// TABLET KARTI — DEĞİŞMEDİ (orijinal tasarım, sabit piksel ölçüler)
 // ═══════════════════════════════════════════════════════════════════════
 
 class _CardTablet extends StatelessWidget {
@@ -541,8 +607,9 @@ class _CardTablet extends StatelessWidget {
                               CachedNetworkImage(
                                 imageUrl: video.bestThumbnail,
                                 fit: BoxFit.cover,
-                                placeholder: (_, _) =>
-                                    Container(color: scheme.surfaceContainerHigh),
+                                placeholder: (_, _) => Container(
+                                  color: scheme.surfaceContainerHigh,
+                                ),
                                 errorWidget: (_, _, _) => Container(
                                   color: scheme.surfaceContainerHigh,
                                   child: Icon(
@@ -552,13 +619,17 @@ class _CardTablet extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Container(color: Colors.black.withValues(alpha: 0.25)),
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.25),
+                              ),
                               Center(
                                 child: Container(
                                   width: _TabletSizes.playOverlaySize,
                                   height: _TabletSizes.playOverlaySize,
                                   decoration: BoxDecoration(
-                                    color: scheme.primary.withValues(alpha: 0.9),
+                                    color: scheme.primary.withValues(
+                                      alpha: 0.9,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -602,13 +673,11 @@ class _CardTablet extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        width:
-                                            _TabletSizes.channelIconSpacing,
+                                        width: _TabletSizes.channelIconSpacing,
                                       ),
                                       Icon(
                                         Icons.verified_rounded,
-                                        size:
-                                            _TabletSizes.verifiedIconSize,
+                                        size: _TabletSizes.verifiedIconSize,
                                         color: scheme.primary,
                                       ),
                                     ],
@@ -641,8 +710,7 @@ class _CardTablet extends StatelessWidget {
                                       '${item.formattedPosition} / ${item.formattedDuration}',
                                       style: TextStyle(
                                         color: scheme.onSurfaceVariant,
-                                        fontSize:
-                                            _TabletSizes.metaFontSize,
+                                        fontSize: _TabletSizes.metaFontSize,
                                       ),
                                     ),
                                     Text(
@@ -650,8 +718,7 @@ class _CardTablet extends StatelessWidget {
                                       style: TextStyle(
                                         color: scheme.primary,
                                         fontWeight: FontWeight.w600,
-                                        fontSize:
-                                            _TabletSizes.metaFontSize,
+                                        fontSize: _TabletSizes.metaFontSize,
                                       ),
                                     ),
                                   ],
