@@ -1,14 +1,21 @@
 // lib/presentation/screens/home/tabs/universities_tab/widgets/universities_alphabet_list.dart
 //
 // Üniversiteler sekmesinin A-Z hızlı indeksli listesi.
-// NOT: Artık UniversitiesTabLayoutSpec'e bağımlı DEĞİL — sidebar ölçüleri
-// (genişlik, hap, font boyutları) bu dosyadaki phone/tablet sabitlerinden
-// gelir. Kart, dışarıdan verilen itemBuilder ile üretilir.
+//
+// Sağdaki A-Z şeridi wheel_slider paketi KALDIRILARAK bu dosyada özel
+// yazılan bir "harf rayı"dır:
+//   • Ray sabittir: ilk harf (A) en üstte, son harf (Z) en altta durur;
+//     seçili harf ortada sabitlenmez.
+//   • Aktif harf büyüteç gibi belirginleşir (font + scale + renk).
+//   • Ray sabit olduğu için liste ↔ ray senkronu yalnızca "aktif indeks"
+//     güncellemesidir; scroll controller/animasyon senkronu gerekmez.
+
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:wheel_slider/wheel_slider.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
@@ -21,32 +28,30 @@ import '../../../../../controllers/university_alphabet_controller.dart';
 
 class _PhoneSizes {
   static const double sidebarWidth = 26;
-  /*   static const double sidebarPill = 22;
-  static const double sidebarActiveFontSize = 12;
-  static const double sidebarInactiveFontSize = 9;
-  static const double sidebarVerticalPadding = 8; */
   static const double listPadHorizontal = 16;
 
-  // Wheel (harf çemberi) ölçüleri.
-  static const double wheelItemExtent = 26;
-  static const double wheelActiveFontSize = 16;
-  static const double wheelNearFontSize = 11;
-  static const double wheelFarFontSize = 8;
+  // A-Z harf rayı.
+  static const double railActiveFont = 15;
+  static const double railNearFont = 11;
+  static const double railFarFont = 8.5;
+  static const double railActiveScale = 1.3;
+  static const double railNearScale = 1.1;
+  static const double railBubbleSize = 38;
+  static const double railBubbleFont = 15;
 }
 
 class _TabletSizes {
   static const double sidebarWidth = 34;
-  /*   static const double sidebarPill = 28;
-  static const double sidebarActiveFontSize = 14;
-  static const double sidebarInactiveFontSize = 11;
-  static const double sidebarVerticalPadding = 10; */
   static const double listPadHorizontal = 24;
 
-  // Wheel (harf çemberi) ölçüleri.
-  static const double wheelItemExtent = 32;
-  static const double wheelActiveFontSize = 19;
-  static const double wheelNearFontSize = 13;
-  static const double wheelFarFontSize = 10;
+  // A-Z harf rayı.
+  static const double railActiveFont = 18;
+  static const double railNearFont = 13.5;
+  static const double railFarFont = 10.5;
+  /*   static const double railActiveScale = 1.3;
+  static const double railNearScale = 1.1; */
+  static const double railBubbleSize = 48;
+  static const double railBubbleFont = 18;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -135,7 +140,7 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
         Obx(() {
           final letters = _controller.availableLetters;
           if (letters.isEmpty) return const SizedBox.shrink();
-          return _AlphabetWheelSidebar(
+          return _AlphabetRail(
             letters: letters,
             currentLetter: _controller.currentLetter.value,
             onLetterSettled: _controller.dragToLetter,
@@ -147,103 +152,120 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SAĞ A-Z ÇEMBERİ (wheel_slider)
+// SAĞ A-Z HARF RAYI (özel impl — wheel_slider yok)
 // ═══════════════════════════════════════════════════════════════════
 //
-// Artık tüm harfler sabit boyutta dizilmiyor: seçili harf ortada büyük,
-// ondan uzaklaşan harfler hem font küçülerek hem de paketin doğal 3B
-// perspektif eğriliğiyle (perspective) küçülüp sönükleşerek gösteriliyor.
-// Kullanıcı çemberi kaydırdıkça (veya listeyi kaydırıp harfi
-// değiştirdikçe) alttaki üniversite listesiyle iki yönlü senkron kalır.
+// Harfler eşit yükseklikli slotlara bölünür: A ilk slotta (en üst), Z son
+// slotta (en alt). Aktif harf "büyüteç" gibi büyür; komşuları hafifçe
+// şişer, uzaklaştıkça küçülüp sönükleşir. Parmakla taramada (scrub) liste
+// canlı takip eder ve parmağın solunda harf balonu görünür.
 
-class _AlphabetWheelSidebar extends StatefulWidget {
+class _AlphabetRail extends StatefulWidget {
   final List<String> letters;
   final String currentLetter;
 
-  /// Çemberdeki harf değiştiğinde (kaydırma/dokunma sonucu) çağrılır;
-  /// alttaki üniversite listesini o harfe taşımak için kullanılır.
+  /// Kullanıcı raya dokununca/sürükleyince hedef harf; alttaki listeyi
+  /// o harfe taşımak için çağrılır.
   final ValueChanged<String> onLetterSettled;
 
-  const _AlphabetWheelSidebar({
+  const _AlphabetRail({
     required this.letters,
     required this.currentLetter,
     required this.onLetterSettled,
   });
 
   @override
-  State<_AlphabetWheelSidebar> createState() => _AlphabetWheelSidebarState();
+  State<_AlphabetRail> createState() => _AlphabetRailState();
 }
 
-class _AlphabetWheelSidebarState extends State<_AlphabetWheelSidebar> {
-  FixedExtentScrollController? _wheelController;
-  int _selectedIndex = 0;
+class _AlphabetRailState extends State<_AlphabetRail> {
+  int _activeIndex = 0;
 
-  // Liste kaydırılınca dışarıdan tetiklenen programatik çember hareketi
-  // sırasında onValueChanged'in listeyi tekrar tetiklemesini (döngü) engeller.
-  bool _externalSync = false;
+  // Kullanıcı parmağıyla tararken görsel aktiflik _dragIndex'ten alınır;
+  // liste kaynaklı güncellemeler bu sırada yok sayılır.
+  bool _dragging = false;
+  int? _dragIndex;
 
   @override
   void initState() {
     super.initState();
-    _selectedIndex = _indexOf(widget.currentLetter);
-    _wheelController = FixedExtentScrollController(initialItem: _selectedIndex);
+    _activeIndex = _indexOf(widget.currentLetter);
   }
 
   int _indexOf(String letter) {
     final i = widget.letters.indexOf(letter);
-    if (i != -1) return i;
-    return 0;
+    return i == -1 ? 0 : i;
   }
 
   @override
-  void didUpdateWidget(covariant _AlphabetWheelSidebar oldWidget) {
+  void didUpdateWidget(covariant _AlphabetRail oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Harf listesi değiştiyse (arama/filtre) controller'ı sıfırdan kur.
+    // Harf kümesi değiştiyse (arama/filtre) aktifi tazele.
     if (!identical(oldWidget.letters, widget.letters)) {
-      final newIndex = _indexOf(widget.currentLetter);
-      _wheelController?.dispose();
-      _wheelController = FixedExtentScrollController(initialItem: newIndex);
-      setState(() => _selectedIndex = newIndex);
+      _activeIndex = _indexOf(widget.currentLetter);
+      if (_dragIndex != null && _dragIndex! >= widget.letters.length) {
+        _dragging = false;
+        _dragIndex = null;
+      }
       return;
     }
 
-    // Harf, üniversite listesinin kendi kaydırmasıyla değiştiyse
-    // (yani bizim onValueChanged'imizden gelmiyorsa) çemberi de oraya taşı.
-    if (oldWidget.currentLetter != widget.currentLetter) {
+    // Liste kendi kayarak harfi değiştirdiyse büyüteci oraya taşı.
+    // (Ray sabit olduğu için senkron = indeks güncellemesi.)
+    if (!_dragging && oldWidget.currentLetter != widget.currentLetter) {
       final newIndex = _indexOf(widget.currentLetter);
-      if (newIndex != _selectedIndex) {
-        _externalSync = true;
-        final controller = _wheelController;
-        if (controller != null && controller.hasClients) {
-          controller
-              .animateToItem(
-                newIndex,
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-              )
-              .whenComplete(() => _externalSync = false);
-        } else {
-          _externalSync = false;
-        }
-        setState(() => _selectedIndex = newIndex);
+      if (newIndex != _activeIndex) {
+        setState(() => _activeIndex = newIndex);
       }
     }
   }
 
-  void _handleValueChanged(dynamic value) {
-    final index = (value as num).round().clamp(0, widget.letters.length - 1);
-    if (index == _selectedIndex) return;
-    setState(() => _selectedIndex = index);
-    if (_externalSync) return;
-    widget.onLetterSettled(widget.letters[index]);
+  // ── Jestler ────────────────────────────────────────────────────────
+
+  int _indexFromY(double y, double slotH) => (y / slotH).floor();
+
+  void _select(int index) {
+    final count = widget.letters.length;
+    if (count == 0) return;
+    var i = index;
+    if (i < 0) i = 0;
+    if (i > count - 1) i = count - 1;
+
+    if (_dragging) {
+      if (_dragIndex != i) {
+        HapticFeedback.selectionClick();
+        setState(() => _dragIndex = i);
+      }
+    } else {
+      if (_activeIndex != i) {
+        HapticFeedback.selectionClick();
+        setState(() => _activeIndex = i);
+      }
+    }
+    widget.onLetterSettled(widget.letters[i]);
   }
 
-  @override
-  void dispose() {
-    _wheelController?.dispose();
-    super.dispose();
+  void _onScrubStart(double y, double slotH) {
+    setState(() => _dragging = true);
+    _select(_indexFromY(y, slotH));
   }
+
+  void _onScrubMove(double y, double slotH) {
+    _select(_indexFromY(y, slotH));
+  }
+
+  void _onScrubEnd() {
+    if (!_dragging) return;
+    final last = _dragIndex;
+    setState(() {
+      _dragging = false;
+      _dragIndex = null;
+      if (last != null) _activeIndex = last;
+    });
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -251,81 +273,201 @@ class _AlphabetWheelSidebarState extends State<_AlphabetWheelSidebar> {
     final width = isTablet
         ? _TabletSizes.sidebarWidth
         : _PhoneSizes.sidebarWidth.w;
-    final itemExtent = isTablet
-        ? _TabletSizes.wheelItemExtent
-        : _PhoneSizes.wheelItemExtent.h;
-    final activeFont = isTablet
-        ? _TabletSizes.wheelActiveFontSize
-        : _PhoneSizes.wheelActiveFontSize.sp;
-    final nearFont = isTablet
-        ? _TabletSizes.wheelNearFontSize
-        : _PhoneSizes.wheelNearFontSize.sp;
-    final farFont = isTablet
-        ? _TabletSizes.wheelFarFontSize
-        : _PhoneSizes.wheelFarFontSize.sp;
+
+    double activeFont = isTablet
+        ? _TabletSizes.railActiveFont
+        : _PhoneSizes.railActiveFont.sp;
+    double nearFont = isTablet
+        ? _TabletSizes.railNearFont
+        : _PhoneSizes.railNearFont.sp;
+    double farFont = isTablet
+        ? _TabletSizes.railFarFont
+        : _PhoneSizes.railFarFont.sp;
+    final activeScale = _PhoneSizes.railActiveScale;
+    final nearScale = _PhoneSizes.railNearScale;
+
+    final bubbleSize = isTablet
+        ? _TabletSizes.railBubbleSize
+        : _PhoneSizes.railBubbleSize.w;
+    final bubbleFont = isTablet
+        ? _TabletSizes.railBubbleFont
+        : _PhoneSizes.railBubbleFont.sp;
 
     return LayoutBuilder(
       builder: (context, c) {
         final height = c.maxHeight > 0 ? c.maxHeight : 300.0;
         final letters = widget.letters;
+        final count = letters.length;
+        if (count == 0) return const SizedBox.shrink();
 
-        return Container(
-          width: width,
-          height: height,
-          color: const Color.fromARGB(82, 100, 100, 100),
-          child: WheelSlider.customWidget(
-            key: ValueKey(letters.length),
-            controller: _wheelController,
-            totalCount: letters.length,
-            initValue: _selectedIndex,
-            itemSize: itemExtent,
-            verticalListHeight: height,
-            verticalListWidth: width,
-            horizontal: false,
-            isInfinite: false,
-            perspective: 0.0025,
-            squeeze: 1.0,
-            showPointer: false,
-            isVibrate: true,
-            hapticFeedbackType: HapticFeedbackType.lightImpact,
-            scrollPhysics: const BouncingScrollPhysics(),
-            enableAnimation: true,
-            animationDuration: const Duration(milliseconds: 250),
-            animationType: Curves.easeOutCubic,
-            onValueChanged: _handleValueChanged,
-            children: List.generate(letters.length, (i) {
-              final distance = (i - _selectedIndex).abs();
-              final isActive = distance == 0;
+        final slotH = height / count;
 
-              final fontSize = isActive
-                  ? activeFont
-                  : distance == 1
-                  ? nearFont
-                  : farFont;
+        // Çok harf + kısa ray: herkesin okunur kalması için fontları
+        // slot yüksekliğine oranla küçült.
+        if (slotH < farFont * 1.5) {
+          farFont = math.max(6.0, math.min(farFont, slotH * 0.6));
+          nearFont = farFont * 1.3;
+          activeFont = farFont * 1.75;
+        }
 
-              final opacity = isActive
-                  ? 1.0
-                  : distance == 1
-                  ? 0.75
-                  : 0.45;
+        final visualIndex = _dragIndex ?? _activeIndex;
+        final bubbleTop = ((visualIndex + 0.5) * slotH - bubbleSize / 2)
+            .clamp(0.0, math.max(0.0, height - bubbleSize))
+            .toDouble();
 
-              return Center(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 150),
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
-                    color: isActive
-                        ? AppTheme.primaryColor
-                        : AppTheme.textSec(context).withValues(alpha: opacity),
-                  ),
-                  child: Text(letters[i]),
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (d) => _select(_indexFromY(d.localPosition.dy, slotH)),
+          onPanStart: (d) => _onScrubStart(d.localPosition.dy, slotH),
+          onPanUpdate: (d) => _onScrubMove(d.localPosition.dy, slotH),
+          onPanEnd: (_) => _onScrubEnd(),
+          onPanCancel: _onScrubEnd,
+          child: SizedBox(
+            width: width,
+            height: height,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Harfler: eşit yükseklikli slotlar — A üstte, Z altta.
+                Column(
+                  children: [
+                    for (var i = 0; i < count; i++)
+                      Expanded(
+                        child: Center(
+                          child: _RailLetter(
+                            letter: letters[i],
+                            distance: (i - visualIndex).abs(),
+                            activeFont: activeFont,
+                            nearFont: nearFont,
+                            farFont: farFont,
+                            activeScale: activeScale,
+                            nearScale: nearScale,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              );
-            }),
+
+                // Tarama sırasında parmağın solundaki harf balonu.
+                if (_dragging && _dragIndex != null)
+                  Positioned(
+                    left: -bubbleSize - 10,
+                    top: bubbleTop,
+                    child: _RailBubble(
+                      letter: letters[visualIndex],
+                      size: bubbleSize,
+                      fontSize: bubbleFont,
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
+    );
+  }
+}
+
+class _RailLetter extends StatelessWidget {
+  final String letter;
+  final int distance;
+  final double activeFont;
+  final double nearFont;
+  final double farFont;
+  final double activeScale;
+  final double nearScale;
+
+  const _RailLetter({
+    required this.letter,
+    required this.distance,
+    required this.activeFont,
+    required this.nearFont,
+    required this.farFont,
+    required this.activeScale,
+    required this.nearScale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = distance == 0;
+
+    final fontSize = isActive
+        ? activeFont
+        : distance == 1
+        ? nearFont
+        : farFont;
+
+    // Büyüteç: aktif belirgin şekilde büyür, komşusu hafifçe.
+    final scale = isActive
+        ? activeScale
+        : distance == 1
+        ? nearScale
+        : 1.0;
+
+    final opacity = isActive
+        ? 1.0
+        : distance == 1
+        ? 0.85
+        : distance == 2
+        ? 0.62
+        : 0.42;
+
+    return AnimatedScale(
+      scale: scale,
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOutCubic,
+      child: AnimatedDefaultTextStyle(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+          color: isActive
+              ? AppTheme.primaryColor
+              : AppTheme.textSec(context).withValues(alpha: opacity),
+        ),
+        child: Text(letter),
+      ),
+    );
+  }
+}
+
+class _RailBubble extends StatelessWidget {
+  final String letter;
+  final double size;
+  final double fontSize;
+
+  const _RailBubble({
+    required this.letter,
+    required this.size,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.circular(size * 0.3),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: 0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Text(
+        letter,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
   }
 }

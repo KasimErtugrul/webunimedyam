@@ -284,24 +284,6 @@ class _SearchScreenState extends State<SearchScreen> {
             Container(
               width: 32.w,
               height: 32.w,
-              alignment: Alignment.center,
-              child: IconButton(
-                onPressed: () {
-                  // Mic search action
-                },
-                icon: Icon(
-                  Icons.mic_rounded,
-                  color: const Color(0xFF86948A),
-                  size: 20.sp,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ),
-            SizedBox(width: 4.w),
-            Container(
-              width: 32.w,
-              height: 32.w,
               decoration: BoxDecoration(
                 color: const Color(0xFF2D3545).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
@@ -989,6 +971,12 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  // FIX: Bu sheet'teki FilterChip'ler daha önce onSelected içinde sadece
+  // Navigator.pop(ctx) çağırıyordu — seçim hiçbir yere kaydedilmiyor, arama
+  // sonuçları hiç sıralanmıyordu ("çalışmayan buton"). Artık:
+  //  - Seçili chip, controller.sortMode'dan okunuyor (Obx ile canlı).
+  //  - Bir chip'e dokununca controller.setSortMode(...) çağrılıp sonuç
+  //    listesi gerçekten yeniden sıralanıyor/filtreleniyor.
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -1032,27 +1020,42 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
               SizedBox(height: 8.h),
-              Wrap(
-                spacing: 8.w,
-                children: [
-                  FilterChip(
-                    label: const Text('En Yeniler'),
-                    selected: true,
-                    onSelected: (_) => Navigator.pop(ctx),
-                    selectedColor: const Color(0xFF4EDEA3).withValues(alpha: 0.2),
-                    labelStyle: const TextStyle(color: Color(0xFF4EDEA3)),
-                  ),
-                  FilterChip(
-                    label: const Text('En Çok İzlenenler'),
-                    selected: false,
-                    onSelected: (_) => Navigator.pop(ctx),
-                  ),
-                  FilterChip(
-                    label: const Text('Canlı Yayınlar'),
-                    selected: false,
-                    onSelected: (_) => Navigator.pop(ctx),
-                  ),
-                ],
+              Obx(
+                () => Wrap(
+                  spacing: 8.w,
+                  children: [
+                    FilterChip(
+                      label: const Text('En Yeniler'),
+                      selected: controller.sortMode.value == SearchSortMode.newest,
+                      onSelected: (_) {
+                        controller.setSortMode(SearchSortMode.newest);
+                        Navigator.pop(ctx);
+                      },
+                      selectedColor: const Color(0xFF4EDEA3).withValues(alpha: 0.2),
+                      labelStyle: const TextStyle(color: Color(0xFF4EDEA3)),
+                    ),
+                    FilterChip(
+                      label: const Text('En Çok İzlenenler'),
+                      selected: controller.sortMode.value == SearchSortMode.mostViewed,
+                      onSelected: (_) {
+                        controller.setSortMode(SearchSortMode.mostViewed);
+                        Navigator.pop(ctx);
+                      },
+                      selectedColor: const Color(0xFF4EDEA3).withValues(alpha: 0.2),
+                      labelStyle: const TextStyle(color: Color(0xFF4EDEA3)),
+                    ),
+                    FilterChip(
+                      label: const Text('Canlı Yayınlar'),
+                      selected: controller.sortMode.value == SearchSortMode.liveOnly,
+                      onSelected: (_) {
+                        controller.setSortMode(SearchSortMode.liveOnly);
+                        Navigator.pop(ctx);
+                      },
+                      selectedColor: const Color(0xFF4EDEA3).withValues(alpha: 0.2),
+                      labelStyle: const TextStyle(color: Color(0xFF4EDEA3)),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 24.h),
             ],

@@ -6,6 +6,10 @@ import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/models/video_model.dart';
 import '../../services/analytics_service.dart';
 
+/// Arama ekranındaki "Arama Filtreleri" bottom sheet'inde seçilebilen
+/// sıralama/filtre modları.
+enum SearchSortMode { newest, mostViewed, liveOnly }
+
 class VideoSearchController extends GetxController {
   final SearchRepository searchRepository;
   final SearchHistoryDataSource historyDataSource;
@@ -15,13 +19,44 @@ class VideoSearchController extends GetxController {
     required this.historyDataSource,
   });
 
+  // Ham (sunucudan gelen, sırasız/filtresiz) sonuçlar.
+  final _rawResults = <VideoModel>[].obs;
+  // Ekranda gösterilen, sortMode'a göre sıralanmış/filtrelenmiş sonuçlar.
   final results = <VideoModel>[].obs;
   final history = <String>[].obs;
   final isLoading = false.obs;
   final query = ''.obs;
+  final sortMode = SearchSortMode.newest.obs;
 
   Timer? _debounce;
   static const _debounceDuration = Duration(milliseconds: 350);
+
+  /// FIX: "Arama Filtreleri" bottom sheet'indeki chip'ler daha önce sadece
+  /// Navigator.pop(ctx) çağırıp sheet'i kapatıyordu; seçilen sıralama hiçbir
+  /// yere uygulanmıyordu. Artık seçim burada saklanıp _applySort ile sonuç
+  /// listesine gerçekten uygulanıyor.
+  void setSortMode(SearchSortMode mode) {
+    sortMode.value = mode;
+    _applySort();
+  }
+
+  void _applySort() {
+    final list = List<VideoModel>.from(_rawResults);
+    switch (sortMode.value) {
+      case SearchSortMode.newest:
+        list.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+        break;
+      case SearchSortMode.mostViewed:
+        list.sort((a, b) => b.viewCount.compareTo(a.viewCount));
+        break;
+      case SearchSortMode.liveOnly:
+        list
+          ..retainWhere((v) => v.liveBroadcastContent == 'live')
+          ..sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+        break;
+    }
+    results.value = list;
+  }
 
   @override
   void onReady() {
@@ -50,6 +85,7 @@ class VideoSearchController extends GetxController {
       _debounce?.cancel();
 
       if (value.trim().isEmpty) {
+        _rawResults.clear();
         results.clear();
         isLoading.value = false;
         return;
@@ -65,9 +101,11 @@ class VideoSearchController extends GetxController {
   Future<void> _doSearch(String q) async {
     try {
       final data = await searchRepository.searchVideos(q);
-      results.value = data;
+      _rawResults.value = data;
+      _applySort();
     } catch (e, stacktrace) {
       log('Arama yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      _rawResults.clear();
       results.clear();
     } finally {
       isLoading.value = false;
