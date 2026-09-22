@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:wheel_slider/wheel_slider.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
@@ -20,20 +21,32 @@ import '../../../../../controllers/university_alphabet_controller.dart';
 
 class _PhoneSizes {
   static const double sidebarWidth = 26;
-  static const double sidebarPill = 22;
+  /*   static const double sidebarPill = 22;
   static const double sidebarActiveFontSize = 12;
   static const double sidebarInactiveFontSize = 9;
-  static const double sidebarVerticalPadding = 8;
+  static const double sidebarVerticalPadding = 8; */
   static const double listPadHorizontal = 16;
+
+  // Wheel (harf çemberi) ölçüleri.
+  static const double wheelItemExtent = 26;
+  static const double wheelActiveFontSize = 16;
+  static const double wheelNearFontSize = 11;
+  static const double wheelFarFontSize = 8;
 }
 
 class _TabletSizes {
   static const double sidebarWidth = 34;
-  static const double sidebarPill = 28;
+  /*   static const double sidebarPill = 28;
   static const double sidebarActiveFontSize = 14;
   static const double sidebarInactiveFontSize = 11;
-  static const double sidebarVerticalPadding = 10;
+  static const double sidebarVerticalPadding = 10; */
   static const double listPadHorizontal = 24;
+
+  // Wheel (harf çemberi) ölçüleri.
+  static const double wheelItemExtent = 32;
+  static const double wheelActiveFontSize = 19;
+  static const double wheelNearFontSize = 13;
+  static const double wheelFarFontSize = 10;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -53,7 +66,8 @@ class UniversitiesAlphabetList extends StatefulWidget {
     BuildContext context,
     int index,
     UniversityModel university,
-  ) itemBuilder;
+  )
+  itemBuilder;
 
   const UniversitiesAlphabetList({
     super.key,
@@ -121,11 +135,10 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
         Obx(() {
           final letters = _controller.availableLetters;
           if (letters.isEmpty) return const SizedBox.shrink();
-          return _AlphabetSidebar(
+          return _AlphabetWheelSidebar(
             letters: letters,
             currentLetter: _controller.currentLetter.value,
-            onTapLetter: _controller.jumpToLetter,
-            onDragLetter: _controller.dragToLetter,
+            onLetterSettled: _controller.dragToLetter,
           );
         }),
       ],
@@ -134,28 +147,102 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SAĞ A-Z ŞERİDİ
+// SAĞ A-Z ÇEMBERİ (wheel_slider)
 // ═══════════════════════════════════════════════════════════════════
+//
+// Artık tüm harfler sabit boyutta dizilmiyor: seçili harf ortada büyük,
+// ondan uzaklaşan harfler hem font küçülerek hem de paketin doğal 3B
+// perspektif eğriliğiyle (perspective) küçülüp sönükleşerek gösteriliyor.
+// Kullanıcı çemberi kaydırdıkça (veya listeyi kaydırıp harfi
+// değiştirdikçe) alttaki üniversite listesiyle iki yönlü senkron kalır.
 
-class _AlphabetSidebar extends StatelessWidget {
+class _AlphabetWheelSidebar extends StatefulWidget {
   final List<String> letters;
   final String currentLetter;
-  final ValueChanged<String> onTapLetter;
-  final ValueChanged<String> onDragLetter;
 
-  const _AlphabetSidebar({
+  /// Çemberdeki harf değiştiğinde (kaydırma/dokunma sonucu) çağrılır;
+  /// alttaki üniversite listesini o harfe taşımak için kullanılır.
+  final ValueChanged<String> onLetterSettled;
+
+  const _AlphabetWheelSidebar({
     required this.letters,
     required this.currentLetter,
-    required this.onTapLetter,
-    required this.onDragLetter,
+    required this.onLetterSettled,
   });
 
-  void _handlePosition(Offset local, double height, ValueChanged<String> cb) {
-    if (letters.isEmpty || height <= 0) return;
-    final itemHeight = height / letters.length;
-    final index =
-        (local.dy / itemHeight).floor().clamp(0, letters.length - 1);
-    cb(letters[index]);
+  @override
+  State<_AlphabetWheelSidebar> createState() => _AlphabetWheelSidebarState();
+}
+
+class _AlphabetWheelSidebarState extends State<_AlphabetWheelSidebar> {
+  FixedExtentScrollController? _wheelController;
+  int _selectedIndex = 0;
+
+  // Liste kaydırılınca dışarıdan tetiklenen programatik çember hareketi
+  // sırasında onValueChanged'in listeyi tekrar tetiklemesini (döngü) engeller.
+  bool _externalSync = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = _indexOf(widget.currentLetter);
+    _wheelController = FixedExtentScrollController(initialItem: _selectedIndex);
+  }
+
+  int _indexOf(String letter) {
+    final i = widget.letters.indexOf(letter);
+    if (i != -1) return i;
+    return 0;
+  }
+
+  @override
+  void didUpdateWidget(covariant _AlphabetWheelSidebar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Harf listesi değiştiyse (arama/filtre) controller'ı sıfırdan kur.
+    if (!identical(oldWidget.letters, widget.letters)) {
+      final newIndex = _indexOf(widget.currentLetter);
+      _wheelController?.dispose();
+      _wheelController = FixedExtentScrollController(initialItem: newIndex);
+      setState(() => _selectedIndex = newIndex);
+      return;
+    }
+
+    // Harf, üniversite listesinin kendi kaydırmasıyla değiştiyse
+    // (yani bizim onValueChanged'imizden gelmiyorsa) çemberi de oraya taşı.
+    if (oldWidget.currentLetter != widget.currentLetter) {
+      final newIndex = _indexOf(widget.currentLetter);
+      if (newIndex != _selectedIndex) {
+        _externalSync = true;
+        final controller = _wheelController;
+        if (controller != null && controller.hasClients) {
+          controller
+              .animateToItem(
+                newIndex,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+              )
+              .whenComplete(() => _externalSync = false);
+        } else {
+          _externalSync = false;
+        }
+        setState(() => _selectedIndex = newIndex);
+      }
+    }
+  }
+
+  void _handleValueChanged(dynamic value) {
+    final index = (value as num).round().clamp(0, widget.letters.length - 1);
+    if (index == _selectedIndex) return;
+    setState(() => _selectedIndex = index);
+    if (_externalSync) return;
+    widget.onLetterSettled(widget.letters[index]);
+  }
+
+  @override
+  void dispose() {
+    _wheelController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -164,65 +251,78 @@ class _AlphabetSidebar extends StatelessWidget {
     final width = isTablet
         ? _TabletSizes.sidebarWidth
         : _PhoneSizes.sidebarWidth.w;
-    final pill =
-        isTablet ? _TabletSizes.sidebarPill : _PhoneSizes.sidebarPill.w;
+    final itemExtent = isTablet
+        ? _TabletSizes.wheelItemExtent
+        : _PhoneSizes.wheelItemExtent.h;
     final activeFont = isTablet
-        ? _TabletSizes.sidebarActiveFontSize
-        : _PhoneSizes.sidebarActiveFontSize.sp;
-    final inactiveFont = isTablet
-        ? _TabletSizes.sidebarInactiveFontSize
-        : _PhoneSizes.sidebarInactiveFontSize.sp;
-    final vPad = isTablet
-        ? _TabletSizes.sidebarVerticalPadding
-        : _PhoneSizes.sidebarVerticalPadding.h;
+        ? _TabletSizes.wheelActiveFontSize
+        : _PhoneSizes.wheelActiveFontSize.sp;
+    final nearFont = isTablet
+        ? _TabletSizes.wheelNearFontSize
+        : _PhoneSizes.wheelNearFontSize.sp;
+    final farFont = isTablet
+        ? _TabletSizes.wheelFarFontSize
+        : _PhoneSizes.wheelFarFontSize.sp;
 
     return LayoutBuilder(
       builder: (context, c) {
-        final height = c.maxHeight;
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (d) =>
-              _handlePosition(d.localPosition, height, onTapLetter),
-          onVerticalDragUpdate: (d) =>
-              _handlePosition(d.localPosition, height, onDragLetter),
-          child: Container(
-            width: width,
-            alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(vertical: vPad),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: letters.map((letter) {
-                final isActive = letter == currentLetter;
-                return Expanded(
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: isActive ? pill : 0,
-                      height: pill,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? AppTheme.primaryColor
-                            : Colors.transparent,
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        letter,
-                        style: TextStyle(
-                          fontSize: isActive ? activeFont : inactiveFont,
-                          fontWeight:
-                              isActive ? FontWeight.w800 : FontWeight.w500,
-                          color: isActive
-                              ? Colors.white
-                              : AppTheme.textSec(context)
-                                  .withValues(alpha: 0.55),
-                        ),
-                      ),
-                    ),
+        final height = c.maxHeight > 0 ? c.maxHeight : 300.0;
+        final letters = widget.letters;
+
+        return Container(
+          width: width,
+          height: height,
+          color: const Color.fromARGB(82, 100, 100, 100),
+          child: WheelSlider.customWidget(
+            key: ValueKey(letters.length),
+            controller: _wheelController,
+            totalCount: letters.length,
+            initValue: _selectedIndex,
+            itemSize: itemExtent,
+            verticalListHeight: height,
+            verticalListWidth: width,
+            horizontal: false,
+            isInfinite: false,
+            perspective: 0.0025,
+            squeeze: 1.0,
+            showPointer: false,
+            isVibrate: true,
+            hapticFeedbackType: HapticFeedbackType.lightImpact,
+            scrollPhysics: const BouncingScrollPhysics(),
+            enableAnimation: true,
+            animationDuration: const Duration(milliseconds: 250),
+            animationType: Curves.easeOutCubic,
+            onValueChanged: _handleValueChanged,
+            children: List.generate(letters.length, (i) {
+              final distance = (i - _selectedIndex).abs();
+              final isActive = distance == 0;
+
+              final fontSize = isActive
+                  ? activeFont
+                  : distance == 1
+                  ? nearFont
+                  : farFont;
+
+              final opacity = isActive
+                  ? 1.0
+                  : distance == 1
+                  ? 0.75
+                  : 0.45;
+
+              return Center(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 150),
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+                    color: isActive
+                        ? AppTheme.primaryColor
+                        : AppTheme.textSec(context).withValues(alpha: opacity),
                   ),
-                );
-              }).toList(),
-            ),
+                  child: Text(letters[i]),
+                ),
+              );
+            }),
           ),
         );
       },
