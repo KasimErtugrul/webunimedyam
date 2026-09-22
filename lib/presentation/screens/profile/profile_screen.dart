@@ -133,8 +133,10 @@ class _NotLoggedInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // NOT: Burada ayrı bir AppBar EKLENMEDİ — "ÜniTV / KAMPÜS YAYINI" barı
+    // artık HomeScreen'in Scaffold.appBar'ında sabit; bu iç içe Scaffold
+    // onun altında ikinci bir AppBar göstermemeli.
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: spec.maxContentWidth),

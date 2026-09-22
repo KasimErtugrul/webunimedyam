@@ -46,15 +46,13 @@ class ProfileViewWidget extends StatelessWidget {
   }
 
   void _nav(ProfileActivityType t) => Get.toNamed(
-        AppRoutes.profileActivityList,
-        arguments: {
-          'type': t,
-          'userId': _userId,
-          'isOwnProfile': controller.isOwnProfile,
-        },
-      );
-
-
+    AppRoutes.profileActivityList,
+    arguments: {
+      'type': t,
+      'userId': _userId,
+      'isOwnProfile': controller.isOwnProfile,
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +79,7 @@ class ProfileViewWidget extends StatelessWidget {
               SizedBox(height: 16.h),
               _WeeklyPulse(sz: sz),
               SizedBox(height: 16.h),
-              _ActivitySection(
-                controller: controller,
-                sz: sz,
-                onNav: _nav,
-              ),
+              _ActivitySection(controller: controller, sz: sz, onNav: _nav),
               SizedBox(height: 40.h),
             ],
           ),
@@ -102,73 +96,34 @@ class ProfileViewWidget extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leadingWidth: 52.w,
+      centerTitle: false,
+      titleSpacing: 0,
       leading: Padding(
-        padding: EdgeInsets.only(left: 16.w),
-        child: Container(
-          width: 36.w,
-          height: 36.w,
-          decoration: BoxDecoration(
-            color: cs.primaryContainer.withValues(alpha: 0.20),
-            borderRadius: BorderRadius.circular(8.r),
+        padding: EdgeInsets.only(left: 8.w),
+        child: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: cs.onSurface,
+            size: 20.sp,
           ),
-          child: Icon(Icons.play_circle_rounded, color: cs.primary, size: 24.sp),
+          tooltip: 'Geri',
+          onPressed: () {
+            if (Get.key.currentState?.canPop() ?? false) {
+              Get.back();
+            }
+          },
         ),
       ),
-      titleSpacing: 8.w,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Üni',
-                  style: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600)),
-              Text('TV',
-                  style: TextStyle(
-                      color: cs.primary,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600)),
-            ],
-          ),
-          Text(
-            'KAMPÜS YAYINI',
-            style: TextStyle(
-              color: cs.onSurfaceVariant,
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ],
+      title: Text(
+        'Profil',
+        style: TextStyle(
+          color: cs.onSurface,
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.2,
+        ),
       ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.sensors_rounded,
-              color: cs.onSurfaceVariant, size: 22.sp),
-          tooltip: 'Canlı Yayınlar',
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: Icon(Icons.notifications_outlined,
-              color: cs.onSurfaceVariant, size: 22.sp),
-          tooltip: 'Bildirimler',
-          onPressed: () {},
-        ),
-        Container(
-          width: 32.w,
-          height: 32.w,
-          margin: EdgeInsets.only(right: 16.w, left: 4.w),
-          decoration:
-              BoxDecoration(color: cs.primary, shape: BoxShape.circle),
-          child: Icon(Icons.person_rounded,
-              color: cs.onPrimary, size: 18.sp),
-        ),
-      ],
+      actions: const [],
     );
   }
 }
@@ -234,41 +189,48 @@ class _AuraProfileCard extends StatelessWidget {
             // ── İçerik ──
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  sz.paddingH.w, 8.h, sz.paddingH.w, 16.h),
+                sz.paddingH.w,
+                8.h,
+                sz.paddingH.w,
+                16.h,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // ── Sub-bar ──
                   Padding(
-                    padding:
-                        EdgeInsets.only(top: 4.h, bottom: 12.h),
+                    padding: EdgeInsets.only(top: 4.h, bottom: 12.h),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Kulüp rozeti
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10.w, vertical: 4.h),
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: cs.surfaceContainerHigh
-                                .withValues(alpha: 0.80),
-                            borderRadius:
-                                BorderRadius.circular(AppTheme.radiusFull.r),
+                            color: cs.surfaceContainerHigh.withValues(
+                              alpha: 0.80,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusFull.r,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                width: 6.w,
-                                height: 6.w,
-                                decoration: BoxDecoration(
-                                  color: cs.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                              )
+                                    width: 6.w,
+                                    height: 6.w,
+                                    decoration: BoxDecoration(
+                                      color: cs.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  )
                                   .animate(
-                                      onPlay: (c) =>
-                                          c.repeat(reverse: true))
+                                    onPlay: (c) => c.repeat(reverse: true),
+                                  )
                                   .scaleXY(
                                     begin: 0.6,
                                     end: 1.5,
@@ -300,8 +262,7 @@ class _AuraProfileCard extends StatelessWidget {
                               _QuickBtn(
                                 icon: Icons.settings_outlined,
                                 tooltip: 'Ayarlar',
-                                onTap: () =>
-                                    Get.toNamed(AppRoutes.settings),
+                                onTap: () => Get.toNamed(AppRoutes.settings),
                               ),
                             ],
                           ),
@@ -314,8 +275,9 @@ class _AuraProfileCard extends StatelessWidget {
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerHigh.withValues(alpha: 0.60),
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.radiusLg * 1.3),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusLg * 1.3,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.25),
@@ -343,8 +305,7 @@ class _AuraProfileCard extends StatelessWidget {
                               child: Padding(
                                 padding: EdgeInsets.only(top: 2.h),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // İsim + verified
                                     Row(
@@ -359,14 +320,15 @@ class _AuraProfileCard extends StatelessWidget {
                                               letterSpacing: -0.3,
                                             ),
                                             maxLines: 1,
-                                            overflow:
-                                                TextOverflow.ellipsis,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                         SizedBox(width: 4.w),
-                                        Icon(Icons.verified_rounded,
-                                            color: cs.primary,
-                                            size: 18.sp),
+                                        Icon(
+                                          Icons.verified_rounded,
+                                          color: cs.primary,
+                                          size: 18.sp,
+                                        ),
                                       ],
                                     ),
                                     SizedBox(height: 2.h),
@@ -385,8 +347,11 @@ class _AuraProfileCard extends StatelessWidget {
                                     // Üyelik tarihi
                                     Row(
                                       children: [
-                                        Icon(Icons.calendar_today_rounded,
-                                            color: cs.primary, size: 13.sp),
+                                        Icon(
+                                          Icons.calendar_today_rounded,
+                                          color: cs.primary,
+                                          size: 13.sp,
+                                        ),
                                         SizedBox(width: 4.w),
                                         Expanded(
                                           child: Text(
@@ -398,8 +363,7 @@ class _AuraProfileCard extends StatelessWidget {
                                               letterSpacing: 0.04,
                                             ),
                                             maxLines: 1,
-                                            overflow:
-                                                TextOverflow.ellipsis,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
@@ -426,15 +390,16 @@ class _AuraProfileCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12.r),
                                     child: InkWell(
                                       onTap: _navEdit,
-                                      borderRadius:
-                                          BorderRadius.circular(12.r),
+                                      borderRadius: BorderRadius.circular(12.r),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.edit_note_rounded,
-                                              color: cs.onSurface,
-                                              size: 18.sp),
+                                          Icon(
+                                            Icons.edit_note_rounded,
+                                            color: cs.onSurface,
+                                            size: 18.sp,
+                                          ),
                                           SizedBox(width: 6.w),
                                           Text(
                                             'Profili Düzenle',
@@ -461,9 +426,11 @@ class _AuraProfileCard extends StatelessWidget {
                                   child: InkWell(
                                     onTap: () {},
                                     borderRadius: BorderRadius.circular(12.r),
-                                    child: Icon(Icons.ios_share_rounded,
-                                        color: cs.onSurfaceVariant,
-                                        size: 20.sp),
+                                    child: Icon(
+                                      Icons.ios_share_rounded,
+                                      color: cs.onSurfaceVariant,
+                                      size: 20.sp,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -485,8 +452,18 @@ class _AuraProfileCard extends StatelessWidget {
   String _memberSince(DateTime? d) {
     if (d == null) return 'Kampüs üyesi';
     const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
     ];
     return "${months[(d.month - 1).clamp(0, 11)]} ${d.year}'den beri üye";
   }
@@ -569,20 +546,21 @@ class _AvatarBlock extends StatelessWidget {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: cs.primary.withValues(alpha: 0.75),
-                        ),
-                      )
-                          .animate(onPlay: (c) => c.repeat())
-                          .scaleXY(
-                            begin: 0.5,
-                            end: 1.6,
-                            duration: 1200.ms,
-                            curve: Curves.easeOut,
-                          )
-                          .fade(begin: 0.75, end: 0.0),
+                      child:
+                          Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: cs.primary.withValues(alpha: 0.75),
+                                ),
+                              )
+                              .animate(onPlay: (c) => c.repeat())
+                              .scaleXY(
+                                begin: 0.5,
+                                end: 1.6,
+                                duration: 1200.ms,
+                                curve: Curves.easeOut,
+                              )
+                              .fade(begin: 0.75, end: 0.0),
                     ),
                     Center(
                       child: Container(
@@ -630,8 +608,11 @@ class _AvatarBlock extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(Icons.photo_camera_rounded,
-                        color: cs.onSurface, size: 15.sp),
+                    child: Icon(
+                      Icons.photo_camera_rounded,
+                      color: cs.onSurface,
+                      size: 15.sp,
+                    ),
                   ),
                 ),
               ),
@@ -674,8 +655,11 @@ class _QuickBtn extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
-  const _QuickBtn(
-      {required this.icon, required this.tooltip, required this.onTap});
+  const _QuickBtn({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -868,8 +852,11 @@ class _WeeklyPulse extends StatelessWidget {
                 color: cs.primaryContainer.withValues(alpha: 0.20),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(Icons.local_fire_department_rounded,
-                  color: cs.primary, size: 22.sp),
+              child: Icon(
+                Icons.local_fire_department_rounded,
+                color: cs.primary,
+                size: 22.sp,
+              ),
             ),
             SizedBox(width: 12.w),
             // Metin
@@ -895,11 +882,14 @@ class _WeeklyPulse extends StatelessWidget {
                       SizedBox(width: 6.w),
                       Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 6.w, vertical: 2.h),
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: cs.primary.withValues(alpha: 0.20),
                           borderRadius: BorderRadius.circular(
-                              AppTheme.radiusFull.r),
+                            AppTheme.radiusFull.r,
+                          ),
                         ),
                         child: Text(
                           'Harika!',
@@ -916,7 +906,9 @@ class _WeeklyPulse extends StatelessWidget {
                   Text(
                     'Bu hafta 6 saat 40 dk kampüs yayını izledin',
                     style: TextStyle(
-                        color: cs.onSurfaceVariant, fontSize: 12.sp),
+                      color: cs.onSurfaceVariant,
+                      fontSize: 12.sp,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -987,9 +979,10 @@ class _ActivitySection extends StatelessWidget {
                     child: Text(
                       'Tümünü Yönet',
                       style: TextStyle(
-                          color: cs.primary,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700),
+                        color: cs.primary,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -1016,8 +1009,10 @@ class _ActivitySection extends StatelessWidget {
               iconBg: cs.secondary.withValues(alpha: 0.10),
               title: 'Beğendiklerim',
               subtitle: '$likedCount beğendiğin içerik',
-              trailing:
-                  _CountBadge(text: '$likedCount', textColor: cs.secondary),
+              trailing: _CountBadge(
+                text: '$likedCount',
+                textColor: cs.secondary,
+              ),
               onTap: () => onNav(ProfileActivityType.liked),
             ),
             SizedBox(height: 4.h),
@@ -1031,8 +1026,7 @@ class _ActivitySection extends StatelessWidget {
               subtitle: '$watchedCount video izlendi',
               trailing: Text(
                 'Son: İTÜ Güneş Arabası',
-                style: TextStyle(
-                    color: cs.onSurfaceVariant, fontSize: 10.sp),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10.sp),
               ),
               onTap: () => onNav(ProfileActivityType.viewed),
             ),
@@ -1045,8 +1039,10 @@ class _ActivitySection extends StatelessWidget {
               iconBg: cs.surfaceContainerHighest,
               title: 'Yorumlarım',
               subtitle: '$commentCount katkı ve yanıt',
-              trailing:
-                  _CountBadge(text: '$commentCount', textColor: cs.onSurface),
+              trailing: _CountBadge(
+                text: '$commentCount',
+                textColor: cs.onSurface,
+              ),
               onTap: () => onNav(ProfileActivityType.commented),
             ),
             SizedBox(height: 4.h),
@@ -1105,8 +1101,7 @@ class _NavTile extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: 64.h),
           child: Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             child: Row(
               children: [
                 // İkon kutu
@@ -1144,10 +1139,13 @@ class _NavTile extends StatelessWidget {
                             SizedBox(width: 6.w),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 5.w, vertical: 1.h),
+                                horizontal: 5.w,
+                                vertical: 1.h,
+                              ),
                               decoration: BoxDecoration(
-                                color: cs.primaryContainer
-                                    .withValues(alpha: 0.30),
+                                color: cs.primaryContainer.withValues(
+                                  alpha: 0.30,
+                                ),
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
                               child: Text(
@@ -1166,7 +1164,9 @@ class _NavTile extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 12.sp),
+                          color: cs.onSurfaceVariant,
+                          fontSize: 12.sp,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1176,9 +1176,11 @@ class _NavTile extends StatelessWidget {
                 SizedBox(width: 8.w),
                 ?trailing,
                 SizedBox(width: 2.w),
-                Icon(Icons.chevron_right_rounded,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-                    size: 20.sp),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                  size: 20.sp,
+                ),
               ],
             ),
           ),
@@ -1207,7 +1209,10 @@ class _CountBadge extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-            color: textColor, fontSize: 10.sp, fontWeight: FontWeight.w700),
+          color: textColor,
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -1249,11 +1254,13 @@ class _SparklinePainter extends CustomPainter {
     canvas.drawPath(path, linePaint);
 
     // Son nokta dolu daire
-    canvas.drawCircle(pts.last, 2.5 * sx,
-        linePaint..style = PaintingStyle.fill);
+    canvas.drawCircle(
+      pts.last,
+      2.5 * sx,
+      linePaint..style = PaintingStyle.fill,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _SparklinePainter old) =>
-      old.color != color;
+  bool shouldRepaint(covariant _SparklinePainter old) => old.color != color;
 }

@@ -9,6 +9,7 @@ import '../../../data/models/watch_progress_model.dart';
 import '../../../data/repositories/video_repository.dart';
 import '../../../data/repositories/watch_progress_repository.dart';
 import 'discovery_controller.dart';
+import 'universities_controller.dart';
 
 /// Ana feed + sayfalama + üniversite filtresi + "İzlemeye Devam Et".
 class FeedController extends GetxController {
@@ -29,6 +30,17 @@ class FeedController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = ''.obs;
   final selectedUniversity = Rxn<UniversityModel>();
+
+  /// Ana sayfa "En Yeniler" bölümündeki filtre: Tümü / Takip Ettiklerim /
+  /// Takip Etmediklerim / Canlı Yayın.
+  final feedFilter = HomeFeedFilter.latest.obs;
+
+  /// Takip edilen (favori) üniversite ID'leri — UniversitiesController'da
+  /// zaten yükleniyor, burada sadece okunuyor (tek kaynak, tekrar fetch yok).
+  List<int> get _followedUniversityIds {
+    if (!Get.isRegistered<UniversitiesController>()) return const [];
+    return Get.find<UniversitiesController>().favoriteUniversityIds.toList();
+  }
 
   /// Global view-count override (VideoCardWidget her yerde kullanabilsin).
   final viewCountOverrides = <String, int>{}.obs;
@@ -63,8 +75,11 @@ class FeedController extends GetxController {
       if (uni != null) {
         videos.value = await videoRepository.getVideosByUniversity(uni.id!);
       } else {
-        final firstPage =
-            await videoRepository.getLatestVideosPerUniversity(page: 0);
+        final firstPage = await videoRepository.getFeedPage(
+          filter: feedFilter.value,
+          page: 0,
+          followedUniversityIds: _followedUniversityIds,
+        );
         videos.value = firstPage;
         currentPage.value = 0;
         hasMoreVideos.value = firstPage.length >= _pageSize;
@@ -83,8 +98,11 @@ class FeedController extends GetxController {
     try {
       isLoadingMore.value = true;
       final nextPage = currentPage.value + 1;
-      final newVideos =
-          await videoRepository.getLatestVideosPerUniversity(page: nextPage);
+      final newVideos = await videoRepository.getFeedPage(
+        filter: feedFilter.value,
+        page: nextPage,
+        followedUniversityIds: _followedUniversityIds,
+      );
       final existing = videos.map((v) => v.videoId).toSet();
       final unique = newVideos.where((v) => existing.add(v.videoId)).toList();
       videos.addAll(unique);
@@ -121,6 +139,21 @@ class FeedController extends GetxController {
       await loadVideos();
     } catch (e, st) {
       log('Üniversite seçilirken hata oluştu: $e', error: e, stackTrace: st);
+    }
+  }
+
+  /// "En Yeniler" filtre menüsünden bir seçenek seçildiğinde çağrılır.
+  /// Sayfalamayı sıfırlar ve ilk sayfayı yeni filtreyle yeniden yükler.
+  Future<void> setFeedFilter(HomeFeedFilter filter) async {
+    if (feedFilter.value == filter) return;
+    try {
+      feedFilter.value = filter;
+      currentPage.value = 0;
+      hasMoreVideos.value = true;
+      await loadVideos();
+    } catch (e, st) {
+      log('Feed filtresi değiştirilirken hata oluştu: $e',
+          error: e, stackTrace: st);
     }
   }
 

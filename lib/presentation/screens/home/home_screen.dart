@@ -6,11 +6,12 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/home/home_controller.dart';
 
-import '../profile/profile_screen.dart';
-import '../search/search_screen.dart';
+/* import '../profile/profile_screen.dart';
+ */import '../search/search_screen.dart';
 import 'tabs/discovery_tab/discover_tab_widget.dart';
 import 'tabs/home_tab/home_tab_widget.dart';
 import 'tabs/universities_tab/universities_tab_widget.dart';
+import 'widgets/unitv_app_bar.dart';
 
 // FIX: StatelessWidget -> StatefulWidget.
 //
@@ -51,8 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
     DiscoverTabWidget(),
     UniversitiesTabWidget(),
     SearchScreen(),
-    ProfileScreen(),
-  ];
+/*     ProfileScreen(),
+ */  ];
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // Bu sayede bottomNavigationBar her zaman görünür kalır.
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
+      // "ÜniTV / KAMPÜS YAYINI" barı artık burada, en dıştaki Scaffold'a
+      // ait — bu sayede IndexedStack'teki sekme (index) değişse bile
+      // appBar yeniden build edilmez ve TÜM sekmelerde sabit kalır.
+      appBar: const UniTvAppBar(),
       body: Obx(() {
         final index = controller.selectedIndex.value;
         // Seçilen sekme "ziyaret edildi" olarak işaretlenir; bir sonraki
@@ -110,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
               activeIcon: Icon(Icons.search_rounded),
               label: 'Ara',
             ),
-            BottomNavigationBarItem(
+           /*  BottomNavigationBarItem(
               icon: Icon(Icons.person_outline_rounded),
               activeIcon: Icon(Icons.person_rounded),
               label: 'Profil',
-            ),
+            ), */
           ],
         ),
       ),

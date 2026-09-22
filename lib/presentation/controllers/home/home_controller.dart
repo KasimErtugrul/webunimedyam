@@ -7,6 +7,7 @@ import '../../../data/models/video_engagement_model.dart';
 import '../../../data/models/video_model.dart';
 import '../../../data/models/watch_progress_model.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/video_repository.dart' show HomeFeedFilter;
 import 'discovery_controller.dart';
 import 'engagement_controller.dart';
 import 'feed_controller.dart';
@@ -124,11 +125,13 @@ class HomeController extends GetxController {
   RxString get errorMessage => feed.errorMessage;
   Rxn<UniversityModel> get selectedUniversity => feed.selectedUniversity;
   RxMap<String, int> get viewCountOverrides => feed.viewCountOverrides;
+  Rx<HomeFeedFilter> get feedFilter => feed.feedFilter;
 
   Future<void> loadVideos() => feed.loadVideos();
   Future<void> loadMoreVideos() => feed.loadMoreVideos();
   Future<void> refreshVideos() => feed.refreshVideos();
   Future<void> selectUniversity(UniversityModel? u) => feed.selectUniversity(u);
+  Future<void> setFeedFilter(HomeFeedFilter filter) => feed.setFeedFilter(filter);
   void syncViewCountFromPlayer(String id, int c) =>
       feed.syncViewCountFromPlayer(id, c);
 

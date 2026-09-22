@@ -134,8 +134,9 @@ class _SearchScreenState extends State<SearchScreen> {
         bottom: false,
         child: Column(
           children: [
-            // Top App Bar Header (Brand & Icons)
-            _buildTopAppBar(context, scheme),
+            // "ÜniTV / KAMPÜS YAYINI" barı artık HomeScreen'in Scaffold.appBar'ında
+            // sabit (bkz. presentation/screens/home/widgets/unitv_app_bar.dart);
+            // burada tekrar gösterilmiyor.
 
             // Search Bar Area (Sticky style inside main Column)
             _buildSearchInputBar(context, scheme),
@@ -201,114 +202,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Top App Bar matching the HTML design (ÜniTV logo + Canlı Yayın, Bildirim, Profil)
-  Widget _buildTopAppBar(BuildContext context, ColorScheme scheme) {
-    return Container(
-      height: 56.h,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        children: [
-          // Logo & Subtitle
-          Row(
-            children: [
-              Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: const Icon(
-                  Icons.play_circle_fill_rounded,
-                  color: Color(0xFF4EDEA3),
-                  size: 22,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPri(context),
-                      ),
-                      children: const [
-                        TextSpan(text: 'Üni'),
-                        TextSpan(
-                          text: 'TV',
-                          style: TextStyle(color: Color(0xFF4EDEA3)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'KAMPÜS YAYINI',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: AppTheme.textSec(context),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Spacer(),
-
-          // Action Icons
-          IconButton(
-            onPressed: () {
-              final homeCtrl = Get.find<HomeController>();
-              homeCtrl.changeTab(1);
-            },
-            icon: Icon(
-              Icons.sensors_rounded,
-              color: AppTheme.textSec(context),
-              size: 22.sp,
-            ),
-            tooltip: 'Canlı Yayınlar',
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.notifications_none_rounded,
-              color: AppTheme.textSec(context),
-              size: 22.sp,
-            ),
-            tooltip: 'Bildirimler',
-          ),
-          SizedBox(width: 4.w),
-          GestureDetector(
-            onTap: () {
-              final homeCtrl = Get.find<HomeController>();
-              homeCtrl.changeTab(4);
-            },
-            child: Container(
-              width: 32.w,
-              height: 32.w,
-              decoration: const BoxDecoration(
-                color: Color(0xFF4EDEA3),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person_rounded,
-                color: Color(0xFF003824),
-                size: 18,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -460,14 +460,42 @@ class SupabaseDataSource {
     }
   }
 
+  /// Ana sayfa "Üniversitelerin Son Videoları" feed'i.
+  ///
+  /// FIX (Kasım): Ana sayfadaki "En Yeniler" filtre menüsü artık gerçek bir
+  /// filtre — [universityIds] verilirse SADECE o üniversitelerin (örn.
+  /// "Takip Ettiklerim"), [excludeUniversityIds] verilirse o üniversiteler
+  /// HARİÇ tümünün (örn. "Takip Etmediklerim"), [liveOnly] true ise sadece
+  /// şu anda CANLI yayında olan üniversitelerin ("Canlı Yayın") en son
+  /// videosu dönülür. `latest_videos_per_university` zaten
+  /// `DISTINCT ON (university_id)` olduğundan (üniversite başına tek satır,
+  /// toplam üniversite sayısı kadar), bu filtreler üniversite_id index'i
+  /// üzerinden ucuza çalışır.
   Future<List<VideoModel>> getLatestVideoPerUniversity({
     int limit = 500,
     int offset = 0,
+    List<int>? universityIds,
+    List<int>? excludeUniversityIds,
+    bool liveOnly = false,
   }) async {
     try {
-      final data = await _client
-          .from('latest_videos_per_university')
-          .select()
+      var query = _client.from('latest_videos_per_university').select();
+
+      if (liveOnly) {
+        query = query.eq('is_live', true);
+      }
+      if (universityIds != null && universityIds.isNotEmpty) {
+        query = query.inFilter('university_id', universityIds);
+      }
+      if (excludeUniversityIds != null && excludeUniversityIds.isNotEmpty) {
+        query = query.not(
+          'university_id',
+          'in',
+          '(${excludeUniversityIds.join(',')})',
+        );
+      }
+
+      final data = await query
           .order('published_at', ascending: false)
           .range(offset, offset + limit - 1);
 

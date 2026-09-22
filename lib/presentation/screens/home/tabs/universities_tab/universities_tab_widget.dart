@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/tabs/universities_tab/universities_tab_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -82,7 +81,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         top: false,
         child: Column(
           children: [
-            _buildTopHeader(context, scheme, isTablet: isTablet),
+            // "ÜniTV / KAMPÜS YAYINI" barı artık HomeScreen'in Scaffold.appBar'ında
+            // sabit (bkz. presentation/screens/home/widgets/unitv_app_bar.dart);
+            // burada tekrar gösterilmiyor.
             _buildTitleAndSearch(context, scheme, isTablet: isTablet),
             _buildFilterPills(context, scheme, isTablet: isTablet),
             _buildCounterAndSortRow(context, scheme, isTablet: isTablet),
@@ -182,108 +183,6 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // 1. ÜST HEADER — değişmedi
-  // ═══════════════════════════════════════════════════════════════════
-  Widget _buildTopHeader(
-    BuildContext context,
-    ColorScheme scheme, {
-    required bool isTablet,
-  }) {
-    final topInset = MediaQuery.of(context).padding.top;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, topInset + 8.h, 16.w, 8.h),
-      color: AppTheme.bg(context),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: isTablet ? 42.w : 36.w,
-                height: isTablet ? 42.w : 36.w,
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(
-                  Icons.play_circle_filled_rounded,
-                  color: scheme.primary,
-                  size: isTablet ? 26.sp : 22.sp,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: 'Üni',
-                      style: TextStyle(
-                        color: scheme.onSurface,
-                        fontSize: isTablet ? 20.sp : 17.sp,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'TV',
-                          style: TextStyle(color: scheme.primary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'KAMPÜS YAYINI',
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: isTablet ? 11.sp : 9.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Canlı Yayınlar',
-                icon: const Icon(Icons.sensors_rounded),
-                color: scheme.onSurfaceVariant,
-                iconSize: isTablet ? 26.sp : 22.sp,
-                onPressed: () => Get.toNamed(AppRoutes.radio),
-              ),
-              IconButton(
-                tooltip: 'Bildirimler',
-                icon: const Icon(Icons.notifications_outlined),
-                color: scheme.onSurfaceVariant,
-                iconSize: isTablet ? 26.sp : 22.sp,
-                onPressed: () => Get.toNamed(AppRoutes.notifications),
-              ),
-              SizedBox(width: 4.w),
-              GestureDetector(
-                onTap: () => controller.changeTab(4),
-                child: CircleAvatar(
-                  radius: isTablet ? 18.r : 15.r,
-                  backgroundColor: scheme.primary,
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: scheme.onPrimary,
-                    size: isTablet ? 20.sp : 17.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════
   // 2. BAŞLIK + ARAMA — değişmedi (build'den metoda alındı)
   // ═══════════════════════════════════════════════════════════════════
   Widget _buildTitleAndSearch(
@@ -296,7 +195,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          /* Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -357,7 +256,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 12.h), */
           Container(
             height: isTablet ? 46.h : 42.h,
             padding: EdgeInsets.symmetric(horizontal: 12.w),

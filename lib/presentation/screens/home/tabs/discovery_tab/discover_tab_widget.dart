@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/tabs/discovery_tab/discover_tab_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -12,8 +11,8 @@ import '../../../../../core/utils/formatters.dart';
 import '../../../../../data/models/university_stats_model.dart';
 import '../../../../../data/models/video_engagement_model.dart';
 import '../../../../controllers/home/home_controller.dart';
-import '../home_tab/videos/video_sections_config.dart';
 import '../home_tab/universities/university_sections_config.dart';
+import '../home_tab/videos/video_sections_config.dart';
 
 class DiscoverTabWidget extends StatefulWidget {
   const DiscoverTabWidget({super.key});
@@ -28,15 +27,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
   // 0: Videolar, 1: Kanallar
   int _selectedTabIndex = 0;
   // Kategori çipleri için aktif kategori
-  int _selectedCategoryIndex = 0;
-
-  final List<String> _categories = [
-    'Tümü',
-    'Teknoloji & İnovasyon',
-    'Akademik & Sempozyum',
-    'Sanat & Sahne',
-    'Kampüs Yaşamı',
-  ];
+  /*  int _selectedCategoryIndex = 0; */
 
   @override
   void initState() {
@@ -69,10 +60,11 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
               parent: BouncingScrollPhysics(),
             ),
             slivers: [
-              // ── 1. ÜST HEADER BAR (ÜniTV, Canlı, Bildirimler, Profil) ───
-              SliverToBoxAdapter(
-                child: _buildTopHeader(context, scheme, isTablet: isTablet),
-              ),
+              // ── 1. ÜST HEADER BAR artık burada değil ─────────────────────
+              // "ÜniTV / KAMPÜS YAYINI" barı HomeScreen'in Scaffold.appBar'ına
+              // taşındı (bkz. presentation/screens/home/widgets/unitv_app_bar.dart),
+              // bottom navigation'daki tüm sekmelerde sabit kalıyor. Bu sekmede
+              // ayrıca tekrar göstermeye gerek yok.
 
               // ── 2. DISCOVER HUB & SEARCH BANNER ────────────────────────
               SliverToBoxAdapter(
@@ -81,9 +73,17 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildDiscoverHubCard(context, scheme, isTablet: isTablet),
+                      _buildDiscoverHubCard(
+                        context,
+                        scheme,
+                        isTablet: isTablet,
+                      ),
                       SizedBox(height: 14.h),
-                      _buildSegmentSwitcher(context, scheme, isTablet: isTablet),
+                      _buildSegmentSwitcher(
+                        context,
+                        scheme,
+                        isTablet: isTablet,
+                      ),
                       SizedBox(height: 14.h),
                     ],
                   ),
@@ -92,10 +92,10 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
 
               // ── 3. SEKME İÇERİĞİ (Videolar veya Kanallar) ───────────────
               if (_selectedTabIndex == 0) ...[
-                // Kategori Çipleri
+                /*  // Kategori Çipleri
                 SliverToBoxAdapter(
                   child: _buildCategoryChips(context, scheme, isTablet: isTablet),
-                ),
+                ), */
                 SliverToBoxAdapter(child: SizedBox(height: 16.h)),
                 // Videolar Listesi
                 _buildVideosSection(context, scheme, isTablet: isTablet),
@@ -105,117 +105,10 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
               ],
 
               // Alt boşluk
-              SliverToBoxAdapter(
-                child: SizedBox(height: 32.h),
-              ),
+              SliverToBoxAdapter(child: SizedBox(height: 32.h)),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 1. ÜST HEADER (Tasarım: h-16, logo, sensör canlı, bildirim, avatar)
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildTopHeader(
-    BuildContext context,
-    ColorScheme scheme, {
-    required bool isTablet,
-  }) {
-    final topInset = MediaQuery.of(context).padding.top;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, topInset + 8.h, 16.w, 8.h),
-      color: AppTheme.bg(context),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Sol: Logo & Marka
-          Row(
-            children: [
-              Container(
-                width: isTablet ? 42.w : 36.w,
-                height: isTablet ? 42.w : 36.w,
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(
-                  Icons.play_circle_filled_rounded,
-                  color: scheme.primary,
-                  size: isTablet ? 26.sp : 22.sp,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: 'Üni',
-                      style: TextStyle(
-                        color: scheme.onSurface,
-                        fontSize: isTablet ? 20.sp : 17.sp,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'TV',
-                          style: TextStyle(color: scheme.primary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'KAMPÜS YAYINI',
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: isTablet ? 11.sp : 9.sp,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // Sağ: Aksiyon İkonları
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Canlı Yayınlar',
-                icon: const Icon(Icons.sensors_rounded),
-                color: scheme.onSurfaceVariant,
-                iconSize: isTablet ? 26.sp : 22.sp,
-                onPressed: () => Get.toNamed(AppRoutes.radio),
-              ),
-              IconButton(
-                tooltip: 'Bildirimler',
-                icon: const Icon(Icons.notifications_outlined),
-                color: scheme.onSurfaceVariant,
-                iconSize: isTablet ? 26.sp : 22.sp,
-                onPressed: () => Get.toNamed(AppRoutes.notifications),
-              ),
-              SizedBox(width: 4.w),
-              GestureDetector(
-                onTap: () => controller.changeTab(4),
-                child: CircleAvatar(
-                  radius: isTablet ? 18.r : 15.r,
-                  backgroundColor: scheme.primary,
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: scheme.onPrimary,
-                    size: isTablet ? 20.sp : 17.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -270,7 +163,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Başlık Satırı & CANLI 14 Rozeti
-                Row(
+                /* Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
@@ -331,13 +224,13 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 6.w,
-                            height: 6.w,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: scheme.primary,
-                            ),
-                          )
+                                width: 6.w,
+                                height: 6.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: scheme.primary,
+                                ),
+                              )
                               .animate(onPlay: (c) => c.repeat(reverse: true))
                               .scale(
                                 begin: const Offset(0.8, 0.8),
@@ -360,7 +253,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   ],
                 ),
 
-                SizedBox(height: 12.h),
+                SizedBox(height: 12.h), */
 
                 // Quick Search Bar
                 GestureDetector(
@@ -555,7 +448,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
   // ═══════════════════════════════════════════════════════════════════════════
   // 4. CATEGORY CHIPS (Tümü, Teknoloji, Akademik, Sanat, Kampüs)
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildCategoryChips(
+  /*  Widget _buildCategoryChips(
     BuildContext context,
     ColorScheme scheme, {
     required bool isTablet,
@@ -620,7 +513,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
         },
       ),
     );
-  }
+  } */
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 5. VIDEOS VIEW (Tasarım: Trend Videolar + En Çok İzlenenler + Seksiyonlar)
@@ -633,110 +526,108 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       sliver: SliverList(
-        delegate: SliverChildListDelegate(
-          [
-            // ── BÖLÜM 1: Trend Videolar (Büyük Kartlar) ──
-            Obx(() {
-              final trendingList = controller.videosTrending.toList();
-              final isLoading = controller.isVideoSectionsLoading.value;
+        delegate: SliverChildListDelegate([
+          // ── BÖLÜM 1: Trend Videolar (Büyük Kartlar) ──
+          Obx(() {
+            final trendingList = controller.videosTrending.toList();
+            final isLoading = controller.isVideoSectionsLoading.value;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(
-                    context,
-                    scheme,
-                    title: 'Trend Videolar',
-                    icon: Icons.local_fire_department_rounded,
-                    iconColor: AppTheme.darkTertiaryContainer,
-                    isTablet: isTablet,
-                    onSeeAll: () => Get.toNamed(
-                      AppRoutes.videoSectionDetail,
-                      arguments: VideoSectionType.trending,
-                    ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  context,
+                  scheme,
+                  title: 'Trend Videolar',
+                  icon: Icons.local_fire_department_rounded,
+                  iconColor: AppTheme.darkTertiaryContainer,
+                  isTablet: isTablet,
+                  onSeeAll: () => Get.toNamed(
+                    AppRoutes.videoSectionDetail,
+                    arguments: VideoSectionType.trending,
                   ),
-                  SizedBox(height: 10.h),
-                  if (isLoading)
-                    _buildVideoCardShimmer(context, scheme, isTablet: isTablet)
-                  else if (trendingList.isEmpty)
-                    const SizedBox.shrink()
-                  else ...[
-                    // İlk 2 trend videoyu büyük vitrin kartı olarak göster
-                    for (var i = 0; i < trendingList.take(2).length; i++) ...[
-                      _buildLargeVideoCard(
-                        context,
-                        scheme,
-                        video: trendingList[i],
-                        badgeText:
-                            '${trendingList[i].engagementScore} Etkileşim Puanı',
-                        badgeIcon: Icons.bolt_rounded,
-                        isTablet: isTablet,
-                      ),
-                      SizedBox(height: 12.h),
-                    ],
-                  ],
-                ],
-              );
-            }),
-
-            SizedBox(height: 16.h),
-
-            // ── BÖLÜM 2: En Çok İzlenenler (Öne Çıkan Konser / Vitrin Kartı) ──
-            Obx(() {
-              final mostWatched = controller.videosMostWatched.toList();
-              final isLoading = controller.isVideoSectionsLoading.value;
-
-              if (mostWatched.isEmpty && !isLoading) {
-                return const SizedBox.shrink();
-              }
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(
-                    context,
-                    scheme,
-                    title: 'En Çok İzlenenler',
-                    icon: Icons.visibility_rounded,
-                    iconColor: scheme.primary,
-                    trailingText: 'BU AY',
-                    isTablet: isTablet,
-                    onSeeAll: () => Get.toNamed(
-                      AppRoutes.videoSectionDetail,
-                      arguments: VideoSectionType.mostWatched,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  if (isLoading)
-                    _buildVideoCardShimmer(context, scheme, isTablet: isTablet)
-                  else if (mostWatched.isNotEmpty)
+                ),
+                SizedBox(height: 10.h),
+                if (isLoading)
+                  _buildVideoCardShimmer(context, scheme, isTablet: isTablet)
+                else if (trendingList.isEmpty)
+                  const SizedBox.shrink()
+                else ...[
+                  // İlk 2 trend videoyu büyük vitrin kartı olarak göster
+                  for (var i = 0; i < trendingList.take(2).length; i++) ...[
                     _buildLargeVideoCard(
                       context,
                       scheme,
-                      video: mostWatched.first,
-                      badgeText: 'Öne Çıkan',
-                      badgeIcon: Icons.star_rounded,
-                      isFeatured: true,
+                      video: trendingList[i],
+                      badgeText:
+                          '${trendingList[i].engagementScore} Etkileşim Puanı',
+                      badgeIcon: Icons.bolt_rounded,
                       isTablet: isTablet,
                     ),
+                    SizedBox(height: 12.h),
+                  ],
                 ],
-              );
+              ],
+            );
+          }),
+
+          SizedBox(height: 16.h),
+
+          // ── BÖLÜM 2: En Çok İzlenenler (Öne Çıkan Konser / Vitrin Kartı) ──
+          Obx(() {
+            final mostWatched = controller.videosMostWatched.toList();
+            final isLoading = controller.isVideoSectionsLoading.value;
+
+            if (mostWatched.isEmpty && !isLoading) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  context,
+                  scheme,
+                  title: 'En Çok İzlenenler',
+                  icon: Icons.visibility_rounded,
+                  iconColor: scheme.primary,
+                  trailingText: 'BU AY',
+                  isTablet: isTablet,
+                  onSeeAll: () => Get.toNamed(
+                    AppRoutes.videoSectionDetail,
+                    arguments: VideoSectionType.mostWatched,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                if (isLoading)
+                  _buildVideoCardShimmer(context, scheme, isTablet: isTablet)
+                else if (mostWatched.isNotEmpty)
+                  _buildLargeVideoCard(
+                    context,
+                    scheme,
+                    video: mostWatched.first,
+                    badgeText: 'Öne Çıkan',
+                    badgeIcon: Icons.star_rounded,
+                    isFeatured: true,
+                    isTablet: isTablet,
+                  ),
+              ],
+            );
+          }),
+
+          SizedBox(height: 20.h),
+
+          // ── BÖLÜM 3: Diğer Video Kategorileri (Yatay Slider'lar) ──
+          for (var i = 2; i < videoSectionConfigs.length; i++)
+            Obx(() {
+              final items = _videoItemsFor(i);
+              return buildVideoSections(
+                configs: [videoSectionConfigs[i]],
+                allVideoItems: [items],
+                isLoading: controller.isVideoSectionsLoading.value,
+              ).first;
             }),
-
-            SizedBox(height: 20.h),
-
-            // ── BÖLÜM 3: Diğer Video Kategorileri (Yatay Slider'lar) ──
-            for (var i = 2; i < videoSectionConfigs.length; i++)
-              Obx(() {
-                final items = _videoItemsFor(i);
-                return buildVideoSections(
-                  configs: [videoSectionConfigs[i]],
-                  allVideoItems: [items],
-                  isLoading: controller.isVideoSectionsLoading.value,
-                ).first;
-              }),
-          ],
-        ),
+        ]),
       ),
     );
   }
@@ -752,123 +643,122 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       sliver: SliverList(
-        delegate: SliverChildListDelegate(
-          [
-            // ── BÖLÜM 1: En Çok İzlenen Kanallar (Top 3) ──
-            Obx(() {
-              final topChannels = controller.statsMostWatched.toList();
-              final isLoading = controller.isStatsLoading.value;
+        delegate: SliverChildListDelegate([
+          // ── BÖLÜM 1: En Çok İzlenen Kanallar (Top 3) ──
+          Obx(() {
+            final topChannels = controller.statsMostWatched.toList();
+            final isLoading = controller.isStatsLoading.value;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(
-                    context,
-                    scheme,
-                    title: 'En Çok İzlenen Kanallar',
-                    icon: Icons.tv_rounded,
-                    iconColor: scheme.primary,
-                    trailingBadge: 'Top 3',
-                    isTablet: isTablet,
-                    onSeeAll: () => Get.toNamed(
-                      AppRoutes.universityStatsSectionDetail,
-                      arguments: UniversityStatsSectionType.mostWatched,
-                    ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  context,
+                  scheme,
+                  title: 'En Çok İzlenen Kanallar',
+                  icon: Icons.tv_rounded,
+                  iconColor: scheme.primary,
+                  trailingBadge: 'Top 3',
+                  isTablet: isTablet,
+                  onSeeAll: () => Get.toNamed(
+                    AppRoutes.universityStatsSectionDetail,
+                    arguments: UniversityStatsSectionType.mostWatched,
                   ),
-                  SizedBox(height: 10.h),
-                  if (isLoading)
-                    _buildChannelCardShimmer(context, scheme, isTablet: isTablet)
-                  else if (topChannels.isEmpty)
-                    const SizedBox.shrink()
-                  else
-                    for (var i = 0; i < topChannels.take(3).length; i++) ...[
-                      _buildTopChannelRow(
-                        context,
-                        scheme,
-                        stats: topChannels[i],
-                        isFollowed: i == 1, // Tasarımdaki takipte durumu simülasyonu
-                        isTablet: isTablet,
-                      ),
-                      SizedBox(height: 8.h),
+                ),
+                SizedBox(height: 10.h),
+                if (isLoading)
+                  _buildChannelCardShimmer(context, scheme, isTablet: isTablet)
+                else if (topChannels.isEmpty)
+                  const SizedBox.shrink()
+                else
+                  for (var i = 0; i < topChannels.take(3).length; i++) ...[
+                    _buildTopChannelRow(
+                      context,
+                      scheme,
+                      stats: topChannels[i],
+                      isFollowed:
+                          i == 1, // Tasarımdaki takipte durumu simülasyonu
+                      isTablet: isTablet,
+                    ),
+                    SizedBox(height: 8.h),
+                  ],
+              ],
+            );
+          }),
+
+          SizedBox(height: 20.h),
+
+          // ── BÖLÜM 2: En Çok Beğenilen Kanallar (Leaderboard Grid) ──
+          Obx(() {
+            final mostLiked = controller.statsMostLiked.toList();
+            final isLoading = controller.isStatsLoading.value;
+
+            if (mostLiked.isEmpty && !isLoading) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  context,
+                  scheme,
+                  title: 'En Çok Beğenilen Kanallar',
+                  icon: Icons.thumb_up_rounded,
+                  iconColor: AppTheme.darkTertiaryContainer,
+                  trailingText: 'TOP SIRALAMA',
+                  isTablet: isTablet,
+                  onSeeAll: () => Get.toNamed(
+                    AppRoutes.universityStatsSectionDetail,
+                    arguments: UniversityStatsSectionType.mostLiked,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                if (isLoading)
+                  _buildChannelCardShimmer(context, scheme, isTablet: isTablet)
+                else
+                  Row(
+                    children: [
+                      if (mostLiked.isNotEmpty)
+                        Expanded(
+                          child: _buildLeaderboardCard(
+                            context,
+                            scheme,
+                            stats: mostLiked[0],
+                            rank: '#1',
+                            isTablet: isTablet,
+                          ),
+                        ),
+                      SizedBox(width: 10.w),
+                      if (mostLiked.length > 1)
+                        Expanded(
+                          child: _buildLeaderboardCard(
+                            context,
+                            scheme,
+                            stats: mostLiked[1],
+                            rank: '#2',
+                            isTablet: isTablet,
+                          ),
+                        ),
                     ],
-                ],
-              );
-            }),
-
-            SizedBox(height: 20.h),
-
-            // ── BÖLÜM 2: En Çok Beğenilen Kanallar (Leaderboard Grid) ──
-            Obx(() {
-              final mostLiked = controller.statsMostLiked.toList();
-              final isLoading = controller.isStatsLoading.value;
-
-              if (mostLiked.isEmpty && !isLoading) {
-                return const SizedBox.shrink();
-              }
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(
-                    context,
-                    scheme,
-                    title: 'En Çok Beğenilen Kanallar',
-                    icon: Icons.thumb_up_rounded,
-                    iconColor: AppTheme.darkTertiaryContainer,
-                    trailingText: 'TOP SIRALAMA',
-                    isTablet: isTablet,
-                    onSeeAll: () => Get.toNamed(
-                      AppRoutes.universityStatsSectionDetail,
-                      arguments: UniversityStatsSectionType.mostLiked,
-                    ),
                   ),
-                  SizedBox(height: 10.h),
-                  if (isLoading)
-                    _buildChannelCardShimmer(context, scheme, isTablet: isTablet)
-                  else
-                    Row(
-                      children: [
-                        if (mostLiked.isNotEmpty)
-                          Expanded(
-                            child: _buildLeaderboardCard(
-                              context,
-                              scheme,
-                              stats: mostLiked[0],
-                              rank: '#1',
-                              isTablet: isTablet,
-                            ),
-                          ),
-                        SizedBox(width: 10.w),
-                        if (mostLiked.length > 1)
-                          Expanded(
-                            child: _buildLeaderboardCard(
-                              context,
-                              scheme,
-                              stats: mostLiked[1],
-                              rank: '#2',
-                              isTablet: isTablet,
-                            ),
-                          ),
-                      ],
-                    ),
-                ],
-              );
+              ],
+            );
+          }),
+
+          SizedBox(height: 20.h),
+
+          // ── BÖLÜM 3: Diğer Üniversite İstatistikleri (Yatay Slider'lar) ──
+          for (var i = 2; i < uniSectionConfigs.length; i++)
+            Obx(() {
+              final items = _uniItemsFor(i);
+              return buildUniversitySections(
+                configs: [uniSectionConfigs[i]],
+                allItems: [items],
+                isLoading: controller.isStatsLoading.value,
+              ).first;
             }),
-
-            SizedBox(height: 20.h),
-
-            // ── BÖLÜM 3: Diğer Üniversite İstatistikleri (Yatay Slider'lar) ──
-            for (var i = 2; i < uniSectionConfigs.length; i++)
-              Obx(() {
-                final items = _uniItemsFor(i);
-                return buildUniversitySections(
-                  configs: [uniSectionConfigs[i]],
-                  allItems: [items],
-                  isLoading: controller.isStatsLoading.value,
-                ).first;
-              }),
-          ],
-        ),
+        ]),
       ),
     );
   }
@@ -968,7 +858,12 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     required bool isTablet,
   }) {
     final initials = video.channelTitle.isNotEmpty
-        ? video.channelTitle.substring(0, video.channelTitle.length > 3 ? 3 : video.channelTitle.length).toUpperCase()
+        ? video.channelTitle
+              .substring(
+                0,
+                video.channelTitle.length > 3 ? 3 : video.channelTitle.length,
+              )
+              .toUpperCase()
         : 'ÜNİ';
 
     return GestureDetector(
@@ -1002,9 +897,8 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   CachedNetworkImage(
                     imageUrl: video.thumbnailUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      color: scheme.surfaceContainerHighest,
-                    ),
+                    placeholder: (_, _) =>
+                        Container(color: scheme.surfaceContainerHighest),
                     errorWidget: (_, _, _) => CachedNetworkImage(
                       imageUrl: video.fallbackThumbnailUrl,
                       fit: BoxFit.cover,
@@ -1038,7 +932,9 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                       decoration: BoxDecoration(
                         color: isFeatured
                             ? scheme.primary
-                            : scheme.surfaceContainerLowest.withValues(alpha: 0.85),
+                            : scheme.surfaceContainerLowest.withValues(
+                                alpha: 0.85,
+                              ),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Row(
@@ -1077,7 +973,9 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: scheme.surfaceContainerLowest.withValues(alpha: 0.85),
+                        color: scheme.surfaceContainerLowest.withValues(
+                          alpha: 0.85,
+                        ),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
@@ -1232,7 +1130,9 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     required bool isTablet,
   }) {
     final initials = stats.name.isNotEmpty
-        ? stats.name.substring(0, stats.name.length > 2 ? 2 : stats.name.length).toUpperCase()
+        ? stats.name
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
     return GestureDetector(
@@ -1381,17 +1281,13 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   Icon(
                     isFollowed ? Icons.check : Icons.add,
                     size: 14.sp,
-                    color: isFollowed
-                        ? scheme.onPrimary
-                        : scheme.primary,
+                    color: isFollowed ? scheme.onPrimary : scheme.primary,
                   ),
                   SizedBox(width: 4.w),
                   Text(
                     isFollowed ? 'Takipte' : 'Takip Et',
                     style: TextStyle(
-                      color: isFollowed
-                          ? scheme.onPrimary
-                          : scheme.primary,
+                      color: isFollowed ? scheme.onPrimary : scheme.primary,
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1414,7 +1310,9 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     required bool isTablet,
   }) {
     final initials = stats.name.isNotEmpty
-        ? stats.name.substring(0, stats.name.length > 2 ? 2 : stats.name.length).toUpperCase()
+        ? stats.name
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
     return GestureDetector(
@@ -1437,9 +1335,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
               child: Text(
                 rank,
                 style: TextStyle(
-                  color: rank == '#1'
-                      ? scheme.primary
-                      : scheme.outline,
+                  color: rank == '#1' ? scheme.primary : scheme.outline,
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w800,
                 ),

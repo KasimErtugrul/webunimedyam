@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
+import '../../../../../data/repositories/video_repository.dart' show HomeFeedFilter;
 import '../../../../controllers/home/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
 import 'shorts/shorts_row_widget.dart';
@@ -21,11 +22,7 @@ import 'widgets/video_grid_card_widget.dart';
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-  // AppBar
-  static const double titleIconSize = 30;
-  static const double titleIconBorderRadius = 8;
-  static const double titleIconInnerSize = 18;
-  static const double titleSpacing = 8;
+
 
   // Spacing
   static const double titleSpacingLarge = 16;
@@ -101,11 +98,7 @@ class _PhoneSizes {
 }
 
 class _TabletSizes {
-  // AppBar - tablet için daha büyük
-  static const double titleIconSize = 36;
-  static const double titleIconBorderRadius = 10;
-  static const double titleIconInnerSize = 22;
-  static const double titleSpacing = 10;
+
 
   // Spacing - tablet için daha geniş
   static const double titleSpacingLarge = 20;
@@ -302,11 +295,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // ── Üst Bar — Sadece Logo/Aksiyonlar (Shorts YOK) ──────────
-              // KURAL 5 — TEK DALLANMA NOKTASI
-              Responsive.isTablet(context)
-                  ? _buildAppBarTablet(context)
-                  : _buildAppBarPhone(context),
+              // ── Üst Bar (ÜniTV / KAMPÜS YAYINI) artık burada değil ──────
+              // Bu bar HomeScreen'in Scaffold.appBar'ına taşındı, böylece
+              // bottom navigation'daki TÜM sekmelerde sabit kalıyor.
+              // (bkz. presentation/screens/home/widgets/unitv_app_bar.dart)
 
               // ── Canlı Radyo Pili + Görünüm Anahtarı ─────────────────────
               SliverToBoxAdapter(
@@ -378,102 +370,6 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI) — AppBar
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildAppBarPhone(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SliverAppBar(
-      pinned: false,
-      floating: true,
-      snap: true,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      backgroundColor: AppTheme.bg(context),
-      automaticallyImplyLeading: false,
-      titleSpacing: _PhoneSizes.titleSpacingLarge.w,
-      toolbarHeight: kToolbarHeight,
-      actions: [
-        IconButton(
-          tooltip: 'Canlı Yayınlar',
-          icon: const Icon(Icons.sensors_rounded),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.radio),
-        ),
-        IconButton(
-          tooltip: 'Bildirimler',
-          icon: const Icon(Icons.notifications_outlined),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.notifications),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: _PhoneSizes.titleSpacingLarge.w),
-          child: CircleAvatar(
-            radius: 16.r,
-            backgroundColor: scheme.primary,
-            child: Icon(
-              Icons.person_rounded,
-              color: scheme.onPrimary,
-              size: 18.sp,
-            ),
-            // TODO: Profil ekranındaki gibi kullanıcı avatar url'i eklenince
-            // buraya NetworkImage bağlanacak; şimdilik tasarımdaki gibi
-            // ikon içeren dolu daire kullanılıyor.
-          ),
-        ),
-      ],
-      title: Row(
-        children: [
-          // Logo kutusu — tasarım: rounded-lg, bg-primary-container/20, text-primary
-          Container(
-            width: _PhoneSizes.titleIconSize.w,
-            height: _PhoneSizes.titleIconSize.w,
-            decoration: BoxDecoration(
-              color: scheme.primaryContainer.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(
-                _PhoneSizes.titleIconBorderRadius.r,
-              ),
-            ),
-            child: Icon(
-              Icons.play_circle_rounded,
-              color: scheme.primary,
-              size: _PhoneSizes.titleIconInnerSize.sp,
-            ),
-          ),
-          SizedBox(width: _PhoneSizes.titleSpacing.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: scheme.onSurface,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Üni'),
-                    TextSpan(
-                      text: 'TV',
-                      style: TextStyle(color: scheme.primary),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                'KAMPÜS YAYINI',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -650,100 +546,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ) — AppBar
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildAppBarTablet(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SliverAppBar(
-      pinned: false,
-      floating: true,
-      snap: true,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      backgroundColor: AppTheme.bg(context),
-      automaticallyImplyLeading: false,
-      titleSpacing: _TabletSizes.titleSpacingLarge,
-      toolbarHeight: kToolbarHeight,
-      actions: [
-        IconButton(
-          tooltip: 'Canlı Yayınlar',
-          icon: const Icon(Icons.sensors_rounded),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.radio),
-        ),
-        IconButton(
-          tooltip: 'Bildirimler',
-          icon: const Icon(Icons.notifications_outlined),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.notifications),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: _TabletSizes.titleSpacingLarge),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: scheme.primary,
-            child: Icon(Icons.person_rounded, color: scheme.onPrimary, size: 20),
-          ),
-        ),
-      ],
-      title: Row(
-        children: [
-          Container(
-            width: _TabletSizes.titleIconSize,
-            height: _TabletSizes.titleIconSize,
-            decoration: BoxDecoration(
-              color: scheme.primaryContainer.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(
-                _TabletSizes.titleIconBorderRadius,
-              ),
-            ),
-            child: Icon(
-              Icons.play_circle_rounded,
-              color: scheme.primary,
-              size: _TabletSizes.titleIconInnerSize,
-            ),
-          ),
-          SizedBox(width: _TabletSizes.titleSpacing),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: scheme.onSurface,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Üni'),
-                    TextSpan(text: 'TV', style: TextStyle(color: scheme.primary)),
-                  ],
-                ),
-              ),
-              Text(
-                'KAMPÜS YAYINI',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
   // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
   // ═══════════════════════════════════════════════════════════════════════
 
   // "Üniversitelerin Son Videoları" bölüm başlığı.
   // Tasarım: sol → 📹 ikon + başlık (altında bizim ek açıklama satırımız
   // duruyor — tasarımda yok ama bilgi amaçlı olduğu için kaldırılmadı);
-  // sağ → "En Yeniler ⌄" sıralama seçici. Backend'de henüz alternatif bir
-  // sıralama (örn. "En Popüler") endpoint'i olmadığından bu menü şimdilik
-  // sadece "En Yeniler" gösterir ve onTap boş bırakıldı.
+  // sağ → filtre seçici. "En Yeniler" (Tümü) / "Takip Ettiklerim" /
+  // "Takip Etmediklerim" / "Canlı Yayın" arasında geçiş yapar — seçim
+  // FeedController.feedFilter'a yazılır ve feed o filtreyle (10'luk
+  // sayfalama korunarak) yeniden yüklenir.
   Widget _buildContentHeader(BuildContext context, {required bool isTablet}) {
     final titleFontSize = isTablet
         ? _TabletSizes.contentTitleFontSize
@@ -758,6 +570,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     final iconSpacing = isTablet ? 8.0 : 6.w;
     final sortFontSize = isTablet ? 14.0 : 13.sp;
     final sortIconSize = isTablet ? 20.0 : 18.sp;
+
+    final activeFilter = controller.feedFilter.value;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,7 +602,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               ),
               SizedBox(height: subSpacing),
               Text(
-                'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
+                _feedFilterSubtitle(activeFilter),
                 style: TextStyle(
                   color: AppTheme.textSec(context),
                   fontSize: subtitleFontSize,
@@ -797,11 +611,13 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             ],
           ),
         ),
-        // TODO(kasım): "En Yeniler" dışında bir sıralama seçeneği eklenince
-        // bu menü açılır bir seçiciye bağlanacak; şimdilik onTap boş.
-        InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {},
+        PopupMenuButton<HomeFeedFilter>(
+          initialValue: activeFilter,
+          tooltip: 'Videoları filtrele',
+          onSelected: controller.setFeedFilter,
+          itemBuilder: (context) => HomeFeedFilter.values
+              .map((f) => _buildFeedFilterMenuItem(f, activeFilter))
+              .toList(),
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isTablet ? 6 : 4.w,
@@ -811,7 +627,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'En Yeniler',
+                  _feedFilterLabel(activeFilter),
                   style: TextStyle(
                     color: AppTheme.textSec(context),
                     fontSize: sortFontSize,
@@ -829,6 +645,91 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
         ),
       ],
     );
+  }
+
+  PopupMenuItem<HomeFeedFilter> _buildFeedFilterMenuItem(
+    HomeFeedFilter filter,
+    HomeFeedFilter activeFilter,
+  ) {
+    final selected = filter == activeFilter;
+    return PopupMenuItem<HomeFeedFilter>(
+      value: filter,
+      child: Row(
+        children: [
+          Icon(
+            _feedFilterIcon(filter),
+            size: 18,
+            color: selected ? AppTheme.primaryColor : null,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            _feedFilterLabel(filter),
+            style: TextStyle(
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? AppTheme.primaryColor : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _feedFilterIcon(HomeFeedFilter filter) {
+    switch (filter) {
+      case HomeFeedFilter.latest:
+        return Icons.new_releases_rounded;
+      case HomeFeedFilter.followed:
+        return Icons.favorite_rounded;
+      case HomeFeedFilter.notFollowed:
+        return Icons.explore_outlined;
+      case HomeFeedFilter.live:
+        return Icons.sensors_rounded;
+    }
+  }
+
+  String _feedFilterLabel(HomeFeedFilter filter) {
+    switch (filter) {
+      case HomeFeedFilter.latest:
+        return 'En Yeniler';
+      case HomeFeedFilter.followed:
+        return 'Takip Ettiklerim';
+      case HomeFeedFilter.notFollowed:
+        return 'Takip Etmediklerim';
+      case HomeFeedFilter.live:
+        return 'Canlı Yayın';
+    }
+  }
+
+  String _feedFilterSubtitle(HomeFeedFilter filter) {
+    switch (filter) {
+      case HomeFeedFilter.latest:
+        return 'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.';
+      case HomeFeedFilter.followed:
+        return 'Sadece takip ettiğin üniversitelerin en yeni videoları.';
+      case HomeFeedFilter.notFollowed:
+        return 'Henüz takip etmediğin üniversitelerden en yeni paylaşımlar.';
+      case HomeFeedFilter.live:
+        return 'Şu anda canlı yayında olan üniversiteler.';
+    }
+  }
+
+  // Filtre sonucu boş çıktığında (örn. hiç üniversite takip edilmiyor ya da
+  // şu anda canlı yayında kimse yok) gösterilecek mesaj — kullanıcı bunu
+  // filtre değilse ayrı bir "hata" gibi değil, filtreye özgü bir bilgi
+  // olarak görsün diye _buildEmptyWidget* burada değil, mesaj burada.
+  String _feedEmptyMessage(HomeFeedFilter filter) {
+    switch (filter) {
+      case HomeFeedFilter.latest:
+        return 'Henüz video yok.';
+      case HomeFeedFilter.followed:
+        return controller.isLoggedIn
+            ? 'Henüz hiçbir üniversiteyi takip etmiyorsun.\nÜniversiteler sekmesinden takip etmeye başlayabilirsin.'
+            : 'Takip ettiğin üniversitelerin videolarını görmek için giriş yapman gerekiyor.';
+      case HomeFeedFilter.notFollowed:
+        return 'Takip etmediğin üniversite kalmamış 🎉';
+      case HomeFeedFilter.live:
+        return 'Şu anda canlı yayında olan üniversite yok.';
+    }
   }
 
   // "Yaklaşan Canlı Yayın" alt şeridi.
@@ -943,11 +844,39 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
 
     final nonShorts = controller.videos.where((v) => !v.isShorts).toList();
 
+    // FIX: Boş sonuç durumunda da bölüm başlığı (ve içindeki filtre
+    // seçici) gösterilmeye devam eder. Önceden filtre sonucu boş
+    // geldiğinde (örn. "Takip Ettiklerim" hiç takip yoksa, "Canlı Yayın"
+    // kimse yayında değilse) başlık tamamen kayboluyor ve kullanıcının
+    // filtreyi değiştirip geri dönecek bir yolu kalmıyordu.
     if (nonShorts.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Responsive.isTablet(context)
-            ? _buildEmptyWidgetTablet(context)
-            : _buildEmptyWidgetPhone(context),
+      final isTablet = Responsive.isTablet(context);
+      return SliverMainAxisGroup(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: isTablet
+                  ? EdgeInsets.fromLTRB(
+                      _TabletSizes.contentTitlePadHorizontal,
+                      _TabletSizes.contentTitlePadTop,
+                      _TabletSizes.contentTitlePadHorizontal,
+                      _TabletSizes.contentTitlePadBottom,
+                    )
+                  : EdgeInsets.fromLTRB(
+                      _PhoneSizes.titleSpacingLarge.w,
+                      _PhoneSizes.contentTitlePadTop.h,
+                      _PhoneSizes.titleSpacingLarge.w,
+                      _PhoneSizes.contentTitlePadBottom.h,
+                    ),
+              child: _buildContentHeader(context, isTablet: isTablet),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: isTablet
+                ? _buildEmptyWidgetTablet(context)
+                : _buildEmptyWidgetPhone(context),
+          ),
+        ],
       );
     }
 
@@ -1132,7 +1061,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       padding: EdgeInsets.all(_PhoneSizes.emptyPadding.w),
       child: Center(
         child: Text(
-          'Henüz video yok.',
+          _feedEmptyMessage(controller.feedFilter.value),
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppTheme.textSec(context),
             fontSize: _PhoneSizes.emptyFontSize.sp,
@@ -1284,7 +1214,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       padding: EdgeInsets.all(_TabletSizes.emptyPadding),
       child: Center(
         child: Text(
-          'Henüz video yok.',
+          _feedEmptyMessage(controller.feedFilter.value),
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppTheme.textSec(context),
             fontSize: _TabletSizes.emptyFontSize,

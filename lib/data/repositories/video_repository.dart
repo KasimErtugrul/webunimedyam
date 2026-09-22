@@ -23,6 +23,22 @@ enum VideoSectionType {
   newUndiscovered,
 }
 
+/// Ana sayfa "Üniversitelerin Son Videoları" bölümündeki filtre seçenekleri.
+/// FeedController tarafından kullanılır.
+enum HomeFeedFilter {
+  /// Varsayılan — filtre yok, tüm üniversitelerin en son videoları.
+  latest,
+
+  /// Sadece takip edilen (favori) üniversitelerin en son videoları.
+  followed,
+
+  /// Takip edilmeyen üniversitelerin en son videoları.
+  notFollowed,
+
+  /// Şu anda canlı yayında olan üniversitelerin en son videosu.
+  live,
+}
+
 class VideoRepository {
   final SupabaseDataSource _supabase;
   final LocalDataSource _local;
@@ -179,6 +195,71 @@ class VideoRepository {
         );
         return [];
       }
+    }
+  }
+
+  /// Ana sayfa feed'i — [filter]'a göre sayfalı video listesi döner.
+  /// `HomeFeedFilter.latest` mevcut cache-first davranışı korur
+  /// (getLatestVideosPerUniversity); diğer filtreler her zaman remote'a
+  /// gider (üniversite favorileri anlık değişebildiği için cache'lenmez).
+  Future<List<VideoModel>> getFeedPage({
+    required HomeFeedFilter filter,
+    required int page,
+    List<int> followedUniversityIds = const [],
+    int pageSize = 10,
+  }) async {
+    switch (filter) {
+      case HomeFeedFilter.latest:
+        return getLatestVideosPerUniversity(page: page, pageSize: pageSize);
+
+      case HomeFeedFilter.followed:
+        // Hiç takip edilen üniversite yoksa remote'a hiç gitme — boş dön.
+        if (followedUniversityIds.isEmpty) return [];
+        return _getFilteredFeedPage(
+          page: page,
+          pageSize: pageSize,
+          universityIds: followedUniversityIds,
+        );
+
+      case HomeFeedFilter.notFollowed:
+        return _getFilteredFeedPage(
+          page: page,
+          pageSize: pageSize,
+          excludeUniversityIds: followedUniversityIds,
+        );
+
+      case HomeFeedFilter.live:
+        return _getFilteredFeedPage(
+          page: page,
+          pageSize: pageSize,
+          liveOnly: true,
+        );
+    }
+  }
+
+  Future<List<VideoModel>> _getFilteredFeedPage({
+    required int page,
+    required int pageSize,
+    List<int>? universityIds,
+    List<int>? excludeUniversityIds,
+    bool liveOnly = false,
+  }) async {
+    final offset = page * pageSize;
+    try {
+      return await _supabase.getLatestVideoPerUniversity(
+        limit: pageSize,
+        offset: offset,
+        universityIds: universityIds,
+        excludeUniversityIds: excludeUniversityIds,
+        liveOnly: liveOnly,
+      );
+    } catch (e, stacktrace) {
+      log(
+        'Filtrelenmiş ana sayfa feed sayfası yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+      return [];
     }
   }
 
