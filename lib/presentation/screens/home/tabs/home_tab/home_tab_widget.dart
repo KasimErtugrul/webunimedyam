@@ -8,7 +8,8 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
-import '../../../../../data/repositories/video_repository.dart' show HomeFeedFilter;
+import '../../../../../data/repositories/video_repository.dart'
+    show HomeFeedFilter;
 import '../../../../controllers/home/home_controller.dart';
 import '../../../../controllers/shorts_controller.dart';
 import 'shorts/shorts_row_widget.dart';
@@ -22,8 +23,6 @@ import 'widgets/video_grid_card_widget.dart';
 // ═══════════════════════════════════════════════════════════
 
 class _PhoneSizes {
-
-
   // Spacing
   static const double titleSpacingLarge = 16;
   static const double bottomSpacing = 24;
@@ -93,13 +92,11 @@ class _PhoneSizes {
   static const double viewToggleOuterRadius = 8;
   static const double viewToggleButtonSize = 32;
   static const double viewToggleIconSize = 18;
-  static const double categoryChipPadH = 14;
-  static const double categoryChipPadV = 8;
+  /*   static const double categoryChipPadH = 14;
+  static const double categoryChipPadV = 8; */
 }
 
 class _TabletSizes {
-
-
   // Spacing - tablet için daha geniş
   static const double titleSpacingLarge = 20;
   static const double bottomSpacing = 30;
@@ -165,8 +162,8 @@ class _TabletSizes {
   static const double viewToggleOuterRadius = 9;
   static const double viewToggleButtonSize = 36;
   static const double viewToggleIconSize = 20;
-  static const double categoryChipPadH = 16;
-  static const double categoryChipPadV = 9;
+  /*   static const double categoryChipPadH = 16;
+  static const double categoryChipPadV = 9; */
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -191,8 +188,8 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   Worker? _authWorker;
   Worker? _homeResetWorker;
   // Kategori çipleri şimdilik yerel/görsel state (bkz. _buildCategoryChips).
-  int _selectedCategoryIndex = 0;
-
+  /*   final int _selectedCategoryIndex = 0;
+ */
   @override
   void initState() {
     super.initState();
@@ -308,13 +305,13 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                 ),
               ),
 
-              // ── Kategori / Filtre Hapları ────────────────────────────────
+              /*  // ── Kategori / Filtre Hapları ────────────────────────────────
               SliverToBoxAdapter(
                 child: _buildCategoryChips(
                   context,
                   isTablet: Responsive.isTablet(context),
                 ),
-              ),
+              ), */
 
               // ── Shorts — artık listenin en üstünde, ayrı bir sliver ────
               const SliverToBoxAdapter(child: ShortsRowWidget()),
@@ -389,21 +386,49 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   // piksel değerleri kullanılıyor.
   Widget _buildUtilityBar(BuildContext context, {required bool isTablet}) {
     final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    final hPad = isTablet
+        ? _TabletSizes.titleSpacingLarge
+        : _PhoneSizes.titleSpacingLarge.w;
 
-    final double dotSize = isTablet ? _TabletSizes.radioDotSize : _PhoneSizes.radioDotSize.w;
-    final double radioIconSize = isTablet ? _TabletSizes.radioIconSize : _PhoneSizes.radioIconSize.sp;
-    final double gapSmall = isTablet ? _TabletSizes.radioGapSmall : _PhoneSizes.radioGapSmall.w;
-    final double gapTiny = isTablet ? _TabletSizes.radioGapTiny : _PhoneSizes.radioGapTiny.w;
-    final double radioPadH = isTablet ? _TabletSizes.radioPadH : _PhoneSizes.radioPadH.w;
-    final double radioPadV = isTablet ? _TabletSizes.radioPadV : _PhoneSizes.radioPadV.h;
-    final double badgePadH = isTablet ? _TabletSizes.radioBadgePadH : _PhoneSizes.radioBadgePadH.w;
-    final double badgePadV = isTablet ? _TabletSizes.radioBadgePadV : _PhoneSizes.radioBadgePadV.h;
-    final double badgeRadius = isTablet ? _TabletSizes.radioBadgeRadius : _PhoneSizes.radioBadgeRadius.r;
-    final double toggleOuterPad = isTablet ? _TabletSizes.viewToggleOuterPad : _PhoneSizes.viewToggleOuterPad.w;
-    final double toggleOuterRadius = isTablet ? _TabletSizes.viewToggleOuterRadius : _PhoneSizes.viewToggleOuterRadius.r;
-    final double toggleButtonSize = isTablet ? _TabletSizes.viewToggleButtonSize : _PhoneSizes.viewToggleButtonSize.w;
-    final double toggleIconSize = isTablet ? _TabletSizes.viewToggleIconSize : _PhoneSizes.viewToggleIconSize.sp;
+    final double dotSize = isTablet
+        ? _TabletSizes.radioDotSize
+        : _PhoneSizes.radioDotSize.w;
+    final double radioIconSize = isTablet
+        ? _TabletSizes.radioIconSize
+        : _PhoneSizes.radioIconSize.sp;
+    final double gapSmall = isTablet
+        ? _TabletSizes.radioGapSmall
+        : _PhoneSizes.radioGapSmall.w;
+    final double gapTiny = isTablet
+        ? _TabletSizes.radioGapTiny
+        : _PhoneSizes.radioGapTiny.w;
+    final double radioPadH = isTablet
+        ? _TabletSizes.radioPadH
+        : _PhoneSizes.radioPadH.w;
+    final double radioPadV = isTablet
+        ? _TabletSizes.radioPadV
+        : _PhoneSizes.radioPadV.h;
+    final double badgePadH = isTablet
+        ? _TabletSizes.radioBadgePadH
+        : _PhoneSizes.radioBadgePadH.w;
+    final double badgePadV = isTablet
+        ? _TabletSizes.radioBadgePadV
+        : _PhoneSizes.radioBadgePadV.h;
+    final double badgeRadius = isTablet
+        ? _TabletSizes.radioBadgeRadius
+        : _PhoneSizes.radioBadgeRadius.r;
+    final double toggleOuterPad = isTablet
+        ? _TabletSizes.viewToggleOuterPad
+        : _PhoneSizes.viewToggleOuterPad.w;
+    final double toggleOuterRadius = isTablet
+        ? _TabletSizes.viewToggleOuterRadius
+        : _PhoneSizes.viewToggleOuterRadius.r;
+    final double toggleButtonSize = isTablet
+        ? _TabletSizes.viewToggleButtonSize
+        : _PhoneSizes.viewToggleButtonSize.w;
+    final double toggleIconSize = isTablet
+        ? _TabletSizes.viewToggleIconSize
+        : _PhoneSizes.viewToggleIconSize.sp;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8.h),
@@ -415,7 +440,10 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
             borderRadius: BorderRadius.circular(AppTheme.radiusFull),
             onTap: () => Get.toNamed(AppRoutes.radio),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: radioPadH, vertical: radioPadV),
+              padding: EdgeInsets.symmetric(
+                horizontal: radioPadH,
+                vertical: radioPadV,
+              ),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -432,17 +460,24 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                     ),
                   ),
                   SizedBox(width: gapSmall),
-                  Icon(Icons.radio_rounded, color: scheme.primary, size: radioIconSize),
+                  Icon(
+                    Icons.radio_rounded,
+                    color: scheme.primary,
+                    size: radioIconSize,
+                  ),
                   SizedBox(width: gapSmall),
                   Text(
                     'Kampüs FM Canlı',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: scheme.onSurface,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelMedium?.copyWith(color: scheme.onSurface),
                   ),
                   SizedBox(width: gapTiny),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: badgePadH, vertical: badgePadV),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: badgePadH,
+                      vertical: badgePadV,
+                    ),
                     decoration: BoxDecoration(
                       color: scheme.primary.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(badgeRadius),
@@ -503,18 +538,24 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
     );
   }
 
-  // Tasarımdaki kategori/filtre hapları.
+  /* // Tasarımdaki kategori/filtre hapları.
   // NOT: Backend'de henüz kategoriye göre video filtreleme endpoint'i
   // olmadığı için bu satır şimdilik SADECE GÖRSEL (tasarımla birebir) —
   // seçili çip yerelde tutuluyor, gerçek bir filtreleme tetiklemiyor.
   // Kategori filtreleme API'si eklendiğinde `controller`'a bağlanabilir.
   Widget _buildCategoryChips(BuildContext context, {required bool isTablet}) {
     final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    final hPad = isTablet
+        ? _TabletSizes.titleSpacingLarge
+        : _PhoneSizes.titleSpacingLarge.w;
     final rowHeight = isTablet ? 44.0 : 40.h;
     final chipGap = isTablet ? 10.0 : 8.w;
-    final chipPadH = isTablet ? _TabletSizes.categoryChipPadH : _PhoneSizes.categoryChipPadH.w;
-    final chipPadV = isTablet ? _TabletSizes.categoryChipPadV : _PhoneSizes.categoryChipPadV.h;
+    final chipPadH = isTablet
+        ? _TabletSizes.categoryChipPadH
+        : _PhoneSizes.categoryChipPadH.w;
+    final chipPadV = isTablet
+        ? _TabletSizes.categoryChipPadV
+        : _PhoneSizes.categoryChipPadV.h;
     const categories = [
       'Tümü',
       'Mühendislik & Teknoloji',
@@ -529,7 +570,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: hPad),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => SizedBox(width: chipGap),
+        separatorBuilder: (_, _) => SizedBox(width: chipGap),
         itemBuilder: (context, index) {
           final selected = _selectedCategoryIndex == index;
           return _CategoryChip(
@@ -543,7 +584,7 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
         },
       ),
     );
-  }
+  } */
 
   // ═══════════════════════════════════════════════════════════════════════
   // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
@@ -738,9 +779,14 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
   // metinler şimdilik tasarımdaki örnekle aynı şekilde SABİT (placeholder).
   // Gerçek veri (etkinlik başlığı/saati) eklenince buraya bağlanmalı;
   // "Hatırlat" butonunun onTap'i de bu sebeple boş bırakıldı.
-  Widget _buildUpcomingLiveBanner(BuildContext context, {required bool isTablet}) {
+  Widget _buildUpcomingLiveBanner(
+    BuildContext context, {
+    required bool isTablet,
+  }) {
     final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet ? _TabletSizes.titleSpacingLarge : _PhoneSizes.titleSpacingLarge.w;
+    final hPad = isTablet
+        ? _TabletSizes.titleSpacingLarge
+        : _PhoneSizes.titleSpacingLarge.w;
     final vGap = isTablet ? 24.0 : 24.h;
 
     return Padding(
@@ -1430,7 +1476,7 @@ class _ViewModeButton extends StatelessWidget {
 // Tasarım: seçili → bg-primary/20 + text-primary + bold; seçili değil →
 // bg-surface-container + text-on-surface-variant. rounded-full pill.
 // ═══════════════════════════════════════════════════════════════════════
-class _CategoryChip extends StatelessWidget {
+/* class _CategoryChip extends StatelessWidget {
   const _CategoryChip({
     required this.label,
     required this.selected,
@@ -1471,4 +1517,4 @@ class _CategoryChip extends StatelessWidget {
       ),
     );
   }
-}
+} */

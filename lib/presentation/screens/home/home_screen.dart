@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/home/home_controller.dart';
-
 /* import '../profile/profile_screen.dart';
- */import '../search/search_screen.dart';
+ */
+import '../search/search_screen.dart';
 import 'tabs/discovery_tab/discover_tab_widget.dart';
 import 'tabs/home_tab/home_tab_widget.dart';
 import 'tabs/universities_tab/universities_tab_widget.dart';
@@ -52,8 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
     DiscoverTabWidget(),
     UniversitiesTabWidget(),
     SearchScreen(),
-/*     ProfileScreen(),
- */  ];
+    /*     ProfileScreen(),
+ */
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
               activeIcon: Icon(Icons.search_rounded),
               label: 'Ara',
             ),
-           /*  BottomNavigationBarItem(
+            /*  BottomNavigationBarItem(
               icon: Icon(Icons.person_outline_rounded),
               activeIcon: Icon(Icons.person_rounded),
               label: 'Profil',

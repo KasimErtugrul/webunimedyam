@@ -78,7 +78,7 @@ class _PhoneSizes {
   static const double contentPadT = 4;
   static const double contentPadR = 14;
   static const double contentPadB = 14;
-  static const double titleFontSize = 14;
+  static const double titleFontSize = 16;
   static const double titleLineHeight = 1.35;
   static const double descSpacing = 4;
   static const double descFontSize = 13;
@@ -187,7 +187,7 @@ class _TabletSizes {
   static const double contentPadT = 6;
   static const double contentPadR = 16;
   static const double contentPadB = 12;
-  static const double titleFontSize = 15;
+  static const double titleFontSize = 17;
   static const double titleLineHeight = 1.35;
   static const double descSpacing = 6;
   static const double descFontSize = 14;
@@ -239,6 +239,10 @@ String _formatCount(int count) {
   if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)}M';
   if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)}B';
   return count.toString();
+}
+
+String _formatViewCount(int count) {
+  return '${_formatCount(count)} izlenme';
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -296,8 +300,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           children: [
             _buildPhoneHeader(context, controller),
             _buildPhoneThumbnail(context, isLive, isUpcoming),
-            _buildPhoneActionRow(context, controller),
             _buildPhoneContent(context),
+            _buildPhoneActionRow(context, controller),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: _PhoneSizes.dividerPadH.w,
@@ -576,35 +580,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       ),
       child: Row(
         children: [
-          Obx(() {
-            final override = controller.viewCountOverrides[video.videoId];
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final viewCount =
-                override ?? liveVideo?.appViewCount ?? video.appViewCount;
-            return Padding(
-              padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding.w),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.visibility_outlined,
-                    size: _PhoneSizes.viewIconSize.sp,
-                    color: AppTheme.textSec(context),
-                  ),
-                  SizedBox(width: _PhoneSizes.actionIconTextSpacing.w),
-                  Text(
-                    _formatCount(viewCount),
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _PhoneSizes.actionTextFontSize.sp,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
+          // ── SOL: Beğen ──
           Obx(() {
             final liked = controller.likedVideoIds.contains(video.videoId);
             final liveVideo = controller.videos.firstWhereOrNull(
@@ -622,6 +598,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               onTap: () => controller.toggleLike(video.videoId),
             );
           }),
+          // ── SOL: Yorum ──
           Obx(() {
             final hasCommented = controller.commentedVideoIds.contains(
               video.videoId,
@@ -644,6 +621,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ),
             );
           }),
+          // ── SOL: Paylaş ──
           Obx(() {
             final isLoading = controller.shareLoadingVideoIds.contains(
               video.videoId,
@@ -678,7 +656,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               onTap: () => controller.shareVideo(video),
             );
           }),
-          const Spacer(),
+          // ── SOL: Kaydet ──
           Obx(() {
             final isFav = controller.favoriteIds.contains(video.videoId);
             final liveVideo = controller.videos.firstWhereOrNull(
@@ -697,6 +675,39 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               count: favCount,
               isActive: isFav,
               onTap: () => controller.toggleFavorite(video.videoId),
+            );
+          }),
+          const Spacer(),
+          // ── SAĞ: Görüntülenme ──
+          Obx(() {
+            final override = controller.viewCountOverrides[video.videoId];
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final viewCount =
+                override ?? liveVideo?.appViewCount ?? video.appViewCount;
+            return Padding(
+              padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding.w),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: _PhoneSizes.viewIconSize.sp,
+                    color: AppTheme.textSec(context),
+                  ),
+                  SizedBox(width: _PhoneSizes.actionIconTextSpacing.w),
+                  Text(
+                    _formatViewCount(
+                      viewCount,
+                    ), // eskisi: _formatCount(viewCount)
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: _PhoneSizes.actionTextFontSize.sp,
+                    ),
+                  ),
+                ],
+              ),
             );
           }),
         ],
@@ -720,7 +731,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             style: TextStyle(
               color: AppTheme.textPri(context),
               fontSize: _PhoneSizes.titleFontSize.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               height: _PhoneSizes.titleLineHeight,
             ),
             maxLines: 3,
@@ -779,8 +790,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           children: [
             _buildTabletHeader(context, controller),
             _buildTabletThumbnail(context, isLive, isUpcoming),
-            _buildTabletActionRow(context, controller),
             _buildTabletContent(context),
+            _buildTabletActionRow(context, controller),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: _TabletSizes.dividerPadH,
@@ -1062,35 +1073,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       ),
       child: Row(
         children: [
-          Obx(() {
-            final override = controller.viewCountOverrides[video.videoId];
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final viewCount =
-                override ?? liveVideo?.appViewCount ?? video.appViewCount;
-            return Padding(
-              padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.visibility_outlined,
-                    size: _TabletSizes.viewIconSize,
-                    color: AppTheme.textSec(context),
-                  ),
-                  SizedBox(width: _TabletSizes.actionIconTextSpacing),
-                  Text(
-                    _formatCount(viewCount),
-                    style: TextStyle(
-                      color: AppTheme.textSec(context),
-                      fontSize: _TabletSizes.actionTextFontSize,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
+          // ── SOL: Beğen ──
           Obx(() {
             final liked = controller.likedVideoIds.contains(video.videoId);
             final liveVideo = controller.videos.firstWhereOrNull(
@@ -1108,6 +1091,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               onTap: () => controller.toggleLike(video.videoId),
             );
           }),
+          // ── SOL: Yorum ──
           Obx(() {
             final hasCommented = controller.commentedVideoIds.contains(
               video.videoId,
@@ -1130,6 +1114,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ),
             );
           }),
+          // ── SOL: Paylaş ──
           Obx(() {
             final isLoading = controller.shareLoadingVideoIds.contains(
               video.videoId,
@@ -1164,7 +1149,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               onTap: () => controller.shareVideo(video),
             );
           }),
-          const Spacer(),
+          // ── SOL: Kaydet ──
           Obx(() {
             final isFav = controller.favoriteIds.contains(video.videoId);
             final liveVideo = controller.videos.firstWhereOrNull(
@@ -1183,6 +1168,39 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               count: favCount,
               isActive: isFav,
               onTap: () => controller.toggleFavorite(video.videoId),
+            );
+          }),
+          const Spacer(),
+          // ── SAĞ: Görüntülenme ──
+          Obx(() {
+            final override = controller.viewCountOverrides[video.videoId];
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.videoId == video.videoId,
+            );
+            final viewCount =
+                override ?? liveVideo?.appViewCount ?? video.appViewCount;
+            return Padding(
+              padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: _TabletSizes.viewIconSize,
+                    color: AppTheme.textSec(context),
+                  ),
+                  SizedBox(width: _TabletSizes.actionIconTextSpacing),
+                  Text(
+                    _formatViewCount(
+                      viewCount,
+                    ), // eskisi: _formatCount(viewCount)
+                    style: TextStyle(
+                      color: AppTheme.textSec(context),
+                      fontSize: _TabletSizes.actionTextFontSize,
+                    ),
+                  ),
+                ],
+              ),
             );
           }),
         ],
@@ -1206,7 +1224,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             style: TextStyle(
               color: AppTheme.textPri(context),
               fontSize: _TabletSizes.titleFontSize,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               height: _TabletSizes.titleLineHeight,
             ),
             maxLines: 3,
