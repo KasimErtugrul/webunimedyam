@@ -1,4 +1,6 @@
-// lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/university_list_card_widget.dart
+/* // lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/university_list_card_widget.dart
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -203,6 +205,7 @@ class _MetaLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = <Widget>[];
     final typeText = universityType; // direkt kullan
+    log('MetaLine: universityType: $universityType, typeText: $typeText');
 
     if (city != null && city!.isNotEmpty) {
       items.add(
@@ -444,3 +447,4 @@ class _FollowButtonCompact extends StatelessWidget {
     });
   }
 }
+ */

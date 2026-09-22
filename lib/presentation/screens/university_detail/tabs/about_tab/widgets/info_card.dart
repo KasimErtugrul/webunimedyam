@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../controllers/university_detail_controller.dart';
@@ -9,7 +9,8 @@ class UniversityDetailAboutTabInfoCard extends StatelessWidget {
   final UniversityDetailSizes sizes;
   final dynamic uni;
   final UniversityDetailController controller;
-  const UniversityDetailAboutTabInfoCard({super.key, 
+  const UniversityDetailAboutTabInfoCard({
+    super.key,
     required this.sizes,
     required this.uni,
     required this.controller,
@@ -63,8 +64,16 @@ class UniversityDetailAboutTabInfoCard extends StatelessWidget {
             value: uni.viewCount != null ? controller.formattedViewCount : '—',
             isLast: true,
           ),
+          UniversityDetailAboutTabInfoRow(
+            sizes: sizes,
+            icon: Icons.visibility_rounded,
+            label: 'Adres',
+            value: uni.address ?? '—',
+            isLast: true,
+          ),
         ],
       ),
     );
   }
 }
+ */

@@ -43,6 +43,7 @@
 
 import 'dart:developer';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -54,7 +55,8 @@ class ShareHelper {
   /// Uygulama yüklü değilse veya paylaşım sırasında bir hata olursa
   /// (bkz. controller'lardaki clipboard fallback) kullanılacak, her
   /// zaman çalışan YouTube web linki.
-  static const String _youtubeFallbackBase = 'https://www.youtube.com/watch?v=';
+  static const String _youtubeFallbackBase =
+      'https://www.youtube.com/watch?v=';
 
   /// Görsel indirme için üst sınır. Bu süre aşılırsa görsel olmadan,
   /// sadece metinle paylaşıma devam edilir — kullanıcı yavaş bir
@@ -141,3 +143,5 @@ class ShareHelper {
     );
   }
 }
+
+

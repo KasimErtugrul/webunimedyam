@@ -332,12 +332,16 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       final kktcCount = universities
           .where((u) => u.universityType?.toLowerCase() == 'kktc')
           .length;
+      final vakifMyoCount = universities
+          .where((u) => u.universityType?.toLowerCase() == 'vakif_myo')
+          .length;
 
       final pills = [
         {'key': 'all', 'label': 'Tümü', 'count': universities.length},
         {'key': 'devlet', 'label': 'Devlet', 'count': devletCount},
         {'key': 'vakif', 'label': 'Vakıf', 'count': vakifCount},
         {'key': 'kktc', 'label': 'KKTC', 'count': kktcCount},
+        {'key': 'vakif_myo', 'label': 'Vakıf MYO', 'count': vakifMyoCount},
       ];
 
       return SizedBox(
@@ -861,6 +865,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       final t = uni.universityType!.toLowerCase();
       if (t == 'devlet') {
         parts.add('Devlet');
+      }
+      if (t == 'vakif_myo') {
+        parts.add('Vakıf MYO');
       } else if (t == 'ozel' || t == 'özel' || t == 'vakif') {
         parts.add('Vakıf');
       } else if (t == 'kktc') {
@@ -970,6 +977,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
           return t == 'ozel' || t == 'özel' || t == 'vakif';
         }
         if (_selectedTypeFilter == 'kktc') return t == 'kktc';
+        if (_selectedTypeFilter == 'vakif_myo') return t == 'vakif_myo';
         return true;
       }).toList();
     }

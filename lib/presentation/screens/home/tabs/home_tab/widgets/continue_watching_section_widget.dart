@@ -33,7 +33,7 @@ class _PhoneSizes {
   static const double sectionPadBottom = 10;
   static const double sectionIconSize = 18;
   static const double sectionIconSpacing = 6;
-  static const double sectionTitleFontSize = 16;
+  static const double sectionTitleFontSize = 20;
   static const double sectionCountFontSize = 12;
 
   // Yatay kaydırma — her sütunda üst üste 2 kart
@@ -182,14 +182,18 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             _PhoneSizes.sectionPadBottom.h,
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
+              /*  Icon(
                 Icons.history_rounded,
                 size: _PhoneSizes.sectionIconSize.sp,
                 color: scheme.primary,
-              ),
-              SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
-              Expanded(
+              ), */
+              Container(
+                padding: EdgeInsets.only(right: 10, left: 5),
+                color: Colors.yellow.withValues(
+                  alpha: 0.7,
+                ), // Expanded child için boş Container
                 child: Text(
                   'İzlemeye Devam Et',
                   style: TextStyle(

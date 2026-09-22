@@ -371,6 +371,7 @@ class SupabaseDataSource {
           .select()
           .eq('id', id)
           .single();
+          log('University data: $data');
       return UniversityModel.fromSupabase(data);
     } catch (e, stackTrace) {
       log('Üniversite getirilirken hata oluştu: $e\n$stackTrace');
@@ -831,6 +832,54 @@ class SupabaseDataSource {
     } catch (e, stackTrace) {
       log('Videolar aranırken hata oluştu: $e\n$stackTrace');
       throw Exception('Arama başarısız oldu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// Yapılan aramayı `search_logs` tablosuna kaydeder (gerçek "Trend
+  /// Başlıklar" verisinin kaynağı budur). Sessizce başarısız olur — arama
+  /// deneyimini bloklamamalı.
+  Future<void> logSearchQuery(String query) async {
+    try {
+      await _client.rpc('log_search_query', params: {'p_query': query});
+    } catch (e, stackTrace) {
+      log('Arama loglanırken hata oluştu: $e\n$stackTrace');
+    }
+  }
+
+  /// Son günlerde en çok aranan terimler. Arama ekranındaki "Trend
+  /// Başlıklar" bölümü artık sabit/uydurma etiketler yerine bunu kullanır.
+  Future<List<Map<String, dynamic>>> getTrendingSearches({
+    int daysBack = 14,
+    int limit = 8,
+  }) async {
+    try {
+      final data = await _client.rpc(
+        'get_trending_searches',
+        params: {'days_back': daysBack, 'result_limit': limit},
+      );
+      return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e, stackTrace) {
+      log('Trend aramalar getirilirken hata oluştu: $e\n$stackTrace');
+      return [];
+    }
+  }
+
+  /// En popüler üniversiteler (favori sayısına göre) — arama ekranındaki
+  /// "Öne Çıkan Üniversiteler" artık sabit/uydurma 4 üniversite yerine
+  /// gerçek veriden geliyor.
+  Future<List<UniversityModel>> getPopularUniversities({int limit = 6}) async {
+    try {
+      final data = await _client
+          .from('universities_list_view')
+          .select('*')
+          .order('favorite_count', ascending: false)
+          .limit(limit);
+      return (data as List)
+          .map((e) => UniversityModel.fromSupabase(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (e, stackTrace) {
+      log('Popüler üniversiteler getirilirken hata oluştu: $e\n$stackTrace');
+      return [];
     }
   }
 

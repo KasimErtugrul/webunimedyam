@@ -74,8 +74,8 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
     } else if (offset >= fadeEnd) {
       _titleOpacity.value = 1;
     } else {
-      _titleOpacity.value =
-          ((offset - fadeStart) / (fadeEnd - fadeStart)).clamp(0.0, 1.0);
+      _titleOpacity.value = ((offset - fadeStart) / (fadeEnd - fadeStart))
+          .clamp(0.0, 1.0);
     }
 
     // AppBar yüksekliğine yaklaşınca leading icon beyaz olsun mu? Şimdilik
@@ -183,10 +183,8 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                   height: spec.appBarActionIconSize.w * 1.6,
                                   child: Center(
                                     child: SizedBox(
-                                      width:
-                                          spec.appBarActionIconSize.w * 0.7,
-                                      height:
-                                          spec.appBarActionIconSize.w * 0.7,
+                                      width: spec.appBarActionIconSize.w * 0.7,
+                                      height: spec.appBarActionIconSize.w * 0.7,
                                       child: const CircularProgressIndicator(
                                         strokeWidth: 2,
                                         color: AppTheme.primaryColor,
@@ -248,10 +246,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                       spec: spec,
                       controller: controller,
                     ),
-                    UniversityDetailLiveTab(
-                      spec: spec,
-                      controller: controller,
-                    ),
+                    UniversityDetailLiveTab(spec: spec, controller: controller),
                   ],
                 ),
               ),
@@ -277,7 +272,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => spec.tabBarHeight.h + 12.h;
 
   @override
-  Widget build(BuildContext context, double _, bool __) {
+  Widget build(BuildContext context, double _, bool _) {
     return Container(
       color: AppTheme.bg(context),
       child: UniversityDetailTabBar(spec: spec),

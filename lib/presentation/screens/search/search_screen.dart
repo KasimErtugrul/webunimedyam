@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../data/models/video_model.dart';
-import '../../controllers/home/home_controller.dart';
 import '../../controllers/video_search_controller.dart';
 import 'search_layout_spec.dart';
 import 'widgets/search_empty_view.dart';
@@ -29,43 +28,6 @@ class _SearchScreenState extends State<SearchScreen> {
   late final TextEditingController _textController;
   late final FocusNode _focusNode;
   Timer? _debounce;
-
-  // Trend tag items from the Stitch design
-  final List<Map<String, String>> _trendTags = const [
-    {'emoji': '🔥', 'tag': '#FormulaStudent', 'count': '1.4B'},
-    {'emoji': '🎓', 'tag': '#Tercih2025', 'count': '3.8B'},
-    {'emoji': '⚡', 'tag': '#Teknofest', 'count': '2.1B'},
-    {'emoji': '🧪', 'tag': '#KuantumFizik', 'count': '890'},
-    {'emoji': '🏛', 'tag': '#HacettepeTip', 'count': '1.9B'},
-  ];
-
-  // University Spotlight Chips from design
-  final List<Map<String, dynamic>> _spotlightUniversities = const [
-    {
-      'code': 'ODTÜ',
-      'name': 'Orta Doğu Teknik',
-      'color': Color(0xFF4EDEA3),
-      'bgColor': Color(0xFF10382B),
-    },
-    {
-      'code': 'İTÜ',
-      'name': 'İstanbul Teknik',
-      'color': Color(0xFF45DFA4),
-      'bgColor': Color(0xFF0F3A2E),
-    },
-    {
-      'code': 'BOUN',
-      'name': 'Boğaziçi',
-      'color': Color(0xFF6FFBBE),
-      'bgColor': Color(0xFF133F31),
-    },
-    {
-      'code': 'HACETTEPE',
-      'name': 'Hacettepe',
-      'color': Color(0xFFFFB3AD),
-      'bgColor': Color(0xFF3F1918),
-    },
-  ];
 
   @override
   void initState() {
@@ -324,16 +286,18 @@ class _SearchScreenState extends State<SearchScreen> {
         _buildRecentSearchesSection(context),
         SizedBox(height: 22.h),
 
-        // 3. Section 2: Trend Başlıklar (Trending Topics)
+        // 3. Section 2: Trend Başlıklar (gerçek arama verisinden — bkz. VideoSearchController.trendingSearches)
         _buildTrendingSection(context),
         SizedBox(height: 22.h),
 
-        // 4. Section 3: Kategori Keşfi (Bento Grid)
-        _buildCategoryBentoGrid(context),
-        SizedBox(height: 22.h),
-
-        // 5. Section 4: Öne Çıkan Üniversiteler (Spotlight Chips)
-        _buildSpotlightUniversitiesSection(context),
+        // 4. Section 3: Popüler Üniversiteler (gerçek favori/izlenme verisinden)
+        // NOT: Eskiden burada içerik kategorisi (Mühendislik, Tıp, Sanat...)
+        // olan "Kategori Keşfi" bölümü vardı; videolarımızda gerçek bir
+        // kategori/tag alanı olmadığı için o veriler tamamen uydurmaydı.
+        // Onun yerine gerçek verisi olan (universities_list_view) bir bölüm
+        // koyduk ve eski sabit "Öne Çıkan Üniversiteler" chip'leriyle
+        // birleştirdik.
+        _buildPopularUniversitiesSection(context),
         SizedBox(height: 32.h),
       ],
     );
@@ -545,406 +509,100 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   /// Section 2: Popüler & Trend Başlıklar
+  ///
+  /// FIX: Bu bölüm eskiden #FormulaStudent, #Tercih2025 gibi uydurma
+  /// etiketler + uydurma "1.4B" sayaçları gösteriyordu; bunlara dokununca
+  /// gerçek videolarda hiç eşleşme çıkmadığı için "arama aktifleşmiyor"
+  /// gibi görünüyordu. Artık `search_logs` tablosuna loglanan gerçek
+  /// kullanıcı aramalarından (get_trending_searches RPC) besleniyor.
   Widget _buildTrendingSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.trending_up_rounded,
-              color: Color(0xFF45DFA4),
-              size: 20,
-            ),
-            SizedBox(width: 6.w),
-            Text(
-              'Trend Başlıklar',
-              style: TextStyle(
-                fontFamily: 'Plus Jakarta Sans',
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPri(context),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10.h),
-        Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
-          children: _trendTags.map((item) {
-            return Material(
-              color: const Color(0xFF18202F),
-              borderRadius: BorderRadius.circular(9999.r),
-              child: InkWell(
-                onTap: () => _onSelectQuery(item['tag']!),
-                borderRadius: BorderRadius.circular(9999.r),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        item['emoji']!,
-                        style: TextStyle(fontSize: 13.sp),
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        item['tag']!,
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFFDBE2F7),
-                        ),
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        item['count']!,
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 11.sp,
-                          color: const Color(0xFF86948A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
+    return Obx(() {
+      final trends = controller.trendingSearches;
+      final loading = controller.isTrendingLoading.value;
 
-  /// Section 3: Kategori Keşfi (Bento Grid)
-  Widget _buildCategoryBentoGrid(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.category_rounded,
-                  color: Color(0xFF4EDEA3),
-                  size: 20,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.trending_up_rounded,
+                color: Color(0xFF45DFA4),
+                size: 20,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'Trend Başlıklar',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPri(context),
                 ),
-                SizedBox(width: 6.w),
-                Text(
-                  'Kategori Keşfi',
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPri(context),
-                  ),
-                ),
-              ],
-            ),
-            InkWell(
-              onTap: () {
-                final homeCtrl = Get.find<HomeController>();
-                homeCtrl.changeTab(1); // switch to Keşfet
-              },
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          if (loading)
+            SizedBox(
+              height: 32.h,
               child: Row(
-                children: [
-                  Text(
-                    'Tümü',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF4EDEA3),
+                children: List.generate(
+                  3,
+                  (i) => Container(
+                    margin: EdgeInsets.only(right: 8.w),
+                    width: 90.w,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF18202F),
+                      borderRadius: BorderRadius.circular(9999.r),
                     ),
                   ),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFF4EDEA3),
-                    size: 18,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-
-        // Grid Layout: 1 Full-width banner + 4 Grid tiles (2x2)
-        _buildBentoHeroCard(
-          title: 'Mühendislik & Teknoloji',
-          subtitle: 'Robotik, kodlama, yapay zekâ',
-          icon: Icons.precision_manufacturing_rounded,
-          largeIcon: Icons.memory_rounded,
-          onTap: () => _onSelectQuery('Mühendislik'),
-        ),
-        SizedBox(height: 10.h),
-
-        // 2x2 Grid for the other 4 categories
-        Row(
-          children: [
-            Expanded(
-              child: _buildBentoSquareCard(
-                title: 'Tıp & Sağlık',
-                subtitle: 'Klinik & Anatomi',
-                icon: Icons.monitor_heart_rounded,
-                iconColor: const Color(0xFFFF7A73),
-                iconBgColor: const Color(0xFFFF7A73).withValues(alpha: 0.15),
-                onTap: () => _onSelectQuery('Tıp'),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: _buildBentoSquareCard(
-                title: 'Sosyal Bilimler',
-                subtitle: 'Hukuk & İktisat',
-                icon: Icons.public_rounded,
-                iconColor: const Color(0xFF45DFA4),
-                iconBgColor: const Color(0xFF45DFA4).withValues(alpha: 0.15),
-                onTap: () => _onSelectQuery('Sosyal'),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10.h),
-        Row(
-          children: [
-            Expanded(
-              child: _buildBentoSquareCard(
-                title: 'Sanat & Tasarım',
-                subtitle: 'Mimarlık & Müzik',
-                icon: Icons.palette_rounded,
-                iconColor: const Color(0xFF4EDEA3),
-                iconBgColor: const Color(0xFF4EDEA3).withValues(alpha: 0.15),
-                onTap: () => _onSelectQuery('Sanat'),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: _buildBentoSquareCard(
-                title: 'Kampüs Yaşamı',
-                subtitle: 'Kulüpler & Festivaller',
-                icon: Icons.celebration_rounded,
-                iconColor: const Color(0xFF68FCBF),
-                iconBgColor: const Color(0xFF68FCBF).withValues(alpha: 0.15),
-                onTap: () => _onSelectQuery('Kampüs'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  /// Full-width Bento Hero Card
-  Widget _buildBentoHeroCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required IconData largeIcon,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: const Color(0xFF18202F),
-      borderRadius: BorderRadius.circular(14.r),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14.r),
-        child: Container(
-          padding: EdgeInsets.all(14.w),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 34.w,
-                      height: 34.w,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4EDEA3).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Icon(
-                        icon,
-                        color: const Color(0xFF4EDEA3),
-                        size: 20,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFDBE2F7),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 12.sp,
-                        color: const Color(0xFF86948A),
-                      ),
-                    ),
-                  ],
                 ),
               ),
-              Container(
-                width: 54.w,
-                height: 54.w,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4EDEA3).withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
+            )
+          else if (trends.isEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF141C2B),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Text(
+                'Henüz yeterli arama verisi yok. Aramalar arttıkça burada gerçek trendler görünecek.',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 12.5.sp,
+                  color: const Color(0xFF86948A),
                 ),
-                child: Icon(
-                  largeIcon,
-                  color: const Color(0xFF4EDEA3),
-                  size: 32.sp,
-                ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 2x2 Bento Square Card
-  Widget _buildBentoSquareCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBgColor,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: const Color(0xFF18202F),
-      borderRadius: BorderRadius.circular(14.r),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14.r),
-        child: Container(
-          height: 110.h,
-          padding: EdgeInsets.all(12.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 32.w,
-                height: 32.w,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 13.5.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFDBE2F7),
-                      height: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 10.5.sp,
-                      color: const Color(0xFF86948A),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Section 4: Öne Çıkan Üniversiteler (Spotlight Chips)
-  Widget _buildSpotlightUniversitiesSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.school_rounded,
-              color: Color(0xFF4EDEA3),
-              size: 20,
-            ),
-            SizedBox(width: 6.w),
-            Text(
-              'Öne Çıkan Üniversiteler',
-              style: TextStyle(
-                fontFamily: 'Plus Jakarta Sans',
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPri(context),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: Row(
-            children: _spotlightUniversities.map((uni) {
-              return Padding(
-                padding: EdgeInsets.only(right: 10.w),
-                child: Material(
-                  color: const Color(0xFF222A3A),
+            )
+          else
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: trends.map((item) {
+                final term = (item['query'] as String?) ?? '';
+                final count = (item['search_count'] as num?)?.toInt() ?? 0;
+                if (term.isEmpty) return const SizedBox.shrink();
+                return Material(
+                  color: const Color(0xFF18202F),
                   borderRadius: BorderRadius.circular(9999.r),
                   child: InkWell(
-                    onTap: () => _onSelectQuery(uni['name'] as String),
+                    onTap: () => _onSelectQuery(term),
                     borderRadius: BorderRadius.circular(9999.r),
                     child: Container(
-                      padding: EdgeInsets.fromLTRB(6.w, 4.h, 12.w, 4.h),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: 28.w,
-                            height: 28.w,
-                            decoration: BoxDecoration(
-                              color: uni['bgColor'] as Color,
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              (uni['code'] as String).substring(
-                                0,
-                                (uni['code'] as String).length > 4 ? 4 : (uni['code'] as String).length,
-                              ),
-                              style: TextStyle(
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w800,
-                                color: uni['color'] as Color,
-                              ),
-                            ),
+                          const Icon(
+                            Icons.local_fire_department_rounded,
+                            color: Color(0xFF45DFA4),
+                            size: 14,
                           ),
-                          SizedBox(width: 8.w),
+                          SizedBox(width: 6.w),
                           Text(
-                            uni['name'] as String,
+                            term,
                             style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 13.sp,
@@ -952,24 +610,189 @@ class _SearchScreenState extends State<SearchScreen> {
                               color: const Color(0xFFDBE2F7),
                             ),
                           ),
-                          SizedBox(width: 4.w),
-                          const Icon(
-                            Icons.verified_rounded,
-                            color: Color(0xFF4EDEA3),
-                            size: 15,
+                          SizedBox(width: 6.w),
+                          Text(
+                            '$count',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 11.sp,
+                              color: const Color(0xFF86948A),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
+                );
+              }).toList(),
+            ),
+        ],
+      );
+    });
   }
+
+  /// Section 3: Popüler Üniversiteler
+  ///
+  /// FIX: Bu bölüm eskiden iki ayrı sahte veri seti içeriyordu:
+  ///  1) "Kategori Keşfi" — Mühendislik/Tıp/Sanat gibi sabit kategoriler.
+  ///     Videolarımızda gerçek bir kategori/konu alanı olmadığından bunlar
+  ///     tamamen uydurmaydı ve dokunulduğunda gerçek içerikle eşleşmiyordu.
+  ///  2) "Öne Çıkan Üniversiteler" — ODTÜ/İTÜ/Boğaziçi/Hacettepe sabit 4 chip.
+  /// İkisinin yerine, gerçek verisi olan `universities_list_view`'dan
+  /// (favori sayısına göre) gelen tek bir "Popüler Üniversiteler" bölümü
+  /// kullanılıyor; karta dokunulunca üniversitenin gerçek detay sayfası
+  /// açılıyor.
+  Widget _buildPopularUniversitiesSection(BuildContext context) {
+    return Obx(() {
+      final universities = controller.popularUniversities;
+      final loading = controller.isPopularUniversitiesLoading.value;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.school_rounded,
+                color: Color(0xFF4EDEA3),
+                size: 20,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'Popüler Üniversiteler',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPri(context),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          if (loading)
+            SizedBox(
+              height: 48.h,
+              child: Center(
+                child: SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else if (universities.isEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF141C2B),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Text(
+                'Üniversiteler yüklenemedi.',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 12.5.sp,
+                  color: const Color(0xFF86948A),
+                ),
+              ),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: universities.map((uni) {
+                  final initials = (uni.name ?? '?')
+                      .trim()
+                      .split(RegExp(r'\s+'))
+                      .where((w) => w.isNotEmpty)
+                      .take(2)
+                      .map((w) => w[0].toUpperCase())
+                      .join();
+                  return Padding(
+                    padding: EdgeInsets.only(right: 10.w),
+                    child: Material(
+                      color: const Color(0xFF222A3A),
+                      borderRadius: BorderRadius.circular(9999.r),
+                      child: InkWell(
+                        onTap: () => Get.toNamed(
+                          AppRoutes.universityDetail,
+                          arguments: uni,
+                        ),
+                        borderRadius: BorderRadius.circular(9999.r),
+                        child: Container(
+                          padding: EdgeInsets.fromLTRB(6.w, 4.h, 12.w, 4.h),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 28.w,
+                                height: 28.w,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF10382B),
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                clipBehavior: Clip.hardEdge,
+                                child: (uni.logoUrl != null && uni.logoUrl!.isNotEmpty)
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          uni.logoUrl!,
+                                          width: 28.w,
+                                          height: 28.w,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => Text(
+                                            initials,
+                                            style: TextStyle(
+                                              fontFamily: 'Plus Jakarta Sans',
+                                              fontSize: 9.sp,
+                                              fontWeight: FontWeight.w800,
+                                              color: const Color(0xFF4EDEA3),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        initials,
+                                        style: TextStyle(
+                                          fontFamily: 'Plus Jakarta Sans',
+                                          fontSize: 9.sp,
+                                          fontWeight: FontWeight.w800,
+                                          color: const Color(0xFF4EDEA3),
+                                        ),
+                                      ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                uni.name ?? 'Üniversite',
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFDBE2F7),
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              const Icon(
+                                Icons.verified_rounded,
+                                color: Color(0xFF4EDEA3),
+                                size: 15,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
 
   // FIX: Bu sheet'teki FilterChip'ler daha önce onSelected içinde sadece
   // Navigator.pop(ctx) çağırıyordu — seçim hiçbir yere kaydedilmiyor, arama

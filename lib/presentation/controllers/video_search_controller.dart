@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/models/video_model.dart';
+import '../../data/models/university_model.dart';
 import '../../services/analytics_service.dart';
 
 /// Arama ekranındaki "Arama Filtreleri" bottom sheet'inde seçilebilen
@@ -27,6 +28,14 @@ class VideoSearchController extends GetxController {
   final isLoading = false.obs;
   final query = ''.obs;
   final sortMode = SearchSortMode.newest.obs;
+
+  // FIX: Daha önce sabit/uydurma verilerdi ("#FormulaStudent" vb.). Artık
+  // gerçek kullanıcı aramalarından (search_logs) ve gerçek üniversite
+  // istatistiklerinden (universities_list_view) besleniyor.
+  final trendingSearches = <Map<String, dynamic>>[].obs;
+  final isTrendingLoading = false.obs;
+  final popularUniversities = <UniversityModel>[].obs;
+  final isPopularUniversitiesLoading = false.obs;
 
   Timer? _debounce;
   static const _debounceDuration = Duration(milliseconds: 350);
@@ -62,6 +71,33 @@ class VideoSearchController extends GetxController {
   void onReady() {
     super.onReady();
     _loadHistory();
+    loadTrendingSearches();
+    loadPopularUniversities();
+  }
+
+  Future<void> loadTrendingSearches() async {
+    isTrendingLoading.value = true;
+    try {
+      trendingSearches.value = await searchRepository.getTrendingSearches();
+    } catch (e, stacktrace) {
+      log('Trend aramalar yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      trendingSearches.clear();
+    } finally {
+      isTrendingLoading.value = false;
+    }
+  }
+
+  Future<void> loadPopularUniversities() async {
+    isPopularUniversitiesLoading.value = true;
+    try {
+      popularUniversities.value =
+          await searchRepository.getPopularUniversities();
+    } catch (e, stacktrace) {
+      log('Popüler üniversiteler yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      popularUniversities.clear();
+    } finally {
+      isPopularUniversitiesLoading.value = false;
+    }
   }
 
   @override
@@ -112,10 +148,20 @@ class VideoSearchController extends GetxController {
     }
   }
 
+  /// FIX: Bu metod arka planda arama yapıp geçmişe kaydediyordu ama
+  /// `query` observable'ını hiç güncellemiyordu. Arama ekranı hangi view'ı
+  /// göstereceğine (keşif/geçmiş view'i mi, sonuç listesi mi) `query.value`
+  /// boş mu değil mi diye bakarak karar veriyor. Trend etiketi, kategori
+  /// kartı veya üniversite chip'ine dokunulduğunda submitQuery çağrılıyor
+  /// ama query hiç değişmediği için ekran hep "keşif" görünümünde kalıp
+  /// arama hiç aktifleşmemiş gibi görünüyordu. Artık query burada da set
+  /// ediliyor.
   Future<void> submitQuery(String q) async {
     try {
       final trimmed = q.trim();
       if (trimmed.isEmpty) return;
+
+      query.value = trimmed;
 
       // FIX: Local veritabanına yazarken hata olursa (örn depolama dolu) uygulama çökmemeli
       try {
@@ -141,6 +187,14 @@ class VideoSearchController extends GetxController {
           parameters: {'search_term': trimmed},
         );
       }
+
+      // Trend başlıklar gerçek arama verisinden beslendiği için her
+      // aramayı arka planda logluyoruz (hata olursa akışı etkilemez) ve
+      // listeyi tazeliyoruz ki kullanıcı kendi aradığı şeyin de trendlere
+      // katkı sağladığını zamanla görebilsin.
+      unawaited(
+        searchRepository.logSearchQuery(trimmed).then((_) => loadTrendingSearches()),
+      );
     } catch (e, stacktrace) {
       log('Sorgu gönderilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }

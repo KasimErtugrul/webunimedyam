@@ -23,6 +23,7 @@ class UniversityModel extends Equatable {
   final int? idx;
   final int? syncGroup;
   final String? universityType;
+  final String? backgroundImageUrl;
 
   const UniversityModel({
     this.id,
@@ -47,6 +48,7 @@ class UniversityModel extends Equatable {
     this.idx,
     this.syncGroup,
     this.universityType,
+    this.backgroundImageUrl,
   });
 
   /// DB'de tutulan ham `university_type` değerini kullanıcıya
@@ -102,6 +104,7 @@ class UniversityModel extends Equatable {
     int? idx,
     int? syncGroup,
     String? universityType,
+    String? backgroundImageUrl,
   }) => UniversityModel(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -125,6 +128,7 @@ class UniversityModel extends Equatable {
     idx: idx ?? this.idx,
     syncGroup: syncGroup ?? this.syncGroup,
     universityType: universityType ?? this.universityType,
+    backgroundImageUrl: backgroundImageUrl ?? this.backgroundImageUrl,
   );
 
   factory UniversityModel.fromSupabase(Map<String, dynamic> json) =>
@@ -151,6 +155,7 @@ class UniversityModel extends Equatable {
         idx: json["idx"],
         syncGroup: json["sync_group"],
         universityType: json["university_type"],
+        backgroundImageUrl: json["background_image_url"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -176,6 +181,7 @@ class UniversityModel extends Equatable {
     "idx": idx,
     "sync_group": syncGroup,
     "university_type": universityType,
+    "background_image_url": backgroundImageUrl,
   };
 
   @override
@@ -202,6 +208,7 @@ class UniversityModel extends Equatable {
     idx,
     syncGroup,
     universityType,
+    backgroundImageUrl,
   ];
 
   @override
