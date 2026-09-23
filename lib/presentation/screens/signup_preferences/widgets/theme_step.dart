@@ -1,7 +1,4 @@
-
-// ═══════════════════════════════════════════════════════════════════════
-// 1) Tema
-// ═══════════════════════════════════════════════════════════════════════
+// lib/presentation/screens/signup_preferences/widgets/theme_step.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,64 +6,95 @@ import 'package:get/get.dart';
 import '../../../controllers/signup_preferences_controller.dart';
 import '../utils/singup_preferences_sizes.dart';
 import 'option_card.dart';
-import 'step_scaffold.dart';
+import 'step_intro_card.dart';
+import 'theme_mockups.dart';
 
+/// ADIM 1 — Tema Seçimi (tasarım: "Uygulama Temanı Seç").
+/// 3 kart + mini mockup + "Önerilen" rozeti (Koyu Tema).
 class ThemeStep extends StatelessWidget {
-  final SignupPreferencesSizes sizes;
-  final SignupPreferencesController controller;
-  final VoidCallback onSelected;
-
-  const ThemeStep({super.key, 
+  const ThemeStep({
+    super.key,
     required this.sizes,
     required this.controller,
     required this.onSelected,
   });
 
+  final SignupPreferencesSizes sizes;
+  final SignupPreferencesController controller;
+  final VoidCallback onSelected;
+
   @override
   Widget build(BuildContext context) {
+    final s = sizes;
+
     return Obx(() {
       final selected = controller.selectedTheme.value;
-      return StepScaffold(
-        sizes: sizes,
-        headerIcon: Icons.palette_rounded,
-        title: 'Uygulama Teması',
-        description:
-            'Sana en uygun görünümü seç. İstediğin zaman Ayarlar\'dan değiştirebilirsin.',
-        options: [
-          OptionCard(
-            sizes: sizes,
-            icon: Icons.dark_mode_rounded,
-            title: 'Koyu',
-            subtitle: 'Göz yormayan koyu tema',
-            selected: selected == 'dark',
-            onTap: () {
-              controller.chooseTheme('dark');
-              onSelected();
-            },
-          ),
-          OptionCard(
-            sizes: sizes,
-            icon: Icons.light_mode_rounded,
-            title: 'Açık',
-            subtitle: 'Aydınlık, klasik görünüm',
-            selected: selected == 'light',
-            onTap: () {
-              controller.chooseTheme('light');
-              onSelected();
-            },
-          ),
-          OptionCard(
-            sizes: sizes,
-            icon: Icons.settings_suggest_rounded,
-            title: 'Sistem',
-            subtitle: 'Telefonunun ayarını takip et',
-            selected: selected == 'system',
-            onTap: () {
-              controller.chooseTheme('system');
-              onSelected();
-            },
-          ),
-        ],
+
+      return SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          s.headerHPadding,
+          s.pillVPadding,
+          s.headerHPadding,
+          s.footerTopGap,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            StepIntroCard(
+              sizes: s,
+              icon: Icons.palette_rounded,
+              title: 'Uygulama Temanı Seç',
+              description:
+                  'ÜniTV deneyimini göz zevkine göre özelleştir. Bu tercihi dilediğin zaman Ayarlar menüsünden değiştirebilirsin.',
+            ),
+            SizedBox(height: s.introBottomGap),
+
+            // Koyu Tema (varsayılan seçili + Önerilen)
+            OptionCard(
+              sizes: s,
+              icon: Icons.dark_mode_rounded,
+              title: 'Koyu Tema',
+              badgeText: 'Önerilen',
+              subtitle: 'Gece dersleri ve OLED ekranlar için ideal derinlik',
+              selected: selected == 'dark',
+              mockup: ThemeDarkMockup(sizes: s),
+              onTap: () {
+                controller.chooseTheme('dark');
+                onSelected(); // mevcut otomatik ilerleme davranışı
+              },
+            ),
+            SizedBox(height: s.cardGap),
+
+            // Açık Tema
+            OptionCard(
+              sizes: s,
+              icon: Icons.light_mode_rounded,
+              title: 'Açık Tema',
+              subtitle: 'Güneşli kampüs bahçelerinde net ve berrak okuma',
+              selected: selected == 'light',
+              mockup: ThemeLightMockup(sizes: s),
+              onTap: () {
+                controller.chooseTheme('light');
+                onSelected();
+              },
+            ),
+            SizedBox(height: s.cardGap),
+
+            // Sistem Teması
+            OptionCard(
+              sizes: s,
+              icon: Icons.brightness_auto_rounded,
+              title: 'Sistem Teması',
+              subtitle: 'Cihazının gündüz/gece döngüsü ile senkronize kal',
+              selected: selected == 'system',
+              mockup: ThemeSystemMockup(sizes: s),
+              onTap: () {
+                controller.chooseTheme('system');
+                onSelected();
+              },
+            ),
+          ],
+        ),
       );
     });
   }
