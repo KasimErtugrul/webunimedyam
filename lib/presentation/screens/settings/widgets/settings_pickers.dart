@@ -78,14 +78,15 @@ void _showSheet({
 void showSettingsQualityPicker({
   required BuildContext context,
   required SettingsLayoutSpec spec,
-  required String current,
+  required String current, // model değeri: 'auto' | '360p' | ...
   required ValueChanged<String> onChanged,
 }) {
-  const options = [
-    ('Otomatik', 'Bağlantı hızına göre ayarlanır'),
-    ('480p (SD)', 'Düşük veri kullanımı'),
-    ('720p (HD)', 'Dengeli kalite'),
-    ('1080p (FHD)', 'En yüksek kalite'),
+  const options = <(String, String, String)>[
+    ('auto',  'Otomatik',      'Bağlantı hızına göre ayarlanır'),
+    ('360p',  '360p (SD)',     'Düşük veri kullanımı'),
+    ('480p',  '480p (SD)',     'Düşük veri kullanımı'),
+    ('720p',  '720p (HD)',     'Dengeli kalite'),
+    ('1080p', '1080p (FHD)',   'En yüksek kalite'),
   ];
 
   _showSheet(
@@ -95,20 +96,20 @@ void showSettingsQualityPicker({
     subtitle: 'Hücresel ve Wi-Fi için üst sınır',
     child: Column(
       children: [
-        for (final (label, subtitle) in options) ...[
+        for (final (value, label, subtitle) in options) ...[
           _SheetOption(
             spec: spec,
-            icon: Icons.hd,
+            icon: Icons.hd_rounded,
             color: const Color(0xFF64748B),
             title: label,
             subtitle: subtitle,
-            isCurrent: label == current,
+            isCurrent: value == current,
             onTap: () {
               Get.back();
-              onChanged(label);
+              onChanged(value);
             },
           ),
-          if (label != options.last.$1) SizedBox(height: 8.h),
+          if (value != options.last.$1) SizedBox(height: 8.h),
         ],
       ],
     ),

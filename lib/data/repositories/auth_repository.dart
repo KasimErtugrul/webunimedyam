@@ -382,14 +382,24 @@ class AuthRepository {
     }
   }
 
+  // lib/data/repositories/auth_repository.dart — mevcut metodu bununla DEĞİŞTİRİN
+
   /// Profil görünürlüğünü (private/public) günceller.
   ///
-  /// Repository katmanına eklendi: önceden yalnızca SupabaseDataSource'ta
-  /// vardı ve SettingsController doğrudan datasource'a erişerek bu katmanı
-  /// bypass ediyordu.
+  /// FIX: Sadece DB'ye yazılıyordu; `_local` profil cache'i bayat kalıyordu.
+  /// Repo.getProfile() cache-FIRST okuduğu için aplikasyon yeniden
+  /// açıldığında master switch eski (private) değere dönüyordu.
   Future<void> updateProfileVisibility(String userId, String visibility) async {
     try {
       await _supabase.updateProfileVisibility(userId, visibility);
+
+      // Yerel cache'i de senkronize et — ProfileModel.fromSupabase'in
+      // okuduğu kolon adı neyse o anahtar güncellenmeli.
+      final cached = await _local.getCachedProfile();
+      if (cached != null) {
+        cached['profile_visibility'] = visibility;
+        await _local.cacheProfile(cached);
+      }
     } catch (e, stacktrace) {
       log(
         'Profil görünürlüğü güncellenirken hata oluştu: $e',

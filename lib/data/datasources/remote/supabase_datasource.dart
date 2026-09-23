@@ -338,10 +338,17 @@ class SupabaseDataSource {
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
     try {
+      // FIX: `.update()` satır yoksa 0 satır etkileyip SESSİZCE başarılı
+      // dönüyordu → ayarlar hiç yazılmıyor, aplikasyon her açılışta
+      // varsayılana dönüyordu. upsert ile ilk yazmada satır OLUŞTURULUR.
+      // (user_settings.user_id üzerinde PK/UNIQUE constraint olmalı —
+      // maybeSingle() kullanıldığına göre vardır.)
       await _client
           .from('user_settings')
-          .update(settings.toSupabase())
-          .eq('user_id', settings.userId);
+          .upsert(
+            settings.toSupabase(),
+            onConflict: 'user_id',
+          );
     } catch (e, stackTrace) {
       log('Kullanıcı ayarları güncellenirken hata oluştu: $e\n$stackTrace');
       throw Exception('Ayarlar güncellenemedi. Lütfen tekrar deneyin.');
@@ -1803,19 +1810,15 @@ class SupabaseDataSource {
 
   // ─── Profil Görünürlüğü ───────────────────────────────────────────────────
 
-  Future<void> updateProfileVisibility(String userId, String visibility) async {
+    Future<void> updateProfileVisibility(String userId, String visibility) async {
     try {
       await _client
           .from('profiles')
           .update({'profile_visibility': visibility})
           .eq('id', userId);
-    } catch (e, stacktrace) {
-      log(
-        'Profil görünürlüğü güncellenirken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-      rethrow;
+    } catch (e, stackTrace) {
+      log('Profil görünürlüğü güncellenirken hata oluştu: $e\n$stackTrace');
+      throw Exception('Profil görünürlüğü güncellenemedi.');
     }
   }
 

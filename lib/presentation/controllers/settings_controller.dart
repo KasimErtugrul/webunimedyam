@@ -2,12 +2,10 @@
 
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../data/models/user_settings_model.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/models/user_settings_model.dart';
 import '../../services/analytics_service.dart';
 import 'auth/session_controller.dart';
 import 'profile_controller.dart';
@@ -16,57 +14,103 @@ class SettingsController extends GetxService {
   final AuthRepository authRepository;
 
   SettingsController({required this.authRepository});
-  // ═════════ Tasarımdan gelen ek tercihler (UI state) ═════════
-  // Kalıcılık (DB/local) istenirse _updateSettings desenine taşınabilir.
-  final videoQuality = '1080p (FHD)'.obs;
-  final subtitlesEnabled = false.obs; // Ders Altyazıları (tasarımda kapalı)
-  final reduceMotion = false.obs; // Hareketi Azalt (tasarımda kapalı)
-  final notifyInteractions = true.obs; // Yorum Yanıtı ve Beğeniler (açık)
-  final cacheBadgeCleared = false.obs; // "124 MB temizle" rozet flash'ı
 
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
   final errorMessage = RxnString();
+
+  /// "Gizli Profil Modu" master switch'i (profiles.profile_visibility).
+  /// TASARIM SEMANTİĞİ (TAVAN MODELİ): Profil GİZLİYSE tüm aktiviteler
+  /// (izleme geçmişi, beğeniler, favoriler, yorumlar) otomatik gizlidir ve
+  /// "Herkese Açık" seçilemez. Profil AÇIKSA her aktivite tek tek
+  /// ayarlanabilir. Veritabanı (can_view_activity) aynı tavanı ayrıca
+  /// uygular, yani yazım başarısız olsa bile gizli profilden veri sızmaz.
   final profileVisibility = VisibilityOption.public.obs;
 
   // Ana sayfa görünümü (liste/wheel). `settings.value` girişsiz kullanıcılar
   // için null kalabildiğinden, ekranın her zaman doğru değeri gösterebilmesi
-  // için ayrı bir Rx olarak tutulur — kaynağı AuthRepository.getHomeLayout()
-  // (önce yerel, yoksa Supabase) ve senkronize kalır.
+  // için ayrı bir Rx olarak tutulur — kaynağı AuthRepository.getHomeLayout().
   final homeLayout = 'list'.obs;
+
+  /// Son loadSettings() ayarları hesaptan (cache/Supabase) mı aldı, yoksa
+  /// varsayılan model mi üretti? Varsayılan modelin teması hesabın tercihi
+  /// olmadığı için uygulanmamalıdır.
+  bool _loadedFromAccount = false;
 
   Timer? _settingsDebounce;
   UserSettingsModel? _lastSavedSettings;
 
-  // ─── Tavan kontrolü ───────────────────────────────────────────────────────
-  static const _order = [VisibilityOption.private, VisibilityOption.public];
+  // ─── Null-safe ayar erişimi ──────────────────────────────────────────────
 
-  VisibilityOption _clamp(VisibilityOption activity) {
-    final ceiling = profileVisibility.value;
-    if (_order.indexOf(activity) > _order.indexOf(ceiling)) return ceiling;
-    return activity;
+  /// FIX: Eskiden settings.value null ise her setter sessizce return
+  /// ediyordu → hiçbir ayar değişemiyordu. Artık null ise varsayılan model
+  /// üretilip hemen UI'a verilir; ilk yazmada upsert satırı oluşturur.
+  UserSettingsModel _ensureSettings() {
+    final s = settings.value;
+    if (s != null) return s;
+    final fresh = UserSettingsModel(
+      userId: authRepository.currentUserId ?? '',
+    );
+    settings.value = fresh;
+    return fresh;
   }
 
+  /// Ana şalter tavanı: profil gizliyken yalnızca "Gizli" seçilebilir.
   bool isAllowed(VisibilityOption option) {
-    return _order.indexOf(option) <= _order.indexOf(profileVisibility.value);
+    if (profileVisibility.value == VisibilityOption.private) {
+      return option == VisibilityOption.private;
+    }
+    return true;
   }
 
-  void changeVideoQuality(String quality) => videoQuality.value = quality;
 
-  void toggleSubtitles([bool? value]) =>
-      subtitlesEnabled.value = value ?? !subtitlesEnabled.value;
+ // ═════ Oynatma/bildirim ek tercihleri — MODEL'e bağlı (kalıcı) ═════
 
-  void toggleReduceMotion([bool? value]) =>
-      reduceMotion.value = value ?? !reduceMotion.value;
+  /// [value] model değeridir: 'auto' | '360p' | '480p' | '720p' | '1080p'
+  Future<void> changeVideoQuality(String value) async {
+    try {
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(videoQuality: value));
+    } catch (e, stacktrace) {
+      log('Video kalitesi değiştirilirken hata: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Ayar güncellenemedi.';
+    }
+  }
 
-  void toggleNotifyInteractions([bool? value]) =>
-      notifyInteractions.value = value ?? !notifyInteractions.value;
+  Future<void> toggleSubtitles([bool? value]) async {
+    try {
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(showSubtitles: value ?? !c.showSubtitles));
+    } catch (e, stacktrace) {
+      log('Altyazı tercihi değiştirilirken hata: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Ayar güncellenemedi.';
+    }
+  }
 
-  /// clearCache + tasarımdaki rozet davranışı ("Temizlendi (0 KB)").
-  Future<void> clearCacheWithBadge() async {
-    await clearCache();
-    cacheBadgeCleared.value = true;
-    Timer(const Duration(seconds: 2), () => cacheBadgeCleared.value = false);
+  Future<void> toggleReduceMotion([bool? value]) async {
+    try {
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(reducedMotion: value ?? !c.reducedMotion));
+    } catch (e, stacktrace) {
+      log('Hareketi azalt değiştirilirken hata: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Ayar güncellenemedi.';
+    }
+  }
+
+  Future<void> toggleNotifyInteractions([bool? value]) async {
+    try {
+      final c = _ensureSettings();
+      await _updateSettings(
+        c.copyWith(notifyCommentReplies: value ?? !c.notifyCommentReplies),
+      );
+    } catch (e, stacktrace) {
+      log('Etkileşim bildirimi değiştirilirken hata: $e',
+          error: e, stackTrace: stacktrace);
+      errorMessage.value = 'Ayar güncellenemedi.';
+    }
   }
 
   // ─── Yükleme ──────────────────────────────────────────────────────────────
@@ -74,18 +118,29 @@ class SettingsController extends GetxService {
   Future<void> loadSettings() async {
     try {
       isLoading.value = true;
-      settings.value = await authRepository.getUserSettings();
-      _syncProfileVisibilityFromController();
+      final loaded = await authRepository.getUserSettings();
+      _loadedFromAccount = loaded != null;
+      settings.value = loaded;
 
-      // Ana sayfa görünümü, giriş yapılmasa bile önce yerelden okunur;
-      // yerelde yoksa (ilk kurulum vb.) tam ayarlar üzerinden Supabase'e
-      // düşer (bkz. AuthRepository.getHomeLayout).
-      homeLayout.value = await authRepository.getHomeLayout();
+      // FIX: user_settings satırı hiç oluşmamış kullanıcılar için varsayılan
+      // model ile UI'ı besle; ilk toggle'da upsert satırı DB'ye yazar.
+      settings.value ??= UserSettingsModel(
+        userId: authRepository.currentUserId ?? '',
+      );
 
-      // Mevcut tema tercihini user property olarak set ediyoruz ki
-      // kullanıcı hiç tema değiştirmese bile Firebase'de doğru segmentte
-      // görünsün (light/dark/system dağılımını Audience/User properties'te
-      // görebilmek için).
+      await _syncProfileVisibility();
+
+      // FIX: Girişsiz (misafir) ilk açılışta getHomeLayout() 'list' değerini
+      // yerel anahtara yazıyordu; sonradan giriş yapılınca yerel değer hesabın
+      // gerçek tercihini ezerdi. Hesaptan ayar geldiyse HESAP esas alınır ve
+      // yerel anahtar onunla senkronlanır.
+      if (loaded != null) {
+        homeLayout.value = loaded.homeLayout;
+        await authRepository.saveHomeLayoutLocally(loaded.homeLayout);
+      } else {
+        homeLayout.value = await authRepository.getHomeLayout();
+      }
+
       final loadedTheme = settings.value?.theme;
       if (loadedTheme != null) {
         AnalyticsService.instance.setUserProperty(
@@ -105,7 +160,11 @@ class SettingsController extends GetxService {
     }
   }
 
-  void _syncProfileVisibilityFromController() {
+  /// Master switch'in başlangıç değerini doğru oku.
+  /// FIX: Eskiden SADECE ProfileController hazırsa okuyordu; profil daha
+  /// yüklenmemişse varsayılan (public) kalıyor ve DB'deki gerçek değer
+  /// ekrana yansımıyordu. ProfileController hazır değilse repodan okur.
+  Future<void> _syncProfileVisibility() async {
     try {
       if (Get.isRegistered<ProfileController>()) {
         final p = Get.find<ProfileController>().profile.value;
@@ -113,6 +172,10 @@ class SettingsController extends GetxService {
           profileVisibility.value = p.profileVisibility;
           return;
         }
+      }
+      final p = await authRepository.getProfile();
+      if (p != null) {
+        profileVisibility.value = p.profileVisibility;
       }
     } catch (e, stacktrace) {
       log(
@@ -125,17 +188,39 @@ class SettingsController extends GetxService {
 
   // ─── Görünüm ───────────────────────────────────────────────────────────────
 
+  /// Giriş sonrası hesabın tema tercihini ANINDA uygular. Eskiden tema sadece
+  /// main() açılışında okunuyordu; bu yüzden yeni kurulumda (açık tema) giriş
+  /// yapan bir kullanıcı, uygulamayı yeniden başlatana kadar hesabındaki
+  /// koyu temayı göremiyordu. SessionService.onLogin() çağırır.
+  Future<void> applyAccountTheme() async {
+    if (!_loadedFromAccount) return;
+    final theme = settings.value?.theme;
+    if (theme == null) return;
+    try {
+      await authRepository.saveThemeLocally(theme);
+      Get.changeThemeMode(
+        theme == 'dark'
+            ? ThemeMode.dark
+            : theme == 'light'
+                ? ThemeMode.light
+                : ThemeMode.system,
+      );
+      AnalyticsService.instance.setUserProperty(name: 'app_theme', value: theme);
+    } catch (e, stacktrace) {
+      log('Hesap teması uygulanırken hata oluştu: $e',
+          error: e, stackTrace: stacktrace);
+    }
+  }
+
   Future<void> changeTheme(String theme) async {
     try {
-      final current = settings.value;
-      if (current == null) return;
+      final current = _ensureSettings();
       await _updateSettings(current.copyWith(theme: theme));
       await authRepository.saveThemeLocally(theme);
 
-      AnalyticsService.instance.logEvent(
-        'theme_change',
-        parameters: {'theme': theme},
-      );
+      AnalyticsService.instance.logEvent('theme_change', parameters: {
+        'theme': theme,
+      });
       AnalyticsService.instance.setUserProperty(
         name: 'app_theme',
         value: theme,
@@ -144,8 +229,8 @@ class SettingsController extends GetxService {
       final mode = theme == 'dark'
           ? ThemeMode.dark
           : theme == 'light'
-          ? ThemeMode.light
-          : ThemeMode.system;
+              ? ThemeMode.light
+              : ThemeMode.system;
       Get.changeThemeMode(mode);
     } catch (e, stacktrace) {
       log(
@@ -158,12 +243,8 @@ class SettingsController extends GetxService {
   }
 
   /// Ana sayfa besleme görünümünü değiştirir: 'list' veya 'wheel'.
-  ///
-  /// Sıralama: önce yerele YAZILIR (girişsiz kullanıcılarda da anında
-  /// çalışsın diye), sonra kullanıcı giriş yapmışsa tam ayarlar üzerinden
-  /// Supabase'e senkronize edilir (debounce'lu _updateSettings ile). Ayrıca
-  /// halihazırda açık olan Ana Sayfa varsa (HomeController) anında
-  /// güncellensin diye o da senkronize edilir.
+  /// Önce yerele yazılır (girişsiz kullanıcıda da anında çalışsın), sonra
+  /// giriş yapılmışsa Supabase'e senkronize edilir.
   Future<void> changeHomeLayout(String layout) async {
     final old = homeLayout.value;
     homeLayout.value = layout; // Optimistic UI
@@ -175,10 +256,9 @@ class SettingsController extends GetxService {
         await _updateSettings(current.copyWith(homeLayout: layout));
       }
 
-      AnalyticsService.instance.logEvent(
-        'home_layout_change',
-        parameters: {'layout': layout},
-      );
+      AnalyticsService.instance.logEvent('home_layout_change', parameters: {
+        'layout': layout,
+      });
     } catch (e, stacktrace) {
       homeLayout.value = old; // Rollback
       log(
@@ -194,8 +274,7 @@ class SettingsController extends GetxService {
 
   Future<void> toggleAutoplay() async {
     try {
-      final c = settings.value;
-      if (c == null) return;
+      final c = _ensureSettings();
       await _updateSettings(c.copyWith(autoplay: !c.autoplay));
     } catch (e, stacktrace) {
       log(
@@ -203,6 +282,7 @@ class SettingsController extends GetxService {
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
@@ -210,8 +290,7 @@ class SettingsController extends GetxService {
 
   Future<void> toggleNotifications() async {
     try {
-      final c = settings.value;
-      if (c == null) return;
+      final c = _ensureSettings();
       await _updateSettings(
         c.copyWith(notificationsEnabled: !c.notificationsEnabled),
       );
@@ -221,13 +300,13 @@ class SettingsController extends GetxService {
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
   Future<void> toggleNotifyNewVideos() async {
     try {
-      final c = settings.value;
-      if (c == null) return;
+      final c = _ensureSettings();
       await _updateSettings(c.copyWith(notifyNewVideos: !c.notifyNewVideos));
     } catch (e, stacktrace) {
       log(
@@ -235,45 +314,71 @@ class SettingsController extends GetxService {
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
-  // ─── Gizlilik — Profil Görünürlüğü (master anahtar) ──────────────────────
+  // ─── Gizlilik — "Gizli Profil Modu" (master switch) ──────────────────────
 
-  /// Profil görünürlüğünü değiştir ve DB'ye yaz.
+  /// profiles.profile_visibility'yi günceller. Gizliye geçişte 4 aktiviteyi
+  /// de Gizli'ye yazar (tavan modeli); açığa geçişte dokunmaz, kullanıcı
+  /// tek tek açar.
   ///
-  /// BUG FIX: Önceki kodda `_supabase.updateProfileVisibility(...)` çağrısı
-  /// yorum satırındaydı. Bu yüzden:
-  ///   - profileVisibility.value sadece RAM'de değişiyordu
-  ///   - can_view_activity() / can_view_profile() DB'den okuduğu için
-  ///     her zaman eski değeri (public) görüyordu
-  ///   - Uygulama restart'ında ayar sıfırlanıyordu
-  ///
-  /// Artık hem profiles tablosu hem de ProfileController senkronize ediliyor.
-  Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
+  /// FIX: `settings.value == null` guard'ı KALDIRILDI — bu ayar user_settings
+  /// ile değil profiles tablosuyla ilgilidir; ayar satırı olmasa bile
+  /// çalışabilmeli.
+    Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
     final userId = authRepository.currentUserId;
-    final current = settings.value;
-    log(
-      'changeProfileVisibility: userId=$userId, newVisibility=$newVisibility, current=$current',
-    );
-    if (userId == null || current == null) return;
+    if (userId == null) {
+      errorMessage.value = 'Bu ayar için giriş yapmalısınız.';
+      return;
+    }
 
     final oldVisibility = profileVisibility.value;
     profileVisibility.value = newVisibility; // Optimistic UI
 
     try {
-      // BUG FIX: Bu satır artık YORUM SATIRI DEĞİL — DB'ye yazılıyor
       await authRepository.updateProfileVisibility(userId, newVisibility.value);
-      log(
-        'changeProfileVisibility: DB güncellemesi başarılı: userId=$userId, newVisibility=$newVisibility',
-      );
-      // Tavan düştüyse taşan aktiviteleri indir
-      final clamped = _clampAllActivities(current);
-      if (clamped != null) {
-        await _updateSettings(clamped);
+
+      // TAVAN: public→private geçişinde 4 aktiviteyi de Gizli'ye yaz. Ekranda
+      // "Herkese Açık" artık seçilemez (ceiling). Yazım başarısız olsa bile
+      // veritabanındaki can_view_activity profil kapısı sızıntıyı engeller.
+      //
+      // `locked != current` (Equatable) sayesinde zaten hepsi private ise
+      // hiçbir yazma işlemi yapılmaz — her açılışta yeniden yazmaz.
+      if (newVisibility == VisibilityOption.private) {
+        final current = _ensureSettings();
+        final locked = current.copyWith(
+          watchHistoryVisibility: VisibilityOption.private,
+          likesVisibility: VisibilityOption.private,
+          favoritesVisibility: VisibilityOption.private,
+          commentsVisibility: VisibilityOption.private,
+        );
+        if (locked != current) {
+          settings.value = locked; // anında UI
+          try {
+            // DEBOUNCE'SUZ doğrudan yazım: bu işlem master switch ile aynı
+            // işlem parçası sayılır; 800ms'lik timer'a bırakılmamalı.
+            await authRepository.updateUserSettings(locked);
+            _lastSavedSettings = locked;
+          } catch (e2, st2) {
+            settings.value = current; // sadece alt ayarları geri al
+            log(
+              'Aktivite görünürlükleri kilitlenirken hata: $e2',
+              error: e2,
+              stackTrace: st2,
+            );
+            // Master switch BAŞARILI olduğundan GERİ ALINMAZ; kullanıcıya
+            // gerçek durum bildirilir: profil gizli, aktiviteler hâlâ açık.
+            errorMessage.value =
+                'Profil gizlendi ancak aktivite ayarları kilitlenemedi. '
+                'Aşağıdaki izinleri kontrol edin.';
+          }
+        }
       }
 
-      // ProfileController varsa senkronize et
+      // ProfileController varsa senkronize et (repo zaten yerel profil
+      // cache'ini tazeliyor).
       if (Get.isRegistered<ProfileController>()) {
         final profileCtrl = Get.find<ProfileController>();
         final existing = profileCtrl.profile.value;
@@ -284,7 +389,7 @@ class SettingsController extends GetxService {
         }
       }
     } catch (e, stacktrace) {
-      profileVisibility.value = oldVisibility; // Rollback
+      profileVisibility.value = oldVisibility; // Rollback (master)
       log(
         'Profil görünürlüğü değiştirilirken hata oluştu: $e',
         error: e,
@@ -294,94 +399,80 @@ class SettingsController extends GetxService {
     }
   }
 
-  UserSettingsModel? _clampAllActivities(UserSettingsModel current) {
-    try {
-      final w = _clamp(current.watchHistoryVisibility);
-      final l = _clamp(current.likesVisibility);
-      final f = _clamp(current.favoritesVisibility);
-      final c = _clamp(current.commentsVisibility);
-
-      if (w == current.watchHistoryVisibility &&
-          l == current.likesVisibility &&
-          f == current.favoritesVisibility &&
-          c == current.commentsVisibility) {
-        return null;
-      }
-
-      return current.copyWith(
-        watchHistoryVisibility: w,
-        likesVisibility: l,
-        favoritesVisibility: f,
-        commentsVisibility: c,
-      );
-    } catch (e, stacktrace) {
-      log(
-        'Aktivite görünürlükleri kısıtlanırken hata oluştu: $e',
-        error: e,
-        stackTrace: stacktrace,
-      );
-      return null;
-    }
-  }
-
-  // ─── Gizlilik — Aktivite Görünürlükleri ───────────────────────────────────
+  // ─── Gizlilik — Aktivite Görünürlükleri (bağımsız) ────────────────────────
 
   Future<void> changeWatchHistoryVisibility(VisibilityOption v) async {
     try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(watchHistoryVisibility: _clamp(v)));
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(watchHistoryVisibility: v));
     } catch (e, stacktrace) {
       log(
         'İzleme geçmişi görünürlüğü değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
   Future<void> changeLikesVisibility(VisibilityOption v) async {
     try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(likesVisibility: _clamp(v)));
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(likesVisibility: v));
     } catch (e, stacktrace) {
       log(
         'Beğeniler görünürlüğü değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
   Future<void> changeFavoritesVisibility(VisibilityOption v) async {
     try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(favoritesVisibility: _clamp(v)));
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(favoritesVisibility: v));
     } catch (e, stacktrace) {
       log(
         'Favoriler görünürlüğü değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
   Future<void> changeCommentsVisibility(VisibilityOption v) async {
     try {
-      final c = settings.value;
-      if (c == null) return;
-      await _updateSettings(c.copyWith(commentsVisibility: _clamp(v)));
+      final c = _ensureSettings();
+      await _updateSettings(c.copyWith(commentsVisibility: v));
     } catch (e, stacktrace) {
       log(
         'Yorumlar görünürlüğü değiştirilirken hata oluştu: $e',
         error: e,
         stackTrace: stacktrace,
       );
+      errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
 
+// ═════ Önbellek rozeti (tasarım: "124 MB temizle" → "Temizlendi (0 KB)") ═════
+
+  /// Rozet flash durumu: temizleme başarılı olduğunda 2 saniye boyunca
+  /// "Temizlendi (0 KB)" gösterir, sonra eski haline döner.
+  /// (Tasarım JS'i: tag.textContent = 'Temizlendi (0 KB)'; setTimeout 2000ms)
+  final cacheBadgeCleared = false.obs;
+
+  /// clearCache + tasarımdaki rozet davranışı bir arada.
+  /// Ekranın "Önbelleği Temizle" satırı bunu çağırır; saf temizleme
+  /// gerekiyorsa (başka ekran) `clearCache()` hâlâ mevcut.
+  Future<void> clearCacheWithBadge() async {
+    await clearCache();
+    cacheBadgeCleared.value = true;
+    Timer(const Duration(seconds: 2), () => cacheBadgeCleared.value = false);
+  }
+  
   // ─── Cache ────────────────────────────────────────────────────────────────
 
   Future<void> clearCache() async {

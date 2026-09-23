@@ -11,7 +11,10 @@ class SessionService extends GetxService {
   Future<void> onLogin() async {
     await NotificationService.instance.onUserLogin();
     if (Get.isRegistered<SettingsController>()) {
-      await Get.find<SettingsController>().loadSettings();
+      final settings = Get.find<SettingsController>();
+      await settings.loadSettings();
+      // Hesabın tema tercihi (ör. koyu) yeniden başlatma beklemeden devreye girer.
+      await settings.applyAccountTheme();
     }
   }
 

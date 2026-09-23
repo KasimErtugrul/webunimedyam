@@ -24,10 +24,9 @@ import 'widgets/settings_tile.dart';
 /// Dil ve Sistem, Hesap İşlemleri (şifre / önbellek rozeti / kırmızı çıkış)
 /// ve sürüm dipnotu.
 ///
-/// Koddaki, tasarımda doğrudan karşılığı olmayan özellikler KORUNDU:
-/// hata snackbar'ı (ever worker), yükleniyor durumu, görünürlük pick
-/// sheet'leri (durum butonuna dokununca açılır → tavan mantığı korunur),
-/// çıkış onay diyaloğu, giriş animasyonları.
+/// Kalite / altyazı / hareketi azalt / yorum-yanıtı bildirimleri UserSettingsModel
+/// üzerinden DB'ye yazılır (backend uyumlu). Aktiviteler profil görünürlüğünden
+/// BAĞIMSIZDIR (tavan yok). Çıkış onay diyaloğu ve hata snackbar'ı korundu.
 /// Ekran state'i yoktur (setState kullanılmaz) — tüm reaktivite Rx + Obx.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -102,6 +101,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ═══════════════════════════ İçerik ═══════════════════════════
 
+  /// Model değerini ('1080p') tasarım etiketine ('1080p (FHD)') çevirir.
+  String _qualityLabel(String value) => switch (value) {
+        '1080p' => '1080p (FHD)',
+        '720p' => '720p (HD)',
+        '480p' => '480p (SD)',
+        '360p' => '360p (SD)',
+        _ => 'Otomatik',
+      };
+
   Widget _buildContent(
     BuildContext context,
     SettingsLayoutSpec spec,
@@ -110,6 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final c = _controller;
     final scheme = Theme.of(context).colorScheme;
     final isPrivate = c.profileVisibility.value == VisibilityOption.private;
+    final qualityValue = s?.videoQuality ?? 'auto';
 
     final sections = <Widget>[
       // ── 1. GÖRÜNÜM ────────────────────────────────────────────
@@ -190,20 +199,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             spec: spec,
             title: 'Varsayılan Kalite',
             subtitle: 'Hücresel ve Wi-Fi için üst sınır',
+            // FIX (S1): model değerine bağlı — picker value tabanlı çalışır,
+            // seçim DB'ye yazılır ve açılışta geri yüklenir.
             onTap: () => showSettingsQualityPicker(
               context: context,
               spec: spec,
-              current: c.videoQuality.value,
+              current: qualityValue,
               onChanged: c.changeVideoQuality,
             ),
-            trailing: _QualityButton(spec: spec, label: c.videoQuality.value),
+            trailing: _QualityButton(
+              spec: spec,
+              label: _qualityLabel(qualityValue),
+            ),
           ),
           SettingsSwitchRow(
             spec: spec,
             title: 'Ders Altyazıları',
             subtitle: 'Otomatik Türkçe transkript desteği',
-            value: c.subtitlesEnabled.value,
-            onChanged: c.toggleSubtitles,
+            // FIX (S1): showSubtitles (model/DB) — artık kalıcı.
+            value: s?.showSubtitles ?? false,
+            onChanged: (_) => c.toggleSubtitles(),
           ),
         ],
       ),
@@ -234,8 +249,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             spec: spec,
             title: 'Yorum Yanıtı ve Beğeniler',
             subtitle: 'Topluluk etkileşim güncellemeleri',
-            value: c.notifyInteractions.value,
-            onChanged: c.toggleNotifyInteractions,
+            // FIX (S1): notifyCommentReplies (model/DB) — artık kalıcı.
+            value: s?.notifyCommentReplies ?? true,
+            onChanged: (_) => c.toggleNotifyInteractions(),
           ),
         ],
       ),
@@ -256,7 +272,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             : null,
         divided: false,
         children: [
-          // Master switch (tasarımda satır zemini koyu: container-high)
           SettingsSwitchRow(
             spec: spec,
             title: 'Gizli Profil Modu',
@@ -272,7 +287,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               v ? VisibilityOption.private : VisibilityOption.public,
             ),
           ),
-          // "AKTİVİTE BAZLI İZİNLER" şeridi
           Container(
             width: double.infinity,
             color: scheme.surfaceContainerLowest,
@@ -291,41 +305,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           _activityRow(
-            context,
-            spec,
-            Icons.history_rounded,
-            'İzleme Geçmişi',
-            'Hangi dersleri izlediğiniz',
+            context, spec, Icons.history_rounded,
+            'İzleme Geçmişi', 'Hangi dersleri izlediğiniz',
             s?.watchHistoryVisibility ?? VisibilityOption.public,
             c.changeWatchHistoryVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context,
-            spec,
-            Icons.thumb_up_rounded,
-            'Beğenilen Videolar',
-            'Beğendiğiniz yayın ve içerikler',
+            context, spec, Icons.thumb_up_rounded,
+            'Beğenilen Videolar', 'Beğendiğiniz yayın ve içerikler',
             s?.likesVisibility ?? VisibilityOption.public,
             c.changeLikesVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context,
-            spec,
-            Icons.bookmark_rounded,
-            'Favori Dersler & Oynatma Listeleri',
-            'Kaydettiğiniz arşivler',
+            context, spec, Icons.bookmark_rounded,
+            'Favori Dersler & Oynatma Listeleri', 'Kaydettiğiniz arşivler',
             s?.favoritesVisibility ?? VisibilityOption.public,
             c.changeFavoritesVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context,
-            spec,
-            Icons.forum_rounded,
-            'Kampüs Yorumları',
-            'Yayınlara bıraktığınız notlar',
+            context, spec, Icons.forum_rounded,
+            'Kampüs Yorumları', 'Yayınlara bıraktığınız notlar',
             s?.commentsVisibility ?? VisibilityOption.public,
             c.changeCommentsVisibility,
           ),
@@ -370,8 +372,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             spec: spec,
             title: 'Hareketi Azalt',
             subtitle: 'Animasyon ve akış geçişlerini sadeleştir',
-            value: c.reduceMotion.value,
-            onChanged: c.toggleReduceMotion,
+            // FIX (S1): reducedMotion (model/DB) — artık kalıcı.
+            value: s?.reducedMotion ?? false,
+            onChanged: (_) => c.toggleReduceMotion(),
           ),
         ],
       ),
@@ -409,7 +412,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           _dividerRow(spec, scheme),
-          // Kırmızı "Oturumu Kapat" butonu (bg-error-container)
           Padding(
             padding: EdgeInsets.all(spec.logoutAreaPadding.w),
             child: Material(
@@ -455,7 +457,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Alt açıklama (tasarım: pt-space-xs pb-space-md)
           Padding(
             padding: EdgeInsets.only(
               top: spec.subtitleTopPadding.h,
@@ -471,10 +472,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          ...sections
-              .animate(interval: 60.ms)
-              .fadeIn(duration: 300.ms)
-              .slideY(begin: 0.06, end: 0, curve: Curves.easeOut),
+          // FIX (S2): `sections.animate(...)` yerine play-once sarmalayıcı.
+          // Obx her toggle'da rebuild ettiği için flutter_animate efekt
+          // listesini yeniden yaratıyor ve TÜM ekran animasyonu baştan
+          // oynuyordu. _Entrance controller'ı initState'te bir kez
+          // çalışır; rebuild'ler çocuğu değiştirir, animasyonu yeniden
+          // başlatmaz. Stagger korunur.
+          for (var i = 0; i < sections.length; i++)
+            _Entrance(
+              delay: Duration(milliseconds: 45 * i),
+              child: sections[i],
+            ),
           _buildFooter(context, spec),
         ],
       ),
@@ -500,15 +508,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       trailing: SettingsStateButton(
         spec: spec,
         isPrivate: current == VisibilityOption.private,
-        // Mevcut pick sheet'i korundu: tavan (ceiling) mantığı + açıklama
-        // buradan devam ediyor. Tasarım JS'i doğrudan çeviriyor; ancak
-        // tavan kısıtı kullanıcıya açıklansın diye sheet tercih edildi.
         onTap: () => showSettingsVisibilitySheet(
           context: context,
           spec: spec,
           title: title,
           subtitle: subtitle,
           current: current,
+          // ANA ŞALTER TAVANI: profil gizliyse "Herkese Açık" seçilemez;
+          // profil açıksa her aktivite tek tek ayarlanabilir. Değer
+          // dokunma anında okunduğu için ayrıca Obx gerekmez.
           ceiling: _controller.profileVisibility.value,
           onChanged: onChanged,
         ),
@@ -516,11 +524,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// FIX (S3): Tasarım token'ı `bg-surface-variant` + SettingsSection içindeki
+  /// ayraçla aynı renk — surfaceContainerHighest yerine surfaceVariant.
   Widget _dividerRow(SettingsLayoutSpec spec, ColorScheme scheme) => Container(
-    height: 1,
-    margin: EdgeInsets.symmetric(horizontal: spec.dividerInset.w),
-    color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-  );
+        height: 1,
+        margin: EdgeInsets.symmetric(horizontal: spec.dividerInset.w),
+        color: scheme.surfaceVariant.withValues(alpha: 0.4),
+      );
 
   Widget _buildFooter(BuildContext context, SettingsLayoutSpec spec) {
     final scheme = Theme.of(context).colorScheme;
@@ -620,6 +630,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
+// ═══════════════════════════ Yardımcılar ═══════════════════════════
+
+/// Play-once giriş animasyonu: fade + hafif yukarı kayma.
+/// Obx rebuild'lerinden bağımsızdır — controller initState'te bir kez
+/// ilerler; child değişse bile animasyon yeniden başlamaz.
+class _Entrance extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  const _Entrance({required this.child, this.delay = Duration.zero});
+
+  @override
+  State<_Entrance> createState() => _EntranceState();
+}
+
+class _EntranceState extends State<_Entrance>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 400),
+  );
+  late final CurvedAnimation _fade =
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+  late final Animation<Offset> _slide = Tween<Offset>(
+    begin: const Offset(0, 0.06),
+    end: Offset.zero,
+  ).animate(_fade);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.delay == Duration.zero) {
+      _ctrl.forward();
+    } else {
+      Future.delayed(widget.delay, () {
+        if (mounted) _ctrl.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
 // ═══════════════════════════ Ekran-özel görseller ═══════════════════════════
 
 /// "1080p (FHD) ⌄" kalite butonu (bg-surface-container-highest + primary).
@@ -683,13 +750,13 @@ class _ProtectionBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-                width: spec.badgeDotSize.w,
-                height: spec.badgeDotSize.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.primary,
-                ),
-              )
+            width: spec.badgeDotSize.w,
+            height: spec.badgeDotSize.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.primary,
+            ),
+          )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .fade(begin: 0.25, end: 1, duration: 900.ms),
           SizedBox(width: spec.badgeGap.w),
