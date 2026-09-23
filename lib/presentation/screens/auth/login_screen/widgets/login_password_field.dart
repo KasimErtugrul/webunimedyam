@@ -1,90 +1,64 @@
 // lib/presentation/screens/auth/widgets/login_password_field.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../app/themes/app_theme.dart';
+import 'package:flutter/material.dart';
+
 import '../login_layout_spec.dart';
+import 'login_text_field.dart';
 
 class LoginPasswordField extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final LoginLayoutSpec spec;
-  final bool obscure;
-  final VoidCallback onToggleObscure;
-  final ValueChanged<String>? onSubmitted;
-
   const LoginPasswordField({
     super.key,
     required this.controller,
-    required this.focusNode,
-    required this.spec,
+    required this.sizes,
+    this.focusNode,
     required this.obscure,
     required this.onToggleObscure,
     this.onSubmitted,
   });
 
+  final TextEditingController controller;
+  final LoginSizes sizes;
+  final FocusNode? focusNode;
+  final bool obscure;
+  final VoidCallback onToggleObscure;
+  final ValueChanged<String>? onSubmitted;
+
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final border = AppTheme.textSec(context);
-    final fill = AppTheme.surface(context);
+    final scheme = Theme.of(context).colorScheme;
+    final s = sizes;
 
-    return TextFormField(
+    return LoginTextField(
+      sizes: s,
       controller: controller,
       focusNode: focusNode,
-      obscureText: obscure,
+      label: 'Şifre',
+      icon: Icons.lock_outline_rounded,
+      hint: '••••••••',
+      obscure: obscure,
       textInputAction: TextInputAction.done,
       autofillHints: const [AutofillHints.password],
-      onFieldSubmitted: onSubmitted,
-      style: TextStyle(
-        color: AppTheme.textPri(context),
-        fontSize: spec.fieldFontSize.sp,
-        fontWeight: FontWeight.w500,
-      ),
       validator: (v) => (v == null || v.isEmpty) ? 'Şifre gerekli' : null,
-      decoration: InputDecoration(
-        labelText: 'Şifre',
-        labelStyle: TextStyle(fontSize: spec.fieldFontSize.sp),
-        prefixIcon: Icon(
-          Icons.lock_outlined,
-          color: AppTheme.textSec(context),
-          size: spec.iconSize.sp,
-        ),
-        suffixIcon: IconButton(
+      onSubmitted: onSubmitted,
+      // Göster/Gizle — h-9 w-9, right-2
+      suffix: Padding(
+        padding: EdgeInsets.only(right: s.toggleRight),
+        child: IconButton(
           tooltip: obscure ? 'Şifreyi göster' : 'Şifreyi gizle',
+          onPressed: onToggleObscure,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(
+            minWidth: s.toggleSize,
+            minHeight: s.toggleSize,
+          ),
           icon: Icon(
             obscure
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            color: AppTheme.textSec(context),
-            size: spec.iconSize.sp,
+                ? Icons.visibility_rounded
+                : Icons.visibility_off_rounded,
+            size: s.fieldIconSize,
+            color: scheme.outline,
           ),
-          onPressed: onToggleObscure,
-        ),
-        filled: true,
-        fillColor: fill,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: spec.fieldPaddingH.w,
-          vertical: spec.fieldPaddingV.h,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
-          borderSide: BorderSide(
-            color: border.withValues(alpha: 0.15),
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
-          borderSide: BorderSide(color: primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
-          borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
-          borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
         ),
       ),
     );

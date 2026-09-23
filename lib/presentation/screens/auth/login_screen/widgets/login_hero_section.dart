@@ -1,4 +1,4 @@
-// lib/presentation/screens/auth/widgets/login_hero_section.dart
+/* // lib/presentation/screens/auth/widgets/login_hero_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -179,4 +179,4 @@ class _Blob extends StatelessWidget {
       ),
     );
   }
-}
+} */

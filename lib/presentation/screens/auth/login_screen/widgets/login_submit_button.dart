@@ -1,86 +1,68 @@
 // lib/presentation/screens/auth/widgets/login_submit_button.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/auth/login_controller.dart';
 import '../login_layout_spec.dart';
 
+/// CTA — bg-primary, text-on-primary, rounded-lg, h-12, shadow-sm
+/// (gradient YOK — tasarımdaki düz dolgu bire bir korunuyor)
 class LoginSubmitButton extends GetView<LoginController> {
-  final LoginLayoutSpec spec;
-  final VoidCallback onPressed;
+  const LoginSubmitButton({super.key, required this.sizes, required this.onPressed});
 
-  const LoginSubmitButton({
-    super.key,
-    required this.spec,
-    required this.onPressed,
-  });
+  final LoginSizes sizes;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final loading = controller.isLoading.value;
-      final primary = AppTheme.primaryColor;
+      final scheme = Theme.of(context).colorScheme;
+      final s = sizes;
 
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: loading
-              ? null
-              : const LinearGradient(
-                  colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-          color: loading ? AppTheme.surface(context) : null,
-          borderRadius: BorderRadius.circular(spec.buttonRadius.r),
-          boxShadow: loading
-              ? const []
-              : [
-                  BoxShadow(
-                    color: primary.withValues(alpha: 0.35),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-        ),
+      return SizedBox(
+        width: double.infinity,
+        height: s.buttonHeight,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
+            backgroundColor: scheme.primary,
+            foregroundColor: scheme.onPrimary,
+            disabledBackgroundColor: scheme.primary.withValues(alpha: 0.7),
+            disabledForegroundColor: scheme.onPrimary,
+            elevation: 0,
             shadowColor: Colors.transparent,
-            disabledBackgroundColor: Colors.transparent,
-            minimumSize: Size(double.infinity, spec.buttonHeight.h),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+              borderRadius: BorderRadius.circular(s.fieldRadius), // rounded-lg
             ),
           ),
           onPressed: loading ? null : onPressed,
           child: loading
               ? SizedBox(
-                  width: spec.loaderSize.w,
-                  height: spec.loaderSize.w,
+                  width: s.loaderSize,
+                  height: s.loaderSize,
                   child: CircularProgressIndicator(
-                    color: AppTheme.textSec(context),
-                    strokeWidth: spec.loaderStroke,
+                    strokeWidth: s.loaderStroke,
+                    color: scheme.onPrimary,
                   ),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'Giriş Yap',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: spec.buttonFontSize.sp,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
+                        fontSize: s.buttonFontSize,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.01 * s.buttonFontSize, // label-lg
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 8.w), // gap-2
                     Icon(
                       Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: (spec.buttonFontSize + 2).sp,
+                      size: s.buttonIconSize,
                     ),
                   ],
                 ),

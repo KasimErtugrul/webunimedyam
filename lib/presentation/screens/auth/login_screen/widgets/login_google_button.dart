@@ -1,64 +1,69 @@
 // lib/presentation/screens/auth/widgets/login_google_button.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/auth/login_controller.dart';
 import '../login_layout_spec.dart';
 
+/// Google butonu — bg-surface-container-high, text-on-surface,
+/// rounded-lg, h-12 (border YOK — tasarımdaki düz dolgu)
 class LoginGoogleButton extends GetView<LoginController> {
-  final LoginLayoutSpec spec;
-  const LoginGoogleButton({super.key, required this.spec});
+  const LoginGoogleButton({super.key, required this.sizes});
+
+  final LoginSizes sizes;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final loading = controller.isGoogleLoading.value;
-      final border = AppTheme.textSec(context).withValues(alpha: 0.2);
+      final scheme = Theme.of(context).colorScheme;
+      final s = sizes;
 
       return SizedBox(
         width: double.infinity,
-        height: spec.buttonHeight.h,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppTheme.textPri(context),
-            side: BorderSide(color: border, width: 1.2),
+        height: s.buttonHeight,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: scheme.surfaceContainerHigh,
+            foregroundColor: scheme.onSurface,
+            elevation: 0,
+            shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+              borderRadius: BorderRadius.circular(s.fieldRadius),
             ),
-            backgroundColor: AppTheme.surface(context).withValues(alpha: 0.5),
           ),
           onPressed: loading ? null : controller.signInWithGoogle,
           child: loading
               ? SizedBox(
-                  width: spec.loaderSize.w,
-                  height: spec.loaderSize.w,
+                  width: s.loaderSize,
+                  height: s.loaderSize,
                   child: CircularProgressIndicator(
-                    strokeWidth: spec.loaderStroke,
-                    color: AppTheme.textSec(context),
+                    strokeWidth: s.loaderStroke,
+                    color: scheme.onSurfaceVariant,
                   ),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
                       'assets/icons/google_logo.png',
-                      width: spec.iconSize.w,
-                      height: spec.iconSize.w,
+                      width: s.googleIconSize,
+                      height: s.googleIconSize,
                       errorBuilder: (_, __, ___) => Icon(
                         Icons.g_mobiledata_rounded,
-                        size: (spec.iconSize + 4).sp,
-                        color: AppTheme.textPri(context),
+                        size: s.googleIconSize + 6,
+                        color: scheme.onSurface,
                       ),
                     ),
-                    SizedBox(width: 10.w),
+                    SizedBox(width: s.googleGap),
                     Text(
                       'Google ile devam et',
                       style: TextStyle(
-                        color: AppTheme.textPri(context),
-                        fontSize: spec.buttonFontSize.sp,
+                        fontSize: s.buttonFontSize,
                         fontWeight: FontWeight.w600,
+                        letterSpacing: 0.01 * s.buttonFontSize,
                       ),
                     ),
                   ],

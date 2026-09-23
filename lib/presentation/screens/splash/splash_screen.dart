@@ -1,84 +1,29 @@
 // lib/presentation/screens/splash/splash_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../controllers/splash_controller.dart';
+import 'splash_sizes.dart';
+import 'widgets/splash_brand_hero.dart';
+import 'widgets/splash_live_badge.dart';
+import 'widgets/splash_network_grid.dart';
+import 'widgets/splash_progress_section.dart';
 
-@immutable
-class _Sizes {
-  final bool isTablet;
-  final double logoSize;
-  final double logoRadius;
-  final double logoIconSize;
-  final double titleFontSize;
-  final double titleLetterSpacing;
-  final double titleSpacing;
-  final double subtitleFontSize;
-  final double subtitleSpacing;
-  final double loadingSize;
-  final double loadingStrokeWidth;
-  final double loadingSpacing;
-  final double glowBlur;
-  final double glowOpacity;
-
-  const _Sizes._({
-    required this.isTablet,
-    required this.logoSize,
-    required this.logoRadius,
-    required this.logoIconSize,
-    required this.titleFontSize,
-    required this.titleLetterSpacing,
-    required this.titleSpacing,
-    required this.subtitleFontSize,
-    required this.subtitleSpacing,
-    required this.loadingSize,
-    required this.loadingStrokeWidth,
-    required this.loadingSpacing,
-    required this.glowBlur,
-    required this.glowOpacity,
-  });
-
-  factory _Sizes.of(BuildContext context) {
-    if (Responsive.isTablet(context)) {
-      return const _Sizes._(
-        isTablet: true,
-        logoSize: 140,
-        logoRadius: 28,
-        logoIconSize: 84,
-        titleFontSize: 44,
-        titleLetterSpacing: 3,
-        titleSpacing: 32,
-        subtitleFontSize: 18,
-        subtitleSpacing: 12,
-        loadingSize: 52,
-        loadingStrokeWidth: 3.5,
-        loadingSpacing: 56,
-        glowBlur: 40,
-        glowOpacity: 0.35,
-      );
-    }
-    return const _Sizes._(
-      isTablet: false,
-      logoSize: 100,
-      logoRadius: 20,
-      logoIconSize: 60,
-      titleFontSize: 32,
-      titleLetterSpacing: 2,
-      titleSpacing: 24,
-      subtitleFontSize: 14,
-      subtitleSpacing: 8,
-      loadingSize: 40,
-      loadingStrokeWidth: 3,
-      loadingSpacing: 48,
-      glowBlur: 28,
-      glowOpacity: 0.3,
-    );
-  }
-}
+// ═══════════════════════════════════════════════════════════
+// SPLASH SCREEN — Stitch "Splash Screen - ÜniTV" tasarımının
+// bire bir karşılığı. Tüm renkler AppTheme/ColorScheme üzerinden
+// geldiği için light & dark tema otomatik desteklenir.
+//
+// Katman yapısı (body seviyesinde bounded Stack — SingleChildScrollView
+// dersiyle uyumlu; Stack asla unbounded bağlamın içinde değil):
+//   1. Ambient glow (animate-pulse primary + primary-container)
+//   2. Kampüs ağ grid'i (opacity 0.10)
+//   3. İçerik: üst etiket / hero / ilerleme
+// ═══════════════════════════════════════════════════════════
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -88,115 +33,169 @@ class SplashScreen extends StatelessWidget {
     // Controller'ı başlat (lazy init tetiklenir; yönlendirme oradan yönetilir)
     Get.find<SplashController>();
 
-    final spec = _Sizes.of(context);
-    final primary = AppTheme.primaryColor;
+    // KURAL 5 — TEK DALLANMA NOKTASI
+    final SplashSizes sizes = Responsive.isTablet(context)
+        ? const SplashTabletSizes()
+        : const SplashPhoneSizes();
 
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // ── Logo ──────────────────────────────────────
-            _Logo(spec: spec, primary: primary),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── 1. Dynamic Ambient Glow Layer ───────────────────
+          const _AmbientGlowLayer(),
 
-            SizedBox(height: spec.titleSpacing.h),
+          // ── 2. Decorative Campus Network Grid (opacity-10) ──
+          const Center(
+            child: SplashNetworkGrid(opacity: 0.10),
+          ),
 
-            // ── Başlık ────────────────────────────────────
-            Text(
-              'ÜniTV',
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: spec.titleFontSize.sp,
-                fontWeight: FontWeight.bold,
-                letterSpacing: spec.titleLetterSpacing,
+          // ── 3. Main Splash Container (z-10) ─────────────────
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: sizes.pageHPadding,
+                vertical: sizes.pageVPadding,
               ),
-            )
-                .animate()
-                .fadeIn(delay: 200.ms, duration: 400.ms)
-                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: sizes.heroMaxWidth * 1.4),
+                  child: Column(
+                    children: [
+                      // Top Micro Tag
+                      SplashLiveBadge(sizes: sizes)
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideY(
+                            begin: -0.15,
+                            end: 0,
+                            duration: 500.ms,
+                            curve: Curves.easeOutCubic,
+                          ),
 
-            SizedBox(height: spec.subtitleSpacing.h),
+                      // Central Hero (my-space-xl, ortalanmış)
+                      Expanded(
+                        child: Center(
+                          child: SplashBrandHero(sizes: sizes)
+                              .animate()
+                              .fadeIn(delay: 150.ms, duration: 450.ms)
+                              .slideY(
+                                begin: 0.08,
+                                end: 0,
+                                duration: 550.ms,
+                                curve: Curves.easeOutCubic,
+                              ),
+                        ),
+                      ),
 
-            // ── Alt başlık ────────────────────────────────
-            Text(
-              'Üniversite Video Platformu',
-              style: TextStyle(
-                color: AppTheme.textSec(context),
-                fontSize: spec.subtitleFontSize.sp,
-                letterSpacing: 0.3,
+                      // Bottom Progress + Credentials
+                      SizedBox(
+                        width: sizes.bottomMaxWidth,
+                        child: SplashProgressSection(sizes: sizes),
+                      )
+                          .animate()
+                          .fadeIn(delay: 300.ms, duration: 450.ms),
+                    ],
+                  ),
+                ),
               ),
-            )
-                .animate()
-                .fadeIn(delay: 350.ms, duration: 400.ms)
-                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
-            SizedBox(height: spec.loadingSpacing.h),
-
-            // ── Loading ───────────────────────────────────
-            SizedBox(
-              width: spec.loadingSize,
-              height: spec.loadingSize,
-              child: CircularProgressIndicator(
-                color: primary,
-                strokeWidth: spec.loadingStrokeWidth,
-                strokeCap: StrokeCap.round,
-              ),
-            ).animate().fadeIn(delay: 550.ms, duration: 400.ms),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _Logo extends StatelessWidget {
-  final _Sizes spec;
-  final Color primary;
+// ═══════════════════════════════════════════════════════════
+// AMBIENT GLOW — w-80 primary/10 blur-3xl animate-pulse +
+// w-56 primary-container/15 blur-2xl (ekran merkezli)
+// ═══════════════════════════════════════════════════════════
 
-  const _Logo({required this.spec, required this.primary});
+class _AmbientGlowLayer extends StatelessWidget {
+  const _AmbientGlowLayer();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: spec.logoSize,
-      height: spec.logoSize,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, Color(0xFF158a3e)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(spec.logoRadius),
-        boxShadow: [
-          BoxShadow(
-            color: primary.withValues(alpha: spec.glowOpacity),
-            blurRadius: spec.glowBlur,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+    final scheme = Theme.of(context).colorScheme;
+    final sizes = Responsive.isTablet(context)
+        ? const SplashTabletSizes()
+        : const SplashPhoneSizes();
+
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          // animate-pulse: nefes alan birincil glow
+          _PulsingGlow(
+            size: sizes.glowPrimarySize,
+            color: scheme.primary.withValues(alpha: 0.10),
+          ),
+          // Sabit ikincil glow (primary-container/15)
+          SizedBox(
+            width: sizes.glowSecondarySize,
+            height: sizes.glowSecondarySize,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    scheme.primaryContainer.withValues(alpha: 0.15),
+                    scheme.primaryContainer.withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      child: Icon(
-        Icons.play_arrow_rounded,
-        color: Colors.white,
-        size: spec.logoIconSize,
+    );
+  }
+}
+
+class _PulsingGlow extends StatefulWidget {
+  const _PulsingGlow({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  State<_PulsingGlow> createState() => _PulsingGlowState();
+}
+
+class _PulsingGlowState extends State<_PulsingGlow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 1, end: 0.4).animate(
+          CurvedAnimation(parent: _c, curve: Curves.easeInOut),
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [widget.color, widget.color.withValues(alpha: 0)],
+            ),
+          ),
+        ),
       ),
-    )
-        .animate()
-        // Giriş: küçükten büyüyerek + fade
-        .scaleXY(
-          begin: 0.7,
-          end: 1,
-          duration: 550.ms,
-          curve: Curves.easeOutBack,
-        )
-        .fadeIn(duration: 400.ms)
-        // Giriş sonrası sonsuz hafif nefes (glow ile birlikte)
-        .then(delay: 200.ms)
-        .shimmer(
-          duration: 1600.ms,
-          color: Colors.white.withValues(alpha: 0.15),
-        );
+    );
   }
 }
