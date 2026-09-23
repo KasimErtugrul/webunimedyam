@@ -1,37 +1,104 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
+// Stitch "onboarding" tasarımındaki (5 adım) tüm ölçüler.
+// Phone → ScreenUtil ile ölçekli, Tablet → ham dp.
 // ═══════════════════════════════════════════════════════════
-
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class OnboardingSizes {
   const OnboardingSizes();
 
   bool get isTablet;
 
-  // Skip button
-  double get skipFontSize;
+  // ─── Header (Top App Bar) ─────────────────────────────────
+  double get headerHPadding;        // px-6
+  double get headerVPadding;        // py-4
+  double get logoSize;              // w-8 h-8
+  double get logoRadius;            // rounded-xl (12)
+  double get logoIconSize;          // text-[20px]
+  double get logoGap;               // gap-2
+  double get logoFontSize;          // text-xl
+  double get skipFontSize;          // text-sm
 
-  // Page content
-  double get pagePadding;
-  double get iconContainerSize;
-  double get iconSize;
-  double get iconSpacing;
-  double get titleFontSize;
-  double get titleSpacing;
-  double get descriptionFontSize;
-  double get descriptionLineHeight;
+  // ─── Sayfa ────────────────────────────────────────────────
+  double get pageHPadding;          // px-6
+  double get pageTopPadding;        // py-2
+  double get visualMaxHeight;       // max-h-[300px]
+  double get visualMaxWidth;        // max-w-[340px]
+  double get visualRadius;          // rounded-3xl (24)
+  double get visualPadding;         // p-6
+  double get glowSize;              // w-44 h-44 blur blob
 
-  // Bottom
-  double get bottomPadding;
-  double get dotsSpacing;
-  double get dotActiveWidth;
-  double get dotInactiveWidth;
-  double get dotHeight;
-  double get dotBorderRadius;
-  double get dotsBottomSpacing;
-  double get buttonHeight;
-  double get buttonFontSize;
+  // ─── Tipografi ────────────────────────────────────────────
+  double get typographyTopGap;      // py-4
+  double get labelFontSize;         // text-xs (ADIM N / 5)
+  double get labelSpacing;          // mb-2
+  double get titleFontSize;         // text-2xl font-extrabold
+  double get titleSpacing;          // mb-2.5
+  double get descriptionFontSize;   // text-sm
+  double get descriptionLineHeight; // leading-relaxed (1.625)
+
+  // ─── Ortak kart / pill ölçüleri ───────────────────────────
+  double get tileRadius;            // rounded-2xl (16)
+  double get pillHPadding;          // px-3
+  double get pillVPadding;          // py-1.5
+  double get pillFontSize;          // text-xs
+  double get pillIconSize;          // 15-16px ikonlar
+  double get pillGap;               // gap-1.5
+  double get dotSize;               // w-2 h-2
+
+  // ─── İç mini kartlar (bildirim / harf şeridi / radyo) ─────
+  double get innerCardHPadding;     // px-4
+  double get innerCardVPadding;     // py-2.5
+  double get innerGap;              // gap-3
+  double get iconTextGap;           // gap-2
+  double get visualGap;             // gap-4
+  double get visualGapSm;           // gap-3.5
+  double get stackWidth;            // max-w-[270px]
+
+  // ─── Adım 1 — Karşılama ───────────────────────────────────
+  double get heroTileSize;          // w-20 h-20
+  double get heroIconSize;          // text-[40px]
+
+  // ─── Adım 2 — Üniversite çarkı ────────────────────────────
+  double get spinnerSize;           // w-20 h-20
+  double get spinnerIconSize;       // text-[36px]
+
+  // ─── Adım 3 — Bildirim ────────────────────────────────────
+  double get notifTileSize;         // w-10 h-10
+  double get notifIconSize;         // text-[22px]
+  double get notifTitleFontSize;    // text-xs
+  double get notifBodyFontSize;     // text-[11px]
+
+  // ─── Adım 4 — Etkileşim ───────────────────────────────────
+  double get actionTileSize;        // w-14 h-14
+  double get actionIconSize;        // text-[28px]
+
+  // ─── Adım 5 — Hesap / radyo ───────────────────────────────
+  double get avatarSize;            // w-16 h-16
+  double get avatarIconSize;        // text-[32px]
+  double get radioIconSize;         // text-[18px]
+  double get eqBarWidth;            // w-1
+  double get eqBarMaxHeight;        // h-4
+  double get eqBarMinHeight;
+
+  // ─── Noktalar (dots) ──────────────────────────────────────
+  double get dotHeight;             // h-2
+  double get dotActiveWidth;        // w-6
+  double get dotInactiveWidth;      // w-2
+  double get dotGap;                // gap-2
+
+  // ─── Butonlar / Footer ────────────────────────────────────
+  double get buttonHeight;          // h-12
+  double get buttonRadius;          // rounded-2xl (16)
+  double get buttonFontSize;        // text-sm
+  double get buttonIconSize;        // text-[18px]
+  double get buttonHPadding;        // px-6
+  double get buttonsGap;            // gap-2.5
+  double get navRowHeight;          // h-14
+  double get footerTopPadding;      // pt-2
+  double get footerBottomPadding;   // pb-safe (min 20)
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -43,26 +110,78 @@ class OnboardingPhoneSizes extends OnboardingSizes {
 
   @override bool get isTablet => false;
 
+  @override double get headerHPadding => 24.w;
+  @override double get headerVPadding => 16.h;
+  @override double get logoSize => 32.w;
+  @override double get logoRadius => 12.r;
+  @override double get logoIconSize => 20.sp;
+  @override double get logoGap => 8.w;
+  @override double get logoFontSize => 20.sp;
   @override double get skipFontSize => 14.sp;
 
-  @override double get pagePadding => 32.w;
-  @override double get iconContainerSize => 120.w;
-  @override double get iconSize => 60.sp;
-  @override double get iconSpacing => 40.h;
-  @override double get titleFontSize => 24.sp;
-  @override double get titleSpacing => 16.h;
-  @override double get descriptionFontSize => 16.sp;
-  @override double get descriptionLineHeight => 1.6;
+  @override double get pageHPadding => 24.w;
+  @override double get pageTopPadding => 8.h;
+  @override double get visualMaxHeight => 300.h;
+  @override double get visualMaxWidth => 340.w;
+  @override double get visualRadius => 24.r;
+  @override double get visualPadding => 24.w;
+  @override double get glowSize => 176.w;
 
-  @override double get bottomPadding => 32.w;
-  @override double get dotsSpacing => 4.w;
+  @override double get typographyTopGap => 16.h;
+  @override double get labelFontSize => 12.sp;
+  @override double get labelSpacing => 8.h;
+  @override double get titleFontSize => 24.sp;
+  @override double get titleSpacing => 10.h;
+  @override double get descriptionFontSize => 14.sp;
+  @override double get descriptionLineHeight => 1.625;
+
+  @override double get tileRadius => 16.r;
+  @override double get pillHPadding => 12.w;
+  @override double get pillVPadding => 6.h;
+  @override double get pillFontSize => 12.sp;
+  @override double get pillIconSize => 16.sp;
+  @override double get pillGap => 6.w;
+  @override double get dotSize => 8.r;
+
+  @override double get innerCardHPadding => 16.w;
+  @override double get innerCardVPadding => 10.h;
+  @override double get innerGap => 12.w;
+  @override double get iconTextGap => 8.w;
+  @override double get visualGap => 16.h;
+  @override double get visualGapSm => 14.h;
+  @override double get stackWidth => 270.w;
+
+  @override double get heroTileSize => 80.w;
+  @override double get heroIconSize => 40.sp;
+  @override double get spinnerSize => 80.w;
+  @override double get spinnerIconSize => 36.sp;
+  @override double get notifTileSize => 40.w;
+  @override double get notifIconSize => 22.sp;
+  @override double get notifTitleFontSize => 12.sp;
+  @override double get notifBodyFontSize => 11.sp;
+  @override double get actionTileSize => 56.w;
+  @override double get actionIconSize => 28.sp;
+  @override double get avatarSize => 64.w;
+  @override double get avatarIconSize => 32.sp;
+  @override double get radioIconSize => 18.sp;
+  @override double get eqBarWidth => 4.w;
+  @override double get eqBarMaxHeight => 16.h;
+  @override double get eqBarMinHeight => 6.h;
+
+  @override double get dotHeight => 8.h;
   @override double get dotActiveWidth => 24.w;
   @override double get dotInactiveWidth => 8.w;
-  @override double get dotHeight => 8.h;
-  @override double get dotBorderRadius => 4.r;
-  @override double get dotsBottomSpacing => 32.h;
+  @override double get dotGap => 8.w;
+
   @override double get buttonHeight => 48.h;
-  @override double get buttonFontSize => 16.sp;
+  @override double get buttonRadius => 16.r;
+  @override double get buttonFontSize => 14.sp;
+  @override double get buttonIconSize => 18.sp;
+  @override double get buttonHPadding => 24.w;
+  @override double get buttonsGap => 10.h;
+  @override double get navRowHeight => 56.h;
+  @override double get footerTopPadding => 8.h;
+  @override double get footerBottomPadding => 20.h;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -74,24 +193,76 @@ class OnboardingTabletSizes extends OnboardingSizes {
 
   @override bool get isTablet => true;
 
+  @override double get headerHPadding => 40;
+  @override double get headerVPadding => 20;
+  @override double get logoSize => 40;
+  @override double get logoRadius => 14;
+  @override double get logoIconSize => 24;
+  @override double get logoGap => 10;
+  @override double get logoFontSize => 24;
   @override double get skipFontSize => 16;
 
-  @override double get pagePadding => 48;
-  @override double get iconContainerSize => 160;
-  @override double get iconSize => 80;
-  @override double get iconSpacing => 48;
-  @override double get titleFontSize => 32;
-  @override double get titleSpacing => 20;
-  @override double get descriptionFontSize => 20;
-  @override double get descriptionLineHeight => 1.7;
+  @override double get pageHPadding => 48;
+  @override double get pageTopPadding => 12;
+  @override double get visualMaxHeight => 380;
+  @override double get visualMaxWidth => 430;
+  @override double get visualRadius => 28;
+  @override double get visualPadding => 28;
+  @override double get glowSize => 220;
 
-  @override double get bottomPadding => 40;
-  @override double get dotsSpacing => 6;
+  @override double get typographyTopGap => 20;
+  @override double get labelFontSize => 14;
+  @override double get labelSpacing => 10;
+  @override double get titleFontSize => 30;
+  @override double get titleSpacing => 12;
+  @override double get descriptionFontSize => 17;
+  @override double get descriptionLineHeight => 1.65;
+
+  @override double get tileRadius => 20;
+  @override double get pillHPadding => 16;
+  @override double get pillVPadding => 8;
+  @override double get pillFontSize => 14;
+  @override double get pillIconSize => 18;
+  @override double get pillGap => 8;
+  @override double get dotSize => 10;
+
+  @override double get innerCardHPadding => 20;
+  @override double get innerCardVPadding => 12;
+  @override double get innerGap => 14;
+  @override double get iconTextGap => 10;
+  @override double get visualGap => 20;
+  @override double get visualGapSm => 18;
+  @override double get stackWidth => 330;
+
+  @override double get heroTileSize => 104;
+  @override double get heroIconSize => 52;
+  @override double get spinnerSize => 104;
+  @override double get spinnerIconSize => 46;
+  @override double get notifTileSize => 52;
+  @override double get notifIconSize => 28;
+  @override double get notifTitleFontSize => 14;
+  @override double get notifBodyFontSize => 13;
+  @override double get actionTileSize => 72;
+  @override double get actionIconSize => 36;
+  @override double get avatarSize => 80;
+  @override double get avatarIconSize => 40;
+  @override double get radioIconSize => 22;
+  @override double get eqBarWidth => 5;
+  @override double get eqBarMaxHeight => 20;
+  @override double get eqBarMinHeight => 8;
+
+  @override double get dotHeight => 10;
   @override double get dotActiveWidth => 32;
   @override double get dotInactiveWidth => 10;
-  @override double get dotHeight => 10;
-  @override double get dotBorderRadius => 5;
-  @override double get dotsBottomSpacing => 40;
+  @override double get dotGap => 10;
+
   @override double get buttonHeight => 56;
-  @override double get buttonFontSize => 18;
+  @override double get buttonRadius => 20;
+  @override double get buttonFontSize => 16;
+  @override double get buttonIconSize => 20;
+  @override double get buttonHPadding => 28;
+  @override double get buttonsGap => 12;
+  @override double get navRowHeight => 64;
+  @override double get footerTopPadding => 10;
+  @override double get footerBottomPadding => 24;
 }

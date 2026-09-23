@@ -31,8 +31,8 @@ class _PhoneSizes {
   static const double sectionPadTop = 4;
   static const double sectionPadRight = 16;
   static const double sectionPadBottom = 10;
-  static const double sectionIconSize = 18;
-  static const double sectionIconSpacing = 6;
+/*   static const double sectionIconSize = 18;
+  static const double sectionIconSpacing = 6; */
   static const double sectionTitleFontSize = 20;
   static const double sectionCountFontSize = 12;
 
