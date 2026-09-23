@@ -12,7 +12,11 @@ class ChangePasswordLayoutSpec {
   final double bottomSpacing;
   final double fieldSpacing;
   final double sectionSpacing;
-  final double fontSize;
+  final double cardPadding;   // form kartının iç boşluğu
+  final double buttonGap;     // Güncelle ↔ Vazgeç arası
+  final double fontSize;      // input & buton metni
+  final double labelFontSize; // alan üstü başlıklar
+  final double smallFontSize; // güç etiketi + checklist
   final double errorFontSize;
   final double iconSize;
   final double radius;
@@ -29,7 +33,11 @@ class ChangePasswordLayoutSpec {
     required this.bottomSpacing,
     required this.fieldSpacing,
     required this.sectionSpacing,
+    required this.cardPadding,
+    required this.buttonGap,
     required this.fontSize,
+    required this.labelFontSize,
+    required this.smallFontSize,
     required this.errorFontSize,
     required this.iconSize,
     required this.radius,
@@ -44,14 +52,18 @@ class ChangePasswordLayoutSpec {
         isTablet: true,
         maxContentWidth: 520,
         horizontalPadding: 32,
-        verticalPadding: 28,
-        topSpacing: 16,
-        bottomSpacing: 28,
-        fieldSpacing: 18,
-        sectionSpacing: 24,
+        verticalPadding: 16,
+        topSpacing: 32,
+        bottomSpacing: 32,
+        fieldSpacing: 20,
+        sectionSpacing: 32,
+        cardPadding: 24,
+        buttonGap: 14,
         fontSize: 16,
+        labelFontSize: 17,
+        smallFontSize: 14,
         errorFontSize: 14,
-        iconSize: 22,
+        iconSize: 24,
         radius: 12,
         buttonHeight: 58,
         loaderSize: 26,
@@ -61,15 +73,19 @@ class ChangePasswordLayoutSpec {
     return const ChangePasswordLayoutSpec._(
       isTablet: false,
       maxContentWidth: double.infinity,
-      horizontalPadding: 24,
-      verticalPadding: 20,
-      topSpacing: 12,
-      bottomSpacing: 20,
-      fieldSpacing: 16,
-      sectionSpacing: 20,
+      horizontalPadding: 20,
+      verticalPadding: 12,
+      topSpacing: 24,
+      bottomSpacing: 24,
+      fieldSpacing: 18,
+      sectionSpacing: 28,
+      cardPadding: 18,
+      buttonGap: 12,
       fontSize: 16,
+      labelFontSize: 16,
+      smallFontSize: 13,
       errorFontSize: 13,
-      iconSize: 20,
+      iconSize: 22,
       radius: 12,
       buttonHeight: 54,
       loaderSize: 24,

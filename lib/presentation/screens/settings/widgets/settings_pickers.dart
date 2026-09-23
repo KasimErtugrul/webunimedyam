@@ -36,8 +36,7 @@ void _showSheet({
             height: spec.sheetHandleHeight.h,
             decoration: BoxDecoration(
               color: AppTheme.textSec(context).withValues(alpha: 0.25),
-              borderRadius:
-                  BorderRadius.circular(spec.sheetHandleHeight.r),
+              borderRadius: BorderRadius.circular(spec.sheetHandleHeight.r),
             ),
           ),
           SizedBox(height: spec.sheetHandleSpacing.h),
@@ -68,6 +67,50 @@ void _showSheet({
           SizedBox(height: spec.sheetPaddingBottom.h),
         ],
       ),
+    ),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VARSAYILAN KALİTE PICKER (tasarımdaki "1080p (FHD) ⌄" butonu için)
+// ═══════════════════════════════════════════════════════════════════════════
+
+void showSettingsQualityPicker({
+  required BuildContext context,
+  required SettingsLayoutSpec spec,
+  required String current,
+  required ValueChanged<String> onChanged,
+}) {
+  const options = [
+    ('Otomatik', 'Bağlantı hızına göre ayarlanır'),
+    ('480p (SD)', 'Düşük veri kullanımı'),
+    ('720p (HD)', 'Dengeli kalite'),
+    ('1080p (FHD)', 'En yüksek kalite'),
+  ];
+
+  _showSheet(
+    context: context,
+    spec: spec,
+    title: 'Varsayılan Kalite',
+    subtitle: 'Hücresel ve Wi-Fi için üst sınır',
+    child: Column(
+      children: [
+        for (final (label, subtitle) in options) ...[
+          _SheetOption(
+            spec: spec,
+            icon: Icons.hd,
+            color: const Color(0xFF64748B),
+            title: label,
+            subtitle: subtitle,
+            isCurrent: label == current,
+            onTap: () {
+              Get.back();
+              onChanged(label);
+            },
+          ),
+          if (label != options.last.$1) SizedBox(height: 8.h),
+        ],
+      ],
     ),
   );
 }
@@ -147,8 +190,9 @@ class _SheetOption extends StatelessWidget {
                           style: TextStyle(
                             color: AppTheme.textPri(context),
                             fontSize: spec.sheetOptionTitleFontSize.sp,
-                            fontWeight:
-                                isCurrent ? FontWeight.w700 : FontWeight.w600,
+                            fontWeight: isCurrent
+                                ? FontWeight.w700
+                                : FontWeight.w600,
                           ),
                         ),
                         SizedBox(height: 2.h),
@@ -167,11 +211,7 @@ class _SheetOption extends StatelessWidget {
                     SizedBox(width: 12.w),
                     preview!,
                   ] else if (isCurrent) ...[
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: color,
-                      size: 22.sp,
-                    ),
+                    Icon(Icons.check_circle_rounded, color: color, size: 22.sp),
                   ] else if (!isEnabled) ...[
                     Icon(
                       Icons.lock_outline,
@@ -239,8 +279,8 @@ Widget _themeOption(
     subtitle: value == 'system'
         ? 'Cihaz ayarını takip et'
         : value == 'light'
-            ? 'Her zaman açık tema'
-            : 'Her zaman koyu tema',
+        ? 'Her zaman açık tema'
+        : 'Her zaman koyu tema',
     isCurrent: value == current,
     preview: _ThemePreview(spec: spec, mode: value),
     onTap: () {
@@ -261,20 +301,20 @@ class _ThemePreview extends StatelessWidget {
     const dark = Color(0xFF1A1A1A);
 
     Widget swatch(Color color, {bool top = true}) => Container(
-          width: 18.w,
-          height: 14.h,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.vertical(
-              top: top ? Radius.circular(4.r) : Radius.zero,
-              bottom: top ? Radius.zero : Radius.circular(4.r),
-            ),
-            border: Border.all(
-              color: Colors.black.withValues(alpha: 0.08),
-              width: 0.5,
-            ),
-          ),
-        );
+      width: 18.w,
+      height: 14.h,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.vertical(
+          top: top ? Radius.circular(4.r) : Radius.zero,
+          bottom: top ? Radius.zero : Radius.circular(4.r),
+        ),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.08),
+          width: 0.5,
+        ),
+      ),
+    );
 
     return SizedBox(
       width: 18.w,
@@ -288,8 +328,7 @@ class _ThemePreview extends StatelessWidget {
               swatch(dark, top: false),
             ] else if (mode == 'light')
               Expanded(child: swatch(light, top: false)),
-            if (mode == 'dark')
-              Expanded(child: swatch(dark, top: false)),
+            if (mode == 'dark') Expanded(child: swatch(dark, top: false)),
           ],
         ),
       ),

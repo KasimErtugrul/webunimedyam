@@ -2,10 +2,12 @@
 
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../data/repositories/auth_repository.dart';
+
 import '../../data/models/user_settings_model.dart';
+import '../../data/repositories/auth_repository.dart';
 import '../../services/analytics_service.dart';
 import 'auth/session_controller.dart';
 import 'profile_controller.dart';
@@ -14,6 +16,13 @@ class SettingsController extends GetxService {
   final AuthRepository authRepository;
 
   SettingsController({required this.authRepository});
+  // ═════════ Tasarımdan gelen ek tercihler (UI state) ═════════
+  // Kalıcılık (DB/local) istenirse _updateSettings desenine taşınabilir.
+  final videoQuality = '1080p (FHD)'.obs;
+  final subtitlesEnabled = false.obs; // Ders Altyazıları (tasarımda kapalı)
+  final reduceMotion = false.obs; // Hareketi Azalt (tasarımda kapalı)
+  final notifyInteractions = true.obs; // Yorum Yanıtı ve Beğeniler (açık)
+  final cacheBadgeCleared = false.obs; // "124 MB temizle" rozet flash'ı
 
   final settings = Rxn<UserSettingsModel>();
   final isLoading = false.obs;
@@ -30,10 +39,7 @@ class SettingsController extends GetxService {
   UserSettingsModel? _lastSavedSettings;
 
   // ─── Tavan kontrolü ───────────────────────────────────────────────────────
-  static const _order = [
-    VisibilityOption.private,
-    VisibilityOption.public,
-  ];
+  static const _order = [VisibilityOption.private, VisibilityOption.public];
 
   VisibilityOption _clamp(VisibilityOption activity) {
     final ceiling = profileVisibility.value;
@@ -43,6 +49,24 @@ class SettingsController extends GetxService {
 
   bool isAllowed(VisibilityOption option) {
     return _order.indexOf(option) <= _order.indexOf(profileVisibility.value);
+  }
+
+  void changeVideoQuality(String quality) => videoQuality.value = quality;
+
+  void toggleSubtitles([bool? value]) =>
+      subtitlesEnabled.value = value ?? !subtitlesEnabled.value;
+
+  void toggleReduceMotion([bool? value]) =>
+      reduceMotion.value = value ?? !reduceMotion.value;
+
+  void toggleNotifyInteractions([bool? value]) =>
+      notifyInteractions.value = value ?? !notifyInteractions.value;
+
+  /// clearCache + tasarımdaki rozet davranışı ("Temizlendi (0 KB)").
+  Future<void> clearCacheWithBadge() async {
+    await clearCache();
+    cacheBadgeCleared.value = true;
+    Timer(const Duration(seconds: 2), () => cacheBadgeCleared.value = false);
   }
 
   // ─── Yükleme ──────────────────────────────────────────────────────────────
@@ -108,9 +132,10 @@ class SettingsController extends GetxService {
       await _updateSettings(current.copyWith(theme: theme));
       await authRepository.saveThemeLocally(theme);
 
-      AnalyticsService.instance.logEvent('theme_change', parameters: {
-        'theme': theme,
-      });
+      AnalyticsService.instance.logEvent(
+        'theme_change',
+        parameters: {'theme': theme},
+      );
       AnalyticsService.instance.setUserProperty(
         name: 'app_theme',
         value: theme,
@@ -150,9 +175,10 @@ class SettingsController extends GetxService {
         await _updateSettings(current.copyWith(homeLayout: layout));
       }
 
-      AnalyticsService.instance.logEvent('home_layout_change', parameters: {
-        'layout': layout,
-      });
+      AnalyticsService.instance.logEvent(
+        'home_layout_change',
+        parameters: {'layout': layout},
+      );
     } catch (e, stacktrace) {
       homeLayout.value = old; // Rollback
       log(

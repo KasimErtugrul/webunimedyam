@@ -2,84 +2,103 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../app/themes/app_theme.dart';
 import '../settings_layout_spec.dart';
 
-/// Section header + kart container + tile'lar arası ayraç.
+/// Tasarımdaki bölüm: [ikon + başlık (+ sağa yaslı opsiyonel rozet)]
+/// altında surface-container kart.
+/// `divided: true` → satırlar arasına inset'li 1px ayraç.
+/// `padding` verilirse kart içeriği pad'lenmiş tek kolon olur (Görünüm kartı).
 class SettingsSection extends StatelessWidget {
   final SettingsLayoutSpec spec;
+  final IconData icon;
   final String title;
+  final Widget? trailing;
+  final Widget? aboveCard;
   final List<Widget> children;
+  final bool divided;
+  final EdgeInsetsGeometry? padding;
 
   const SettingsSection({
     super.key,
     required this.spec,
+    required this.icon,
     required this.title,
     required this.children,
+    this.trailing,
+    this.aboveCard,
+    this.divided = true,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    final Widget cardBody;
+    if (padding != null) {
+      cardBody = Padding(padding: padding!, child: Column(children: children));
+    } else {
+      cardBody = Column(
+        children: [
+          for (int i = 0; i < children.length; i++) ...[
+            if (i > 0) _divider(scheme),
+            children[i],
+          ],
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Section title
         Padding(
-          padding: EdgeInsets.only(
-            left: 4.w,
-            bottom: spec.sectionHeaderSpacing.h,
-          ),
+          padding: EdgeInsets.only(bottom: spec.sectionHeaderGap.h),
           child: Row(
             children: [
-              Container(
-                width: 3.w,
-                height: 12.h,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(2.r),
+              Icon(
+                icon,
+                size: spec.sectionIconSize.sp,
+                color: scheme.primary,
+              ),
+              SizedBox(width: spec.sectionIconGap.w),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: scheme.onSurface,
+                    fontSize: spec.sectionTitleFontSize.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.01 * spec.sectionTitleFontSize,
+                  ),
                 ),
               ),
-              SizedBox(width: 8.w),
-              Text(
-                title.toUpperCase(),
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: spec.sectionTitleFontSize.sp,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: spec.sectionTitleLetterSpacing,
-                ),
-              ),
+              if (trailing != null) trailing!,
             ],
           ),
         ),
-
-        // Card
+        if (aboveCard != null) aboveCard!,
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.card(context),
+            color: scheme.surfaceContainer,
             borderRadius: BorderRadius.circular(spec.cardRadius.r),
-            border: Border.all(
-              color: AppTheme.textSec(context).withValues(alpha: 0.06),
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              for (int i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  Divider(
-                    height: 1,
-                    thickness: 1,
-                    indent: spec.tilePaddingH.w + spec.tileIconBoxSize.w + 12.w,
-                    color:
-                        AppTheme.textSec(context).withValues(alpha: 0.08),
-                  ),
-                children[i],
-              ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 10.r,
+                offset: Offset(0, 2.h),
+              ),
             ],
           ),
+          clipBehavior: Clip.antiAlias,
+          child: cardBody,
         ),
       ],
     );
   }
+
+  Widget _divider(ColorScheme scheme) => Container(
+        height: 1,
+        margin: EdgeInsets.symmetric(horizontal: spec.dividerInset.w),
+        color: scheme.surfaceVariant.withValues(alpha: 0.4),
+      );
 }

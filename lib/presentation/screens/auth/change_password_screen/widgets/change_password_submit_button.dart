@@ -3,72 +3,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../../app/themes/app_theme.dart';
-import '../../../../controllers/auth/change_password_controller.dart';
+import '../../../../controllers/change_password_controller.dart';
 import '../change_password_layout_spec.dart';
 
-class ChangePasswordSubmitButton extends GetView<ChangePasswordController> {
+/// "✓ Şifreyi Güncelle" — tasarımdaki gibi solid primary buton.
+class ChangePasswordSubmitButton extends GetView<ChangePassController> {
   final ChangePasswordLayoutSpec spec;
-  final VoidCallback onPressed;
-
-  const ChangePasswordSubmitButton({
-    super.key,
-    required this.spec,
-    required this.onPressed,
-  });
+  const ChangePasswordSubmitButton({super.key, required this.spec});
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Obx(() {
       final loading = controller.isChangingPassword.value;
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: loading
-              ? null
-              : const LinearGradient(
-                  colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+      return ElevatedButton(
+        onPressed: loading ? null : controller.submit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          disabledBackgroundColor: scheme.primary.withValues(alpha: 0.55),
+          disabledForegroundColor: scheme.onPrimary,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          minimumSize: Size(double.infinity, spec.buttonHeight.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(spec.radius.r),
+          ),
+        ),
+        child: loading
+            ? SizedBox(
+                width: spec.loaderSize.w,
+                height: spec.loaderSize.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: spec.loaderStroke,
+                  color: scheme.onPrimary,
                 ),
-          borderRadius: BorderRadius.circular(14.r),
-          boxShadow: loading
-              ? const []
-              : [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 12.r,
-                    offset: Offset(0, 4.h),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_rounded,
+                      size: spec.iconSize.sp, color: scheme.onPrimary),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Şifreyi Güncelle',
+                    style: TextStyle(
+                      color: scheme.onPrimary,
+                      fontSize: spec.fontSize.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
-        ),
-        child: ElevatedButton(
-          onPressed: loading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                loading ? AppTheme.surface(context) : Colors.transparent,
-            shadowColor: Colors.transparent,
-            disabledBackgroundColor: AppTheme.surface(context),
-            minimumSize: Size(double.infinity, spec.buttonHeight.h),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14.r),
-            ),
-          ),
-          child: loading
-              ? SizedBox(
-                  width: spec.loaderSize.w,
-                  height: spec.loaderSize.w,
-                  child: CircularProgressIndicator(
-                    color: AppTheme.textSec(context),
-                    strokeWidth: spec.loaderStroke,
-                  ),
-                )
-              : Text(
-                  'Şifreyi Güncelle',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: spec.fontSize.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
+              ),
       );
     });
   }

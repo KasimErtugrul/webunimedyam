@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════
+/* // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
 // ═══════════════════════════════════════════════════════════
 
@@ -240,4 +240,4 @@ class SettingsTabletSizes extends SettingsSizes {
   @override double get noteLineHeight => 1.5;
 
   @override double get dialogTitleFontSize => 18;
-}
+} */

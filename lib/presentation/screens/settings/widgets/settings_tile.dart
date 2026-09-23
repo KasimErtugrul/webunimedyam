@@ -1,89 +1,97 @@
-// lib/presentation/screens/settings/widgets/settings_tiles.dart
+// lib/presentation/screens/settings/widgets/settings_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../app/themes/app_theme.dart';
-import '../../../../data/models/user_settings_model.dart';
 import '../settings_layout_spec.dart';
-import 'settings_pickers.dart';
 
-// ─── Genel Tile ─────────────────────────────────────────────────────────────
-
-class SettingsTile extends StatelessWidget {
+/// Kart içi genel satır: [ikon?] Başlık (+titleIcon)/alt-başlık [trailing?]
+class SettingsRow extends StatelessWidget {
   final SettingsLayoutSpec spec;
-  final IconData icon;
-  final Color iconColor;
+  final IconData? icon;
   final String title;
+  final Widget? titleIcon;
   final String? subtitle;
-  final Color? titleColor;
   final Widget? trailing;
   final VoidCallback? onTap;
 
-  const SettingsTile({
+  /// Satır zemini (ör. Gizli Profil Modu satırı surface-container-high).
+  final Color? color;
+
+  const SettingsRow({
     super.key,
     required this.spec,
-    required this.icon,
-    required this.iconColor,
     required this.title,
+    this.icon,
+    this.titleIcon,
     this.subtitle,
-    this.titleColor,
     this.trailing,
     this.onTap,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.transparent,
+      color: color ?? Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.tilePaddingH.w,
-            vertical: spec.tilePaddingV.h,
+            horizontal: spec.rowPaddingH.w,
+            vertical: spec.rowPaddingV.h,
           ),
           child: Row(
             children: [
-              _IconBox(
-                spec: spec,
-                icon: icon,
-                color: iconColor,
-              ),
-              SizedBox(width: 12.w),
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: spec.rowIconSize.sp,
+                  color: scheme.onSurfaceVariant,
+                ),
+                SizedBox(width: 12.w),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: titleColor ?? AppTheme.textPri(context),
-                        fontSize: spec.tileTitleFontSize.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              color: scheme.onSurface,
+                              fontSize: spec.rowTitleFontSize.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (titleIcon != null) ...[
+                          SizedBox(width: 6.w),
+                          titleIcon!,
+                        ],
+                      ],
                     ),
                     if (subtitle != null) ...[
-                      SizedBox(height: 2.h),
+                      SizedBox(height: spec.rowGap.h),
                       Text(
                         subtitle!,
                         style: TextStyle(
-                          color: AppTheme.textSec(context),
-                          fontSize: spec.tileSubtitleFontSize.sp,
-                          height: 1.3,
+                          color: scheme.onSurfaceVariant,
+                          fontSize: spec.rowSubtitleFontSize.sp,
+                          height: 1.35,
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              SizedBox(width: 8.w),
-              trailing ??
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppTheme.textSec(context).withValues(alpha: 0.5),
-                    size: spec.tileTrailingIconSize.sp,
-                  ),
+              if (trailing != null) ...[
+                SizedBox(width: 12.w),
+                trailing!,
+              ],
             ],
           ),
         ),
@@ -92,182 +100,156 @@ class SettingsTile extends StatelessWidget {
   }
 }
 
-// ─── Switch Tile ────────────────────────────────────────────────────────────
-
-class SettingsSwitchTile extends StatelessWidget {
+/// Switch'li satır — tasarımdaki toggle: ON = primary/on-primary,
+/// OFF = surface-variant/on-surface-variant (tema üzerinden).
+class SettingsSwitchRow extends StatelessWidget {
   final SettingsLayoutSpec spec;
-  final IconData icon;
-  final Color iconColor;
+  final IconData? icon;
   final String title;
+  final Widget? titleIcon;
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final Color? color;
 
-  const SettingsSwitchTile({
+  const SettingsSwitchRow({
     super.key,
     required this.spec,
-    required this.icon,
-    required this.iconColor,
     required this.title,
     required this.subtitle,
     required this.value,
     required this.onChanged,
+    this.icon,
+    this.titleIcon,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SettingsTile(
+    final scheme = Theme.of(context).colorScheme;
+    return SettingsRow(
       spec: spec,
       icon: icon,
-      iconColor: iconColor,
       title: title,
+      titleIcon: titleIcon,
       subtitle: subtitle,
+      color: color,
       onTap: () => onChanged(!value),
       trailing: Transform.scale(
-        scale: 0.9,
-        child: Switch.adaptive(
+        scale: spec.switchScale,
+        child: Switch(
           value: value,
           onChanged: onChanged,
-          activeTrackColor: AppTheme.primaryColor,
-          activeThumbColor: Colors.white,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          thumbColor: WidgetStateProperty.resolveWith((states) {
+            return states.contains(WidgetState.selected)
+                ? scheme.onPrimary
+                : scheme.onSurfaceVariant;
+          }),
+          trackColor: WidgetStateProperty.resolveWith((states) {
+            return states.contains(WidgetState.selected)
+                ? scheme.primary
+                : scheme.surfaceVariant;
+          }),
+          trackOutlineColor:
+              const WidgetStatePropertyAll(Colors.transparent),
         ),
       ),
     );
   }
 }
 
-// ─── Visibility Tile ────────────────────────────────────────────────────────
-
-class SettingsVisibilityTile extends StatelessWidget {
+/// Aktivite izin durumu butonu:
+/// Gizli → surface-container-highest zemin + primary,
+/// Herkese Açık → surface-container-low zemin + on-surface-variant.
+class SettingsStateButton extends StatelessWidget {
   final SettingsLayoutSpec spec;
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final VisibilityOption current;
-  final VisibilityOption? ceiling;
-  final Future<void> Function(VisibilityOption) onChanged;
+  final bool isPrivate;
+  final VoidCallback onTap;
 
-  const SettingsVisibilityTile({
+  const SettingsStateButton({
     super.key,
     required this.spec,
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.current,
-    required this.ceiling,
-    required this.onChanged,
+    required this.isPrivate,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SettingsTile(
-      spec: spec,
-      icon: icon,
-      iconColor: iconColor,
-      title: title,
-      subtitle: subtitle,
-      onTap: () => showSettingsVisibilitySheet(
-        context: context,
-        spec: spec,
-        title: title,
-        subtitle: subtitle,
-        current: current,
-        ceiling: ceiling,
-        onChanged: onChanged,
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _VisibilityBadge(spec: spec, option: current),
-          SizedBox(width: 6.w),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: AppTheme.textSec(context).withValues(alpha: 0.5),
-            size: spec.tileTrailingIconSize.sp,
+    final scheme = Theme.of(context).colorScheme;
+    final fg = isPrivate ? scheme.primary : scheme.onSurfaceVariant;
+    return Material(
+      color: isPrivate
+          ? scheme.surfaceContainerHighest
+          : scheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(spec.stateButtonRadius.r),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(spec.stateButtonRadius.r),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: spec.stateButtonPaddingH.w,
+            vertical: spec.stateButtonPaddingV.h,
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPrivate ? Icons.lock_rounded : Icons.public_rounded,
+                size: spec.stateButtonIconSize.sp,
+                color: fg,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                isPrivate ? 'Gizli' : 'Herkese Açık',
+                style: TextStyle(
+                  color: fg,
+                  fontSize: spec.stateButtonFontSize.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class _VisibilityBadge extends StatelessWidget {
+/// "124 MB temizle" rozeti; temizleme sonrası tasarımdaki gibi
+/// "Temizlendi (0 KB)" yazar ve primary-container renge flaş yapar.
+class SettingsCacheBadge extends StatelessWidget {
   final SettingsLayoutSpec spec;
-  final VisibilityOption option;
-  const _VisibilityBadge({required this.spec, required this.option});
+  final bool cleared;
+
+  const SettingsCacheBadge({
+    super.key,
+    required this.spec,
+    required this.cleared,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final (icon, color, label) = switch (option) {
-      VisibilityOption.public => (
-          Icons.public_outlined,
-          const Color(0xFF10B981),
-          'Herkese',
-        ),
-      VisibilityOption.private => (
-          Icons.lock_outline,
-          const Color(0xFFF59E0B),
-          'Gizli',
-        ),
-    };
-
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.visBadgePaddingH.w,
-        vertical: spec.visBadgePaddingV.h,
+        horizontal: spec.cacheBadgePaddingH.w,
+        vertical: spec.cacheBadgePaddingV.h,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(spec.visBadgeRadius.r),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 0.8,
+        color: cleared
+            ? scheme.primaryContainer
+            : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(spec.cacheBadgeRadius.r),
+      ),
+      child: Text(
+        cleared ? 'Temizlendi (0 KB)' : '124 MB temizle',
+        style: TextStyle(
+          color: cleared ? scheme.onPrimaryContainer : scheme.primary,
+          fontSize: spec.cacheBadgeFontSize.sp,
+          fontWeight: FontWeight.w700,
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: spec.visBadgeIconSize.sp, color: color),
-          SizedBox(width: 5.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: spec.visBadgeFontSize.sp,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Icon Box ───────────────────────────────────────────────────────────────
-
-class _IconBox extends StatelessWidget {
-  final SettingsLayoutSpec spec;
-  final IconData icon;
-  final Color color;
-
-  const _IconBox({
-    required this.spec,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: spec.tileIconBoxSize.w,
-      height: spec.tileIconBoxSize.w,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(spec.tileIconBoxRadius.r),
-      ),
-      child: Icon(icon, color: color, size: spec.tileIconSize.sp),
     );
   }
 }

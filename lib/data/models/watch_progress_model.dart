@@ -21,7 +21,7 @@ class WatchProgressModel extends Equatable {
   /// Bu ilerlemenin en son ne zaman güncellendiği.
   final DateTime updatedAt;
 
-  WatchProgressModel({
+  const WatchProgressModel({
     required this.video,
     required this.positionSeconds,
     required this.durationSeconds,

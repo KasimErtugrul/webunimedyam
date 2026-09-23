@@ -4,15 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
-import '../../../controllers/auth/change_password_controller.dart';
+import '../../../controllers/change_password_controller.dart';
 import 'change_password_layout_spec.dart';
-import 'widgets/change_password_error_banner.dart';
-import 'widgets/change_password_field.dart';
-import 'widgets/change_password_submit_button.dart';
 
 /// Oturum açık kullanıcının şifresini değiştirdiği ekran.
 /// Ayarlar → Hesap → "Şifre Değiştir" üzerinden açılır.
-class ChangePasswordScreen extends GetView<ChangePasswordController> {
+///
+/// Tasarımdaki tüm öğeler birebir: kalkan+glow başlık, "Şifremi Unuttum?",
+/// şifre gücü göstergesi, 2x2 ölçüt listesi, "Diğer oturumları sonlandır"
+/// anahtarı ve Güncelle/Vazgeç buton çifti. Eksta widget dosyası yok.
+class ChangePasswordScreen extends GetView<ChangePassController> {
   const ChangePasswordScreen({super.key});
 
   @override
@@ -20,174 +21,695 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
     final spec = ChangePasswordLayoutSpec.of(context);
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      appBar: AppBar(
-        backgroundColor: AppTheme.bg(context),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppTheme.textPri(context),
-            size: 20.sp,
+      appBar: _buildAppBar(context, spec),
+      body: SafeArea(
+        top: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.symmetric(
+                horizontal: spec.horizontalPadding.w,
+                vertical: spec.verticalPadding.h,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const _Header(),
+                  SizedBox(height: spec.sectionSpacing.h),
+                  _FormCard(spec: spec),
+                  // Sunucu hatası (client validator'lar geçildikten sonra)
+                  Obx(() {
+                    final msg = controller.errorMessage.value;
+                    if (msg.isEmpty) return const SizedBox.shrink();
+                    final scheme = Theme.of(context).colorScheme;
+                    return Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(14.w),
+                        decoration: BoxDecoration(
+                          color: scheme.error.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(spec.radius.r),
+                          border: Border.all(
+                            color: scheme.error.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: scheme.error,
+                              size: 20.sp,
+                            ),
+                            SizedBox(width: 10.w),
+                            Expanded(
+                              child: Text(
+                                msg,
+                                style: TextStyle(
+                                  color: scheme.error,
+                                  fontSize: spec.errorFontSize.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  SizedBox(height: spec.sectionSpacing.h),
+                  _SubmitButton(spec: spec),
+                  SizedBox(height: 12.h),
+                  _CancelButton(spec: spec),
+                  SizedBox(height: spec.bottomSpacing.h),
+                ],
+              ),
+            ),
           ),
-          onPressed: Get.back,
         ),
-        title: const Text('Şifre Değiştir'),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
-          child: const _ChangePasswordForm(),
+    );
+  }
+
+  // ── AppBar: kare geri butonu + başlık + profil avatarı ────────────
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    ChangePasswordLayoutSpec spec,
+  ) {
+    return AppBar(
+      backgroundColor: AppTheme.bg(context),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      toolbarHeight: 72.h,
+      titleSpacing: spec.horizontalPadding.w,
+      title: Row(
+        children: [
+          const _BackButton(),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Text(
+              'Şifre Değiştir',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          const _ProfileAvatar(),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════ AppBar parçaları ═══════════════════════
+class _BackButton extends StatelessWidget {
+  const _BackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final r = BorderRadius.circular(AppTheme.radiusLg.r);
+    return Material(
+      color: AppTheme.card(context),
+      borderRadius: r,
+      child: InkWell(
+        borderRadius: r,
+        onTap: Get.back,
+        child: SizedBox(
+          width: 44.w,
+          height: 44.w,
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18.sp,
+            color: AppTheme.textPri(context),
+          ),
         ),
       ),
     );
   }
 }
 
-class _ChangePasswordForm extends StatefulWidget {
-  const _ChangePasswordForm();
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar();
 
   @override
-  State<_ChangePasswordForm> createState() => _ChangePasswordFormState();
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44.w,
+      height: 44.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      child: Icon(
+        Icons.person_rounded,
+        size: 22.sp,
+        color: Colors.white, // tasarımdaki gibi beyaz ikon
+      ),
+    );
+  }
 }
 
-class _ChangePasswordFormState extends State<_ChangePasswordForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _currentController = TextEditingController();
-  final _newController = TextEditingController();
-  final _confirmController = TextEditingController();
-
-  final _currentFocus = FocusNode();
-  final _newFocus = FocusNode();
-  final _confirmFocus = FocusNode();
-
-  bool _obscureCurrent = true;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-
-  ChangePasswordController get _auth => Get.find<ChangePasswordController>();
+// ═══════════════════════ Başlık (kalkan + glow) ═══════════════════════
+class _Header extends StatelessWidget {
+  const _Header();
 
   @override
-  void initState() {
-    super.initState();
-    _auth.resetState();
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Container(
+          width: 96.w,
+          height: 96.w,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.primary.withValues(alpha: 0.08),
+            border: Border.all(color: scheme.primary.withValues(alpha: 0.16)),
+            boxShadow: [
+              BoxShadow(
+                color: scheme.primary.withValues(alpha: 0.25),
+                blurRadius: 48.r,
+                spreadRadius: 8.r,
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(Icons.shield_outlined, size: 46.sp, color: scheme.primary),
+              Padding(
+                padding: EdgeInsets.only(top: 4.h),
+                child: Icon(
+                  Icons.lock_rounded,
+                  size: 14.sp,
+                  color: scheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 24.h),
+        Text(
+          'Hesap Güvenliği',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        SizedBox(height: 10.h),
+        Text(
+          'Şifreniz en az 8 karakterden oluşmalı, harf ve rakam içermelidir.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: AppTheme.textSec(context),
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
   }
+}
+
+// ═══════════════════════ Form kartı ═══════════════════════
+class _FormCard extends StatelessWidget {
+  final ChangePasswordLayoutSpec spec;
+  const _FormCard({required this.spec});
 
   @override
-  void dispose() {
-    _currentController.dispose();
-    _newController.dispose();
-    _confirmController.dispose();
-    _currentFocus.dispose();
-    _newFocus.dispose();
-    _confirmFocus.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final c = Get.find<ChangePassController>();
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: AppTheme.card(context),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg.r),
+      ),
+      child: Form(
+        key: c.formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Field(
+              spec: spec,
+              label: 'Mevcut Şifre',
+              trailing: const _ForgotLink(),
+              ctrl: c.currentCtrl,
+              focusNode: c.currentFocus,
+              icon: Icons.lock_outline_rounded,
+              hint: 'Mevcut şifrenizi girin',
+              obscure: c.obscureCurrent,
+              toggle: c.toggleObscureCurrent,
+              autofillHint: AutofillHints.password,
+              validator: c.validateCurrent,
+              onSubmitted: (_) => c.newFocus.requestFocus(),
+            ),
+            SizedBox(height: spec.fieldSpacing.h),
+            _Field(
+              spec: spec,
+              label: 'Yeni Şifre',
+              ctrl: c.newCtrl,
+              focusNode: c.newFocus,
+              icon: Icons.vpn_key_outlined,
+              hint: 'En az 8 karakterli yeni şifre',
+              obscure: c.obscureNew,
+              toggle: c.toggleObscureNew,
+              autofillHint: AutofillHints.newPassword,
+              validator: c.validateNew,
+              onSubmitted: (_) => c.confirmFocus.requestFocus(),
+            ),
+            SizedBox(height: 16.h),
+            _StrengthMeter(spec: spec),
+            SizedBox(height: 16.h),
+            const _Checklist(),
+            SizedBox(height: spec.fieldSpacing.h),
+            // Tasarımda bu alanın göz ikonu yok → düz metin doğrulama.
+            _Field(
+              spec: spec,
+              label: 'Yeni Şifre (Tekrar)',
+              ctrl: c.confirmCtrl,
+              focusNode: c.confirmFocus,
+              icon: Icons.refresh_rounded,
+              hint: 'Yeni şifreyi doğrulayın',
+              autofillHint: AutofillHints.newPassword,
+              validator: c.validateConfirm,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => c.submit(),
+            ),
+            SizedBox(height: 20.h),
+            const _EndSessionsToggle(),
+          ],
+        ),
+      ),
+    );
   }
+}
 
-  Future<void> _submit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    FocusScope.of(context).unfocus();
+// ═══════════════════════ "Şifremi Unuttum?" ═══════════════════════
+class _ForgotLink extends StatelessWidget {
+  const _ForgotLink();
 
-    await _auth.changePassword(
-      currentPassword: _currentController.text,
-      newPassword: _newController.text,
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.find<ChangePassController>();
+    return TextButton(
+      onPressed: c.forgotPassword,
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+        minimumSize: Size(44.w, 32.h),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        'Şifremi Unuttum?',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════ Alan (etiket dışarıda) ═══════════════════════
+class _Field extends StatelessWidget {
+  final ChangePasswordLayoutSpec spec;
+  final String label;
+  final Widget? trailing;
+  final TextEditingController ctrl;
+  final FocusNode? focusNode;
+  final IconData icon;
+  final String hint;
+
+  /// Verilirse göz ikonu gösterilir ve alan maskelenir.
+  /// null → düz metin (tasarımda "Tekrar" alanında ikon yok).
+  final RxBool? obscure;
+  final VoidCallback? toggle;
+  final String? autofillHint;
+  final FormFieldValidator<String>? validator;
+  final TextInputAction textInputAction;
+  final ValueChanged<String>? onSubmitted;
+
+  const _Field({
+    required this.spec,
+    required this.label,
+    required this.ctrl,
+    required this.icon,
+    required this.hint,
+    this.trailing,
+    this.focusNode,
+    this.obscure,
+    this.toggle,
+    this.autofillHint,
+    this.validator,
+    this.textInputAction = TextInputAction.next,
+    this.onSubmitted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasEye = obscure != null && toggle != null;
+    final Widget field;
+    if (hasEye) {
+      field = Obx(
+        () =>
+            _buildTextField(context, isObscured: obscure!.value, showEye: true),
+      );
+    } else {
+      field = _buildTextField(context, isObscured: false, showEye: false);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            ?trailing,
+          ],
+        ),
+        SizedBox(height: 8.h),
+        field,
+      ],
     );
   }
 
-  // ── Validators ─────────────────────────────────────────
-  String? _validateCurrent(String? value) {
-    if (value == null || value.isEmpty) return 'Mevcut şifrenizi girin.';
-    return null;
+  Widget _buildTextField(
+    BuildContext context, {
+    required bool isObscured,
+    required bool showEye,
+  }) {
+    return TextFormField(
+      controller: ctrl,
+      focusNode: focusNode,
+      obscureText: isObscured,
+      autofillHints: autofillHint == null ? null : [autofillHint!],
+      textInputAction: textInputAction,
+      onFieldSubmitted: onSubmitted,
+      validator: validator,
+      style: TextStyle(
+        color: AppTheme.textPri(context),
+        fontSize: spec.fontSize.sp,
+      ),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(
+          icon,
+          size: spec.iconSize.sp,
+          color: AppTheme.textSec(context),
+        ),
+        suffixIcon: showEye
+            ? IconButton(
+                tooltip: isObscured ? 'Şifreyi göster' : 'Şifreyi gizle',
+                onPressed: toggle,
+                icon: Icon(
+                  isObscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: spec.iconSize.sp,
+                  color: AppTheme.textSec(context),
+                ),
+              )
+            : null,
+      ),
+    );
   }
+}
 
-  String? _validateNew(String? value) {
-    final v = value ?? '';
-    if (v.length < 6) return 'Yeni şifre en az 6 karakter olmalı.';
-    if (v == _currentController.text) {
-      return 'Yeni şifre eskisiyle aynı olamaz.';
-    }
-    return null;
-  }
+// ═══════════════════════ Şifre gücü göstergesi ═══════════════════════
+class _StrengthMeter extends StatelessWidget {
+  final ChangePasswordLayoutSpec spec;
+  const _StrengthMeter({required this.spec});
 
-  String? _validateConfirm(String? value) {
-    if (value != _newController.text) {
-      return 'Yeni şifreler birbiriyle uyuşmuyor.';
+  static Color _color(BuildContext context, int s) {
+    switch (s) {
+      case 4:
+        return AppTheme.primaryColor; // #4EDEA3 — marka
+      case 3:
+        return const Color(0xFFA3E635); // lime
+      case 2:
+        return const Color(0xFFFBBF24); // amber
+      case 1:
+        return const Color(0xFFEF4444); // red
+      default:
+        return AppTheme.textSec(context);
     }
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final spec = ChangePasswordLayoutSpec.of(context);
-
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: spec.horizontalPadding.w,
-        vertical: spec.verticalPadding.h,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: spec.topSpacing.h),
-
-            ChangePasswordField(
-              controller: _currentController,
-              focusNode: _currentFocus,
-              spec: spec,
-              label: 'Mevcut Şifre',
-              obscure: _obscureCurrent,
-              autofillHint: AutofillHints.password,
-              onToggleObscure: () =>
-                  setState(() => _obscureCurrent = !_obscureCurrent),
-              validator: _validateCurrent,
-              onFieldSubmitted: (_) => _newFocus.requestFocus(),
-            ),
-            SizedBox(height: spec.fieldSpacing.h),
-
-            ChangePasswordField(
-              controller: _newController,
-              focusNode: _newFocus,
-              spec: spec,
-              label: 'Yeni Şifre',
-              obscure: _obscureNew,
-              autofillHint: AutofillHints.newPassword,
-              onToggleObscure: () =>
-                  setState(() => _obscureNew = !_obscureNew),
-              validator: _validateNew,
-              onFieldSubmitted: (_) => _confirmFocus.requestFocus(),
-            ),
-            SizedBox(height: spec.fieldSpacing.h),
-
-            ChangePasswordField(
-              controller: _confirmController,
-              focusNode: _confirmFocus,
-              spec: spec,
-              label: 'Yeni Şifre (Tekrar)',
-              obscure: _obscureConfirm,
-              autofillHint: AutofillHints.newPassword,
-              textInputAction: TextInputAction.done,
-              onToggleObscure: () =>
-                  setState(() => _obscureConfirm = !_obscureConfirm),
-              validator: _validateConfirm,
-              onFieldSubmitted: (_) => _submit(),
-            ),
-
-            SizedBox(height: spec.sectionSpacing.h),
-
-            // Server hatası (client validator'lar geçtikten sonra)
-            Obx(() {
-              final msg = _auth.errorMessage.value;
-              if (msg.isEmpty) return const SizedBox.shrink();
-              return ChangePasswordErrorBanner(message: msg, spec: spec);
+    final c = Get.find<ChangePassController>();
+    return Obx(() {
+      final s = c.strength.value;
+      final color = _color(context, s);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Şifre Gücü',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                c.strengthLabel,
+                style: TextStyle(
+                  color: s == 0 ? AppTheme.textPri(context) : color,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            children: List.generate(4, (i) {
+              final active = i < s;
+              return Expanded(
+                child: Container(
+                  height: 4.h,
+                  margin: EdgeInsets.only(right: i == 3 ? 0 : 6.w),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? color
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                ),
+              );
             }),
+          ),
+        ],
+      );
+    });
+  }
+}
 
-            ChangePasswordSubmitButton(spec: spec, onPressed: _submit),
-            SizedBox(height: spec.bottomSpacing.h),
-          ],
+// ═══════════════════════ 2x2 ölçüt listesi ═══════════════════════
+class _Checklist extends StatelessWidget {
+  const _Checklist();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.find<ChangePassController>();
+    return Obx(() {
+      Widget item(bool met, String label) => Row(
+        children: [
+          Icon(
+            met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+            size: 18.sp,
+            color: met
+                ? Theme.of(context).colorScheme.primary
+                : AppTheme.textSec(context),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: met
+                    ? AppTheme.textPri(context)
+                    : AppTheme.textSec(context),
+                fontWeight: met ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      );
+
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: item(c.hasMinLength.value, 'En az 8 karakter')),
+              SizedBox(width: 16.w),
+              Expanded(child: item(c.hasUppercase.value, 'Büyük harf (A-Z)')),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(child: item(c.hasDigit.value, 'Rakam (0-9)')),
+              SizedBox(width: 16.w),
+              Expanded(child: item(c.hasSpecial.value, 'Özel sembol (!@#\$)')),
+            ],
+          ),
+        ],
+      );
+    });
+  }
+}
+
+// ═══════════════════════ Oturum sonlandırma anahtarı ═══════════════════════
+class _EndSessionsToggle extends StatelessWidget {
+  const _EndSessionsToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.find<ChangePassController>();
+    return Obx(() {
+      return Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Diğer oturumları sonlandır',
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'Tüm diğer mobil ve web oturumları kapatılır',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: 13.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Switch(
+            value: c.endOtherSessions.value,
+            onChanged: c.setEndOtherSessions,
+            // Tasarımdaki gibi: primary track + beyaz thumb
+            thumbColor: const WidgetStatePropertyAll(Colors.white),
+            trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+// ═══════════════════════ Butonlar ═══════════════════════
+class _SubmitButton extends StatelessWidget {
+  final ChangePasswordLayoutSpec spec;
+  const _SubmitButton({required this.spec});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.find<ChangePassController>();
+    final scheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      final loading = c.isChangingPassword.value;
+      return ElevatedButton(
+        onPressed: loading ? null : c.submit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          disabledBackgroundColor: scheme.primary.withValues(alpha: 0.55),
+          disabledForegroundColor: scheme.onPrimary,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          minimumSize: Size(double.infinity, spec.buttonHeight.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(spec.radius.r),
+          ),
+        ),
+        child: loading
+            ? SizedBox(
+                width: spec.loaderSize.w,
+                height: spec.loaderSize.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: spec.loaderStroke,
+                  color: scheme.onPrimary,
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_rounded,
+                    size: spec.iconSize.sp,
+                    color: scheme.onPrimary,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Şifre Güncelle',
+                    style: TextStyle(
+                      color: scheme.onPrimary,
+                      fontSize: spec.fontSize.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+      );
+    });
+  }
+}
+
+class _CancelButton extends StatelessWidget {
+  final ChangePasswordLayoutSpec spec;
+  const _CancelButton({required this.spec});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ElevatedButton(
+      onPressed: Get.back,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: scheme.surfaceContainerHigh,
+        foregroundColor: scheme.onSurface,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        minimumSize: Size(double.infinity, spec.buttonHeight.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(spec.radius.r),
+        ),
+      ),
+      child: Text(
+        'Vazgeç',
+        style: TextStyle(
+          color: scheme.onSurface,
+          fontSize: spec.fontSize.sp,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

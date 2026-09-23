@@ -7,7 +7,8 @@ import '../../../core/responsive.dart';
 class SettingsLayoutSpec {
   final bool isTablet;
 
-  // Hero
+  // ── ESKİ hero alanları (settings_hero.dart artık kullanılmıyor; dosya
+  //    derlenebilsin diye alanlar korunuyor) ──
   final double heroHeight;
   final double heroIconBoxSize;
   final double heroIconSize;
@@ -18,36 +19,109 @@ class SettingsLayoutSpec {
   final double backButtonSize;
   final double backButtonPadding;
 
-  // Content
+  // ── Header (tasarım: h-16, blur bar) ──
+  final double headerHeight;
+  final double headerIconSize;
+  final double headerTouchSize;
+  final double headerTitleFontSize;
+  final double headerShareIconSize;
+  final double headerAvatarSize;
+  final double headerAvatarIconSize;
+  final double headerGap;
+
+  // ── İçerik ──
   final double maxContentWidth;
   final double contentPaddingH;
   final double contentPaddingBottom;
-  final double sectionSpacing;
-  final double sectionHeaderSpacing;
+  final double subtitleTopPadding;
+  final double subtitleBottomPadding;
+  final double subtitleFontSize;
+  final double sectionGap;
+  final double sectionIconSize;
+  final double sectionIconGap;
   final double sectionTitleFontSize;
-  final double sectionTitleLetterSpacing;
+  final double sectionHeaderGap;
 
-  // Card
+  // ── Kart & satırlar ──
   final double cardRadius;
+  final double cardPadding;
+  final double cardInnerGap;
+  final double rowPaddingH;
+  final double rowPaddingV;
+  final double rowTitleFontSize;
+  final double rowSubtitleFontSize;
+  final double rowIconSize;
+  final double rowGap;
+  final double dividerInset;
+  final double labelFontSize;
+  final double labelGap;
+  final double switchScale;
 
-  // Tile
-  final double tilePaddingH;
-  final double tilePaddingV;
-  final double tileIconBoxSize;
-  final double tileIconBoxRadius;
-  final double tileIconSize;
-  final double tileTitleFontSize;
-  final double tileSubtitleFontSize;
-  final double tileTrailingIconSize;
+  // ── Tema segmenti ──
+  final double segmentContainerRadius;
+  final double segmentContainerPadding;
+  final double segmentTabRadius;
+  final double segmentTabPaddingH;
+  final double segmentTabPaddingV;
+  final double segmentTabIconSize;
+  final double segmentTabFontSize;
 
-  // Visibility badge
-  final double visBadgePaddingH;
-  final double visBadgePaddingV;
-  final double visBadgeRadius;
-  final double visBadgeIconSize;
-  final double visBadgeFontSize;
+  // ── Akış şekli pill'i ──
+  final double feedPillPadding;
+  final double feedItemPaddingH;
+  final double feedItemPaddingV;
+  final double feedItemFontSize;
+  final double feedItemIconSize;
+  final double feedGap;
 
-  // Sheet
+  // ── Kalite butonu ──
+  final double qualityPaddingH;
+  final double qualityPaddingV;
+  final double qualityRadius;
+  final double qualityFontSize;
+  final double qualityIconSize;
+
+  // ── Gizlilik ──
+  final double noticePadding;
+  final double noticeRadius;
+  final double noticeIconSize;
+  final double noticeTitleFontSize;
+  final double noticeBodyFontSize;
+  final double noticeGap;
+  final double stripPaddingH;
+  final double stripPaddingV;
+  final double stripFontSize;
+  final double stateButtonPaddingH;
+  final double stateButtonPaddingV;
+  final double stateButtonRadius;
+  final double stateButtonIconSize;
+  final double stateButtonFontSize;
+  final double badgePaddingH;
+  final double badgePaddingV;
+  final double badgeFontSize;
+  final double badgeDotSize;
+  final double badgeGap;
+
+  // ── Hesap ──
+  final double logoutAreaPadding;
+  final double logoutButtonPaddingV;
+  final double logoutButtonRadius;
+  final double logoutIconSize;
+  final double logoutFontSize;
+  final double logoutGap;
+  final double cacheBadgePaddingH;
+  final double cacheBadgePaddingV;
+  final double cacheBadgeRadius;
+  final double cacheBadgeFontSize;
+
+  // ── Footer ──
+  final double footerIconSize;
+  final double footerTitleFontSize;
+  final double footerVersionFontSize;
+  final double footerGap;
+  final double footerBottomSpacing;
+
+  // ── ESKİ sheet alanları (settings_pickers.dart kullanıyor) ──
   final double sheetRadius;
   final double sheetHandleWidth;
   final double sheetHandleHeight;
@@ -62,7 +136,7 @@ class SettingsLayoutSpec {
   final double sheetOptionTitleFontSize;
   final double sheetOptionSubtitleFontSize;
 
-  // Ceiling note
+  // ── ESKİ ceiling note alanları (orphan dosya için korunuyor) ──
   final double noteMarginV;
   final double notePaddingH;
   final double notePaddingV;
@@ -71,7 +145,7 @@ class SettingsLayoutSpec {
   final double noteFontSize;
   final double noteLineHeight;
 
-  // Dialog
+  // ── Dialog ──
   final double dialogTitleFontSize;
   final double dialogRadius;
   final double dialogButtonHeight;
@@ -88,27 +162,90 @@ class SettingsLayoutSpec {
     required this.heroTitleSpacing,
     required this.backButtonSize,
     required this.backButtonPadding,
+    required this.headerHeight,
+    required this.headerIconSize,
+    required this.headerTouchSize,
+    required this.headerTitleFontSize,
+    required this.headerShareIconSize,
+    required this.headerAvatarSize,
+    required this.headerAvatarIconSize,
+    required this.headerGap,
     required this.maxContentWidth,
     required this.contentPaddingH,
     required this.contentPaddingBottom,
-    required this.sectionSpacing,
-    required this.sectionHeaderSpacing,
+    required this.subtitleTopPadding,
+    required this.subtitleBottomPadding,
+    required this.subtitleFontSize,
+    required this.sectionGap,
+    required this.sectionIconSize,
+    required this.sectionIconGap,
     required this.sectionTitleFontSize,
-    required this.sectionTitleLetterSpacing,
+    required this.sectionHeaderGap,
     required this.cardRadius,
-    required this.tilePaddingH,
-    required this.tilePaddingV,
-    required this.tileIconBoxSize,
-    required this.tileIconBoxRadius,
-    required this.tileIconSize,
-    required this.tileTitleFontSize,
-    required this.tileSubtitleFontSize,
-    required this.tileTrailingIconSize,
-    required this.visBadgePaddingH,
-    required this.visBadgePaddingV,
-    required this.visBadgeRadius,
-    required this.visBadgeIconSize,
-    required this.visBadgeFontSize,
+    required this.cardPadding,
+    required this.cardInnerGap,
+    required this.rowPaddingH,
+    required this.rowPaddingV,
+    required this.rowTitleFontSize,
+    required this.rowSubtitleFontSize,
+    required this.rowIconSize,
+    required this.rowGap,
+    required this.dividerInset,
+    required this.labelFontSize,
+    required this.labelGap,
+    required this.switchScale,
+    required this.segmentContainerRadius,
+    required this.segmentContainerPadding,
+    required this.segmentTabRadius,
+    required this.segmentTabPaddingH,
+    required this.segmentTabPaddingV,
+    required this.segmentTabIconSize,
+    required this.segmentTabFontSize,
+    required this.feedPillPadding,
+    required this.feedItemPaddingH,
+    required this.feedItemPaddingV,
+    required this.feedItemFontSize,
+    required this.feedItemIconSize,
+    required this.feedGap,
+    required this.qualityPaddingH,
+    required this.qualityPaddingV,
+    required this.qualityRadius,
+    required this.qualityFontSize,
+    required this.qualityIconSize,
+    required this.noticePadding,
+    required this.noticeRadius,
+    required this.noticeIconSize,
+    required this.noticeTitleFontSize,
+    required this.noticeBodyFontSize,
+    required this.noticeGap,
+    required this.stripPaddingH,
+    required this.stripPaddingV,
+    required this.stripFontSize,
+    required this.stateButtonPaddingH,
+    required this.stateButtonPaddingV,
+    required this.stateButtonRadius,
+    required this.stateButtonIconSize,
+    required this.stateButtonFontSize,
+    required this.badgePaddingH,
+    required this.badgePaddingV,
+    required this.badgeFontSize,
+    required this.badgeDotSize,
+    required this.badgeGap,
+    required this.logoutAreaPadding,
+    required this.logoutButtonPaddingV,
+    required this.logoutButtonRadius,
+    required this.logoutIconSize,
+    required this.logoutFontSize,
+    required this.logoutGap,
+    required this.cacheBadgePaddingH,
+    required this.cacheBadgePaddingV,
+    required this.cacheBadgeRadius,
+    required this.cacheBadgeFontSize,
+    required this.footerIconSize,
+    required this.footerTitleFontSize,
+    required this.footerVersionFontSize,
+    required this.footerGap,
+    required this.footerBottomSpacing,
     required this.sheetRadius,
     required this.sheetHandleWidth,
     required this.sheetHandleHeight,
@@ -139,6 +276,7 @@ class SettingsLayoutSpec {
     if (Responsive.isTablet(context)) {
       return const SettingsLayoutSpec._(
         isTablet: true,
+        // Eski hero
         heroHeight: 220,
         heroIconBoxSize: 72,
         heroIconSize: 36,
@@ -148,27 +286,100 @@ class SettingsLayoutSpec {
         heroTitleSpacing: 16,
         backButtonSize: 24,
         backButtonPadding: 12,
+        // Header
+        headerHeight: 72,
+        headerIconSize: 26,
+        headerTouchSize: 48,
+        headerTitleFontSize: 20,
+        headerShareIconSize: 24,
+        headerAvatarSize: 36,
+        headerAvatarIconSize: 20,
+        headerGap: 6,
+        // İçerik
         maxContentWidth: 620,
         contentPaddingH: 24,
         contentPaddingBottom: 40,
-        sectionSpacing: 28,
-        sectionHeaderSpacing: 12,
-        sectionTitleFontSize: 13,
-        sectionTitleLetterSpacing: 1.5,
-        cardRadius: 20,
-        tilePaddingH: 16,
-        tilePaddingV: 14,
-        tileIconBoxSize: 44,
-        tileIconBoxRadius: 12,
-        tileIconSize: 22,
-        tileTitleFontSize: 17,
-        tileSubtitleFontSize: 14,
-        tileTrailingIconSize: 22,
-        visBadgePaddingH: 12,
-        visBadgePaddingV: 6,
-        visBadgeRadius: 20,
-        visBadgeIconSize: 14,
-        visBadgeFontSize: 13,
+        subtitleTopPadding: 6,
+        subtitleBottomPadding: 18,
+        subtitleFontSize: 15,
+        sectionGap: 28,
+        sectionIconSize: 22,
+        sectionIconGap: 10,
+        sectionTitleFontSize: 20,
+        sectionHeaderGap: 10,
+        // Kart & satır
+        cardRadius: 14,
+        cardPadding: 20,
+        cardInnerGap: 20,
+        rowPaddingH: 18,
+        rowPaddingV: 18,
+        rowTitleFontSize: 15,
+        rowSubtitleFontSize: 13,
+        rowIconSize: 22,
+        rowGap: 3,
+        dividerInset: 18,
+        labelFontSize: 13,
+        labelGap: 5,
+        switchScale: 0.95,
+        // Segment
+        segmentContainerRadius: 10,
+        segmentContainerPadding: 5,
+        segmentTabRadius: 10,
+        segmentTabPaddingH: 10,
+        segmentTabPaddingV: 7,
+        segmentTabIconSize: 18,
+        segmentTabFontSize: 13,
+        // Feed pill
+        feedPillPadding: 5,
+        feedItemPaddingH: 10,
+        feedItemPaddingV: 5,
+        feedItemFontSize: 11,
+        feedItemIconSize: 15,
+        feedGap: 5,
+        // Kalite
+        qualityPaddingH: 10,
+        qualityPaddingV: 7,
+        qualityRadius: 10,
+        qualityFontSize: 13,
+        qualityIconSize: 20,
+        // Gizlilik
+        noticePadding: 20,
+        noticeRadius: 14,
+        noticeIconSize: 24,
+        noticeTitleFontSize: 13,
+        noticeBodyFontSize: 13,
+        noticeGap: 14,
+        stripPaddingH: 18,
+        stripPaddingV: 5,
+        stripFontSize: 11,
+        stateButtonPaddingH: 14,
+        stateButtonPaddingV: 7,
+        stateButtonRadius: 10,
+        stateButtonIconSize: 16,
+        stateButtonFontSize: 11,
+        badgePaddingH: 10,
+        badgePaddingV: 3,
+        badgeFontSize: 11,
+        badgeDotSize: 7,
+        badgeGap: 5,
+        // Hesap
+        logoutAreaPadding: 20,
+        logoutButtonPaddingV: 12,
+        logoutButtonRadius: 10,
+        logoutIconSize: 22,
+        logoutFontSize: 15,
+        logoutGap: 7,
+        cacheBadgePaddingH: 10,
+        cacheBadgePaddingV: 5,
+        cacheBadgeRadius: 5,
+        cacheBadgeFontSize: 11,
+        // Footer
+        footerIconSize: 18,
+        footerTitleFontSize: 11,
+        footerVersionFontSize: 13,
+        footerGap: 7,
+        footerBottomSpacing: 32,
+        // Eski sheet
         sheetRadius: 28,
         sheetHandleWidth: 48,
         sheetHandleHeight: 5,
@@ -182,6 +393,7 @@ class SettingsLayoutSpec {
         sheetOptionIconSize: 24,
         sheetOptionTitleFontSize: 17,
         sheetOptionSubtitleFontSize: 14,
+        // Eski note
         noteMarginV: 4,
         notePaddingH: 16,
         notePaddingV: 12,
@@ -189,6 +401,7 @@ class SettingsLayoutSpec {
         noteIconSize: 18,
         noteFontSize: 14,
         noteLineHeight: 1.5,
+        // Dialog
         dialogTitleFontSize: 20,
         dialogRadius: 24,
         dialogButtonHeight: 52,
@@ -197,6 +410,7 @@ class SettingsLayoutSpec {
     }
     return const SettingsLayoutSpec._(
       isTablet: false,
+      // Eski hero
       heroHeight: 170,
       heroIconBoxSize: 56,
       heroIconSize: 28,
@@ -206,27 +420,100 @@ class SettingsLayoutSpec {
       heroTitleSpacing: 10,
       backButtonSize: 20,
       backButtonPadding: 10,
+      // Header
+      headerHeight: 64,
+      headerIconSize: 24,
+      headerTouchSize: 44,
+      headerTitleFontSize: 18,
+      headerShareIconSize: 22,
+      headerAvatarSize: 32,
+      headerAvatarIconSize: 18,
+      headerGap: 4,
+      // İçerik
       maxContentWidth: double.infinity,
       contentPaddingH: 16,
-      contentPaddingBottom: 32,
-      sectionSpacing: 22,
-      sectionHeaderSpacing: 10,
-      sectionTitleFontSize: 11,
-      sectionTitleLetterSpacing: 1.3,
-      cardRadius: 16,
-      tilePaddingH: 14,
-      tilePaddingV: 12,
-      tileIconBoxSize: 38,
-      tileIconBoxRadius: 10,
-      tileIconSize: 20,
-      tileTitleFontSize: 15,
-      tileSubtitleFontSize: 12.5,
-      tileTrailingIconSize: 18,
-      visBadgePaddingH: 10,
-      visBadgePaddingV: 5,
-      visBadgeRadius: 18,
-      visBadgeIconSize: 12,
-      visBadgeFontSize: 11,
+      contentPaddingBottom: 40,
+      subtitleTopPadding: 4,
+      subtitleBottomPadding: 16,
+      subtitleFontSize: 14,
+      sectionGap: 24,
+      sectionIconSize: 20,
+      sectionIconGap: 8,
+      sectionTitleFontSize: 18,
+      sectionHeaderGap: 8,
+      // Kart & satır
+      cardRadius: 12,
+      cardPadding: 16,
+      cardInnerGap: 16,
+      rowPaddingH: 16,
+      rowPaddingV: 16,
+      rowTitleFontSize: 14,
+      rowSubtitleFontSize: 12,
+      rowIconSize: 20,
+      rowGap: 2,
+      dividerInset: 16,
+      labelFontSize: 12,
+      labelGap: 4,
+      switchScale: 0.9,
+      // Segment
+      segmentContainerRadius: 8,
+      segmentContainerPadding: 4,
+      segmentTabRadius: 8,
+      segmentTabPaddingH: 8,
+      segmentTabPaddingV: 6,
+      segmentTabIconSize: 16,
+      segmentTabFontSize: 12,
+      // Feed pill
+      feedPillPadding: 4,
+      feedItemPaddingH: 8,
+      feedItemPaddingV: 4,
+      feedItemFontSize: 10,
+      feedItemIconSize: 14,
+      feedGap: 4,
+      // Kalite
+      qualityPaddingH: 8,
+      qualityPaddingV: 6,
+      qualityRadius: 8,
+      qualityFontSize: 12,
+      qualityIconSize: 18,
+      // Gizlilik
+      noticePadding: 16,
+      noticeRadius: 12,
+      noticeIconSize: 22,
+      noticeTitleFontSize: 12,
+      noticeBodyFontSize: 12,
+      noticeGap: 12,
+      stripPaddingH: 16,
+      stripPaddingV: 4,
+      stripFontSize: 10,
+      stateButtonPaddingH: 12,
+      stateButtonPaddingV: 6,
+      stateButtonRadius: 8,
+      stateButtonIconSize: 15,
+      stateButtonFontSize: 10,
+      badgePaddingH: 8,
+      badgePaddingV: 2,
+      badgeFontSize: 10,
+      badgeDotSize: 6,
+      badgeGap: 4,
+      // Hesap
+      logoutAreaPadding: 16,
+      logoutButtonPaddingV: 10,
+      logoutButtonRadius: 8,
+      logoutIconSize: 20,
+      logoutFontSize: 14,
+      logoutGap: 6,
+      cacheBadgePaddingH: 8,
+      cacheBadgePaddingV: 4,
+      cacheBadgeRadius: 4,
+      cacheBadgeFontSize: 10,
+      // Footer
+      footerIconSize: 16,
+      footerTitleFontSize: 10,
+      footerVersionFontSize: 12,
+      footerGap: 6,
+      footerBottomSpacing: 24,
+      // Eski sheet
       sheetRadius: 24,
       sheetHandleWidth: 40,
       sheetHandleHeight: 4,
@@ -240,6 +527,7 @@ class SettingsLayoutSpec {
       sheetOptionIconSize: 20,
       sheetOptionTitleFontSize: 15,
       sheetOptionSubtitleFontSize: 12.5,
+      // Eski note
       noteMarginV: 4,
       notePaddingH: 12,
       notePaddingV: 10,
@@ -247,6 +535,7 @@ class SettingsLayoutSpec {
       noteIconSize: 16,
       noteFontSize: 12.5,
       noteLineHeight: 1.45,
+      // Dialog
       dialogTitleFontSize: 18,
       dialogRadius: 20,
       dialogButtonHeight: 48,

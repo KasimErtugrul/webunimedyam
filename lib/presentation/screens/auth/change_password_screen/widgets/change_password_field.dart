@@ -1,51 +1,100 @@
 // lib/presentation/screens/auth/widgets/change_password_field.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../change_password_layout_spec.dart';
 
+/// Tasarımdaki satır yapısı:
+///   [Label]--------------------------[opsiyonel trailing link]
+///   [ (prefix) hint --------------- (suffix göz) ]
 class ChangePasswordField extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode? focusNode;
   final ChangePasswordLayoutSpec spec;
   final String label;
-  final bool obscure;
-  final VoidCallback onToggleObscure;
+  final Widget? labelTrailing;
+  final TextEditingController textController;
+  final FocusNode? focusNode;
+  final IconData prefixIcon;
+  final String hint;
+
+  /// Verilirse göz ikonu gösterilir ve alan maskelenir.
+  /// null → düz metin (tasarımda "Tekrar" alanında ikon yok).
+  final RxBool? obscure;
+  final VoidCallback? onToggleObscure;
+
+  final String? autofillHint;
   final FormFieldValidator<String>? validator;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
 
-  /// `AutofillHints.password`, `AutofillHints.newPassword` gibi
-  /// **static const String** sabitlerinden biri. (AutofillHints bir enum
-  /// değildir; bu yüzden tip `String?`.)
-  final String? autofillHint;
-
   const ChangePasswordField({
     super.key,
-    required this.controller,
     required this.spec,
     required this.label,
-    required this.obscure,
-    required this.onToggleObscure,
+    required this.textController,
+    required this.prefixIcon,
+    required this.hint,
+    this.labelTrailing,
     this.focusNode,
+    this.obscure,
+    this.onToggleObscure,
+    this.autofillHint,
     this.validator,
     this.textInputAction = TextInputAction.next,
     this.onFieldSubmitted,
-    this.autofillHint,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Yerel değişkene al → null-promotion çalışsın.
-    final hint = autofillHint;
+    final showEye = obscure != null && onToggleObscure != null;
+    final Widget field;
+    if (obscure == null) {
+      field = _buildField(context, isObscured: false, showEye: false);
+    } else {
+      field = Obx(
+        () => _buildField(
+          context,
+          isObscured: obscure!.value,
+          showEye: showEye,
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: spec.labelFontSize.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (labelTrailing != null) labelTrailing!,
+          ],
+        ),
+        SizedBox(height: 8.h),
+        field,
+      ],
+    );
+  }
 
+  Widget _buildField(
+    BuildContext context, {
+    required bool isObscured,
+    required bool showEye,
+  }) {
     return TextFormField(
-      controller: controller,
+      controller: textController,
       focusNode: focusNode,
-      obscureText: obscure,
+      obscureText: isObscured,
+      autofillHints: autofillHint == null ? null : [autofillHint!],
       textInputAction: textInputAction,
-      autofillHints: hint == null ? null : [hint],
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
       style: TextStyle(
@@ -53,26 +102,25 @@ class ChangePasswordField extends StatelessWidget {
         fontSize: spec.fontSize.sp,
       ),
       decoration: InputDecoration(
-        labelText: label,
+        hintText: hint,
         prefixIcon: Icon(
-          Icons.lock_outline_rounded,
-          color: AppTheme.textSec(context),
+          prefixIcon,
           size: spec.iconSize.sp,
+          color: AppTheme.textSec(context),
         ),
-        suffixIcon: IconButton(
-          tooltip: obscure ? 'Şifreyi göster' : 'Şifreyi gizle',
-          icon: Icon(
-            obscure
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            color: AppTheme.textSec(context),
-            size: spec.iconSize.sp,
-          ),
-          onPressed: onToggleObscure,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.radius.r),
-        ),
+        suffixIcon: showEye
+            ? IconButton(
+                tooltip: isObscured ? 'Şifreyi göster' : 'Şifreyi gizle',
+                onPressed: onToggleObscure,
+                icon: Icon(
+                  isObscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: spec.iconSize.sp,
+                  color: AppTheme.textSec(context),
+                ),
+              )
+            : null,
       ),
     );
   }

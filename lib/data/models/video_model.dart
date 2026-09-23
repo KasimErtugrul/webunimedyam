@@ -26,7 +26,7 @@ class VideoModel extends Equatable {
   final int appShareCount;
   final int appCommentCount;
 
-  VideoModel({
+  const VideoModel({
     required this.videoId,
     required this.title,
     required this.description,

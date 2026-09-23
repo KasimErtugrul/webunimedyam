@@ -43,7 +43,6 @@
 
 import 'dart:developer';
 
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
