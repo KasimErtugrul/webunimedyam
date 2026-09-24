@@ -28,7 +28,39 @@ class Responsive {
   /// Sadece basit sabit/renk/boşluk gibi tekil değerler için kullanılır.
   /// Layout kararları (kaç kolon vs.) için bunu KULLANMA —
   /// onun yerine tablet() gövdesi içinde LayoutBuilder kullan.
-  static T value<T>(BuildContext context, {required T mobile, required T tablet}) {
+  static T value<T>(
+    BuildContext context, {
+    required T mobile,
+    required T tablet,
+  }) {
     return isTablet(context) ? tablet : mobile;
+  }
+
+  /// TEK ORTAK "oranlı ama taşmaz" genişlik/yükseklik hesaplayıcısı.
+  ///
+  /// [availableExtent] genelde LayoutBuilder'ın constraints.maxWidth'i
+  /// (ya da maxHeight'i) — ekranın TAMAMI değil, o widget'a o an
+  /// gerçekten ayrılan alan. ScreenUtil'in designSize'ı gibi sabit bir
+  /// referansa göre DEĞİL, doğrudan bu değere göre ölçekler.
+  ///
+  /// [fraction] bu alanın kaçta kaçının isteneceği (0.22 = %22).
+  /// [min]/[max] sonucun asla çıkamayacağı alt/üst sınır — burada verilen
+  /// iki sayı "gerçek değer" değil, güvenlik sınırı: küçük ekranda çok
+  /// dar, büyük ekranda çok geniş olmasını önler.
+  ///
+  /// Kullanım (herhangi bir dosyada):
+  ///   final sidebarWidth = Responsive.clampedFraction(
+  ///     constraints.maxWidth,
+  ///     fraction: 0.22,
+  ///     min: 220,
+  ///     max: 300,
+  ///   );
+  static double clampedFraction(
+    double availableExtent, {
+    required double fraction,
+    required double min,
+    required double max,
+  }) {
+    return (availableExtent * fraction).clamp(min, max);
   }
 }
