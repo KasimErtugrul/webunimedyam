@@ -9,6 +9,7 @@ import '../../controllers/home/home_controller.dart';
 import '../search/search_screen.dart';
 import 'tabs/discovery_tab/discover_tab_widget.dart';
 import 'tabs/home_tab/home_tab_widget_phone.dart';
+import 'tabs/home_tab/home_tab_widget_tablet.dart';
 import 'tabs/universities_tab/universities_tab_widget.dart';
 import 'widgets/unitv_app_bar.dart';
 
@@ -34,7 +35,7 @@ class _PhoneHomeLayoutState extends State<PhoneHomeLayout> {
   final Set<int> _builtIndices = {0};
 
   static const List<Widget> _tabs = [
-    HomeTabWidget(),
+    HomeTabWidgetPhone(),
     DiscoverTabWidget(),
     UniversitiesTabWidget(),
     SearchScreen(),
@@ -129,7 +130,7 @@ class _TabletHomeLayoutState extends State<TabletHomeLayout> {
   final Set<int> _builtIndices = {0};
 
   static const List<Widget> _tabs = [
-    HomeTabWidget(),
+    HomeTabWidgetTablet(),
     DiscoverTabWidget(),
     UniversitiesTabWidget(),
     SearchScreen(),

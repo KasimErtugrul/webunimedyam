@@ -170,14 +170,14 @@ class _TabletSizes {
 // ANA WIDGET (Stateful)
 // ═══════════════════════════════════════════════════════════
 
-class HomeTabWidget extends StatefulWidget {
-  const HomeTabWidget({super.key});
+class HomeTabWidgetTablet extends StatefulWidget {
+  const HomeTabWidgetTablet({super.key});
 
   @override
-  State<HomeTabWidget> createState() => _HomeTabWidgetState();
+  State<HomeTabWidgetTablet> createState() => _HomeTabWidgetTabletState();
 }
 
-class _HomeTabWidgetState extends State<HomeTabWidget> {
+class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet> {
   final controller = Get.find<HomeController>();
   final ScrollController _scrollController = ScrollController();
   // RefreshIndicator'ı kod içinden (kullanıcı parmağıyla çekmeden) de
@@ -304,6 +304,13 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   isTablet: Responsive.isTablet(context),
                 ),
               ),
+              // ── Canlı Radyo Pili + Görünüm Anahtarı ─────────────────────
+              SliverToBoxAdapter(
+                child: _buildUtilityBar(
+                  context,
+                  isTablet: Responsive.isTablet(context),
+                ),
+              ),
 
               /*  // ── Kategori / Filtre Hapları ────────────────────────────────
               SliverToBoxAdapter(
@@ -370,6 +377,16 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
       ),
     );
   }
+
+  /* Widget _buildCarouselSlider(BuildContext context, {required bool isTablet}) {
+    return Obx(() {
+      final items = controller.videoSections.toList();
+      if (items.isEmpty) {
+        return _buildCarouselShimmer(context, isTablet: isTablet);
+      }
+      return _buildCarouselContent(context, items, isTablet: isTablet);
+    });
+  } */
 
   // Tasarımdaki "Kampüs FM Canlı" pili + Liste/Çark görünüm anahtarı.
   // (Header'ın hemen altında, ayrı bir yatay şerit.)

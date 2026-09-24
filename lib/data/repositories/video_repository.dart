@@ -7,10 +7,10 @@ import 'package:hive_ce/hive.dart';
 import '../datasources/local/app_cache_box.dart';
 import '../datasources/local/local_datasource.dart';
 import '../datasources/remote/supabase_datasource.dart';
-import '../models/video_model.dart';
-import '../models/university_model.dart';
 import '../models/playlist_model.dart';
+import '../models/university_model.dart';
 import '../models/video_engagement_model.dart';
+import '../models/video_model.dart';
 
 // VideoSectionType enum — video_sections_config.dart'ta da export edilir,
 // merkezi tanım buradadır.
@@ -51,8 +51,7 @@ class VideoRepository {
 
   Box get _box => AppCacheBox.instance;
 
-  Map<String, dynamic> _asMap(dynamic v) =>
-      Map<String, dynamic>.from(v as Map);
+  Map<String, dynamic> _asMap(dynamic v) => Map<String, dynamic>.from(v as Map);
 
   // ─── Üniversiteler ─────────────────────────────────────────────────────────
 
@@ -132,7 +131,7 @@ class VideoRepository {
   // ─── Video: Ana Sayfa ──────────────────────────────────────────────────────
   Future<List<VideoModel>> getLatestVideosPerUniversity({
     int page = 0,
-    int pageSize = 10,
+    int pageSize = 20,
   }) async {
     final offset = page * pageSize;
 
@@ -206,7 +205,7 @@ class VideoRepository {
     required HomeFeedFilter filter,
     required int page,
     List<int> followedUniversityIds = const [],
-    int pageSize = 10,
+    int pageSize = 20,
   }) async {
     switch (filter) {
       case HomeFeedFilter.latest:

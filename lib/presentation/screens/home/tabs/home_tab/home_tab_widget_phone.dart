@@ -170,14 +170,14 @@ class _TabletSizes {
 // ANA WIDGET (Stateful)
 // ═══════════════════════════════════════════════════════════
 
-class HomeTabWidget extends StatefulWidget {
-  const HomeTabWidget({super.key});
+class HomeTabWidgetPhone extends StatefulWidget {
+  const HomeTabWidgetPhone({super.key});
 
   @override
-  State<HomeTabWidget> createState() => _HomeTabWidgetState();
+  State<HomeTabWidgetPhone> createState() => _HomeTabWidgetPhoneState();
 }
 
-class _HomeTabWidgetState extends State<HomeTabWidget> {
+class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
   final controller = Get.find<HomeController>();
   final ScrollController _scrollController = ScrollController();
   // RefreshIndicator'ı kod içinden (kullanıcı parmağıyla çekmeden) de
