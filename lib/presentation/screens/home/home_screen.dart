@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../controllers/home/home_controller.dart';
+import '../profile/profile_screen.dart';
 import '../search/search_screen.dart';
 import 'tabs/discovery_tab/discover_tab_widget.dart';
 import 'tabs/home_tab/home_tab_widget_phone.dart';
@@ -97,7 +98,7 @@ class _PhoneHomeLayoutState extends State<PhoneHomeLayout> {
 
 // Yükseklik/padding gibi değerler sabit dp kalıyor — tablet-tablet arası
 // dokunma hedefi farkı ihmal edilebilir. Taşma riski olan tek boyut
-// GENİŞLİK, o da artık burada sabit değil; build() içinde LayoutBuilder'dan
+// GENİŞLİK, o da artık burada sabit değil; build() içinde MediaQuery'den
 // gelen gerçek ekran genişliğine göre hesaplanıyor (bkz. TabletHomeLayout).
 class _TabletSidebarSizes {
   // Sadece bu ikisi (+ fraction) veriliyor — gerçek hesaplama
@@ -134,6 +135,7 @@ class _TabletHomeLayoutState extends State<TabletHomeLayout> {
     DiscoverTabWidget(),
     UniversitiesTabWidget(),
     SearchScreen(),
+    ProfileScreen(), // Profile tab is included for tablet layout
   ];
 
   static const List<_SideNavItemData> _items = [
@@ -157,21 +159,20 @@ class _TabletHomeLayoutState extends State<TabletHomeLayout> {
       activeIcon: Icons.search_rounded,
       label: 'Ara',
     ),
+    _SideNavItemData(
+      icon: Icons.person_outline,
+      activeIcon: Icons.person_rounded,
+      label: 'Profil',
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
 
-    // Drawer artık gerçek bir overlay: Scaffold.drawer'a bağlı, kayarak
-    // açılıp kapanıyor. Scaffold, appBar VE drawer aynı anda verildiğinde
-    // hamburger ikonunu appBar'ın leading'ine KENDİSİ otomatik ekler —
-    // elle bir IconButton yazmaya gerek yok.
-    //
-    // sidebarWidth artık bir LayoutBuilder'a değil MediaQuery'ye bağlı,
-    // çünkü Drawer artık Row'un kısıtlı bir çocuğu değil, tüm ekranı
-    // kaplayan bir overlay — yani "gerçekten ayrılan alan" burada zaten
-    // ekranın tamamı.
+    // Drawer kaldırıldı. Sidebar artık Row içinde sabit bir sütun,
+    // içerik ise sağ tarafta Expanded ile genişliyor. Sidebar genişliği
+    // hâlâ MediaQuery'den hesaplanıyor (tablet-tablet arası fark).
     final screenWidth = MediaQuery.sizeOf(context).width;
     final sidebarWidth = Responsive.clampedFraction(
       screenWidth,
@@ -182,37 +183,36 @@ class _TabletHomeLayoutState extends State<TabletHomeLayout> {
 
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
-      appBar: AppBar(
-        backgroundColor: AppTheme.bg(context),
-        elevation: 0,
-        title: const Text('ÜniTV'),
-      ),
-      drawer: Drawer(
-        width: sidebarWidth,
-        child: Column(
+      body: SafeArea(
+        child: Row(
           children: [
-            const _SidebarHeader(),
-            const Divider(height: _TabletSidebarSizes.hairlineThickness),
-            const SizedBox(height: _TabletSidebarSizes.headerBottomSpacing),
-            // SingleChildScrollView: ileride menüye daha fazla item
-            // eklenirse (ör. Profil geri gelirse) kısa boylu bir
-            // tablette dikey taşma yerine kayar.
+            SizedBox(
+              width: sidebarWidth,
+              child: _TabletSidebar(controller: controller, items: _items),
+            ),
+            const VerticalDivider(
+              width: _TabletSidebarSizes.hairlineThickness,
+              thickness: _TabletSidebarSizes.hairlineThickness,
+            ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Obx(() {
-                  final selected = controller.selectedIndex.value;
-                  return Column(
-                    children: List.generate(_items.length, (i) {
-                      return _SideNavItem(
-                        data: _items[i],
-                        selected: selected == i,
-                        onTap: () {
-                          controller.changeTab(i);
-                          // Bir item seçilince drawer otomatik kapanır —
-                          // gerçek drawer davranışının beklenen kısmı.
-                          Navigator.of(context).pop();
-                        },
-                      );
+              child: Scaffold(
+                backgroundColor: AppTheme.bg(context),
+                appBar: AppBar(
+                  backgroundColor: AppTheme.bg(context),
+                  elevation: 0,
+                  title: const Text('ÜniTV'),
+                ),
+                body: Obx(() {
+                  final index = controller.selectedIndex.value;
+                  _builtIndices.add(index);
+
+                  return IndexedStack(
+                    index: index,
+                    children: List.generate(_tabs.length, (i) {
+                      if (!_builtIndices.contains(i)) {
+                        return const SizedBox.shrink();
+                      }
+                      return _tabs[i];
                     }),
                   );
                 }),
@@ -221,20 +221,43 @@ class _TabletHomeLayoutState extends State<TabletHomeLayout> {
           ],
         ),
       ),
-      body: Obx(() {
-        final index = controller.selectedIndex.value;
-        _builtIndices.add(index);
+    );
+  }
+}
 
-        return IndexedStack(
-          index: index,
-          children: List.generate(_tabs.length, (i) {
-            if (!_builtIndices.contains(i)) {
-              return const SizedBox.shrink();
-            }
-            return _tabs[i];
-          }),
-        );
-      }),
+class _TabletSidebar extends StatelessWidget {
+  final HomeController controller;
+  final List<_SideNavItemData> items;
+
+  const _TabletSidebar({required this.controller, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _SidebarHeader(),
+        const Divider(height: _TabletSidebarSizes.hairlineThickness),
+        const SizedBox(height: _TabletSidebarSizes.headerBottomSpacing),
+        // SingleChildScrollView: ileride menüye daha fazla item
+        // eklenirse (ör. Profil geri gelirse) kısa boylu bir
+        // tablette dikey taşma yerine kayar.
+        Expanded(
+          child: SingleChildScrollView(
+            child: Obx(() {
+              final selected = controller.selectedIndex.value;
+              return Column(
+                children: List.generate(items.length, (i) {
+                  return _SideNavItem(
+                    data: items[i],
+                    selected: selected == i,
+                    onTap: () => controller.changeTab(i),
+                  );
+                }),
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 }

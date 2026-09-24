@@ -7,7 +7,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
-import '../../../../../core/responsive.dart';
 import '../../../../../data/repositories/video_repository.dart'
     show HomeFeedFilter;
 import '../../../../controllers/home/home_controller.dart';
@@ -16,7 +15,6 @@ import 'shorts/shorts_row_widget.dart';
 import 'widgets/continue_watching_section_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/video_card_widget.dart';
-import 'widgets/video_grid_card_widget.dart';
 
 // ═══════════════════════════════════════════════════════════
 // KURAL 3 — SABİTLER
@@ -96,75 +94,7 @@ class _PhoneSizes {
   static const double categoryChipPadV = 8; */
 }
 
-class _TabletSizes {
-  // Spacing - tablet için daha geniş
-  static const double titleSpacingLarge = 20;
-  static const double bottomSpacing = 30;
-  static const double shimmerItemSpacingVertical = 10;
-  static const double shimmerItemSpacingHorizontal = 18;
-  static const double shimmerBorderRadius = 20;
-  static const double shimmerImageHeight = 240;
-  static const double shimmerAvatarSize = 48;
-  static const double shimmerAvatarSpacing = 14;
-  static const double shimmerAvatarRadius = 12;
-  static const double shimmerTitleHeight = 16;
-  static const double shimmerTitleWidth = 200;
-  static const double shimmerSubtitleHeight = 13;
-  static const double shimmerSubtitleWidth = 120;
-  static const double shimmerSpacingSmall = 8;
-  static const double shimmerSpacingMedium = 10;
-  static const double shimmerPaddingTop = 14;
-  static const double shimmerPaddingBottom = 16;
-  static const double shimmerPaddingLeft = 16;
-  static const double shimmerPaddingRight = 16;
-  static const int shimmerShimmerCount = 3; // ✅ int olarak düzeltildi
 
-  // Error
-  static const double errorPadding = 40;
-  static const double errorIconSize = 56;
-  static const double errorSpacing = 20;
-  static const double errorFontSize = 16;
-  static const double errorButtonWidth = 120;
-  static const double errorButtonHeight = 48;
-
-  // Empty
-  static const double emptyPadding = 40;
-  static const double emptyFontSize = 16;
-
-  // Auth Dialog - tablet için daha büyük
-  static const double dialogBorderRadius = 20;
-  static const double dialogButtonRadius = 10;
-
-  // İzlemeye Devam Et ile Üniversitelerin Son Videoları arasındaki ek boşluk
-  static const double continueWatchingExtraSpacing = 24;
-
-  // İçerik Bölüm Başlığı ("Üniversitelerin Son Videoları")
-  static const double contentTitlePadHorizontal = 16;
-  static const double contentTitlePadTop = 20;
-  static const double contentTitlePadBottom = 12;
-  static const double contentTitleFontSize = 20;
-  static const double contentTitleSubSpacing = 4;
-  static const double contentSubtitleFontSize = 13;
-
-  // ── Utility Bar (Canlı Radyo Pili + Liste/Çark Anahtarı) — SABİT PİKSEL ──
-  // ScreenUtil'e HİÇ dokunmaz; geniş/tablet/katlanır-açık ekranlarda bu
-  // sabit değerler kullanılır (bkz. _PhoneSizes'taki açıklama).
-  static const double radioDotSize = 9;
-  static const double radioIconSize = 18;
-  static const double radioGapSmall = 7;
-  static const double radioGapTiny = 5;
-  static const double radioPadH = 14;
-  static const double radioPadV = 7;
-  static const double radioBadgePadH = 7;
-  static const double radioBadgePadV = 2.5;
-  static const double radioBadgeRadius = 5;
-  static const double viewToggleOuterPad = 3;
-  static const double viewToggleOuterRadius = 9;
-  static const double viewToggleButtonSize = 36;
-  static const double viewToggleIconSize = 20;
-  /*   static const double categoryChipPadH = 16;
-  static const double categoryChipPadV = 9; */
-}
 
 // ═══════════════════════════════════════════════════════════
 // ANA WIDGET (Stateful)
@@ -301,7 +231,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
               SliverToBoxAdapter(
                 child: _buildUtilityBar(
                   context,
-                  isTablet: Responsive.isTablet(context),
+                  isTablet: false, // bu dosya sadece PHONE tasarımı için
                 ),
               ),
 
@@ -335,9 +265,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
                         // Bir sonraki bölümle ("Üniversitelerin Son Videoları")
                         // arada biraz daha nefes alan bir boşluk olsun.
                         SizedBox(
-                          height: Responsive.isTablet(context)
-                              ? _TabletSizes.continueWatchingExtraSpacing
-                              : _PhoneSizes.continueWatchingExtraSpacing.h,
+                          height: _PhoneSizes.continueWatchingExtraSpacing.h,
                         ),
                       ],
                     ),
@@ -352,17 +280,13 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
               SliverToBoxAdapter(
                 child: _buildUpcomingLiveBanner(
                   context,
-                  isTablet: Responsive.isTablet(context),
+                  isTablet: false, // bu dosya sadece PHONE tasarımı için
                 ),
               ),
 
               // ── Alt Boşluk ──────────────────────────────────────────────
               SliverToBoxAdapter(
-                child: SizedBox(
-                  height: Responsive.isTablet(context)
-                      ? _TabletSizes.bottomSpacing
-                      : _PhoneSizes.bottomSpacing.h,
-                ),
+                child: SizedBox(height: _PhoneSizes.bottomSpacing.h),
               ),
             ],
           ),
@@ -386,49 +310,21 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
   // piksel değerleri kullanılıyor.
   Widget _buildUtilityBar(BuildContext context, {required bool isTablet}) {
     final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet
-        ? _TabletSizes.titleSpacingLarge
-        : _PhoneSizes.titleSpacingLarge.w;
+    final hPad = _PhoneSizes.titleSpacingLarge.w;
 
-    final double dotSize = isTablet
-        ? _TabletSizes.radioDotSize
-        : _PhoneSizes.radioDotSize.w;
-    final double radioIconSize = isTablet
-        ? _TabletSizes.radioIconSize
-        : _PhoneSizes.radioIconSize.sp;
-    final double gapSmall = isTablet
-        ? _TabletSizes.radioGapSmall
-        : _PhoneSizes.radioGapSmall.w;
-    final double gapTiny = isTablet
-        ? _TabletSizes.radioGapTiny
-        : _PhoneSizes.radioGapTiny.w;
-    final double radioPadH = isTablet
-        ? _TabletSizes.radioPadH
-        : _PhoneSizes.radioPadH.w;
-    final double radioPadV = isTablet
-        ? _TabletSizes.radioPadV
-        : _PhoneSizes.radioPadV.h;
-    final double badgePadH = isTablet
-        ? _TabletSizes.radioBadgePadH
-        : _PhoneSizes.radioBadgePadH.w;
-    final double badgePadV = isTablet
-        ? _TabletSizes.radioBadgePadV
-        : _PhoneSizes.radioBadgePadV.h;
-    final double badgeRadius = isTablet
-        ? _TabletSizes.radioBadgeRadius
-        : _PhoneSizes.radioBadgeRadius.r;
-    final double toggleOuterPad = isTablet
-        ? _TabletSizes.viewToggleOuterPad
-        : _PhoneSizes.viewToggleOuterPad.w;
-    final double toggleOuterRadius = isTablet
-        ? _TabletSizes.viewToggleOuterRadius
-        : _PhoneSizes.viewToggleOuterRadius.r;
-    final double toggleButtonSize = isTablet
-        ? _TabletSizes.viewToggleButtonSize
-        : _PhoneSizes.viewToggleButtonSize.w;
-    final double toggleIconSize = isTablet
-        ? _TabletSizes.viewToggleIconSize
-        : _PhoneSizes.viewToggleIconSize.sp;
+    final double dotSize = _PhoneSizes.radioDotSize.w;
+    final double radioIconSize = _PhoneSizes.radioIconSize.sp;
+    final double gapSmall = _PhoneSizes.radioGapSmall.w;
+    final double gapTiny = _PhoneSizes.radioGapTiny.w;
+    final double radioPadH = _PhoneSizes.radioPadH.w;
+    final double radioPadV = _PhoneSizes.radioPadV.h;
+    final double badgePadH = _PhoneSizes.radioBadgePadH.w;
+    final double badgePadV = _PhoneSizes.radioBadgePadV.h;
+    final double badgeRadius = _PhoneSizes.radioBadgeRadius.r;
+    final double toggleOuterPad = _PhoneSizes.viewToggleOuterPad.w;
+    final double toggleOuterRadius = _PhoneSizes.viewToggleOuterRadius.r;
+    final double toggleButtonSize = _PhoneSizes.viewToggleButtonSize.w;
+    final double toggleIconSize = _PhoneSizes.viewToggleIconSize.sp;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8.h),
@@ -538,53 +434,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
     );
   }
 
-  /* // Tasarımdaki kategori/filtre hapları.
-  // NOT: Backend'de henüz kategoriye göre video filtreleme endpoint'i
-  // olmadığı için bu satır şimdilik SADECE GÖRSEL (tasarımla birebir) —
-  // seçili çip yerelde tutuluyor, gerçek bir filtreleme tetiklemiyor.
-  // Kategori filtreleme API'si eklendiğinde `controller`'a bağlanabilir.
-  Widget _buildCategoryChips(BuildContext context, {required bool isTablet}) {
-    final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet
-        ? _TabletSizes.titleSpacingLarge
-        : _PhoneSizes.titleSpacingLarge.w;
-    final rowHeight = isTablet ? 44.0 : 40.h;
-    final chipGap = isTablet ? 10.0 : 8.w;
-    final chipPadH = isTablet
-        ? _TabletSizes.categoryChipPadH
-        : _PhoneSizes.categoryChipPadH.w;
-    final chipPadV = isTablet
-        ? _TabletSizes.categoryChipPadV
-        : _PhoneSizes.categoryChipPadV.h;
-    const categories = [
-      'Tümü',
-      'Mühendislik & Teknoloji',
-      'Tıp & Sağlık',
-      'Kampüs & Kültür',
-      'Akademik Dersler',
-    ];
-
-    return SizedBox(
-      height: rowHeight,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: hPad),
-        itemCount: categories.length,
-        separatorBuilder: (_, _) => SizedBox(width: chipGap),
-        itemBuilder: (context, index) {
-          final selected = _selectedCategoryIndex == index;
-          return _CategoryChip(
-            label: categories[index],
-            selected: selected,
-            onTap: () => setState(() => _selectedCategoryIndex = index),
-            scheme: scheme,
-            padH: chipPadH,
-            padV: chipPadV,
-          );
-        },
-      ),
-    );
-  } */
+ 
 
   // ═══════════════════════════════════════════════════════════════════════
   // KURAL 1 — PHONE TASARIMI (BİREBİR AYNI)
@@ -598,19 +448,13 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
   // FeedController.feedFilter'a yazılır ve feed o filtreyle (10'luk
   // sayfalama korunarak) yeniden yüklenir.
   Widget _buildContentHeader(BuildContext context, {required bool isTablet}) {
-    final titleFontSize = isTablet
-        ? _TabletSizes.contentTitleFontSize
-        : _PhoneSizes.contentTitleFontSize.sp;
-    final subSpacing = isTablet
-        ? _TabletSizes.contentTitleSubSpacing
-        : _PhoneSizes.contentTitleSubSpacing.h;
-    final subtitleFontSize = isTablet
-        ? _TabletSizes.contentSubtitleFontSize
-        : _PhoneSizes.contentSubtitleFontSize.sp;
-    final iconSize = isTablet ? 22.0 : 20.sp;
-    final iconSpacing = isTablet ? 8.0 : 6.w;
-    final sortFontSize = isTablet ? 14.0 : 13.sp;
-    final sortIconSize = isTablet ? 20.0 : 18.sp;
+    final titleFontSize = _PhoneSizes.contentTitleFontSize.sp;
+    final subSpacing = _PhoneSizes.contentTitleSubSpacing.h;
+    final subtitleFontSize = _PhoneSizes.contentSubtitleFontSize.sp;
+    final iconSize = 20.sp;
+    final iconSpacing = 6.w;
+    final sortFontSize = 13.sp;
+    final sortIconSize = 18.sp;
 
     final activeFilter = controller.feedFilter.value;
 
@@ -660,10 +504,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
               .map((f) => _buildFeedFilterMenuItem(f, activeFilter))
               .toList(),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 6 : 4.w,
-              vertical: isTablet ? 4 : 4.h,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -784,40 +625,38 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
     required bool isTablet,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final hPad = isTablet
-        ? _TabletSizes.titleSpacingLarge
-        : _PhoneSizes.titleSpacingLarge.w;
-    final vGap = isTablet ? 24.0 : 24.h;
+    final hPad = _PhoneSizes.titleSpacingLarge.w;
+    final vGap = 24.h;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(hPad, vGap, hPad, isTablet ? 16 : 16.h),
+      padding: EdgeInsets.fromLTRB(hPad, vGap, hPad, 16.h),
       child: Container(
-        padding: EdgeInsets.all(isTablet ? 16 : 16.w),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [scheme.surfaceContainerHigh, scheme.surfaceContainer],
           ),
-          borderRadius: BorderRadius.circular(isTablet ? 20 : 20.r),
+          borderRadius: BorderRadius.circular(20.r),
         ),
         child: Row(
           children: [
             Container(
-              width: isTablet ? 40 : 40.w,
-              height: isTablet ? 40 : 40.w,
+              width: 40.w,
+              height: 40.w,
               decoration: BoxDecoration(
                 color: scheme.primary.withValues(alpha: 0.20),
-                borderRadius: BorderRadius.circular(isTablet ? 12 : 12.r),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               alignment: Alignment.center,
               child: Icon(
                 Icons.live_tv_rounded,
                 color: scheme.primary,
-                size: isTablet ? 24 : 24.sp,
+                size: 24.sp,
               ),
             ),
-            SizedBox(width: isTablet ? 12 : 12.w),
+            SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -827,7 +666,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
                     style: TextStyle(
                       color: scheme.onSurface,
                       fontWeight: FontWeight.bold,
-                      fontSize: isTablet ? 14 : 14.sp,
+                      fontSize: 14.sp,
                     ),
                   ),
                   Text(
@@ -836,31 +675,28 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
-                      fontSize: isTablet ? 12 : 12.sp,
+                      fontSize: 12.sp,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: isTablet ? 8 : 8.w),
+            SizedBox(width: 8.w),
             InkWell(
-              borderRadius: BorderRadius.circular(isTablet ? 8 : 8.r),
+              borderRadius: BorderRadius.circular(8.r),
               onTap: () {},
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 14 : 14.w,
-                  vertical: isTablet ? 8 : 8.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: scheme.primary,
-                  borderRadius: BorderRadius.circular(isTablet ? 8 : 8.r),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
                   'Hatırlat',
                   style: TextStyle(
                     color: scheme.onPrimary,
                     fontWeight: FontWeight.bold,
-                    fontSize: isTablet ? 13 : 13.sp,
+                    fontSize: 13.sp,
                   ),
                 ),
               ),
@@ -873,19 +709,11 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
 
   Widget _buildContentSliver(BuildContext context) {
     if (controller.isLoading.value) {
-      return SliverToBoxAdapter(
-        child: Responsive.isTablet(context)
-            ? _buildVideoShimmerTablet(context)
-            : _buildVideoShimmerPhone(context),
-      );
+      return SliverToBoxAdapter(child: _buildVideoShimmerPhone(context));
     }
 
     if (controller.errorMessage.isNotEmpty) {
-      return SliverToBoxAdapter(
-        child: Responsive.isTablet(context)
-            ? _buildErrorWidgetTablet(context)
-            : _buildErrorWidgetPhone(context),
-      );
+      return SliverToBoxAdapter(child: _buildErrorWidgetPhone(context));
     }
 
     final nonShorts = controller.videos.where((v) => !v.isShorts).toList();
@@ -896,32 +724,20 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
     // kimse yayında değilse) başlık tamamen kayboluyor ve kullanıcının
     // filtreyi değiştirip geri dönecek bir yolu kalmıyordu.
     if (nonShorts.isEmpty) {
-      final isTablet = Responsive.isTablet(context);
       return SliverMainAxisGroup(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: isTablet
-                  ? EdgeInsets.fromLTRB(
-                      _TabletSizes.contentTitlePadHorizontal,
-                      _TabletSizes.contentTitlePadTop,
-                      _TabletSizes.contentTitlePadHorizontal,
-                      _TabletSizes.contentTitlePadBottom,
-                    )
-                  : EdgeInsets.fromLTRB(
-                      _PhoneSizes.titleSpacingLarge.w,
-                      _PhoneSizes.contentTitlePadTop.h,
-                      _PhoneSizes.titleSpacingLarge.w,
-                      _PhoneSizes.contentTitlePadBottom.h,
-                    ),
-              child: _buildContentHeader(context, isTablet: isTablet),
+              padding: EdgeInsets.fromLTRB(
+                _PhoneSizes.titleSpacingLarge.w,
+                _PhoneSizes.contentTitlePadTop.h,
+                _PhoneSizes.titleSpacingLarge.w,
+                _PhoneSizes.contentTitlePadBottom.h,
+              ),
+              child: _buildContentHeader(context, isTablet: false),
             ),
           ),
-          SliverToBoxAdapter(
-            child: isTablet
-                ? _buildEmptyWidgetTablet(context)
-                : _buildEmptyWidgetPhone(context),
-          ),
+          SliverToBoxAdapter(child: _buildEmptyWidgetPhone(context)),
         ],
       );
     }
@@ -946,89 +762,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
     final showLoader = controller.hasMoreVideos.value;
     final isLoadingMore = controller.isLoadingMore.value;
 
-    // ── TABLET: Grid görünümü (dikeyde 2, yatayda 3 sütun) ───────────────
-    // Tek bir kartın tüm ekranı kaplamasını önlemek için üniversitelerin
-    // son videoları burada her zaman bir grid'de gösterilir. Kolon sayısı
-    // ekran yönüne göre değişir: dikey (portrait) konumda kartların çok
-    // küçülmemesi için 2, yatay (landscape) konumda ekstra genişlikten
-    // yararlanmak için 3 sütun kullanılır.
-    //
-    // NOT: childAspectRatio ile TAHMİNİ yükseklik vermek yerine, kartın
-    // gerçek içerik yüksekliğini (küçük resim + gövde) piksel piksel
-    // hesaplayıp mainAxisExtent olarak veriyoruz. Böylece hiçbir zaman
-    // "RenderFlex overflowed" (sarı-siyah şerit) hatası oluşmaz —
-    // yükseklik tahmine değil, gerçek layout matematiğine dayanıyor.
-    if (Responsive.isTablet(context)) {
-      const double horizontalPadding = 16;
-      const double gridSpacing = 16;
-      final Orientation orientation = MediaQuery.orientationOf(context);
-      final int crossAxisCount = orientation == Orientation.portrait ? 2 : 3;
-
-      return SliverMainAxisGroup(
-        slivers: [
-          // ── Bölüm Başlığı ──────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                _TabletSizes.contentTitlePadHorizontal,
-                _TabletSizes.contentTitlePadTop,
-                _TabletSizes.contentTitlePadHorizontal,
-                _TabletSizes.contentTitlePadBottom,
-              ),
-              child: _buildContentHeader(context, isTablet: true),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
-            sliver: SliverMainAxisGroup(
-              slivers: [
-                SliverLayoutBuilder(
-                  builder: (context, constraints) {
-                    final availableWidth = constraints.crossAxisExtent;
-                    final itemWidth =
-                        (availableWidth - (crossAxisCount - 1) * gridSpacing) /
-                        crossAxisCount;
-
-                    // Küçük resim yüksekliği (16:9)
-                    final thumbHeight = itemWidth * 9 / 16;
-
-                    // Gövde yüksekliği — VideoGridCardWidget'taki gerçek
-                    // değerlerin toplamı (bkz. kGridCardBodyHeight sabiti,
-                    // kart dosyasında tanımlıdır ve tek kaynak odur).
-                    final mainAxisExtent = thumbHeight + kGridCardBodyHeight;
-
-                    return SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: gridSpacing,
-                        mainAxisSpacing: gridSpacing,
-                        mainAxisExtent: mainAxisExtent,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
-                            VideoGridCardWidget(video: nonShorts[index]),
-                        childCount: nonShorts.length,
-                      ),
-                    );
-                  },
-                ),
-                if (showLoader)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: isLoadingMore
-                            ? const CircularProgressIndicator()
-                            : const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
+ 
 
     // ── PHONE: Tam genişlik liste görünümü ────────────────────────────────
     return SliverMainAxisGroup(
@@ -1213,159 +947,6 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // KURAL 2 — TABLET TASARIMI (BAĞIMSIZ)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // ── Tablet Error Widget ──
-  Widget _buildErrorWidgetTablet(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(_TabletSizes.errorPadding),
-      child: Column(
-        children: [
-          Icon(
-            Icons.error_outline_rounded,
-            color: AppTheme.textSec(context),
-            size: _TabletSizes.errorIconSize,
-          ),
-          SizedBox(height: _TabletSizes.errorSpacing),
-          Text(
-            controller.errorMessage.value,
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: _TabletSizes.errorFontSize,
-            ),
-          ),
-          SizedBox(height: _TabletSizes.errorSpacing),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(
-                _TabletSizes.errorButtonWidth,
-                _TabletSizes.errorButtonHeight,
-              ),
-            ),
-            onPressed: controller.loadVideos,
-            child: Text(
-              'Tekrar Dene',
-              style: TextStyle(fontSize: _TabletSizes.errorFontSize),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Tablet Empty Widget ──
-  Widget _buildEmptyWidgetTablet(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(_TabletSizes.emptyPadding),
-      child: Center(
-        child: Text(
-          _feedEmptyMessage(controller.feedFilter.value),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppTheme.textSec(context),
-            fontSize: _TabletSizes.emptyFontSize,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Tablet Shimmer ──
-  Widget _buildVideoShimmerTablet(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.surface(context),
-      highlightColor: AppTheme.card(context),
-      child: Column(
-        children: List.generate(
-          _TabletSizes.shimmerShimmerCount,
-          (_) => Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _TabletSizes.shimmerItemSpacingHorizontal,
-              vertical: _TabletSizes.shimmerItemSpacingVertical,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(
-                  _TabletSizes.shimmerBorderRadius,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: _TabletSizes.shimmerImageHeight,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface(context),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(_TabletSizes.shimmerBorderRadius),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      _TabletSizes.shimmerPaddingLeft,
-                      _TabletSizes.shimmerPaddingTop,
-                      _TabletSizes.shimmerPaddingRight,
-                      _TabletSizes.shimmerPaddingBottom,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: _TabletSizes.shimmerAvatarSize,
-                          height: _TabletSizes.shimmerAvatarSize,
-                          margin: EdgeInsets.only(
-                            right: _TabletSizes.shimmerAvatarSpacing,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface(context),
-                            borderRadius: BorderRadius.circular(
-                              _TabletSizes.shimmerAvatarRadius,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: _TabletSizes.shimmerTitleHeight,
-                                color: AppTheme.surface(context),
-                              ),
-                              SizedBox(
-                                height: _TabletSizes.shimmerSpacingSmall,
-                              ),
-                              Container(
-                                height: _TabletSizes.shimmerTitleHeight,
-                                width: _TabletSizes.shimmerTitleWidth,
-                                color: AppTheme.surface(context),
-                              ),
-                              SizedBox(
-                                height: _TabletSizes.shimmerSpacingMedium,
-                              ),
-                              Container(
-                                height: _TabletSizes.shimmerSubtitleHeight,
-                                width: _TabletSizes.shimmerSubtitleWidth,
-                                color: AppTheme.surface(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
   // ORTAK METODLAR
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -1374,11 +955,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
       AlertDialog(
         backgroundColor: const Color(0xFF1E1E2E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            Responsive.isTablet(context)
-                ? _TabletSizes.dialogBorderRadius
-                : _PhoneSizes.dialogBorderRadius.r,
-          ),
+          borderRadius: BorderRadius.circular(_PhoneSizes.dialogBorderRadius.r),
         ),
         title: const Text(
           'Giriş Gerekiyor',
@@ -1402,9 +979,7 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
-                  Responsive.isTablet(context)
-                      ? _TabletSizes.dialogButtonRadius
-                      : _PhoneSizes.dialogButtonRadius.r,
+                  _PhoneSizes.dialogButtonRadius.r,
                 ),
               ),
             ),
@@ -1471,50 +1046,3 @@ class _ViewModeButton extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// Kategori/filtre hapı (chip)
-// Tasarım: seçili → bg-primary/20 + text-primary + bold; seçili değil →
-// bg-surface-container + text-on-surface-variant. rounded-full pill.
-// ═══════════════════════════════════════════════════════════════════════
-/* class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.scheme,
-    required this.padH,
-    required this.padV,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final ColorScheme scheme;
-  final double padH;
-  final double padV;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
-        decoration: BoxDecoration(
-          color: selected
-              ? scheme.primary.withValues(alpha: 0.20)
-              : scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-} */
