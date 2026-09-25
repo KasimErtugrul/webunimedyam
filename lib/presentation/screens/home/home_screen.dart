@@ -103,8 +103,8 @@ class _PhoneHomeLayoutState extends State<PhoneHomeLayout> {
 class _TabletSidebarSizes {
   // Sadece bu ikisi (+ fraction) veriliyor — gerçek hesaplama
   // Responsive.clampedFraction() içinde, tek yerde yapılıyor.
-  static const double minWidth = 220;
-  static const double maxWidth = 300;
+  static const double minWidth = 200;
+  static const double maxWidth = 250;
   static const double widthFraction = 0.22;
   static const double logoBoxSize = 36;
   static const double logoBorderRadius = 10;

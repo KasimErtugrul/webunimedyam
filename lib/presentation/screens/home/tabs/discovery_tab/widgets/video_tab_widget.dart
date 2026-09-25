@@ -1,13 +1,13 @@
-// lib/presentation/screens/home/widgets/tabs/video_tab/video_tab_widget.dart
+/* // lib/presentation/screens/home/widgets/tabs/video_tab/video_tab_widget.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../data/models/video_engagement_model.dart';
 import '../../../../../controllers/home/home_controller.dart';
 import '../../home_tab/videos/video_sections_config.dart';
-import '../discover_layout_spec.dart';   // ← EKLE
+import '../discover_layout_spec.dart';
 
 class VideoTabWidget extends StatelessWidget {
   final HomeController controller;
@@ -25,9 +25,11 @@ class VideoTabWidget extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
+        // FIX: spec.contentTopPadding.h → spec.contentTopPadding.
+        // Spec değerleri zaten ham dp; üzerine .h uygulamak çifte ölçekti.
         padding: EdgeInsets.only(
-          top: spec.contentTopPadding.h,
-          bottom: spec.contentBottomPadding.h,
+          top: spec.contentTopPadding,
+          bottom: spec.contentBottomPadding,
         ),
         children: [
           for (var i = 0; i < videoSectionConfigs.length; i++)
@@ -62,4 +64,4 @@ class VideoTabWidget extends StatelessWidget {
         return const [];
     }
   }
-}
+} */

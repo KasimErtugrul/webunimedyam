@@ -1,6 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/channel_tab/channel_tab_widget.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -25,9 +25,10 @@ class ChannelTabWidget extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
+        // FIX: .h kaldırıldı — çifte ölçek (bkz. video_tab_widget.dart).
         padding: EdgeInsets.only(
-          top: spec.contentTopPadding.h,
-          bottom: spec.contentBottomPadding.h,
+          top: spec.contentTopPadding,
+          bottom: spec.contentBottomPadding,
         ),
         children: [
           for (var i = 0; i < uniSectionConfigs.length; i++)
