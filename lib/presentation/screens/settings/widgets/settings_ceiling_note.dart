@@ -1,7 +1,6 @@
 // lib/presentation/screens/settings/widgets/settings_ceiling_note.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../data/models/user_settings_model.dart';
 import '../settings_layout_spec.dart';
@@ -30,30 +29,27 @@ class SettingsCeilingNote extends StatelessWidget {
         : 'Profil herkese açık değil — bazı seçenekler kısıtlanabilir.';
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: spec.noteMarginV.h),
+      margin: EdgeInsets.symmetric(vertical: spec.noteMarginV),
       padding: EdgeInsets.symmetric(
-        horizontal: spec.notePaddingH.w,
-        vertical: spec.notePaddingV.h,
+        horizontal: spec.notePaddingH,
+        vertical: spec.notePaddingV,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(spec.noteRadius.r),
-        border: Border.all(
-          color: color.withValues(alpha: 0.22),
-          width: 0.8,
-        ),
+        borderRadius: BorderRadius.circular(spec.noteRadius),
+        border: Border.all(color: color.withValues(alpha: 0.22), width: 0.8),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: spec.noteIconSize.sp, color: color),
-          SizedBox(width: 10.w),
+          Icon(icon, size: spec.noteIconSize, color: color),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               msg,
               style: TextStyle(
                 color: color,
-                fontSize: spec.noteFontSize.sp,
+                fontSize: spec.noteFontSize,
                 height: spec.noteLineHeight,
                 fontWeight: FontWeight.w500,
               ),

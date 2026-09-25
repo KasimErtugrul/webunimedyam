@@ -1,7 +1,6 @@
 // lib/presentation/screens/profile/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
@@ -141,13 +140,13 @@ class _NotLoggedInView extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
           child: Padding(
-            padding: EdgeInsets.all(spec.mainPadding.w),
+            padding: EdgeInsets.all(spec.mainPadding),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: spec.avatarSize.w,
-                  height: spec.avatarSize.w,
+                  width: spec.avatarSize,
+                  height: spec.avatarSize,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -160,49 +159,49 @@ class _NotLoggedInView extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                      width: spec.avatarBorderWidth.w,
+                      width: spec.avatarBorderWidth,
                     ),
                   ),
                   child: Icon(
                     Icons.person_outline_rounded,
                     color: AppTheme.primaryColor,
-                    size: spec.avatarIconSize.sp,
+                    size: spec.avatarIconSize,
                   ),
                 )
                     .animate()
                     .fadeIn(duration: 400.ms)
                     .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
-                SizedBox(height: spec.titleSpacing.h),
+                SizedBox(height: spec.titleSpacing),
                 Text(
                   'Hesabına Giriş Yap',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: spec.titleFontSize.sp,
+                    fontSize: spec.titleFontSize,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.3,
                   ),
                 ).animate().fadeIn(delay: 150.ms, duration: 350.ms),
-                SizedBox(height: spec.subtitleSpacing.h),
+                SizedBox(height: spec.subtitleSpacing),
                 Text(
                   'Favorilerini, izleme geçmişini ve tüm aktivitelerini\ngörmek için giriş yap.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: spec.subtitleFontSize.sp,
+                    fontSize: spec.subtitleFontSize,
                     height: spec.subtitleLineHeight,
                   ),
                 ).animate().fadeIn(delay: 250.ms, duration: 350.ms),
-                SizedBox(height: spec.buttonSpacing.h),
+                SizedBox(height: spec.buttonSpacing),
                 SizedBox(
                   width: double.infinity,
-                  height: spec.buttonHeight.h,
+                  height: spec.buttonHeight,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
-                          spec.buttonRadius.r,
+                          spec.buttonRadius,
                         ),
                       ),
                     ),
@@ -210,7 +209,7 @@ class _NotLoggedInView extends StatelessWidget {
                     child: Text(
                       'Giriş Yap',
                       style: TextStyle(
-                        fontSize: spec.buttonFontSize.sp,
+                        fontSize: spec.buttonFontSize,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

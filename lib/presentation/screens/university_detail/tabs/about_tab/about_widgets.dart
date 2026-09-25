@@ -1,6 +1,5 @@
 // lib/presentation/screens/university_detail/tabs/about_tab/about_widgets.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,18 +28,18 @@ class UniversityAboutSectionTitle extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 3.w,
-          height: 14.h,
+          width: 3,
+          height: 14,
           decoration: BoxDecoration(
             color: AppTheme.primaryColor,
-            borderRadius: BorderRadius.circular(2.r),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(
-            fontSize: spec.sectionTitleFontSize.sp,
+            fontSize: spec.sectionTitleFontSize,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPri(context),
           ),
@@ -69,13 +68,13 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
 
       return SizedBox(
         width: double.infinity,
-        height: spec.favButtonHeight.h,
+        height: spec.favButtonHeight,
         child: ElevatedButton.icon(
           onPressed: isLoading ? null : controller.toggleFavorite,
           icon: isLoading
               ? SizedBox(
-                  width: 18.w,
-                  height: 18.w,
+                  width: 18,
+                  height: 18,
                   child: const CircularProgressIndicator(
                     strokeWidth: 2.4,
                     color: Colors.white,
@@ -83,12 +82,12 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
                 )
               : Icon(
                   isFav ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
-                  size: spec.favButtonIconSize.sp,
+                  size: spec.favButtonIconSize,
                 ),
           label: Text(
             isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
             style: TextStyle(
-              fontSize: spec.favButtonFontSize.sp,
+              fontSize: spec.favButtonFontSize,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -99,7 +98,7 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
             foregroundColor: isFav ? AppTheme.primaryColor : Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(spec.favButtonRadius.r),
+              borderRadius: BorderRadius.circular(spec.favButtonRadius),
               side: isFav
                   ? BorderSide(
                       color: AppTheme.primaryColor.withValues(alpha: 0.4),
@@ -129,10 +128,10 @@ class UniversityAboutDescriptionCard extends StatelessWidget {
     final hasDesc = uni.description?.isNotEmpty == true;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(spec.cardPadding.w),
+      padding: EdgeInsets.all(spec.cardPadding),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(spec.cardRadius.r),
+        borderRadius: BorderRadius.circular(spec.cardRadius),
         border: Border.all(
           color: AppTheme.textSec(context).withValues(alpha: 0.06),
         ),
@@ -144,18 +143,18 @@ class UniversityAboutDescriptionCard extends StatelessWidget {
         trimCollapsedText: ' Daha fazla',
         trimExpandedText: ' Daha az',
         style: TextStyle(
-          fontSize: spec.descFontSize.sp,
+          fontSize: spec.descFontSize,
           color: AppTheme.textSec(context),
           height: spec.descLineHeight,
           fontStyle: hasDesc ? FontStyle.normal : FontStyle.italic,
         ),
         moreStyle: TextStyle(
-          fontSize: spec.descFontSize.sp,
+          fontSize: spec.descFontSize,
           fontWeight: FontWeight.w700,
           color: AppTheme.primaryColor,
         ),
         lessStyle: TextStyle(
-          fontSize: spec.descFontSize.sp,
+          fontSize: spec.descFontSize,
           fontWeight: FontWeight.w700,
           color: AppTheme.primaryColor,
         ),
@@ -212,7 +211,7 @@ class UniversityAboutInfoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(spec.cardRadius.r),
+        borderRadius: BorderRadius.circular(spec.cardRadius),
         border: Border.all(
           color: AppTheme.textSec(context).withValues(alpha: 0.06),
         ),
@@ -231,7 +230,7 @@ class UniversityAboutInfoCard extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                indent: spec.rowPaddingH.w + spec.rowIconBoxSize.w + 12.w,
+                indent: spec.rowPaddingH + spec.rowIconBoxSize + 12,
                 color: AppTheme.textSec(context).withValues(alpha: 0.06),
               ),
           ],
@@ -258,26 +257,26 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.rowPaddingH.w,
-        vertical: spec.rowPaddingV.h,
+        horizontal: spec.rowPaddingH,
+        vertical: spec.rowPaddingV,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: spec.rowIconBoxSize.w,
-            height: spec.rowIconBoxSize.w,
+            width: spec.rowIconBoxSize,
+            height: spec.rowIconBoxSize,
             decoration: BoxDecoration(
               color: AppTheme.primaryColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(spec.rowIconBoxRadius.r),
+              borderRadius: BorderRadius.circular(spec.rowIconBoxRadius),
             ),
             child: Icon(
               icon,
-              size: spec.rowIconSize.sp,
+              size: spec.rowIconSize,
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(width: spec.rowIconSpacing.w),
+          SizedBox(width: spec.rowIconSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,16 +284,16 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: spec.rowLabelFontSize.sp,
+                    fontSize: spec.rowLabelFontSize,
                     color: AppTheme.textSec(context),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: spec.rowValueSpacing.h),
+                SizedBox(height: spec.rowValueSpacing),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: spec.rowValueFontSize.sp,
+                    fontSize: spec.rowValueFontSize,
                     color: AppTheme.textPri(context),
                     fontWeight: FontWeight.w600,
                     height: 1.35,
@@ -331,9 +330,9 @@ class UniversityAboutLinkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppTheme.card(context),
-      borderRadius: BorderRadius.circular(spec.cardRadius.r),
+      borderRadius: BorderRadius.circular(spec.cardRadius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(spec.cardRadius.r),
+        borderRadius: BorderRadius.circular(spec.cardRadius),
         onTap: () async {
           final uri = Uri.parse(url);
           if (await canLaunchUrl(uri)) {
@@ -342,11 +341,11 @@ class UniversityAboutLinkButton extends StatelessWidget {
         },
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.rowPaddingH.w,
-            vertical: spec.rowPaddingV.h,
+            horizontal: spec.rowPaddingH,
+            vertical: spec.rowPaddingV,
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(spec.cardRadius.r),
+            borderRadius: BorderRadius.circular(spec.cardRadius),
             border: Border.all(
               color: AppTheme.textSec(context).withValues(alpha: 0.06),
             ),
@@ -354,20 +353,20 @@ class UniversityAboutLinkButton extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: spec.rowIconBoxSize.w,
-                height: spec.rowIconBoxSize.w,
+                width: spec.rowIconBoxSize,
+                height: spec.rowIconBoxSize,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(spec.rowIconBoxRadius.r),
+                  borderRadius: BorderRadius.circular(spec.rowIconBoxRadius),
                 ),
-                child: Icon(icon, size: spec.rowIconSize.sp, color: color),
+                child: Icon(icon, size: spec.rowIconSize, color: color),
               ),
-              SizedBox(width: spec.rowIconSpacing.w),
+              SizedBox(width: spec.rowIconSpacing),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: spec.rowValueFontSize.sp,
+                    fontSize: spec.rowValueFontSize,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textPri(context),
                   ),
@@ -375,7 +374,7 @@ class UniversityAboutLinkButton extends StatelessWidget {
               ),
               Icon(
                 Icons.open_in_new_rounded,
-                size: (spec.rowValueFontSize + 2).sp,
+                size: (spec.rowValueFontSize + 2),
                 color: AppTheme.textSec(context),
               ),
             ],
@@ -409,7 +408,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
       final playing = isThisPlaying && radioController.isPlaying;
 
       return Container(
-        padding: EdgeInsets.all(spec.cardPadding.w),
+        padding: EdgeInsets.all(spec.cardPadding),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isThisPlaying
@@ -418,7 +417,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(spec.cardRadius.r),
+          borderRadius: BorderRadius.circular(spec.cardRadius),
           border: Border.all(
             color: isThisPlaying
                 ? _kRadioColor.withValues(alpha: 0.4)
@@ -429,11 +428,11 @@ class UniversityAboutRadioCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: spec.radioIconBox.w,
-              height: spec.radioIconBox.w,
+              width: spec.radioIconBox,
+              height: spec.radioIconBox,
               decoration: BoxDecoration(
                 color: _kRadioColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(spec.radioIconBoxRadius.r),
+                borderRadius: BorderRadius.circular(spec.radioIconBoxRadius),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -447,12 +446,12 @@ class UniversityAboutRadioCard extends StatelessWidget {
                               ? Icons.equalizer_rounded
                               : Icons.radio_rounded),
                     color: _kRadioColor,
-                    size: spec.radioIconSize.sp,
+                    size: spec.radioIconSize,
                   ),
                 ],
               ),
             ),
-            SizedBox(width: spec.rowIconSpacing.w),
+            SizedBox(width: spec.rowIconSpacing),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,12 +459,12 @@ class UniversityAboutRadioCard extends StatelessWidget {
                   Text(
                     'Üniversite Radyosu',
                     style: TextStyle(
-                      fontSize: spec.radioTitleFontSize.sp,
+                      fontSize: spec.radioTitleFontSize,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPri(context),
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 2),
                   Text(
                     isThisPlaying
                         ? (playing
@@ -475,7 +474,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
                                     : 'Yayın Duraklatıldı'))
                         : 'Canlı yayını dinlemek için tıkla',
                     style: TextStyle(
-                      fontSize: spec.radioSubtitleFontSize.sp,
+                      fontSize: spec.radioSubtitleFontSize,
                       color: isThisPlaying
                           ? _kRadioColor
                           : AppTheme.textSec(context),
@@ -487,15 +486,15 @@ class UniversityAboutRadioCard extends StatelessWidget {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(spec.radioPlayBtnSize.w),
+                borderRadius: BorderRadius.circular(spec.radioPlayBtnSize),
                 onTap: () => radioController.togglePlayPause(
                   url: university.radioLink!,
                   name: university.name ?? '',
                   logoUrl: university.logoUrl,
                 ),
                 child: Container(
-                  width: spec.radioPlayBtnSize.w,
-                  height: spec.radioPlayBtnSize.w,
+                  width: spec.radioPlayBtnSize,
+                  height: spec.radioPlayBtnSize,
                   decoration: BoxDecoration(
                     color: isThisPlaying
                         ? _kRadioColor
@@ -513,8 +512,8 @@ class UniversityAboutRadioCard extends StatelessWidget {
                   ),
                   child: buffering
                       ? SizedBox(
-                          width: spec.radioPlayBtnSize.w * 0.45,
-                          height: spec.radioPlayBtnSize.w * 0.45,
+                          width: spec.radioPlayBtnSize * 0.45,
+                          height: spec.radioPlayBtnSize * 0.45,
                           child: const CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2.4,
@@ -525,7 +524,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
                               ? Icons.pause_rounded
                               : Icons.play_arrow_rounded,
                           color: isThisPlaying ? Colors.white : _kRadioColor,
-                          size: spec.radioPlayIconSize.sp,
+                          size: spec.radioPlayIconSize,
                         ),
                 ),
               ),
@@ -545,22 +544,22 @@ class _RadioWave extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(spec.radioIconBoxRadius.r),
+      borderRadius: BorderRadius.circular(spec.radioIconBoxRadius),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (i) {
           final h = isActive
-              ? (spec.radioIconSize.sp +
-                    (i % 2 == 0 ? spec.radioIconSize.sp * 0.5 : 0))
-              : spec.radioIconSize.sp * 0.4;
+              ? (spec.radioIconSize +
+                    (i % 2 == 0 ? spec.radioIconSize * 0.5 : 0))
+              : spec.radioIconSize * 0.4;
           return AnimatedContainer(
             duration: Duration(milliseconds: 400 + i * 120),
-            width: 3.w,
+            width: 3,
             height: h,
-            margin: EdgeInsets.symmetric(horizontal: 1.5.w),
+            margin: EdgeInsets.symmetric(horizontal: 1.5),
             decoration: BoxDecoration(
               color: _kRadioColor.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2.r),
+              borderRadius: BorderRadius.circular(2),
             ),
           );
         }),

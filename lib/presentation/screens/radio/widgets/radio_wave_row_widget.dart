@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -131,9 +130,9 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
 
   Widget _buildPhone(BuildContext context) {
     return _buildContent(
-      barWidth: _PhoneSizes.barWidth.w,
-      barSpacing: _PhoneSizes.barSpacing.w,
-      borderRadius: _PhoneSizes.barBorderRadius.r,
+      barWidth: _PhoneSizes.barWidth,
+      barSpacing: _PhoneSizes.barSpacing,
+      borderRadius: _PhoneSizes.barBorderRadius,
       heightScale: _PhoneSizes.heightScale,
       opacityActive: _PhoneSizes.opacityActive,
       opacityInactive: _PhoneSizes.opacityInactive,
@@ -166,7 +165,7 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
     required double opacityInactive,
   }) {
     return SizedBox(
-      height: 32.h,
+      height: 32,
       child: AnimatedBuilder(
         animation: _glowAnimation,
         builder: (context, child) {

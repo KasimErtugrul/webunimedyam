@@ -2,7 +2,6 @@
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
 // ═══════════════════════════════════════════════════════════
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class ProfileActivityListSizes {
   const ProfileActivityListSizes();
@@ -116,90 +115,90 @@ class ProfileActivityListPhoneSizes extends ProfileActivityListSizes {
 
   @override bool get isTablet => false;
 
-  @override double get appBarTitleSize => 18.sp;
-  @override double get appBarIconSize => 22.sp;
-  @override double get appBarIconPadding => 4.w;
+  @override double get appBarTitleSize => 18;
+  @override double get appBarIconSize => 22;
+  @override double get appBarIconPadding => 4;
 
-  @override double get loadingStrokeWidth => 3.w;
+  @override double get loadingStrokeWidth => 3;
 
-  @override double get gridPaddingHorizontal => 14.w;
-  @override double get gridPaddingVertical => 12.h;
-  @override double get gridMainSpacing => 10.h;
-  @override double get gridCrossSpacing => 10.w;
+  @override double get gridPaddingHorizontal => 14;
+  @override double get gridPaddingVertical => 12;
+  @override double get gridMainSpacing => 10;
+  @override double get gridCrossSpacing => 10;
   @override double get gridChildAspectRatio => 0.68;
 
-  @override double get listPaddingHorizontal => 14.w;
-  @override double get listPaddingVertical => 12.h;
-  @override double get listCardBottomMargin => 10.h;
-  @override double get listCardBorderRadius => 14.r;
-  @override double get listThumbnailWidth => 140.w;
-  @override double get listThumbnailHeight => 84.h;
-  @override double get listThumbnailRadius => 14.r;
-  @override double get listThumbnailIconSize => 28.sp;
-  @override double get listContentPaddingLeft => 12.w;
-  @override double get listContentPaddingTop => 10.h;
-  @override double get listContentPaddingRight => 8.w;
-  @override double get listContentPaddingBottom => 10.h;
-  @override double get listTitleFontSize => 13.sp;
+  @override double get listPaddingHorizontal => 14;
+  @override double get listPaddingVertical => 12;
+  @override double get listCardBottomMargin => 10;
+  @override double get listCardBorderRadius => 14;
+  @override double get listThumbnailWidth => 140;
+  @override double get listThumbnailHeight => 84;
+  @override double get listThumbnailRadius => 14;
+  @override double get listThumbnailIconSize => 28;
+  @override double get listContentPaddingLeft => 12;
+  @override double get listContentPaddingTop => 10;
+  @override double get listContentPaddingRight => 8;
+  @override double get listContentPaddingBottom => 10;
+  @override double get listTitleFontSize => 13;
   @override double get listTitleLineHeight => 1.35;
-  @override double get listUniFontSize => 11.sp;
-  @override double get listDateFontSize => 11.sp;
-  @override double get listStatSpacing => 10.w;
-  @override double get listStatIconSize => 13.sp;
-  @override double get listStatFontSize => 11.sp;
-  @override double get listChevronRight => 8.w;
-  @override double get listChevronTop => 36.h;
-  @override double get listChevronSize => 18.sp;
+  @override double get listUniFontSize => 11;
+  @override double get listDateFontSize => 11;
+  @override double get listStatSpacing => 10;
+  @override double get listStatIconSize => 13;
+  @override double get listStatFontSize => 11;
+  @override double get listChevronRight => 8;
+  @override double get listChevronTop => 36;
+  @override double get listChevronSize => 18;
 
-  @override double get gridCardBorderRadius => 14.r;
-  @override double get gridCardPaddingLeft => 8.w;
-  @override double get gridCardPaddingTop => 8.h;
-  @override double get gridCardPaddingRight => 8.w;
-  @override double get gridCardPaddingBottom => 6.h;
-  @override double get gridTitleFontSize => 12.sp;
+  @override double get gridCardBorderRadius => 14;
+  @override double get gridCardPaddingLeft => 8;
+  @override double get gridCardPaddingTop => 8;
+  @override double get gridCardPaddingRight => 8;
+  @override double get gridCardPaddingBottom => 6;
+  @override double get gridTitleFontSize => 12;
   @override double get gridTitleLineHeight => 1.3;
-  @override double get gridUniFontSize => 10.sp;
-  @override double get gridUniPaddingTop => 4.h;
-  @override double get gridStatIconSize => 11.sp;
-  @override double get gridStatFontSize => 10.sp;
-  @override double get gridStatSpacing => 8.w;
-  @override double get gridStatLineSpacing => 3.h;
+  @override double get gridUniFontSize => 10;
+  @override double get gridUniPaddingTop => 4;
+  @override double get gridStatIconSize => 11;
+  @override double get gridStatFontSize => 10;
+  @override double get gridStatSpacing => 8;
+  @override double get gridStatLineSpacing => 3;
 
-  @override double get durationBadgePaddingHorizontal => 5.w;
-  @override double get durationBadgePaddingVertical => 2.h;
-  @override double get durationBadgeBorderRadius => 4.r;
-  @override double get durationBadgeFontSize => 10.sp;
-  @override double get durationBadgeGridFontSize => 9.sp;
+  @override double get durationBadgePaddingHorizontal => 5;
+  @override double get durationBadgePaddingVertical => 2;
+  @override double get durationBadgeBorderRadius => 4;
+  @override double get durationBadgeFontSize => 10;
+  @override double get durationBadgeGridFontSize => 9;
 
-  @override double get dismissibleMarginBottom => 10.h;
-  @override double get dismissibleBorderRadius => 14.r;
-  @override double get dismissiblePaddingRight => 20.w;
-  @override double get dismissibleIconSize => 24.sp;
-  @override double get dismissibleTextFontSize => 12.sp;
-  @override double get dismissibleSpacing => 4.h;
+  @override double get dismissibleMarginBottom => 10;
+  @override double get dismissibleBorderRadius => 14;
+  @override double get dismissiblePaddingRight => 20;
+  @override double get dismissibleIconSize => 24;
+  @override double get dismissibleTextFontSize => 12;
+  @override double get dismissibleSpacing => 4;
 
-  @override double get dialogBorderRadius => 16.r;
-  @override double get dialogTitleFontSize => 17.sp;
-  @override double get dialogContentFontSize => 14.sp;
-  @override double get dialogButtonWidth => 72.w;
-  @override double get dialogButtonHeight => 36.h;
-  @override double get dialogButtonFontSize => 14.sp;
+  @override double get dialogBorderRadius => 16;
+  @override double get dialogTitleFontSize => 17;
+  @override double get dialogContentFontSize => 14;
+  @override double get dialogButtonWidth => 72;
+  @override double get dialogButtonHeight => 36;
+  @override double get dialogButtonFontSize => 14;
 
-  @override double get emptyPaddingHorizontal => 32.w;
-  @override double get emptyIconSize => 56.sp;
-  @override double get emptySpacingLarge => 16.h;
-  @override double get emptySpacingSmall => 6.h;
-  @override double get emptyTitleFontSize => 16.sp;
-  @override double get emptySubtitleFontSize => 13.sp;
+  @override double get emptyPaddingHorizontal => 32;
+  @override double get emptyIconSize => 56;
+  @override double get emptySpacingLarge => 16;
+  @override double get emptySpacingSmall => 6;
+  @override double get emptyTitleFontSize => 16;
+  @override double get emptySubtitleFontSize => 13;
 
-  @override double get noResultPaddingHorizontal => 32.w;
-  @override double get noResultIconSize => 48.sp;
-  @override double get noResultSpacingLarge => 14.h;
-  @override double get noResultSpacingSmall => 6.h;
-  @override double get noResultTitleFontSize => 15.sp;
-  @override double get noResultSubtitleFontSize => 13.sp;
+  @override double get noResultPaddingHorizontal => 32;
+  @override double get noResultIconSize => 48;
+  @override double get noResultSpacingLarge => 14;
+  @override double get noResultSpacingSmall => 6;
+  @override double get noResultTitleFontSize => 15;
+  @override double get noResultSubtitleFontSize => 13;
 
-  @override double get loadMorePaddingVertical => 20.h;
+  @override double get loadMorePaddingVertical => 20;
   @override double get loadMoreStrokeWidth => 2.5;
 }
 

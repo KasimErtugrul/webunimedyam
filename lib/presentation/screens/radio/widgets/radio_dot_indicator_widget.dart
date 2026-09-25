@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -69,11 +68,11 @@ class RadioDotIndicatorWidget extends StatelessWidget {
         final idx = start + i;
         final isActive = idx == current;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.horizontalMargin.w),
+          padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.horizontalMargin),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: isActive ? _PhoneSizes.activeWidth.w : _PhoneSizes.inactiveWidth.w,
-            height: _PhoneSizes.height.h,
+            width: isActive ? _PhoneSizes.activeWidth : _PhoneSizes.inactiveWidth,
+            height: _PhoneSizes.height,
             decoration: BoxDecoration(
               gradient: isActive
                   ? LinearGradient(
@@ -86,13 +85,13 @@ class RadioDotIndicatorWidget extends StatelessWidget {
               color: isActive
                   ? null
                   : AppTheme.primaryColor.withValues(alpha: _PhoneSizes.inactiveAlpha),
-              borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius.r),
+              borderRadius: BorderRadius.circular(_PhoneSizes.borderRadius),
               boxShadow: isActive
                   ? [
                       BoxShadow(
                         color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.activeGlowAlpha),
-                        blurRadius: 6.r,
-                        spreadRadius: 1.r,
+                        blurRadius: 6,
+                        spreadRadius: 1,
                       ),
                     ]
                   : null,

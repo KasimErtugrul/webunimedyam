@@ -1,7 +1,6 @@
 // lib/presentation/screens/player/player_screen_widgets/university_row_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -70,9 +69,9 @@ class UniversityRowWidget extends StatelessWidget {
     final s = _Sizes.of(context);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(s.borderRadius.r),
+      borderRadius: BorderRadius.circular(s.borderRadius),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: s.verticalPadding.h),
+        padding: EdgeInsets.symmetric(vertical: s.verticalPadding),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -80,8 +79,8 @@ class UniversityRowWidget extends StatelessWidget {
             // `logoUrl` parametresi önceden alınıp hiç çizilmiyordu; artık
             // gerçekten kullanılıyor (uydurma bir görsel eklenmedi).
             Container(
-              width: s.avatarSize.w,
-              height: s.avatarSize.w,
+              width: s.avatarSize,
+              height: s.avatarSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -94,22 +93,22 @@ class UniversityRowWidget extends StatelessWidget {
                       errorWidget: (_, __, ___) => Icon(
                         Icons.school_rounded,
                         color: AppTheme.textSec(context),
-                        size: s.avatarIconSize.sp,
+                        size: s.avatarIconSize,
                       ),
                     )
                   : Icon(
                       Icons.school_rounded,
                       color: AppTheme.textSec(context),
-                      size: s.avatarIconSize.sp,
+                      size: s.avatarIconSize,
                     ),
             ),
-            SizedBox(width: s.avatarSpacing.w),
+            SizedBox(width: s.avatarSpacing),
             Expanded(
               child: Text(
                 universityName,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: s.fontSize.sp,
+                  fontSize: s.fontSize,
                   fontWeight: FontWeight.w600,
                   height: s.lineHeight,
                 ),
@@ -121,7 +120,7 @@ class UniversityRowWidget extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textSec(context),
-                size: s.chevronSize.sp,
+                size: s.chevronSize,
               ),
           ],
         ),

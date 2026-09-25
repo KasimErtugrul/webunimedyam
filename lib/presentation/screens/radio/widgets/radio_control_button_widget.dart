@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -62,8 +61,8 @@ class RadioControlButtonWidget extends StatelessWidget {
       onTap: enabled ? onTap : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: _PhoneSizes.containerSize.r,
-        height: _PhoneSizes.containerSize.r,
+        width: _PhoneSizes.containerSize,
+        height: _PhoneSizes.containerSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: enabled
@@ -88,7 +87,7 @@ class RadioControlButtonWidget extends StatelessWidget {
         ),
         child: Icon(
           icon,
-          size: _PhoneSizes.iconSize.sp,
+          size: _PhoneSizes.iconSize,
           color: enabled ? AppTheme.primaryColor : Colors.grey.shade600,
         ),
       ),

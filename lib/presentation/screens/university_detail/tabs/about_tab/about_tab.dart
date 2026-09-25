@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -41,27 +40,27 @@ class UniversityDetailAboutTab extends StatelessWidget {
       return SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
-          spec.contentPaddingH.w,
-          spec.contentPaddingTop.h,
-          spec.contentPaddingH.w,
-          spec.contentPaddingBottom.h,
+          spec.contentPaddingH,
+          spec.contentPaddingTop,
+          spec.contentPaddingH,
+          spec.contentPaddingBottom,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Açıklama ──
             UniversityAboutSectionTitle(spec: spec, title: 'Açıklama'),
-            SizedBox(height: 10.h),
+            SizedBox(height: 10),
             UniversityAboutDescriptionCard(
               spec: spec,
               uni: uni,
             ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.05, end: 0),
 
-            SizedBox(height: spec.sectionSpacing.h),
+            SizedBox(height: spec.sectionSpacing),
 
             // ── Genel Bilgiler ──
             UniversityAboutSectionTitle(spec: spec, title: 'Genel Bilgiler'),
-            SizedBox(height: 10.h),
+            SizedBox(height: 10),
             UniversityAboutInfoCard(
                   spec: spec,
                   uni: uni,
@@ -73,9 +72,9 @@ class UniversityDetailAboutTab extends StatelessWidget {
 
             // ── Bağlantılar ──
             if (hasLinks) ...[
-              SizedBox(height: spec.sectionSpacing.h),
+              SizedBox(height: spec.sectionSpacing),
               UniversityAboutSectionTitle(spec: spec, title: 'Bağlantılar'),
-              SizedBox(height: 10.h),
+              SizedBox(height: 10),
 
               if (uni.websiteUrl?.isNotEmpty ?? false)
                 UniversityAboutLinkButton(
@@ -86,7 +85,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
                   color: const Color(0xFF3B82F6),
                 ),
               if (uni.customUrl?.isNotEmpty ?? false) ...[
-                SizedBox(height: 8.h),
+                SizedBox(height: 8),
                 UniversityAboutLinkButton(
                   spec: spec,
                   icon: Icons.play_circle_fill_rounded,
@@ -96,7 +95,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
                 ),
               ],
               if (uni.radioLink?.isNotEmpty ?? false) ...[
-                SizedBox(height: 8.h),
+                SizedBox(height: 8),
                 UniversityAboutRadioCard(
                   spec: spec,
                   university: uni,

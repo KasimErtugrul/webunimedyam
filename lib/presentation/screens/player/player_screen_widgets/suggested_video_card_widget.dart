@@ -1,7 +1,6 @@
 // lib/presentation/screens/player/player_screen_widgets/suggested_video_card_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -220,16 +219,16 @@ class SuggestedVideoCard extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
-        width: s.cardWidth.w,
-        margin: EdgeInsets.only(right: s.cardMarginRight.w),
+        width: s.cardWidth,
+        margin: EdgeInsets.only(right: s.cardMarginRight),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(s.cardRadius.r),
+          borderRadius: BorderRadius.circular(s.cardRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: s.cardShadowBlur.r,
-              offset: Offset(0, s.cardShadowOffsetY.h),
+              blurRadius: s.cardShadowBlur,
+              offset: Offset(0, s.cardShadowOffsetY),
             ),
           ],
         ),
@@ -253,7 +252,7 @@ class SuggestedVideoCard extends StatelessWidget {
                       child: Icon(
                         Icons.play_circle_outline_rounded,
                         color: AppTheme.textSec(context),
-                        size: s.errorIconSize.sp,
+                        size: s.errorIconSize,
                       ),
                     ),
                   ),
@@ -261,7 +260,7 @@ class SuggestedVideoCard extends StatelessWidget {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: s.gradientHeight.h,
+                    height: s.gradientHeight,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -277,24 +276,24 @@ class SuggestedVideoCard extends StatelessWidget {
                   ),
                   if (video.formattedDuration.isNotEmpty)
                     Positioned(
-                      bottom: s.durationBadgeBottom.h,
-                      right: s.durationBadgeRight.w,
+                      bottom: s.durationBadgeBottom,
+                      right: s.durationBadgeRight,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: s.durationBadgePaddingH.w,
-                          vertical: s.durationBadgePaddingV.h,
+                          horizontal: s.durationBadgePaddingH,
+                          vertical: s.durationBadgePaddingV,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.75),
                           borderRadius: BorderRadius.circular(
-                            s.durationBadgeRadius.r,
+                            s.durationBadgeRadius,
                           ),
                         ),
                         child: Text(
                           video.formattedDuration,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: s.durationBadgeFontSize.sp,
+                            fontSize: s.durationBadgeFontSize,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -302,23 +301,23 @@ class SuggestedVideoCard extends StatelessWidget {
                     ),
                   if (video.isHd)
                     Positioned(
-                      top: s.hdBadgeTop.h,
-                      right: s.hdBadgeRight.w,
+                      top: s.hdBadgeTop,
+                      right: s.hdBadgeRight,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: s.hdBadgePaddingH.w,
-                          vertical: s.hdBadgePaddingV.h,
+                          horizontal: s.hdBadgePaddingH,
+                          vertical: s.hdBadgePaddingV,
                         ),
                         decoration: BoxDecoration(
                           color: primary,
                           borderRadius:
-                              BorderRadius.circular(s.hdBadgeRadius.r),
+                              BorderRadius.circular(s.hdBadgeRadius),
                         ),
                         child: Text(
                           'HD',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: s.hdBadgeFontSize.sp,
+                            fontSize: s.hdBadgeFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -331,10 +330,10 @@ class SuggestedVideoCard extends StatelessWidget {
             // ── Alt bilgi ──
             Padding(
               padding: EdgeInsets.fromLTRB(
-                s.contentPaddingLeft.w,
-                s.contentPaddingTop.h,
-                s.contentPaddingRight.w,
-                s.contentPaddingBottom.h,
+                s.contentPaddingLeft,
+                s.contentPaddingTop,
+                s.contentPaddingRight,
+                s.contentPaddingBottom,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,12 +344,12 @@ class SuggestedVideoCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: s.titleFontSize.sp,
+                      fontSize: s.titleFontSize,
                       fontWeight: FontWeight.w700,
                       height: s.titleLineHeight,
                     ),
                   ),
-                  SizedBox(height: s.titleSpacing.h),
+                  SizedBox(height: s.titleSpacing),
                   Row(
                     children: [
                       Expanded(
@@ -360,38 +359,38 @@ class SuggestedVideoCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppTheme.textSec(context),
-                            fontSize: s.channelFontSize.sp,
+                            fontSize: s.channelFontSize,
                           ),
                         ),
                       ),
                       if (video.universityId != null)
                         Padding(
                           padding:
-                              EdgeInsets.only(left: s.schoolIconSpacing.w),
+                              EdgeInsets.only(left: s.schoolIconSpacing),
                           child: Icon(
                             Icons.school_rounded,
-                            size: s.schoolIconSize.sp,
+                            size: s.schoolIconSize,
                             color: primary,
                           ),
                         ),
                     ],
                   ),
-                  SizedBox(height: s.channelSpacing.h),
+                  SizedBox(height: s.channelSpacing),
                   Wrap(
-                    spacing: s.statSpacing.w,
-                    runSpacing: s.statRunSpacing.h,
+                    spacing: s.statSpacing,
+                    runSpacing: s.statRunSpacing,
                     children: [
                       _Stat(
                         bgColor: primary.withValues(alpha: 0.15),
                         fgColor: primary,
                         icon: Icons.remove_red_eye_outlined,
-                        iconSize: s.statIconSize.sp,
+                        iconSize: s.statIconSize,
                         text: video.formattedViewCount,
-                        fontSize: s.statFontSize.sp,
-                        paddingH: s.statPaddingH.w,
-                        paddingV: s.statPaddingV.h,
-                        radius: s.statRadius.r,
-                        spacing: s.statSpacingSmall.w,
+                        fontSize: s.statFontSize,
+                        paddingH: s.statPaddingH,
+                        paddingV: s.statPaddingV,
+                        radius: s.statRadius,
+                        spacing: s.statSpacingSmall,
                       ),
                       if (video.likeCount > 0)
                         _Stat(
@@ -399,13 +398,13 @@ class SuggestedVideoCard extends StatelessWidget {
                               AppTheme.textSec(context).withValues(alpha: 0.1),
                           fgColor: AppTheme.textSec(context),
                           icon: Icons.thumb_up_alt_outlined,
-                          iconSize: s.statLikeIconSize.sp,
+                          iconSize: s.statLikeIconSize,
                           text: _formatCompact(video.likeCount),
-                          fontSize: s.statLikeFontSize.sp,
-                          paddingH: s.statPaddingH.w,
-                          paddingV: s.statPaddingV.h,
-                          radius: s.statRadius.r,
-                          spacing: s.statSpacingSmall.w,
+                          fontSize: s.statLikeFontSize,
+                          paddingH: s.statPaddingH,
+                          paddingV: s.statPaddingV,
+                          radius: s.statRadius,
+                          spacing: s.statSpacingSmall,
                         ),
                       if (video.universityName != null &&
                           video.universityName!.isNotEmpty)
@@ -413,22 +412,22 @@ class SuggestedVideoCard extends StatelessWidget {
                           bgColor: primary.withValues(alpha: 0.1),
                           fgColor: primary,
                           icon: Icons.school_rounded,
-                          iconSize: s.statUniversityIconSize.sp,
+                          iconSize: s.statUniversityIconSize,
                           text: video.universityName!,
-                          fontSize: s.statUniversityFontSize.sp,
-                          paddingH: s.statPaddingH.w,
-                          paddingV: s.statPaddingV.h,
-                          radius: s.statRadius.r,
-                          spacing: s.statUniversitySpacing.w,
+                          fontSize: s.statUniversityFontSize,
+                          paddingH: s.statPaddingH,
+                          paddingV: s.statPaddingV,
+                          radius: s.statRadius,
+                          spacing: s.statUniversitySpacing,
                         ),
                     ],
                   ),
-                  SizedBox(height: s.timeSpacing.h),
+                  SizedBox(height: s.timeSpacing),
                   Text(
                     _relativeTime(video.publishedAt),
                     style: TextStyle(
                       color: AppTheme.textSec(context).withValues(alpha: 0.8),
-                      fontSize: s.timeFontSize.sp,
+                      fontSize: s.timeFontSize,
                     ),
                   ),
                 ],

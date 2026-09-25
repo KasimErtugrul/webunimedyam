@@ -87,10 +87,9 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   }
 
   // Sağdaki "Üniversite Radyoları" paneli.
-  // DÜRÜST NOT (orijinalden korunmuştur): `width: 50.w` Expanded içinde
-  // etkisizdir; carousel'in yükseklik hesabı da (itemWidth = 250.w) gerçek
-  // render genişliğiyle ilişkili DEĞİL — bu blok mockup hero çalışmasında
-  // yeniden kurulacak, şimdilik birebir korundu.
+  // DÜRÜST NOT (orijinalden korunmuştur): `width: 50` Expanded içinde
+  // etkisizdir — bu blok mockup hero çalışmasında yeniden kurulacak,
+  // şimdilik birebir korundu.
   Widget _buildRadioPanel(BuildContext context) {
     return Container(
       width: 50,
@@ -181,70 +180,81 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
       if (featured.isEmpty) return const SizedBox.shrink();
 
-      // DÜRÜST NOT: itemWidth gerçek render genişliği değil (o, viewportFraction
-      // × Expanded sonucu); yalnızca yükseklik tahmini için kullanılıyor.
+      // FIX: kart yüksekliği önceki sürümde sabit `itemWidth = 250`
+      // varsayımıyla hesaplanıyordu; bu değerin gerçek render genişliğiyle
+      // ilişkisi yoktu. Artık itemWidth, LayoutBuilder ile bu widget'a
+      // ayrılan gerçek genişlikten (constraints.maxWidth × viewportFraction)
+      // türetiliyor.
       final double fraction = isTablet ? .5 : 0.82;
-      final double itemWidth = 250;
-      final double cardHeight = itemWidth * 9 / 16 + (isTablet ? 55 : 90);
-      // enlargeCenterPage kapalı olduğu için yüksekliğe pay bırakılıyor.
-      final double carouselHeight = cardHeight * .55;
       final scheme = Theme.of(context).colorScheme;
 
-      return Column(
-        children: [
-          CarouselSlider(
-            items: featured.map((video) {
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: isTablet ? 6 : 4),
-                child: _buildLargeVideoCard(
-                  context,
-                  scheme,
-                  video: video,
-                  badgeText: '',
-                  badgeIcon: Icons.bolt_rounded,
-                  isTablet: true,
-                ),
-              );
-            }).toList(),
-            options: CarouselOptions(
-              height: carouselHeight,
-              viewportFraction: fraction,
-              enableInfiniteScroll: featured.length > 1,
-              enlargeCenterPage: false,
-              autoPlay: false,
-              autoPlayInterval: const Duration(seconds: 5),
-              autoPlayAnimationDuration: const Duration(milliseconds: 450),
-              onPageChanged: (index, reason) {
-                if (!mounted) return;
-                setState(() {
-                  _currentCarouselIndex = index;
-                });
-              },
-            ),
-          ),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double itemWidth = constraints.maxWidth * fraction;
+          final double cardHeight = itemWidth * 9 / 16 + (isTablet ? 55 : 90);
+          // enlargeCenterPage kapalı olduğu için yüksekliğe pay bırakılıyor.
+          final double carouselHeight = cardHeight * .55;
 
-          // ── Nokta göstergeleri ────────────────────────────────────────
-          if (featured.length > 1)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(featured.length, (i) {
-                final active =
-                    i == _currentCarouselIndex.clamp(0, featured.length - 1);
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: active ? 18 : 6,
-                  height: 6,
-                  margin: EdgeInsets.symmetric(horizontal: 3, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: active
-                        ? AppTheme.primaryColor
-                        : AppTheme.textSec(context).withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                  ),
-                );
-              }),
-            ),
-        ],
+          return Column(
+            children: [
+              CarouselSlider(
+                items: featured.map((video) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 6 : 4),
+                    child: _buildLargeVideoCard(
+                      context,
+                      scheme,
+                      video: video,
+                      badgeText: '',
+                      badgeIcon: Icons.bolt_rounded,
+                      isTablet: true,
+                    ),
+                  );
+                }).toList(),
+                options: CarouselOptions(
+                  height: carouselHeight,
+                  viewportFraction: fraction,
+                  enableInfiniteScroll: featured.length > 1,
+                  enlargeCenterPage: false,
+                  autoPlay: false,
+                  autoPlayInterval: const Duration(seconds: 5),
+                  autoPlayAnimationDuration: const Duration(milliseconds: 450),
+                  onPageChanged: (index, reason) {
+                    if (!mounted) return;
+                    setState(() {
+                      _currentCarouselIndex = index;
+                    });
+                  },
+                ),
+              ),
+
+              // ── Nokta göstergeleri ────────────────────────────────────────
+              if (featured.length > 1)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(featured.length, (i) {
+                    final active =
+                        i ==
+                        _currentCarouselIndex.clamp(0, featured.length - 1);
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: active ? 18 : 6,
+                      height: 6,
+                      margin: EdgeInsets.symmetric(horizontal: 3, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: active
+                            ? AppTheme.primaryColor
+                            : AppTheme.textSec(context).withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusFull,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+            ],
+          );
+        },
       );
     });
   }
@@ -316,10 +326,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     bottom: 10,
                     right: 10,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerLowest.withValues(
                           alpha: 0.85,
@@ -475,13 +482,12 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
     }
 
     // ── TABLET: Grid görünümü ──────────────────────────────────────────
-    // NOT: Kolon sayısı hâlâ orientation'a bağlı (mevcut davranış);
-    // sidebar'ın yer yemesi hesaba katılmıyor. Mockup hero çalışmasında
-    // LayoutBuilder'a geçilecek.
+    // FIX: Sütun sayısı artık orientation'a göre değil, bu sliver'a
+    // gerçekte ayrılan yatay alana (constraints.crossAxisExtent) göre
+    // hesaplanıyor; böylece sidebar/padding'in yediği yer de hesaba
+    // katılıyor.
     const double horizontalPadding = 16;
     const double gridSpacing = 16;
-    final Orientation orientation = MediaQuery.orientationOf(context);
-    final int crossAxisCount = orientation == Orientation.portrait ? 2 : 3;
 
     final showLoader = controller.hasMoreVideos.value;
     final isLoadingMore = controller.isLoadingMore.value;
@@ -506,6 +512,14 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
               SliverLayoutBuilder(
                 builder: (context, constraints) {
                   final availableWidth = constraints.crossAxisExtent;
+
+                  // Hedef kart genişliği; mevcut alana göre sütun sayısı
+                  // otomatik seçilir (portre/landscape farkı dahil).
+                  const double targetItemWidth = 280;
+                  final int crossAxisCount = (availableWidth / targetItemWidth)
+                      .floor()
+                      .clamp(1, 6);
+
                   final itemWidth =
                       (availableWidth - (crossAxisCount - 1) * gridSpacing) /
                       crossAxisCount;

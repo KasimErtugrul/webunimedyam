@@ -5,7 +5,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/shorts_model.dart';
@@ -17,7 +16,8 @@ class ShortsPlayerUniversityLogoWheel extends StatefulWidget {
   final int activeIndex;
   final ValueChanged<int> onChanged;
 
-  const ShortsPlayerUniversityLogoWheel({super.key, 
+  const ShortsPlayerUniversityLogoWheel({
+    super.key,
     required this.sizes,
     required this.shorts,
     required this.activeIndex,
@@ -114,8 +114,8 @@ class _ShortsPlayerUniversityLogoWheelState
                                 color: AppTheme.primaryColor.withValues(
                                   alpha: 0.4,
                                 ),
-                                blurRadius: sizes.isTablet ? 10 : 10.r,
-                                spreadRadius: sizes.isTablet ? 1 : 1.r,
+                                blurRadius: sizes.isTablet ? 10 : 10,
+                                spreadRadius: sizes.isTablet ? 1 : 1,
                               ),
                             ]
                           : null,

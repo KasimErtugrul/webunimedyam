@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -14,7 +13,6 @@ import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../../data/models/video_model.dart';
 import 'utils/simple_shorts_player_sizes.dart';
-
 
 // ═══════════════════════════════════════════════════════════
 // ANA WIDGET (Stateful)
@@ -97,7 +95,9 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       ),
     );
 
-    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (_) async {
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (
+      _,
+    ) async {
       if (!mounted || _ytController == null) return;
       try {
         final dur = await _ytController!.duration;
@@ -211,15 +211,16 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     );
   }
 
-  Widget _buildPage(SimpleShortsPlayerSizes sizes, VideoModel short, int index) {
+  Widget _buildPage(
+    SimpleShortsPlayerSizes sizes,
+    VideoModel short,
+    int index,
+  ) {
     final isActive = index == _currentIndex;
     return Stack(
       fit: StackFit.expand,
       children: [
-        CachedNetworkImage(
-          imageUrl: short.bestThumbnail,
-          fit: BoxFit.cover,
-        ),
+        CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
         if (isActive && _ytController != null)
           IgnorePointer(
             child: YoutubePlayer(
@@ -248,7 +249,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
           child: Container(
             padding: EdgeInsets.fromLTRB(
               sizes.bottomPaddingHorizontal,
-              60.h,
+              60,
               sizes.bottomPaddingHorizontal,
               0,
             ),
@@ -265,9 +266,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             child: SafeArea(
               top: false,
               child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: sizes.bottomPaddingVertical,
-                ),
+                padding: EdgeInsets.only(bottom: sizes.bottomPaddingVertical),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -457,7 +456,8 @@ class SimpleShortsPlayerVideoChipRow extends StatelessWidget {
   final ScrollController scrollController;
   final ValueChanged<int> onSelect;
 
-  const SimpleShortsPlayerVideoChipRow({super.key, 
+  const SimpleShortsPlayerVideoChipRow({
+    super.key,
     required this.sizes,
     required this.shorts,
     required this.currentIndex,
@@ -553,7 +553,8 @@ class SimpleShortsPlayerTextButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const SimpleShortsPlayerTextButton({super.key, 
+  const SimpleShortsPlayerTextButton({
+    super.key,
     required this.sizes,
     required this.icon,
     required this.label,
@@ -565,9 +566,7 @@ class SimpleShortsPlayerTextButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: sizes.textBtnPaddingVertical,
-        ),
+        padding: EdgeInsets.symmetric(vertical: sizes.textBtnPaddingVertical),
         decoration: BoxDecoration(
           color: Colors.white10,
           borderRadius: BorderRadius.circular(sizes.textBtnBorderRadius),
@@ -579,11 +578,7 @@ class SimpleShortsPlayerTextButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: Colors.white70,
-              size: sizes.textBtnIconSize,
-            ),
+            Icon(icon, color: Colors.white70, size: sizes.textBtnIconSize),
             SizedBox(width: sizes.textBtnSpacing),
             Text(
               label,

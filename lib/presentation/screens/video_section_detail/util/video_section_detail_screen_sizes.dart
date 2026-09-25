@@ -1,5 +1,3 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 /// Tek ortak sözleşme: phone ve tablet build/card/chip/placeholder/shimmer
 /// widget'ları artık "phone mu tablet mi" diye dallanmak yerine bu arayüzü
 /// implemente eden bir `VideoSectionDetailSizes` alır.
@@ -65,84 +63,84 @@ abstract class VideoSectionDetailSizes {
 }
 
 /// Eski `VideoSectionDetailScreenPhoneSizes` ile birebir aynı değerler,
-/// aynı screenutil (.w/.h/.sp/.r) ölçeklemesiyle — görsel çıktı değişmedi.
+/// aynı screenutil (///) ölçeklemesiyle — görsel çıktı değişmedi.
 class VideoSectionDetailPhoneSizes extends VideoSectionDetailSizes {
   const VideoSectionDetailPhoneSizes();
 
   @override
-  double get appBarIconSize => 24.sp;
+  double get appBarIconSize => 24;
   @override
-  double get appBarTitleSize => 17.sp;
+  double get appBarTitleSize => 17;
 
   @override
-  double get cardMarginHorizontal => 14.w;
+  double get cardMarginHorizontal => 14;
   @override
-  double get cardMarginVertical => 5.h;
+  double get cardMarginVertical => 5;
   @override
-  double get cardPadding => 10.w;
+  double get cardPadding => 10;
   @override
-  double get cardBorderRadius => 12.r;
+  double get cardBorderRadius => 12;
 
   @override
-  double get thumbnailWidth => 120.w;
+  double get thumbnailWidth => 120;
   @override
-  double get thumbnailHeight => 80.h;
+  double get thumbnailHeight => 80;
   @override
-  double get thumbnailBorderRadius => 8.r;
+  double get thumbnailBorderRadius => 8;
   @override
-  double get thumbnailIconSize => 28.sp;
+  double get thumbnailIconSize => 28;
   @override
-  double get thumbnailSpacing => 10.w;
+  double get thumbnailSpacing => 10;
 
   @override
-  double get durationBadgeBottom => 4.h;
+  double get durationBadgeBottom => 4;
   @override
-  double get durationBadgeRight => 4.w;
+  double get durationBadgeRight => 4;
   @override
-  double get durationBadgePaddingHorizontal => 4.w;
+  double get durationBadgePaddingHorizontal => 4;
   @override
-  double get durationBadgePaddingVertical => 2.h;
+  double get durationBadgePaddingVertical => 2;
   @override
-  double get durationBadgeBorderRadius => 3.r;
+  double get durationBadgeBorderRadius => 3;
   @override
-  double get durationBadgeFontSize => 9.sp;
+  double get durationBadgeFontSize => 9;
 
   @override
-  double get titleFontSize => 13.sp;
+  double get titleFontSize => 13;
   @override
   double get titleLineHeight => 1.35;
   @override
-  double get titleSpacing => 4.h;
+  double get titleSpacing => 4;
   @override
-  double get channelFontSize => 11.sp;
+  double get channelFontSize => 11;
   @override
-  double get statSpacing => 8.w;
+  double get statSpacing => 8;
   @override
-  double get statRunSpacing => 2.h;
+  double get statRunSpacing => 2;
   @override
-  double get statIconSize => 10.sp;
+  double get statIconSize => 10;
   @override
-  double get statFontSize => 10.sp;
+  double get statFontSize => 10;
   @override
-  double get statSpacingSmall => 2.w;
+  double get statSpacingSmall => 2;
   @override
-  double get dateFontSize => 10.sp;
+  double get dateFontSize => 10;
   @override
-  double get metaSpacing => 6.h;
+  double get metaSpacing => 6;
 
   @override
-  double get footerPaddingVertical => 20.h;
+  double get footerPaddingVertical => 20;
   @override
-  double get footerLoaderWidth => 24.w;
+  double get footerLoaderWidth => 24;
   @override
-  double get footerLoaderHeight => 24.h;
+  double get footerLoaderHeight => 24;
   @override
   double get footerLoaderStrokeWidth => 2.5;
   @override
-  double get footerTextFontSize => 13.sp;
+  double get footerTextFontSize => 13;
 
   @override
-  double get listVerticalPadding => 8.h;
+  double get listVerticalPadding => 8;
 
   @override
   double get scrollLoadThreshold => 200;

@@ -1,7 +1,6 @@
 // lib/presentation/screens/player/player_screen_widgets/expandable_description_widget.dart
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -157,7 +156,7 @@ class _ExpandableDescriptionWidgetState
     final s = _Sizes.of(context);
     final textStyle = TextStyle(
       color: AppTheme.textSec(context),
-      fontSize: s.fontSize.sp,
+      fontSize: s.fontSize,
       height: s.lineHeight,
     );
     final primary = Theme.of(context).colorScheme.primary;
@@ -198,7 +197,7 @@ class _ExpandableDescriptionWidgetState
                 ),
               ),
               if (isOverflowing) ...[
-                SizedBox(height: s.buttonSpacing.h),
+                SizedBox(height: s.buttonSpacing),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -206,17 +205,17 @@ class _ExpandableDescriptionWidgetState
                       _expanded ? 'Daha az göster' : 'Devamını gör',
                       style: TextStyle(
                         color: primary,
-                        fontSize: s.buttonFontSize.sp,
+                        fontSize: s.buttonFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(width: s.buttonIconSpacing.w),
+                    SizedBox(width: s.buttonIconSpacing),
                     AnimatedRotation(
                       duration: _kAnimDuration,
                       turns: _expanded ? 0.5 : 0,
                       child: Icon(
                         Icons.expand_more_rounded,
-                        size: s.buttonIconSize.sp,
+                        size: s.buttonIconSize,
                         color: primary,
                       ),
                     ),

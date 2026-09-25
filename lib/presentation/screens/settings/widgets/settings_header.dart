@@ -2,7 +2,6 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../settings_layout_spec.dart';
@@ -26,8 +25,8 @@ class SettingsHeader extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      toolbarHeight: spec.headerHeight.h,
-      titleSpacing: 12.w,
+      toolbarHeight: spec.headerHeight,
+      titleSpacing: 12,
       flexibleSpace: ClipRect(
         // bg-surface/85 backdrop-blur-xl
         child: BackdropFilter(
@@ -45,16 +44,16 @@ class SettingsHeader extends StatelessWidget {
             tooltip: 'Geri Dön',
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(
-              minWidth: spec.headerTouchSize.w,
-              minHeight: spec.headerTouchSize.h,
+              minWidth: spec.headerTouchSize,
+              minHeight: spec.headerTouchSize,
             ),
             icon: Icon(
               Icons.arrow_back_rounded,
-              size: spec.headerIconSize.sp,
+              size: spec.headerIconSize,
               color: scheme.onSurface,
             ),
           ),
-          SizedBox(width: spec.headerGap.w),
+          SizedBox(width: spec.headerGap),
           Expanded(
             child: Text(
               'Ayarlar',
@@ -62,7 +61,7 @@ class SettingsHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: scheme.onSurface,
-                fontSize: spec.headerTitleFontSize.sp,
+                fontSize: spec.headerTitleFontSize,
                 fontWeight: FontWeight.w600,
                 letterSpacing: -0.01 * spec.headerTitleFontSize,
               ),
@@ -75,26 +74,26 @@ class SettingsHeader extends StatelessWidget {
             tooltip: 'Paylaş',
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(
-              minWidth: spec.headerTouchSize.w,
-              minHeight: spec.headerTouchSize.h,
+              minWidth: spec.headerTouchSize,
+              minHeight: spec.headerTouchSize,
             ),
             icon: Icon(
               Icons.share_rounded,
-              size: spec.headerShareIconSize.sp,
+              size: spec.headerShareIconSize,
               color: scheme.onSurfaceVariant,
             ),
           ),
-          SizedBox(width: 4.w),
+          SizedBox(width: 4),
           Container(
-            width: spec.headerAvatarSize.w,
-            height: spec.headerAvatarSize.w,
+            width: spec.headerAvatarSize,
+            height: spec.headerAvatarSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: scheme.primary,
             ),
             child: Icon(
               Icons.person_rounded,
-              size: spec.headerAvatarIconSize.sp,
+              size: spec.headerAvatarIconSize,
               color: scheme.onPrimary,
             ),
           ),

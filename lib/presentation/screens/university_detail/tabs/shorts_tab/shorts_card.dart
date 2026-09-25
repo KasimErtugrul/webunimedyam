@@ -1,7 +1,6 @@
 // lib/presentation/screens/university_detail/tabs/shorts_tab/shorts_card.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../../../app/themes/app_theme.dart';
@@ -24,7 +23,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppTheme.card(context),
-      borderRadius: BorderRadius.circular(spec.shortsCardRadius.r),
+      borderRadius: BorderRadius.circular(spec.shortsCardRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -40,15 +39,14 @@ class UniversityDetailShortsCard extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: video.bestThumbnail,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      color: AppTheme.surface(context),
-                    ),
+                    placeholder: (_, _) =>
+                        Container(color: AppTheme.surface(context)),
                     errorWidget: (_, _, _) => Container(
                       color: AppTheme.surface(context),
                       child: Icon(
                         Icons.play_circle_outline_rounded,
                         color: AppTheme.textSec(context),
-                        size: spec.shortsPlayOverlay.w * 0.7,
+                        size: spec.shortsPlayOverlay * 0.7,
                       ),
                     ),
                   ),
@@ -57,7 +55,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: 50.h,
+                    height: 50,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -73,30 +71,30 @@ class UniversityDetailShortsCard extends StatelessWidget {
                   ),
                   // SHORTS badge
                   Positioned(
-                    top: 8.h,
-                    left: 8.w,
+                    top: 8,
+                    left: 8,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 7.w,
-                        vertical: 3.h,
+                        horizontal: 7,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE53935),
-                        borderRadius: BorderRadius.circular(5.r),
+                        borderRadius: BorderRadius.circular(5),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.bolt_rounded,
-                            size: 11.sp,
+                            size: 11,
                             color: Colors.white,
                           ),
-                          SizedBox(width: 2.w),
+                          SizedBox(width: 2),
                           Text(
                             'SHORTS',
                             style: TextStyle(
-                              fontSize: 9.sp,
+                              fontSize: 9,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                               letterSpacing: 0.4,
@@ -109,21 +107,21 @@ class UniversityDetailShortsCard extends StatelessWidget {
                   // Duration
                   if (video.formattedDuration.isNotEmpty)
                     Positioned(
-                      bottom: 8.h,
-                      right: 8.w,
+                      bottom: 8,
+                      right: 8,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 3.h,
+                          horizontal: 6,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(4.r),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           video.formattedDuration,
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
@@ -133,8 +131,8 @@ class UniversityDetailShortsCard extends StatelessWidget {
                   // Center play
                   Center(
                     child: Container(
-                      width: spec.shortsPlayOverlay.w,
-                      height: spec.shortsPlayOverlay.w,
+                      width: spec.shortsPlayOverlay,
+                      height: spec.shortsPlayOverlay,
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.42),
                         shape: BoxShape.circle,
@@ -142,7 +140,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                       child: Icon(
                         Icons.play_arrow_rounded,
                         color: Colors.white,
-                        size: spec.shortsPlayIcon.sp,
+                        size: spec.shortsPlayIcon,
                       ),
                     ),
                   ),
@@ -151,7 +149,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
             ),
             // Meta
             Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 8.h),
+              padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -161,46 +159,46 @@ class UniversityDetailShortsCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: spec.shortsTitleFontSize.sp,
+                      fontSize: spec.shortsTitleFontSize,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPri(context),
                       height: 1.3,
                     ),
                   ),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(
                         Icons.visibility_rounded,
-                        size: spec.shortsMetaFontSize.sp + 1,
+                        size: spec.shortsMetaFontSize + 1,
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 3.w),
+                      SizedBox(width: 3),
                       Flexible(
                         child: Text(
                           video.formattedViewCount,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: spec.shortsMetaFontSize.sp,
+                            fontSize: spec.shortsMetaFontSize,
                             color: AppTheme.textSec(context),
                           ),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 8),
                       Icon(
                         Icons.schedule_rounded,
-                        size: spec.shortsMetaFontSize.sp,
+                        size: spec.shortsMetaFontSize,
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 3.w),
+                      SizedBox(width: 3),
                       Flexible(
                         child: Text(
                           _timeAgo(video.publishedAt),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: spec.shortsMetaFontSize.sp,
+                            fontSize: spec.shortsMetaFontSize,
                             color: AppTheme.textSec(context),
                           ),
                         ),

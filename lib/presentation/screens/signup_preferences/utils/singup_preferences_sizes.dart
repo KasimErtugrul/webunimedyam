@@ -1,7 +1,5 @@
 // lib/presentation/screens/signup_preferences/utils/singup_preferences_sizes.dart
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT — Stitch "Tema Seçimi" + "Üniversite
 // Seçimi" tasarımlarının tüm ölçüleri (5 adımlı akış).
@@ -161,252 +159,252 @@ class SignupPreferencesPhoneSizes extends SignupPreferencesSizes {
   bool get isTablet => false;
 
   @override
-  double get headerHeight => 64.h;
+  double get headerHeight => 64;
   @override
-  double get headerHPadding => 16.w;
+  double get headerHPadding => 16;
   @override
-  double get headerGap => 8.w;
+  double get headerGap => 8;
   @override
-  double get backButtonSize => 44.w;
+  double get backButtonSize => 44;
   @override
-  double get backButtonIconSize => 24.sp;
+  double get backButtonIconSize => 24;
   @override
-  double get logoHeight => 32.h;
+  double get logoHeight => 32;
   @override
-  double get headerTitleFontSize => 18.sp;
+  double get headerTitleFontSize => 18;
   @override
-  double get skipFontSize => 12.sp;
+  double get skipFontSize => 12;
   @override
-  double get avatarSize => 32.w;
+  double get avatarSize => 32;
   @override
-  double get avatarIconSize => 18.sp;
+  double get avatarIconSize => 18;
 
   @override
-  double get progressVPadding => 16.h;
+  double get progressVPadding => 16;
   @override
-  double get progressLabelFontSize => 10.sp;
+  double get progressLabelFontSize => 10;
   @override
-  double get progressLabelGap => 4.w;
+  double get progressLabelGap => 4;
   @override
-  double get progressDotSize => 8.r;
+  double get progressDotSize => 8;
   @override
-  double get segmentHeight => 6.h;
+  double get segmentHeight => 6;
   @override
-  double get segmentGap => 6.w;
+  double get segmentGap => 6;
 
   @override
-  double get introRadius => 12.r;
+  double get introRadius => 12;
   @override
-  double get introPadding => 16.w;
+  double get introPadding => 16;
   @override
-  double get introBottomGap => 24.h;
+  double get introBottomGap => 24;
   @override
-  double get introGlowSize => 128.w;
+  double get introGlowSize => 128;
   @override
-  double get introGlowOffset => 32.r;
+  double get introGlowOffset => 32;
   @override
-  double get introIconBoxSize => 40.w;
+  double get introIconBoxSize => 40;
   @override
-  double get introIconBoxRadius => 8.r;
+  double get introIconBoxRadius => 8;
   @override
-  double get introIconSize => 24.sp;
+  double get introIconSize => 24;
   @override
-  double get introTitleFontSize => 26.sp;
+  double get introTitleFontSize => 26;
   @override
-  double get introDescFontSize => 14.sp;
+  double get introDescFontSize => 14;
   @override
-  double get introTitleDescGap => 4.h;
+  double get introTitleDescGap => 4;
   @override
-  double get introIconTextGap => 8.w;
+  double get introIconTextGap => 8;
 
   @override
-  double get cardRadius => 12.r;
+  double get cardRadius => 12;
   @override
-  double get cardPadding => 16.w;
+  double get cardPadding => 16;
   @override
-  double get cardGap => 16.h;
+  double get cardGap => 16;
   @override
-  double get optionIconCircleSize => 36.w;
+  double get optionIconCircleSize => 36;
   @override
-  double get optionIconSize => 20.sp;
+  double get optionIconSize => 20;
   @override
-  double get optionTitleFontSize => 18.sp;
+  double get optionTitleFontSize => 18;
   @override
-  double get optionSubtitleFontSize => 12.sp;
+  double get optionSubtitleFontSize => 12;
   @override
-  double get optionBadgeFontSize => 10.sp;
+  double get optionBadgeFontSize => 10;
   @override
-  double get optionBadgeHPadding => 6.w;
+  double get optionBadgeHPadding => 6;
   @override
-  double get optionBadgeVPadding => 2.h;
+  double get optionBadgeVPadding => 2;
   @override
-  double get optionBadgeGap => 6.w;
+  double get optionBadgeGap => 6;
   @override
-  double get radioSize => 24.w;
+  double get radioSize => 24;
   @override
-  double get radioIconSize => 16.sp;
+  double get radioIconSize => 16;
   @override
-  double get mockupHeight => 96.h;
+  double get mockupHeight => 96;
   @override
-  double get mockupRadius => 8.r;
+  double get mockupRadius => 8;
   @override
-  double get headerMockupGap => 16.h;
+  double get headerMockupGap => 16;
 
   @override
-  double get mPad => 10.w;
+  double get mPad => 10;
   @override
-  double get mDot => 12.r;
+  double get mDot => 12;
   @override
-  double get mBarW => 56.w;
+  double get mBarW => 56;
   @override
-  double get mBarWShort => 40.w;
+  double get mBarWShort => 40;
   @override
-  double get mBarH => 8.h;
+  double get mBarH => 8;
   @override
-  double get mLineH => 8.h;
+  double get mLineH => 8;
   @override
-  double get mLineHSm => 6.h;
+  double get mLineHSm => 6;
   @override
-  double get mCircle => 16.r;
+  double get mCircle => 16;
   @override
-  double get mThumbW => 64.w;
+  double get mThumbW => 64;
   @override
-  double get mThumbWShort => 32.w;
+  double get mThumbWShort => 32;
   @override
-  double get mThumbH => 44.h;
+  double get mThumbH => 44;
   @override
-  double get mThumbRadius => 6.r;
+  double get mThumbRadius => 6;
   @override
-  double get mThumbIcon => 14.sp;
+  double get mThumbIcon => 14;
   @override
-  double get mMiniIcon => 12.sp;
+  double get mMiniIcon => 12;
   @override
-  double get mIconBox => 32.r;
+  double get mIconBox => 32;
   @override
-  double get mNavW => 16.w;
+  double get mNavW => 16;
   @override
-  double get mNavH => 4.h;
+  double get mNavH => 4;
   @override
-  double get mMiniGap => 6.w;
+  double get mMiniGap => 6;
 
   @override
-  double get buttonHeight => 56.h;
+  double get buttonHeight => 56;
   @override
-  double get buttonRadius => 8.r;
+  double get buttonRadius => 8;
   @override
-  double get dockButtonRadius => 12.r;
+  double get dockButtonRadius => 12;
   @override
-  double get buttonFontSize => 18.sp;
+  double get buttonFontSize => 18;
   @override
-  double get buttonIconSize => 22.sp;
+  double get buttonIconSize => 22;
   @override
-  double get rocketIconSize => 24.sp;
+  double get rocketIconSize => 24;
   @override
-  double get footerTopGap => 32.h;
+  double get footerTopGap => 32;
   @override
-  double get captionFontSize => 12.sp;
+  double get captionFontSize => 12;
   @override
-  double get dockCaptionFontSize => 10.sp;
+  double get dockCaptionFontSize => 10;
   @override
-  double get dockHPadding => 16.w;
+  double get dockHPadding => 16;
   @override
-  double get dockVPadding => 8.h;
+  double get dockVPadding => 8;
   @override
-  double get footerHPadding => 16.w;
+  double get footerHPadding => 16;
 
   @override
-  double get pillGap => 6.w;
+  double get pillGap => 6;
   @override
-  double get pillHPadding => 10.w;
+  double get pillHPadding => 10;
   @override
-  double get pillVPadding => 4.h;
+  double get pillVPadding => 4;
   @override
-  double get pillFontSize => 10.sp;
+  double get pillFontSize => 10;
   @override
-  double get pillIconSize => 14.sp;
+  double get pillIconSize => 14;
   @override
-  double get pillBottomGap => 8.h;
+  double get pillBottomGap => 8;
   @override
-  double get titleDescGap => 4.h;
+  double get titleDescGap => 4;
   @override
-  double get searchHeight => 48.h;
+  double get searchHeight => 48;
   @override
-  double get searchRadius => 12.r;
+  double get searchRadius => 12;
   @override
-  double get searchIconSize => 20.sp;
+  double get searchIconSize => 20;
   @override
-  double get searchIconLeft => 14.w;
+  double get searchIconLeft => 14;
   @override
-  double get searchPaddingLeft => 44.w;
+  double get searchPaddingLeft => 44;
   @override
-  double get clearIconSize => 18.sp;
+  double get clearIconSize => 18;
   @override
-  double get clearRight => 12.w;
+  double get clearRight => 12;
   @override
-  double get sectionGap => 16.h;
+  double get sectionGap => 16;
   @override
-  double get counterFontSize => 14.sp;
+  double get counterFontSize => 14;
   @override
-  double get counterIconSize => 18.sp;
+  double get counterIconSize => 18;
   @override
-  double get clearAllFontSize => 12.sp;
+  double get clearAllFontSize => 12;
   @override
-  double get gridGap => 12.w;
+  double get gridGap => 12;
   @override
-  double get uniCardRadius => 12.r;
+  double get uniCardRadius => 12;
   @override
-  double get uniCardPadding => 16.w;
+  double get uniCardPadding => 16;
   @override
-  double get uniBadgeSize => 24.r;
+  double get uniBadgeSize => 24;
   @override
-  double get uniBadgeOffset => 10.r;
+  double get uniBadgeOffset => 10;
   @override
-  double get uniBadgeIconSize => 16.sp;
+  double get uniBadgeIconSize => 16;
   @override
-  double get uniEmblemSize => 52.w;
+  double get uniEmblemSize => 52;
   @override
-  double get uniEmblemRadius => 12.r;
+  double get uniEmblemRadius => 12;
   @override
-  double get uniEmblemPadding => 8.w;
+  double get uniEmblemPadding => 8;
   @override
-  double get uniEmblemIconSize => 24.sp;
+  double get uniEmblemIconSize => 24;
   @override
-  double get uniNameFontSize => 18.sp;
+  double get uniNameFontSize => 18;
   @override
-  double get uniFullNameFontSize => 12.sp;
+  double get uniFullNameFontSize => 12;
   @override
-  double get uniTagFontSize => 10.sp;
+  double get uniTagFontSize => 10;
   @override
-  double get uniTagHPadding => 8.w;
+  double get uniTagHPadding => 8;
   @override
-  double get uniTagVPadding => 2.h;
+  double get uniTagVPadding => 2;
   @override
-  double get uniTagGap => 6.w;
+  double get uniTagGap => 6;
   @override
-  double get gridBottomClearance => 112.h;
+  double get gridBottomClearance => 112;
   @override
-  double get emptyIconBox => 64.w;
+  double get emptyIconBox => 64;
   @override
-  double get emptyIconSize => 32.sp;
+  double get emptyIconSize => 32;
   @override
-  double get emptyTitleFontSize => 18.sp;
+  double get emptyTitleFontSize => 18;
   @override
-  double get emptyDescFontSize => 14.sp;
+  double get emptyDescFontSize => 14;
   @override
-  double get emptyDescMaxWidth => 320.w;
+  double get emptyDescMaxWidth => 320;
   // Şehir / Seçilenler filtre çipleri
   @override
-  double get chipHPadding => 12.w;
+  double get chipHPadding => 12;
   @override
-  double get chipVPadding => 6.h;
+  double get chipVPadding => 6;
   @override
-  double get chipFontSize => 12.sp;
+  double get chipFontSize => 12;
   @override
-  double get chipGap => 6.w;
+  double get chipGap => 6;
   @override
-  double get chipSpacing => 4.w;
+  double get chipSpacing => 4;
   @override
-  double get chipIconSize => 12.sp;
+  double get chipIconSize => 12;
 }
 
 // ═══════════════════════════════════════════════════════════

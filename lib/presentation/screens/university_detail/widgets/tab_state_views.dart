@@ -1,7 +1,6 @@
 // lib/presentation/screens/university_detail/widgets/tab_state_views.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -26,42 +25,42 @@ class UniversityTabEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(spec.contentPaddingH.w * 2),
+        padding: EdgeInsets.all(spec.contentPaddingH * 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: spec.stateIconBox.w,
-              height: spec.stateIconBox.w,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: spec.stateIconSize.sp,
-                color: AppTheme.primaryColor.withValues(alpha: 0.7),
-              ),
-            )
+                  width: spec.stateIconBox,
+                  height: spec.stateIconBox,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: spec.stateIconSize,
+                    color: AppTheme.primaryColor.withValues(alpha: 0.7),
+                  ),
+                )
                 .animate()
                 .fadeIn(duration: 350.ms)
                 .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: 16.h),
+            SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: spec.stateTitleFontSize.sp,
+                fontSize: spec.stateTitleFontSize,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.textPri(context),
               ),
             ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-            SizedBox(height: 6.h),
+            SizedBox(height: 6),
             Text(
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: spec.stateSubtitleFontSize.sp,
+                fontSize: spec.stateSubtitleFontSize,
                 color: AppTheme.textSec(context),
                 height: 1.4,
               ),
@@ -90,34 +89,34 @@ class UniversityTabErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(spec.contentPaddingH.w * 2),
+        padding: EdgeInsets.all(spec.contentPaddingH * 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: spec.stateIconBox.w,
-              height: spec.stateIconBox.w,
+              width: spec.stateIconBox,
+              height: spec.stateIconBox,
               decoration: BoxDecoration(
                 color: Colors.red.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.cloud_off_rounded,
-                size: spec.stateIconSize.sp,
+                size: spec.stateIconSize,
                 color: Colors.red.shade400,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: spec.stateSubtitleFontSize.sp,
+                fontSize: spec.stateSubtitleFontSize,
                 color: AppTheme.textSec(context),
                 height: 1.4,
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded, size: 18),
@@ -126,9 +125,9 @@ class UniversityTabErrorView extends StatelessWidget {
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ],
@@ -159,14 +158,14 @@ class UniversityVideoSkeletonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.isTablet ? 18 : 14.w,
-        vertical: spec.isTablet ? 10 : 8.h,
+        horizontal: spec.isTablet ? 18 : 14,
+        vertical: spec.isTablet ? 10 : 8,
       ),
       child: Container(
-        height: spec.shimmerListHeight.h,
+        height: spec.shimmerListHeight,
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(spec.shimmerRadius.r),
+          borderRadius: BorderRadius.circular(spec.shimmerRadius),
         ),
       ),
     );

@@ -1,6 +1,5 @@
 // lib/presentation/screens/settings/widgets/settings_section.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../settings_layout_spec.dart';
 
@@ -36,7 +35,10 @@ class SettingsSection extends StatelessWidget {
 
     final Widget cardBody;
     if (padding != null) {
-      cardBody = Padding(padding: padding!, child: Column(children: children));
+      cardBody = Padding(
+        padding: padding!,
+        child: Column(children: children),
+      );
     } else {
       cardBody = Column(
         children: [
@@ -52,40 +54,36 @@ class SettingsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: spec.sectionHeaderGap.h),
+          padding: EdgeInsets.only(bottom: spec.sectionHeaderGap),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: spec.sectionIconSize.sp,
-                color: scheme.primary,
-              ),
-              SizedBox(width: spec.sectionIconGap.w),
+              Icon(icon, size: spec.sectionIconSize, color: scheme.primary),
+              SizedBox(width: spec.sectionIconGap),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
                     color: scheme.onSurface,
-                    fontSize: spec.sectionTitleFontSize.sp,
+                    fontSize: spec.sectionTitleFontSize,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.01 * spec.sectionTitleFontSize,
                   ),
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),
-        if (aboveCard != null) aboveCard!,
+        ?aboveCard,
         Container(
           decoration: BoxDecoration(
             color: scheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(spec.cardRadius.r),
+            borderRadius: BorderRadius.circular(spec.cardRadius),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 10.r,
-                offset: Offset(0, 2.h),
+                blurRadius: 10,
+                offset: Offset(0, 2),
               ),
             ],
           ),
@@ -97,8 +95,8 @@ class SettingsSection extends StatelessWidget {
   }
 
   Widget _divider(ColorScheme scheme) => Container(
-        height: 1,
-        margin: EdgeInsets.symmetric(horizontal: spec.dividerInset.w),
-        color: scheme.surfaceVariant.withValues(alpha: 0.4),
-      );
+    height: 1,
+    margin: EdgeInsets.symmetric(horizontal: spec.dividerInset),
+    color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+  );
 }

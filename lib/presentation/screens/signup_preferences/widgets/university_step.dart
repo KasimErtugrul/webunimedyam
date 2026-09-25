@@ -1,13 +1,12 @@
 // lib/presentation/screens/signup_preferences/widgets/university_step.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../controllers/signup_preferences_controller.dart';
-import '../utils/singup_preferences_sizes.dart';
 import '../utils/signup_universities.dart';
+import '../utils/singup_preferences_sizes.dart';
 
 /// ADIM 5 — Üniversite Seçimi (TAM LİSTE, fonksiyonel sürüm).
 ///
@@ -118,7 +117,7 @@ class _UniversityStepState extends State<UniversityStep> {
           s.uniCardPadding * 2 +
           s.headerGap +
           s.uniNameFontSize * 1.35 +
-          2.h +
+          2 +
           s.uniFullNameFontSize * 2 * 1.25 +
           s.headerGap +
           s.uniTagVPadding * 2 +
@@ -385,7 +384,7 @@ class _UniversityStepState extends State<UniversityStep> {
                       s.headerHPadding,
                       0,
                       s.headerHPadding,
-                      8.h,
+                      8,
                     ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
@@ -680,7 +679,7 @@ class _UniversityAvatar extends StatelessWidget {
     Widget content = Image.network(
       university.emblemUrl!,
       fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => _initials(bg, fg),
+      errorBuilder: (_, _, _) => _initials(bg, fg),
       loadingBuilder: (_, child, progress) =>
           progress == null ? child : _initials(bg, fg),
     );

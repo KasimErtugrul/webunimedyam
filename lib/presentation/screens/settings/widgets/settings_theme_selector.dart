@@ -1,6 +1,5 @@
 // lib/presentation/screens/settings/widgets/settings_theme_selector.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../settings_layout_spec.dart';
 
@@ -22,26 +21,30 @@ class SettingsThemeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.segmentContainerPadding.w),
+      padding: EdgeInsets.all(spec.segmentContainerPadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLowest,
-        borderRadius:
-            BorderRadius.circular(spec.segmentContainerRadius.r),
+        borderRadius: BorderRadius.circular(spec.segmentContainerRadius),
       ),
       child: Row(
         children: [
           _tab(context, scheme, 'dark', 'Koyu', Icons.dark_mode_rounded),
-          SizedBox(width: spec.segmentContainerPadding.w),
+          SizedBox(width: spec.segmentContainerPadding),
           _tab(context, scheme, 'light', 'Açık', Icons.light_mode_rounded),
-          SizedBox(width: spec.segmentContainerPadding.w),
+          SizedBox(width: spec.segmentContainerPadding),
           _tab(context, scheme, 'system', 'Sistem', Icons.settings_brightness),
         ],
       ),
     );
   }
 
-  Widget _tab(BuildContext context, ColorScheme scheme, String value,
-      String label, IconData icon) {
+  Widget _tab(
+    BuildContext context,
+    ColorScheme scheme,
+    String value,
+    String label,
+    IconData icon,
+  ) {
     final selected = current == value;
     return Expanded(
       child: GestureDetector(
@@ -51,23 +54,22 @@ class SettingsThemeSelector extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           padding: EdgeInsets.symmetric(
-            horizontal: spec.segmentTabPaddingH.w,
-            vertical: spec.segmentTabPaddingV.h,
+            horizontal: spec.segmentTabPaddingH,
+            vertical: spec.segmentTabPaddingV,
           ),
           decoration: BoxDecoration(
             color: selected ? scheme.primaryContainer : Colors.transparent,
-            borderRadius: BorderRadius.circular(spec.segmentTabRadius.r),
+            borderRadius: BorderRadius.circular(spec.segmentTabRadius),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: spec.segmentTabIconSize.sp,
-                color:
-                    selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+                size: spec.segmentTabIconSize,
+                color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 6),
               Flexible(
                 child: Text(
                   label,
@@ -77,7 +79,7 @@ class SettingsThemeSelector extends StatelessWidget {
                     color: selected
                         ? scheme.onPrimary
                         : scheme.onSurfaceVariant,
-                    fontSize: spec.segmentTabFontSize.sp,
+                    fontSize: spec.segmentTabFontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -108,24 +110,29 @@ class SettingsFeedModeToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.feedPillPadding.w),
+      padding: EdgeInsets.all(spec.feedPillPadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(999.r),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _item(context, scheme, 'list', 'Liste', Icons.view_list),
-          SizedBox(width: spec.feedGap.w),
+          SizedBox(width: spec.feedGap),
           _item(context, scheme, 'wheel', 'Çark', Icons.view_carousel),
         ],
       ),
     );
   }
 
-  Widget _item(BuildContext context, ColorScheme scheme, String value,
-      String label, IconData icon) {
+  Widget _item(
+    BuildContext context,
+    ColorScheme scheme,
+    String value,
+    String label,
+    IconData icon,
+  ) {
     final selected = current == value;
     return GestureDetector(
       onTap: () => onChanged(value),
@@ -134,18 +141,18 @@ class SettingsFeedModeToggle extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         padding: EdgeInsets.symmetric(
-          horizontal: spec.feedItemPaddingH.w,
-          vertical: spec.feedItemPaddingV.h,
+          horizontal: spec.feedItemPaddingH,
+          vertical: spec.feedItemPaddingV,
         ),
         decoration: BoxDecoration(
           color: selected ? scheme.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(999.r),
+          borderRadius: BorderRadius.circular(999),
           boxShadow: selected
               ? [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 6.r,
-                    offset: Offset(0, 1.h),
+                    blurRadius: 6,
+                    offset: Offset(0, 1),
                   ),
                 ]
               : const [],
@@ -155,18 +162,15 @@ class SettingsFeedModeToggle extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: spec.feedItemIconSize.sp,
-              color:
-                  selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+              size: spec.feedItemIconSize,
+              color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
             ),
-            SizedBox(width: 4.w),
+            SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
-                color: selected
-                    ? scheme.onPrimary
-                    : scheme.onSurfaceVariant,
-                fontSize: spec.feedItemFontSize.sp,
+                color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+                fontSize: spec.feedItemFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),

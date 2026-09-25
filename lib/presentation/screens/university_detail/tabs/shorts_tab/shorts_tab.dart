@@ -1,6 +1,5 @@
 // lib/presentation/screens/university_detail/tabs/shorts_tab/shorts_tab.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
@@ -80,18 +79,18 @@ class UniversityDetailShortsTab extends StatelessWidget {
         ? 3
         : 2;
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 10.h),
+      padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: cols,
-        mainAxisExtent: spec.shortsGridExtent.h,
-        crossAxisSpacing: 10.w,
-        mainAxisSpacing: 10.h,
+        mainAxisExtent: spec.shortsGridExtent,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
       ),
       itemCount: 6,
       itemBuilder: (_, _) => Container(
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(spec.shortsCardRadius.r),
+          borderRadius: BorderRadius.circular(spec.shortsCardRadius),
         ),
       ),
     );
@@ -109,18 +108,13 @@ class UniversityDetailShortsTab extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(
-            12.w,
-            10.h,
-            12.w,
-            hasMore ? 0 : 32.h,
-          ),
+          padding: EdgeInsets.fromLTRB(12, 10, 12, hasMore ? 0 : 32),
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: cols,
-              mainAxisExtent: spec.shortsGridExtent.h,
-              crossAxisSpacing: 10.w,
-              mainAxisSpacing: 10.h,
+              mainAxisExtent: spec.shortsGridExtent,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
             ),
             delegate: SliverChildBuilderDelegate(
               (_, i) => UniversityDetailShortsCard(

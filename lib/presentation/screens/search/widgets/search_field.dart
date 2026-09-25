@@ -1,6 +1,5 @@
 // lib/presentation/screens/search/widgets/search_field.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -35,35 +34,35 @@ class SearchField extends StatelessWidget {
       textInputAction: TextInputAction.search,
       style: TextStyle(
         color: AppTheme.textPri(context),
-        fontSize: spec.fieldFontSize.sp,
+        fontSize: spec.fieldFontSize,
       ),
       decoration: InputDecoration(
         hintText: 'Video, üniversite, kanal ara...',
         hintStyle: TextStyle(
           color: AppTheme.textSec(context).withValues(alpha: 0.7),
-          fontSize: spec.fieldFontSize.sp,
+          fontSize: spec.fieldFontSize,
         ),
         prefixIcon: Icon(
           Icons.search_rounded,
           color: AppTheme.textSec(context),
-          size: spec.fieldIconSize.sp,
+          size: spec.fieldIconSize,
         ),
         filled: true,
         fillColor: AppTheme.card(context),
         contentPadding: EdgeInsets.symmetric(
-          horizontal: spec.fieldPaddingH.w,
-          vertical: spec.fieldPaddingV.h,
+          horizontal: spec.fieldPaddingH,
+          vertical: spec.fieldPaddingV,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+          borderRadius: BorderRadius.circular(spec.fieldRadius),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+          borderRadius: BorderRadius.circular(spec.fieldRadius),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+          borderRadius: BorderRadius.circular(spec.fieldRadius),
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
             width: 1.5,
@@ -76,7 +75,7 @@ class SearchField extends StatelessWidget {
                   icon: Icon(
                     Icons.close_rounded,
                     color: AppTheme.textSec(context),
-                    size: spec.fieldIconSize.sp,
+                    size: spec.fieldIconSize,
                   ),
                   onPressed: () {
                     textController.clear();

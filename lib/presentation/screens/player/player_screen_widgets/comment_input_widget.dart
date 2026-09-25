@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/comment_input_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -140,35 +139,35 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: s.containerPaddingH.w,
-        vertical: s.containerPaddingV.h,
+        horizontal: s.containerPaddingH,
+        vertical: s.containerPaddingV,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(s.containerRadius.r),
+        borderRadius: BorderRadius.circular(s.containerRadius),
       ),
       child: Row(
         children: [
-          SizedBox(width: s.textFieldLeftSpacing.w),
+          SizedBox(width: s.textFieldLeftSpacing),
           Expanded(
             child: TextField(
               controller: _textController,
               focusNode: widget.focusNode,
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: s.textFieldFontSize.sp,
+                fontSize: s.textFieldFontSize,
               ),
               decoration: InputDecoration(
                 hintText: 'Yorum ekle...',
                 hintStyle: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: s.textFieldFontSize.sp,
+                  fontSize: s.textFieldFontSize,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: s.textFieldVerticalPadding.h,
+                  vertical: s.textFieldVerticalPadding,
                 ),
                 isDense: true,
               ),
@@ -184,26 +183,26 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
                   ? primary
                   : AppTheme.textSec(context)
                       .withValues(alpha: s.sendButtonDisabledAlpha),
-              borderRadius: BorderRadius.circular(s.sendButtonRadius.r),
+              borderRadius: BorderRadius.circular(s.sendButtonRadius),
               child: InkWell(
                 onTap: _handleSend,
-                borderRadius: BorderRadius.circular(s.sendButtonRadius.r),
+                borderRadius: BorderRadius.circular(s.sendButtonRadius),
                 splashColor:
                     Colors.white.withValues(alpha: s.sendButtonSplashAlpha),
                 child: Padding(
-                  padding: EdgeInsets.all(s.sendButtonPadding.w),
+                  padding: EdgeInsets.all(s.sendButtonPadding),
                   child: Icon(
                     Icons.send_rounded,
                     color: _hasText
                         ? onPrimary
                         : AppTheme.textSec(context).withValues(alpha: 0.5),
-                    size: s.sendButtonIconSize.sp,
+                    size: s.sendButtonIconSize,
                   ),
                 ),
               ),
             ),
           ),
-          SizedBox(width: s.rightSpacing.w),
+          SizedBox(width: s.rightSpacing),
         ],
       ),
     );

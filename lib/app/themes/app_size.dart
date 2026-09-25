@@ -1,5 +1,4 @@
 /* import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppSizes {
   // Ekran ölçüleri
@@ -7,8 +6,8 @@ class AppSizes {
   static double get screenHeight => 1.sh;
 
   // Padding & Margin
-  static double get p4 => 4.w;
-  static double get p8 => 8.w;
+;
+;
   static double get p12 => 12.w;
   static double get p16 => 16.w;
   static double get p20 => 20.w;

@@ -1,7 +1,6 @@
 /* // lib/presentation/screens/home/widgets/tabs/home_tab/videos/video_horizontal_section_widget.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 

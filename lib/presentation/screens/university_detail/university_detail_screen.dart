@@ -1,7 +1,6 @@
 // lib/presentation/screens/university_detail/university_detail_screen.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
@@ -65,7 +64,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final offset = _scrollController.offset;
-    final maxScroll = 240.h - kToolbarHeight;
+    final maxScroll = 240 - kToolbarHeight;
     final fadeStart = maxScroll * 0.9;
     final fadeEnd = maxScroll;
 
@@ -98,7 +97,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                 controller: _scrollController,
                 headerSliverBuilder: (context, _) => [
                   SliverAppBar(
-                    expandedHeight: spec.appBarExpandedHeight.h,
+                    expandedHeight: spec.appBarExpandedHeight,
                     pinned: true,
                     floating: false,
                     backgroundColor: AppTheme.bg(context),
@@ -107,7 +106,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                       icon: Icon(
                         Icons.arrow_back_ios_new_rounded,
                         color: AppTheme.textPri(context),
-                        size: spec.appBarLeadingIconSize.sp,
+                        size: spec.appBarLeadingIconSize,
                       ),
                       onPressed: Get.back,
                     ),
@@ -126,18 +125,18 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                               children: [
                                 if (hasLogo)
                                   Padding(
-                                    padding: EdgeInsets.only(right: 10.w),
+                                    padding: EdgeInsets.only(right: 10),
                                     child: ClipOval(
                                       child: Container(
-                                        width: spec.appBarLogoSize.w,
-                                        height: spec.appBarLogoSize.w,
+                                        width: spec.appBarLogoSize,
+                                        height: spec.appBarLogoSize,
                                         color: Colors.white,
                                         child: CachedNetworkImage(
                                           imageUrl: uni.logoUrl!,
                                           fit: BoxFit.contain,
                                           errorWidget: (_, _, _) => Icon(
                                             Icons.school_rounded,
-                                            size: spec.appBarLogoIconSize.sp,
+                                            size: spec.appBarLogoIconSize,
                                             color: AppTheme.primaryColor,
                                           ),
                                         ),
@@ -146,10 +145,10 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                   )
                                 else
                                   Padding(
-                                    padding: EdgeInsets.only(right: 8.w),
+                                    padding: EdgeInsets.only(right: 8),
                                     child: Icon(
                                       Icons.school_rounded,
-                                      size: spec.appBarLogoIconSize.sp,
+                                      size: spec.appBarLogoIconSize,
                                       color: AppTheme.primaryColor,
                                     ),
                                   ),
@@ -159,7 +158,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: TextStyle(
-                                      fontSize: spec.appBarTitleFontSize.sp,
+                                      fontSize: spec.appBarTitleFontSize,
                                       fontWeight: FontWeight.w600,
                                       color: AppTheme.textPri(context),
                                     ),
@@ -176,15 +175,15 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                         final isFav = controller.isFavorite.value;
                         final isLoading = controller.isFavoriteLoading.value;
                         return Padding(
-                          padding: EdgeInsets.only(right: 8.w),
+                          padding: EdgeInsets.only(right: 8),
                           child: isLoading
                               ? SizedBox(
-                                  width: spec.appBarActionIconSize.w * 1.6,
-                                  height: spec.appBarActionIconSize.w * 1.6,
+                                  width: spec.appBarActionIconSize * 1.6,
+                                  height: spec.appBarActionIconSize * 1.6,
                                   child: Center(
                                     child: SizedBox(
-                                      width: spec.appBarActionIconSize.w * 0.7,
-                                      height: spec.appBarActionIconSize.w * 0.7,
+                                      width: spec.appBarActionIconSize * 0.7,
+                                      height: spec.appBarActionIconSize * 0.7,
                                       child: const CircularProgressIndicator(
                                         strokeWidth: 2,
                                         color: AppTheme.primaryColor,
@@ -211,7 +210,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                       color: isFav
                                           ? AppTheme.primaryColor
                                           : AppTheme.textPri(context),
-                                      size: spec.appBarActionIconSize.sp,
+                                      size: spec.appBarActionIconSize,
                                     ),
                                   ),
                                   onPressed: controller.toggleFavorite,
@@ -267,9 +266,9 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   const _TabBarDelegate({required this.spec});
 
   @override
-  double get minExtent => spec.tabBarHeight.h + 12.h;
+  double get minExtent => spec.tabBarHeight + 12;
   @override
-  double get maxExtent => spec.tabBarHeight.h + 12.h;
+  double get maxExtent => spec.tabBarHeight + 12;
 
   @override
   Widget build(BuildContext context, double _, bool _) {

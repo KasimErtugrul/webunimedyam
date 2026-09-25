@@ -40,7 +40,7 @@ class _PhoneSizes {
   static const double columnGap = 12; // sütunlar arasındaki yatay boşluk
   static const double listGap =
       8; // aynı sütundaki 2 kart arasındaki dikey boşluk
-  //static const double listPeek = 24; // sağdan görünen sonraki sütunun ucu
+  static const double listPeek = 24; // sağdan görünen sonraki sütunun ucu
   static const double listBottomSpacing = 8;
 
   // Kart
@@ -161,96 +161,103 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   Widget _buildPhone(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    // Bir "sütun" = üst üste 2 kart. Sütun genişliği, ekranın kullanılabilir
-    // genişliğinden geriye hesaplanır (sağdaki "peek" kadar pay bırakılarak)
-    // — böylece kart tasarımı (tam genişlik) bozulmadan ekranda TAM 2 KART
-    // görünür ve yapı yatayda kaydırılabilir olur.
-    final double columnWidth =150
-       /*  ScreenUtil().screenWidth -
-        2 * _PhoneSizes.listPadHorizontal.w -
-        _PhoneSizes.listPeek.w */;
+    // FIX: Önceki sürümde sütun genişliği sabit `150` değeriyle
+    // bırakılmıştı (yorumdaki formül devre dışıydı); bu, gerçek render
+    // genişliğiyle ilişkisi olmayan kafadan atılmış bir değerdi. Artık
+    // LayoutBuilder ile bu widget'a gerçekten ayrılan alandan
+    // (constraints.maxWidth) hesaplanıyor; sağda "peek" payı bırakılarak
+    // yapının kaydırılabilir olduğu görünür kalıyor.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double columnWidth =
+            constraints.maxWidth -
+            2 * _PhoneSizes.listPadHorizontal -
+            _PhoneSizes.listPeek;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            _PhoneSizes.sectionPadLeft,
-            _PhoneSizes.sectionPadTop,
-            _PhoneSizes.sectionPadRight,
-            _PhoneSizes.sectionPadBottom,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              /*  Icon(
-                Icons.history_rounded,
-                size: _PhoneSizes.sectionIconSize,
-                color: scheme.primary,
-              ), */
-              Container(
-                padding: EdgeInsets.only(right: 10, left: 5),
-                color: Colors.yellow.withValues(
-                  alpha: 0.7,
-                ), // Expanded child için boş Container
-                child: Text(
-                  'İzlemeye Devam Et',
-                  style: TextStyle(
-                    color: scheme.onSurface,
-                    fontSize: _PhoneSizes.sectionTitleFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                _PhoneSizes.sectionPadLeft,
+                _PhoneSizes.sectionPadTop,
+                _PhoneSizes.sectionPadRight,
+                _PhoneSizes.sectionPadBottom,
               ),
-              Text(
-                '${items.length} video',
-                style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: _PhoneSizes.sectionCountFontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(
-            horizontal: _PhoneSizes.listPadHorizontal,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Kartlar 2'li gruplara ayrılır: her yatay adım bir sütun,
-              // sütunun içinde 2 kart üst üste durur.
-              for (int i = 0; i < items.length; i += 2) ...[
-                if (i > 0) SizedBox(width: _PhoneSizes.columnGap),
-                SizedBox(
-                  width: columnWidth,
-                  child: Column(
-                    children: [
-                      _CardPhone(
-                        key: ValueKey(items[i].video.videoId),
-                        item: items[i],
-                        onRemove: () => onRemove(items[i].video.videoId),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  /*  Icon(
+                    Icons.history_rounded,
+                    size: _PhoneSizes.sectionIconSize,
+                    color: scheme.primary,
+                  ), */
+                  Container(
+                    padding: EdgeInsets.only(right: 10, left: 5),
+                    color: Colors.yellow.withValues(
+                      alpha: 0.7,
+                    ), // Expanded child için boş Container
+                    child: Text(
+                      'İzlemeye Devam Et',
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: _PhoneSizes.sectionTitleFontSize,
+                        fontWeight: FontWeight.bold,
                       ),
-                      if (i + 1 < items.length) ...[
-                        SizedBox(height: _PhoneSizes.listGap),
-                        _CardPhone(
-                          key: ValueKey(items[i + 1].video.videoId),
-                          item: items[i + 1],
-                          onRemove: () => onRemove(items[i + 1].video.videoId),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        SizedBox(height: _PhoneSizes.listBottomSpacing),
-      ],
+                  Text(
+                    '${items.length} video',
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: _PhoneSizes.sectionCountFontSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(
+                horizontal: _PhoneSizes.listPadHorizontal,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Kartlar 2'li gruplara ayrılır: her yatay adım bir sütun,
+                  // sütunun içinde 2 kart üst üste durur.
+                  for (int i = 0; i < items.length; i += 2) ...[
+                    if (i > 0) SizedBox(width: _PhoneSizes.columnGap),
+                    SizedBox(
+                      width: columnWidth,
+                      child: Column(
+                        children: [
+                          _CardPhone(
+                            key: ValueKey(items[i].video.videoId),
+                            item: items[i],
+                            onRemove: () => onRemove(items[i].video.videoId),
+                          ),
+                          if (i + 1 < items.length) ...[
+                            SizedBox(height: _PhoneSizes.listGap),
+                            _CardPhone(
+                              key: ValueKey(items[i + 1].video.videoId),
+                              item: items[i + 1],
+                              onRemove: () =>
+                                  onRemove(items[i + 1].video.videoId),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(height: _PhoneSizes.listBottomSpacing),
+          ],
+        );
+      },
     );
   }
 
@@ -258,87 +265,96 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   Widget _buildTablet(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    // Tablet tarafı da aynı düzen; ölçüler sabit piksel.
-    final double columnWidth =
-        MediaQuery.sizeOf(context).width -
-        2 * _TabletSizes.listPadHorizontal -
-        _TabletSizes.listPeek;
+    // FIX: `MediaQuery.sizeOf(context).width` tüm ekran genişliğini
+    // veriyordu; bu widget'a gerçekte ayrılan alan (sidebar/padding
+    // sonrası) farklı olabilir. LayoutBuilder ile doğrudan
+    // constraints.maxWidth kullanılıyor. Ölçüler sabit piksel olarak
+    // korunuyor.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double columnWidth =
+            constraints.maxWidth -
+            2 * _TabletSizes.listPadHorizontal -
+            _TabletSizes.listPeek;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            _TabletSizes.sectionPadLeft,
-            _TabletSizes.sectionPadTop,
-            _TabletSizes.sectionPadRight,
-            _TabletSizes.sectionPadBottom,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.history_rounded,
-                size: _TabletSizes.sectionIconSize,
-                color: scheme.primary,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                _TabletSizes.sectionPadLeft,
+                _TabletSizes.sectionPadTop,
+                _TabletSizes.sectionPadRight,
+                _TabletSizes.sectionPadBottom,
               ),
-              SizedBox(width: _TabletSizes.sectionIconSpacing),
-              Expanded(
-                child: Text(
-                  'İzlemeye Devam Et',
-                  style: TextStyle(
-                    color: scheme.onSurface,
-                    fontSize: _TabletSizes.sectionTitleFontSize,
-                    fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.history_rounded,
+                    size: _TabletSizes.sectionIconSize,
+                    color: scheme.primary,
                   ),
-                ),
-              ),
-              Text(
-                '${items.length} video',
-                style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: _TabletSizes.sectionCountFontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(
-            horizontal: _TabletSizes.listPadHorizontal,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (int i = 0; i < items.length; i += 2) ...[
-                if (i > 0) SizedBox(width: _TabletSizes.columnGap),
-                SizedBox(
-                  width: columnWidth,
-                  child: Column(
-                    children: [
-                      _CardTablet(
-                        key: ValueKey(items[i].video.videoId),
-                        item: items[i],
-                        onRemove: () => onRemove(items[i].video.videoId),
+                  SizedBox(width: _TabletSizes.sectionIconSpacing),
+                  Expanded(
+                    child: Text(
+                      'İzlemeye Devam Et',
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: _TabletSizes.sectionTitleFontSize,
+                        fontWeight: FontWeight.bold,
                       ),
-                      if (i + 1 < items.length) ...[
-                        SizedBox(height: _TabletSizes.listGap),
-                        _CardTablet(
-                          key: ValueKey(items[i + 1].video.videoId),
-                          item: items[i + 1],
-                          onRemove: () => onRemove(items[i + 1].video.videoId),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        SizedBox(height: _TabletSizes.listBottomSpacing),
-      ],
+                  Text(
+                    '${items.length} video',
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: _TabletSizes.sectionCountFontSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(
+                horizontal: _TabletSizes.listPadHorizontal,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < items.length; i += 2) ...[
+                    if (i > 0) SizedBox(width: _TabletSizes.columnGap),
+                    SizedBox(
+                      width: columnWidth,
+                      child: Column(
+                        children: [
+                          _CardTablet(
+                            key: ValueKey(items[i].video.videoId),
+                            item: items[i],
+                            onRemove: () => onRemove(items[i].video.videoId),
+                          ),
+                          if (i + 1 < items.length) ...[
+                            SizedBox(height: _TabletSizes.listGap),
+                            _CardTablet(
+                              key: ValueKey(items[i + 1].video.videoId),
+                              item: items[i + 1],
+                              onRemove: () =>
+                                  onRemove(items[i + 1].video.videoId),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(height: _TabletSizes.listBottomSpacing),
+          ],
+        );
+      },
     );
   }
 }

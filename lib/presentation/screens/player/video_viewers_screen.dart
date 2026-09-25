@@ -1,7 +1,6 @@
 // lib/presentation/screens/player/video_viewers_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
@@ -157,7 +156,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
                 'İzleyenler',
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.appBarTitleSize.sp,
+                  fontSize: _PhoneSizes.appBarTitleSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -166,7 +165,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
                   '${_ctrl.totalViewCount} görüntülenme',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: _PhoneSizes.appBarSubtitleSize.sp,
+                    fontSize: _PhoneSizes.appBarSubtitleSize,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -189,7 +188,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
         return ListView.builder(
           controller: _scrollController,
-          padding: EdgeInsets.symmetric(vertical: _PhoneSizes.listVerticalPadding.h),
+          padding: EdgeInsets.symmetric(vertical: _PhoneSizes.listVerticalPadding),
           itemCount:
               _ctrl.viewers.length +
               (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
@@ -204,10 +203,10 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
             if (_ctrl.isLoadingMore.value &&
                 index == _ctrl.viewers.length + (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
               return Padding(
-                padding: EdgeInsets.all(_PhoneSizes.loadingPadding.h),
+                padding: EdgeInsets.all(_PhoneSizes.loadingPadding),
                 child: Center(
                   child: CircularProgressIndicator(
-                    strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+                    strokeWidth: _PhoneSizes.loadingStrokeWidth,
                   ),
                 ),
               );
@@ -320,11 +319,11 @@ class _ViewerTilePhone extends StatelessWidget {
         arguments: {'userId': viewer.userId},
       ),
       contentPadding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.tileContentPaddingHorizontal.w,
-        vertical: _PhoneSizes.tileContentPaddingVertical.h,
+        horizontal: _PhoneSizes.tileContentPaddingHorizontal,
+        vertical: _PhoneSizes.tileContentPaddingVertical,
       ),
       leading: CircleAvatar(
-        radius: _PhoneSizes.tileAvatarRadius.r,
+        radius: _PhoneSizes.tileAvatarRadius,
         backgroundColor: AppTheme.surface(context),
         backgroundImage: viewer.avatarUrl != null
             ? NetworkImage(viewer.avatarUrl!)
@@ -333,7 +332,7 @@ class _ViewerTilePhone extends StatelessWidget {
             ? Icon(
                 Icons.person,
                 color: AppTheme.textSec(context),
-                size: _PhoneSizes.tileAvatarIconSize.sp,
+                size: _PhoneSizes.tileAvatarIconSize,
               )
             : null,
       ),
@@ -341,7 +340,7 @@ class _ViewerTilePhone extends StatelessWidget {
         viewer.displayName,
         style: TextStyle(
           color: AppTheme.textPri(context),
-          fontSize: _PhoneSizes.tileTitleFontSize.sp,
+          fontSize: _PhoneSizes.tileTitleFontSize,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -350,7 +349,7 @@ class _ViewerTilePhone extends StatelessWidget {
               '@${viewer.username}',
               style: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: _PhoneSizes.tileSubtitleFontSize.sp,
+                fontSize: _PhoneSizes.tileSubtitleFontSize,
               ),
             )
           : null,
@@ -358,7 +357,7 @@ class _ViewerTilePhone extends StatelessWidget {
         _timeAgo(viewer.viewedAt),
         style: TextStyle(
           color: AppTheme.textSec(context),
-          fontSize: _PhoneSizes.tileTrailingFontSize.sp,
+          fontSize: _PhoneSizes.tileTrailingFontSize,
         ),
       ),
     );
@@ -373,22 +372,22 @@ class _HiddenViewersRowPhone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.hiddenRowPaddingHorizontal.w,
-        vertical: _PhoneSizes.hiddenRowPaddingVertical.h,
+        horizontal: _PhoneSizes.hiddenRowPaddingHorizontal,
+        vertical: _PhoneSizes.hiddenRowPaddingVertical,
       ),
       child: Row(
         children: [
           Icon(
             Icons.visibility_off_outlined,
             color: AppTheme.textSec(context),
-            size: _PhoneSizes.hiddenRowIconSize.sp,
+            size: _PhoneSizes.hiddenRowIconSize,
           ),
-          SizedBox(width: _PhoneSizes.hiddenRowSpacing.w),
+          SizedBox(width: _PhoneSizes.hiddenRowSpacing),
           Text(
             '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
             style: TextStyle(
               color: AppTheme.textSec(context),
-              fontSize: _PhoneSizes.hiddenRowFontSize.sp,
+              fontSize: _PhoneSizes.hiddenRowFontSize,
             ),
           ),
         ],
@@ -406,15 +405,15 @@ class _EmptyStatePhone extends StatelessWidget {
         children: [
           Icon(
             Icons.visibility_outlined,
-            size: _PhoneSizes.emptyIconSize.sp,
+            size: _PhoneSizes.emptyIconSize,
             color: AppTheme.textSec(context),
           ),
-          SizedBox(height: _PhoneSizes.emptySpacing.h),
+          SizedBox(height: _PhoneSizes.emptySpacing),
           Text(
             'Henüz kimse izlemedi',
             style: TextStyle(
               color: AppTheme.textSec(context),
-              fontSize: _PhoneSizes.emptyFontSize.sp,
+              fontSize: _PhoneSizes.emptyFontSize,
             ),
           ),
         ],

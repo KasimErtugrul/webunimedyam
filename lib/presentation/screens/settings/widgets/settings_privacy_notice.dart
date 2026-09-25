@@ -1,7 +1,6 @@
 // lib/presentation/screens/settings/widgets/settings_privacy_notice.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../settings_layout_spec.dart';
 
@@ -15,20 +14,20 @@ class SettingsPrivacyNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.noticePadding.w),
+      padding: EdgeInsets.all(spec.noticePadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(spec.noticeRadius.r),
+        borderRadius: BorderRadius.circular(spec.noticeRadius),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Icons.verified_user_rounded,
-            size: spec.noticeIconSize.sp,
+            size: spec.noticeIconSize,
             color: scheme.primary,
           ),
-          SizedBox(width: spec.noticeGap.w),
+          SizedBox(width: spec.noticeGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,18 +36,18 @@ class SettingsPrivacyNotice extends StatelessWidget {
                   'Gizli Profil Aktif',
                   style: TextStyle(
                     color: scheme.primary,
-                    fontSize: spec.noticeTitleFontSize.sp,
+                    fontSize: spec.noticeTitleFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 4),
                 Text(
                   'Profiliniz gizli modda. Üniversite kulüpleri veya diğer '
                   'öğrenciler sadece izin verdiğiniz aktivitelerinizi '
                   '(yorumlar veya halka açık listeler) görebilir.',
                   style: TextStyle(
                     color: scheme.onSurfaceVariant,
-                    fontSize: spec.noticeBodyFontSize.sp,
+                    fontSize: spec.noticeBodyFontSize,
                     height: 1.5,
                   ),
                 ),

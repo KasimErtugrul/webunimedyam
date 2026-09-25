@@ -1,6 +1,5 @@
 // lib/presentation/screens/settings/widgets/settings_pickers.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -23,48 +22,48 @@ void _showSheet({
     backgroundColor: AppTheme.card(context),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(spec.sheetRadius.r),
+        top: Radius.circular(spec.sheetRadius),
       ),
     ),
     builder: (_) => SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: spec.sheetHandleSpacing.h),
+          SizedBox(height: spec.sheetHandleSpacing),
           Container(
-            width: spec.sheetHandleWidth.w,
-            height: spec.sheetHandleHeight.h,
+            width: spec.sheetHandleWidth,
+            height: spec.sheetHandleHeight,
             decoration: BoxDecoration(
               color: AppTheme.textSec(context).withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(spec.sheetHandleHeight.r),
+              borderRadius: BorderRadius.circular(spec.sheetHandleHeight),
             ),
           ),
-          SizedBox(height: spec.sheetHandleSpacing.h),
+          SizedBox(height: spec.sheetHandleSpacing),
           Text(
             title,
             style: TextStyle(
-              fontSize: spec.sheetTitleFontSize.sp,
+              fontSize: spec.sheetTitleFontSize,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPri(context),
             ),
           ),
           if (subtitle != null) ...[
-            SizedBox(height: 4.h),
+            SizedBox(height: 4),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 subtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: spec.sheetSubtitleFontSize.sp,
+                  fontSize: spec.sheetSubtitleFontSize,
                   color: AppTheme.textSec(context),
                 ),
               ),
             ),
           ],
-          SizedBox(height: spec.sheetOptionSpacing.h),
+          SizedBox(height: spec.sheetOptionSpacing),
           child,
-          SizedBox(height: spec.sheetPaddingBottom.h),
+          SizedBox(height: spec.sheetPaddingBottom),
         ],
       ),
     ),
@@ -82,11 +81,11 @@ void showSettingsQualityPicker({
   required ValueChanged<String> onChanged,
 }) {
   const options = <(String, String, String)>[
-    ('auto',  'Otomatik',      'Bağlantı hızına göre ayarlanır'),
-    ('360p',  '360p (SD)',     'Düşük veri kullanımı'),
-    ('480p',  '480p (SD)',     'Düşük veri kullanımı'),
-    ('720p',  '720p (HD)',     'Dengeli kalite'),
-    ('1080p', '1080p (FHD)',   'En yüksek kalite'),
+    ('auto', 'Otomatik', 'Bağlantı hızına göre ayarlanır'),
+    ('360p', '360p (SD)', 'Düşük veri kullanımı'),
+    ('480p', '480p (SD)', 'Düşük veri kullanımı'),
+    ('720p', '720p (HD)', 'Dengeli kalite'),
+    ('1080p', '1080p (FHD)', 'En yüksek kalite'),
   ];
 
   _showSheet(
@@ -109,7 +108,7 @@ void showSettingsQualityPicker({
               onChanged(value);
             },
           ),
-          if (value != options.last.$1) SizedBox(height: 8.h),
+          if (value != options.last.$1) SizedBox(height: 8),
         ],
       ],
     ),
@@ -150,37 +149,37 @@ class _SheetOption extends StatelessWidget {
     final isDark = AppTheme.isDark(context);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Opacity(
         opacity: isEnabled ? 1.0 : 0.4,
         child: Material(
           color: isCurrent
               ? color.withValues(alpha: isDark ? 0.18 : 0.10)
               : AppTheme.surface(context).withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(16),
           child: InkWell(
             onTap: isEnabled ? onTap : null,
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(16),
             child: Padding(
-              padding: EdgeInsets.all(14.w),
+              padding: EdgeInsets.all(14),
               child: Row(
                 children: [
                   Container(
-                    width: spec.sheetOptionIconBoxSize.w,
-                    height: spec.sheetOptionIconBoxSize.w,
+                    width: spec.sheetOptionIconBoxSize,
+                    height: spec.sheetOptionIconBoxSize,
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(
-                        spec.sheetOptionIconBoxRadius.r,
+                        spec.sheetOptionIconBoxRadius,
                       ),
                     ),
                     child: Icon(
                       icon,
                       color: color,
-                      size: spec.sheetOptionIconSize.sp,
+                      size: spec.sheetOptionIconSize,
                     ),
                   ),
-                  SizedBox(width: 14.w),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,18 +189,18 @@ class _SheetOption extends StatelessWidget {
                           title,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: spec.sheetOptionTitleFontSize.sp,
+                            fontSize: spec.sheetOptionTitleFontSize,
                             fontWeight: isCurrent
                                 ? FontWeight.w700
                                 : FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: 2.h),
+                        SizedBox(height: 2),
                         Text(
                           isEnabled ? subtitle : (disabledReason ?? subtitle),
                           style: TextStyle(
                             color: AppTheme.textSec(context),
-                            fontSize: spec.sheetOptionSubtitleFontSize.sp,
+                            fontSize: spec.sheetOptionSubtitleFontSize,
                             height: 1.3,
                           ),
                         ),
@@ -209,15 +208,15 @@ class _SheetOption extends StatelessWidget {
                     ),
                   ),
                   if (preview != null) ...[
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 12),
                     preview!,
                   ] else if (isCurrent) ...[
-                    Icon(Icons.check_circle_rounded, color: color, size: 22.sp),
+                    Icon(Icons.check_circle_rounded, color: color, size: 22),
                   ] else if (!isEnabled) ...[
                     Icon(
                       Icons.lock_outline,
                       color: AppTheme.textSec(context),
-                      size: 18.sp,
+                      size: 18,
                     ),
                   ],
                 ],
@@ -248,9 +247,9 @@ void showSettingsThemePicker({
     child: Column(
       children: [
         _themeOption(context, spec, 'system', 'Sistem', current, onChanged),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         _themeOption(context, spec, 'light', 'Açık', current, onChanged),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         _themeOption(context, spec, 'dark', 'Koyu', current, onChanged),
       ],
     ),
@@ -302,13 +301,13 @@ class _ThemePreview extends StatelessWidget {
     const dark = Color(0xFF1A1A1A);
 
     Widget swatch(Color color, {bool top = true}) => Container(
-      width: 18.w,
-      height: 14.h,
+      width: 18,
+      height: 14,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.vertical(
-          top: top ? Radius.circular(4.r) : Radius.zero,
-          bottom: top ? Radius.zero : Radius.circular(4.r),
+          top: top ? Radius.circular(4) : Radius.zero,
+          bottom: top ? Radius.zero : Radius.circular(4),
         ),
         border: Border.all(
           color: Colors.black.withValues(alpha: 0.08),
@@ -318,10 +317,10 @@ class _ThemePreview extends StatelessWidget {
     );
 
     return SizedBox(
-      width: 18.w,
-      height: 28.h,
+      width: 18,
+      height: 28,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(4.r),
+        borderRadius: BorderRadius.circular(4),
         child: Column(
           children: [
             if (mode == 'system') ...[
@@ -365,7 +364,7 @@ void showSettingsHomeLayoutPicker({
           current,
           onChanged,
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         _layoutOption(
           context,
           spec,
@@ -421,12 +420,12 @@ class _LayoutPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 34.w,
-      height: 28.h,
-      padding: EdgeInsets.all(4.w),
+      width: 34,
+      height: 28,
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: AppTheme.surface(context),
-        borderRadius: BorderRadius.circular(6.r),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: AppTheme.textSec(context).withValues(alpha: 0.15),
           width: 0.6,
@@ -441,12 +440,12 @@ class _LayoutPreview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (int i = 0; i < 3; i++) ...[
-          if (i > 0) SizedBox(height: 2.h),
+          if (i > 0) SizedBox(height: 2),
           Container(
-            height: 4.h,
+            height: 4,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.4 + i * 0.2),
-              borderRadius: BorderRadius.circular(2.r),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
         ],
@@ -459,18 +458,18 @@ class _LayoutPreview extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Container(
-          width: 10.w,
-          height: 10.w,
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.7),
             shape: BoxShape.circle,
           ),
         ),
         Positioned(
-          left: 2.w,
+          left: 2,
           child: Container(
-            width: 6.w,
-            height: 6.w,
+            width: 6,
+            height: 6,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.4),
               shape: BoxShape.circle,
@@ -478,10 +477,10 @@ class _LayoutPreview extends StatelessWidget {
           ),
         ),
         Positioned(
-          right: 2.w,
+          right: 2,
           child: Container(
-            width: 6.w,
-            height: 6.w,
+            width: 6,
+            height: 6,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.4),
               shape: BoxShape.circle,
@@ -534,7 +533,7 @@ Future<void> showSettingsVisibilitySheet({
               await onChanged(option);
             },
           ),
-          if (option != VisibilityOption.values.last) SizedBox(height: 8.h),
+          if (option != VisibilityOption.values.last) SizedBox(height: 8),
         ],
       ],
     ),

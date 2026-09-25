@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -191,7 +190,7 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
           child: Container(
             padding: EdgeInsets.fromLTRB(
               sizes.bottomPaddingHorizontal,
-              sizes.isTablet ? 72 : 60.h,
+              sizes.isTablet ? 72 : 60,
               sizes.bottomPaddingHorizontal,
               0,
             ),

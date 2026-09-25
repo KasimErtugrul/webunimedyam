@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -67,8 +66,8 @@ class RadioFallbackLogoWidget extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.glowAlpha),
-            blurRadius: 10.r,
-            spreadRadius: 2.r,
+            blurRadius: 10,
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -76,14 +75,14 @@ class RadioFallbackLogoWidget extends StatelessWidget {
         child: Text(
           uni.name!.isNotEmpty ? uni.name![0].toUpperCase() : '?',
           style: TextStyle(
-            fontSize: _PhoneSizes.fontSize.sp,
+            fontSize: _PhoneSizes.fontSize,
             fontWeight: FontWeight.w700,
             color: AppTheme.primaryColor,
             letterSpacing: 1,
             shadows: [
               Shadow(
                 color: AppTheme.primaryColor.withValues(alpha: 0.4),
-                blurRadius: 8.r,
+                blurRadius: 8,
               ),
             ],
           ),

@@ -1,6 +1,5 @@
 // lib/presentation/screens/profile/widgets/profile_header/stat_chip_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
@@ -59,8 +58,8 @@ class StatChipWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = _Sizes.of(context);
-    double w(double v) => spec.isTablet ? v : v.w;
-    double h(double v) => spec.isTablet ? v : v.h;
+    double w(double v) => spec.isTablet ? v : v;
+    double h(double v) => spec.isTablet ? v : v;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -70,7 +69,7 @@ class StatChipWidget extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: spec.iconSize.sp,
+              size: spec.iconSize,
               color: AppTheme.textSec(context).withValues(alpha: 0.7),
             ),
             SizedBox(width: w(spec.innerSpacing)),
@@ -78,7 +77,7 @@ class StatChipWidget extends StatelessWidget {
               '$count',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.countFontSize.sp,
+                fontSize: spec.countFontSize,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
                 height: 1,
@@ -91,7 +90,7 @@ class StatChipWidget extends StatelessWidget {
           label,
           style: TextStyle(
             color: AppTheme.textSec(context).withValues(alpha: 0.8),
-            fontSize: spec.labelFontSize.sp,
+            fontSize: spec.labelFontSize,
             fontWeight: FontWeight.w500,
             height: 1,
           ),

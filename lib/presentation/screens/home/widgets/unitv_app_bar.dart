@@ -44,7 +44,9 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isTablet = Responsive.isTablet(context);
-    final sizes = isTablet ? _TabletSizes.titleIconSize : _PhoneSizes.titleIconSize;
+    final sizes = isTablet
+        ? _TabletSizes.titleIconSize
+        : _PhoneSizes.titleIconSize;
 
     return AppBar(
       elevation: 0,
@@ -74,22 +76,6 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: scheme.onSurfaceVariant,
           onPressed: () => Get.toNamed(AppRoutes.profile), //ProfileScreen
         ),
-        /* Padding(
-          padding: EdgeInsets.only(
-            right: isTablet
-                ? _TabletSizes.titleSpacingLarge
-                : _PhoneSizes.titleSpacingLarge,
-          ),
-          child: CircleAvatar(
-            radius: isTablet ? 18 : 16.r,
-            backgroundColor: scheme.primary,
-            child: Icon(
-              Icons.person_rounded,
-              color: scheme.onPrimary,
-              size: isTablet ? 20 : 18.sp,
-            ),
-          ),
-        ), */
       ],
       title: Row(
         children: [
@@ -113,33 +99,44 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           SizedBox(
-            width: isTablet ? _TabletSizes.titleSpacing : _PhoneSizes.titleSpacing,
+            width: isTablet
+                ? _TabletSizes.titleSpacing
+                : _PhoneSizes.titleSpacing,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RichText(
-                text: TextSpan(
-                  style:
-                      (isTablet
-                              ? Theme.of(context).textTheme.headlineMedium
-                              : Theme.of(context).textTheme.headlineSmall)
-                          ?.copyWith(color: scheme.onSurface),
-                  children: [
-                    const TextSpan(text: 'Üni'),
-                    TextSpan(text: 'TV', style: TextStyle(color: scheme.primary)),
-                  ],
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style:
+                        (isTablet
+                                ? Theme.of(context).textTheme.headlineMedium
+                                : Theme.of(context).textTheme.headlineSmall)
+                            ?.copyWith(color: scheme.onSurface),
+                    children: [
+                      const TextSpan(text: 'Üni'),
+                      TextSpan(
+                        text: 'TV',
+                        style: TextStyle(color: scheme.primary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                'KAMPÜS YAYINI',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  letterSpacing: 1.0,
+                Text(
+                  'KAMPÜS YAYINI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 1.0,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

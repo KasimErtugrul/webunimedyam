@@ -1,7 +1,6 @@
 // lib/presentation/screens/search/widgets/search_history_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -30,9 +29,9 @@ class SearchHistoryView extends StatelessWidget {
       }
 
       return ListView(
-        padding: EdgeInsets.symmetric(horizontal: spec.sectionH.w),
+        padding: EdgeInsets.symmetric(horizontal: spec.sectionH),
         children: [
-          SizedBox(height: spec.sectionTopPadding.h),
+          SizedBox(height: spec.sectionTopPadding),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -40,7 +39,7 @@ class SearchHistoryView extends StatelessWidget {
                 'Son Aramalar',
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: spec.sectionTitleFontSize.sp,
+                  fontSize: spec.sectionTitleFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -50,17 +49,17 @@ class SearchHistoryView extends StatelessWidget {
                   'Temizle',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
-                    fontSize: spec.sectionTitleFontSize.sp,
+                    fontSize: spec.sectionTitleFontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: spec.sectionTitleSpacing.h),
+          SizedBox(height: spec.sectionTitleSpacing),
           Wrap(
-            spacing: spec.chipSpacing.w,
-            runSpacing: spec.chipRunSpacing.h,
+            spacing: spec.chipSpacing,
+            runSpacing: spec.chipRunSpacing,
             children: [
               for (int i = 0; i < history.length; i++)
                 _HistoryChip(
@@ -97,39 +96,39 @@ class _HistoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppTheme.card(context),
-      borderRadius: BorderRadius.circular(spec.chipRadius.r),
+      borderRadius: BorderRadius.circular(spec.chipRadius),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(spec.chipRadius.r),
+        borderRadius: BorderRadius.circular(spec.chipRadius),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.chipPaddingH.w,
-            vertical: spec.chipPaddingV.h,
+            horizontal: spec.chipPaddingH,
+            vertical: spec.chipPaddingV,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.history_rounded,
-                size: (spec.chipFontSize + 1).sp,
+                size: (spec.chipFontSize + 1),
                 color: AppTheme.textSec(context),
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 6),
               Text(
                 text,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: spec.chipFontSize.sp,
+                  fontSize: spec.chipFontSize,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 6),
               GestureDetector(
                 onTap: onRemove,
                 behavior: HitTestBehavior.opaque,
                 child: Icon(
                   Icons.close_rounded,
-                  size: (spec.chipFontSize - 1).sp,
+                  size: (spec.chipFontSize - 1),
                   color: AppTheme.textSec(context).withValues(alpha: 0.6),
                 ),
               ),
@@ -149,7 +148,7 @@ class _EmptyHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(spec.sectionH.w * 2),
+        padding: EdgeInsets.all(spec.sectionH * 2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -159,27 +158,27 @@ class _EmptyHistory extends StatelessWidget {
                   .colorScheme
                   .primary
                   .withValues(alpha: 0.4),
-              size: spec.emptyIconSize.sp,
+              size: spec.emptyIconSize,
             )
                 .animate()
                 .fadeIn(duration: 400.ms)
                 .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: spec.emptySpacing.h),
+            SizedBox(height: spec.emptySpacing),
             Text(
               'Aramaya başla',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.emptyTitleFontSize.sp,
+                fontSize: spec.emptyTitleFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-            SizedBox(height: (spec.emptySpacing / 2).h),
+            SizedBox(height: (spec.emptySpacing / 2)),
             Text(
               'İzlemek istediğin videoyu, üniversiteyi veya kanalı ara.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: spec.emptySubtitleFontSize.sp,
+                fontSize: spec.emptySubtitleFontSize,
                 height: 1.4,
               ),
             ).animate().fadeIn(delay: 180.ms, duration: 300.ms),

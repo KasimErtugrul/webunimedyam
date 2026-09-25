@@ -7,7 +7,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:radio_player/radio_player.dart';
@@ -134,7 +133,7 @@ class _RadioPageState extends State<RadioPage> {
     if (unis.isEmpty) return;
 
     final isTablet = Responsive.isTablet(context);
-    final borderRadius = isTablet ? _TabletSizes.sheetBorderRadius : _PhoneSizes.sheetBorderRadius.r;
+    final borderRadius = isTablet ? _TabletSizes.sheetBorderRadius : _PhoneSizes.sheetBorderRadius;
 
     showModalBottomSheet(
       context: context,
@@ -179,21 +178,21 @@ class _RadioPageState extends State<RadioPage> {
   ) {
     return Column(
       children: [
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         Container(
-          width: 40.w,
-          height: 4.h,
+          width: 40,
+          height: 4,
           decoration: BoxDecoration(
             color: AppTheme.textSec(context).withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(2.r),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(vertical: _PhoneSizes.sheetTitlePaddingVertical.h),
+          padding: EdgeInsets.symmetric(vertical: _PhoneSizes.sheetTitlePaddingVertical),
           child: Text(
             'Tüm Radyolar',
             style: TextStyle(
-              fontSize: _PhoneSizes.sheetTitleFontSize.sp,
+              fontSize: _PhoneSizes.sheetTitleFontSize,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPri(context),
               letterSpacing: 0.5,
@@ -207,11 +206,11 @@ class _RadioPageState extends State<RadioPage> {
         Expanded(
           child: ListView.separated(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: EdgeInsets.symmetric(vertical: 8),
             itemCount: unis.length,
             separatorBuilder: (_, _) => Divider(
               height: _PhoneSizes.sheetDividerHeight,
-              indent: 64.w,
+              indent: 64,
               color: AppTheme.isDark(context) ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[200],
             ),
             itemBuilder: (ctx, index) {
@@ -219,17 +218,17 @@ class _RadioPageState extends State<RadioPage> {
               final isSelected = index == _currentIndex;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppTheme.primaryColor.withValues(alpha: 0.1)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
                   leading: Container(
-                    width: _PhoneSizes.sheetAvatarSize.r,
-                    height: _PhoneSizes.sheetAvatarSize.r,
+                    width: _PhoneSizes.sheetAvatarSize,
+                    height: _PhoneSizes.sheetAvatarSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -258,13 +257,13 @@ class _RadioPageState extends State<RadioPage> {
                                 errorWidget: (_, _, _) => Icon(
                                   Icons.radio,
                                   color: AppTheme.primaryColor,
-                                  size: _PhoneSizes.sheetAvatarIconSize.sp,
+                                  size: _PhoneSizes.sheetAvatarIconSize,
                                 ),
                               )
                             : Icon(
                                 Icons.radio,
                                 color: AppTheme.primaryColor,
-                                size: _PhoneSizes.sheetAvatarIconSize.sp,
+                                size: _PhoneSizes.sheetAvatarIconSize,
                               ),
                       ),
                     ),
@@ -272,7 +271,7 @@ class _RadioPageState extends State<RadioPage> {
                   title: Text(
                     uni.name!,
                     style: TextStyle(
-                      fontSize: _PhoneSizes.sheetTitleFontSizeList.sp,
+                      fontSize: _PhoneSizes.sheetTitleFontSizeList,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected
                           ? AppTheme.primaryColor
@@ -283,15 +282,15 @@ class _RadioPageState extends State<RadioPage> {
                       ? Text(
                           'Şu an çalıyor',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 11,
                             color: AppTheme.primaryColor.withValues(alpha: 0.7),
                           ),
                         )
                       : null,
                   trailing: isSelected
                       ? Container(
-                          width: 24.r,
-                          height: 24.r,
+                          width: 24,
+                          height: 24,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppTheme.primaryColor,
@@ -299,7 +298,7 @@ class _RadioPageState extends State<RadioPage> {
                           child: Icon(
                             Icons.check,
                             color: Colors.white,
-                            size: _PhoneSizes.sheetCheckIconSize.sp * 0.7,
+                            size: _PhoneSizes.sheetCheckIconSize * 0.7,
                           ),
                         )
                       : null,
@@ -323,13 +322,13 @@ class _RadioPageState extends State<RadioPage> {
   ) {
     return Column(
       children: [
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         Container(
-          width: 40.w,
-          height: 4.h,
+          width: 40,
+          height: 4,
           decoration: BoxDecoration(
             color: AppTheme.textSec(context).withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(2.r),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
         Padding(
@@ -351,7 +350,7 @@ class _RadioPageState extends State<RadioPage> {
         Expanded(
           child: ListView.separated(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: EdgeInsets.symmetric(vertical: 8),
             itemCount: unis.length,
             separatorBuilder: (_, _) => Divider(
               height: _TabletSizes.sheetDividerHeight,
@@ -485,7 +484,7 @@ class _RadioPageState extends State<RadioPage> {
           title: Text(
             'Üniversite Radyoları',
             style: TextStyle(
-              fontSize: _PhoneSizes.appBarTitleSize.sp,
+              fontSize: _PhoneSizes.appBarTitleSize,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
@@ -493,7 +492,7 @@ class _RadioPageState extends State<RadioPage> {
           centerTitle: true,
           leading: IconButton(
             icon: Container(
-              padding: EdgeInsets.all(8.r),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
@@ -504,17 +503,17 @@ class _RadioPageState extends State<RadioPage> {
           ),
           actions: [
             Container(
-              margin: EdgeInsets.only(right: 8.w),
+              margin: EdgeInsets.only(right: 8),
               child: IconButton(
                 icon: Container(
-                  padding: EdgeInsets.all(8.r),
+                  padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.list_rounded,
-                    size: _PhoneSizes.listIconSize.sp,
+                    size: _PhoneSizes.listIconSize,
                     color: Colors.white,
                   ),
                 ),
@@ -538,13 +537,13 @@ class _RadioPageState extends State<RadioPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.radio_outlined, size: 64.sp, color: Colors.white38),
-                  SizedBox(height: 16.h),
+                  Icon(Icons.radio_outlined, size: 64, color: Colors.white38),
+                  SizedBox(height: 16),
                   Text(
                     'Radyo yayını bulunamadı.',
                     style: TextStyle(
                       color: Colors.white60,
-                      fontSize: _PhoneSizes.emptyFontSize.sp,
+                      fontSize: _PhoneSizes.emptyFontSize,
                     ),
                   ),
                 ],
@@ -588,11 +587,11 @@ class _RadioPageState extends State<RadioPage> {
               // ✨ Arka plan parçacık efekti (dekoratif daireler)
               ...List.generate(6, (i) {
                 return Positioned(
-                  top: 80.h + (i * 60).h,
-                  left: (i % 2 == 0 ? -20 : 40).w,
+                  top: 80 + (i * 60),
+                  left: (i % 2 == 0 ? -20 : 40),
                   child: Container(
-                    width: (80 + i * 20).r,
-                    height: (80 + i * 20).r,
+                    width: (80 + i * 20),
+                    height: (80 + i * 20),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppTheme.primaryColor.withValues(alpha: 0.03 + i * 0.01),
@@ -606,7 +605,7 @@ class _RadioPageState extends State<RadioPage> {
                 child: Column(
                   children: [
                     // Üst boşluk
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20),
 
                     // Ana kart alanı
                     Expanded(
@@ -650,7 +649,7 @@ class _RadioPageState extends State<RadioPage> {
                     // Dot indicator
                     Padding(
                       padding: EdgeInsets.symmetric(
-                        vertical: _PhoneSizes.dotIndicatorPaddingVertical.h,
+                        vertical: _PhoneSizes.dotIndicatorPaddingVertical,
                       ),
                       child: RadioDotIndicatorWidget(
                         count: unis.length,
@@ -660,27 +659,27 @@ class _RadioPageState extends State<RadioPage> {
 
                     // Alt ipucu
                     Padding(
-                      padding: EdgeInsets.only(bottom: _PhoneSizes.hintPaddingBottom.h),
+                      padding: EdgeInsets.only(bottom: _PhoneSizes.hintPaddingBottom),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(20.r),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.swipe_rounded,
-                              size: 14.sp,
+                              size: 14,
                               color: Colors.white38,
                             ),
-                            SizedBox(width: 6.w),
+                            SizedBox(width: 6),
                             Text(
                               'ok tuşları veya listeden radyo seç',
                               style: TextStyle(
                                 color: Colors.white38,
-                                fontSize: _PhoneSizes.hintFontSize.sp,
+                                fontSize: _PhoneSizes.hintFontSize,
                               ),
                             ),
                           ],
@@ -702,12 +701,12 @@ class _RadioPageState extends State<RadioPage> {
     VoidCallback? onPressed,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      padding: EdgeInsets.symmetric(horizontal: 4),
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          width: 44.r,
-          height: 44.r,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: onPressed != null
@@ -722,7 +721,7 @@ class _RadioPageState extends State<RadioPage> {
           ),
           child: Icon(
             icon,
-            size: _PhoneSizes.chevronSize.sp,
+            size: _PhoneSizes.chevronSize,
             color: onPressed != null ? Colors.white70 : Colors.white24,
           ),
         ),

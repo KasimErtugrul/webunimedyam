@@ -1,5 +1,3 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 abstract class UniversityDetailSizes {
   const UniversityDetailSizes();
   double get appBarExpandedHeight;
@@ -142,232 +140,232 @@ class UniversityDetailPhoneSizes extends UniversityDetailSizes {
   const UniversityDetailPhoneSizes();
 
   @override
-  double get appBarExpandedHeight => 240.h;
+  double get appBarExpandedHeight => 240;
   @override
-  double get appBarTitleSize => 16.sp;
+  double get appBarTitleSize => 16;
   @override
-  double get appBarLogoSize => 30.sp;
+  double get appBarLogoSize => 30;
   @override
-  double get appBarLogoIconSize => 18.sp;
+  double get appBarLogoIconSize => 18;
   @override
-  double get appBarActionIconSize => 26.sp;
+  double get appBarActionIconSize => 26;
   @override
-  double get appBarActionPaddingRight => 8.w;
+  double get appBarActionPaddingRight => 8;
   @override
-  double get appBarLeadingIconSize => 22.sp;
+  double get appBarLeadingIconSize => 22;
 
   @override
-  double get headerTopPadding => 56.h;
+  double get headerTopPadding => 56;
   @override
-  double get headerLogoOuterSize => 100.sp;
+  double get headerLogoOuterSize => 100;
   @override
-  double get headerLogoInnerSize => 78.sp;
+  double get headerLogoInnerSize => 78;
   @override
-  double get headerLogoPadding => 6.sp;
+  double get headerLogoPadding => 6;
   @override
-  double get headerLogoBorderWidth => 2.sp;
+  double get headerLogoBorderWidth => 2;
   @override
-  double get headerLogoShadowBlur => 24.sp;
+  double get headerLogoShadowBlur => 24;
   @override
-  double get headerLogoShadowSpread => 2.sp;
+  double get headerLogoShadowSpread => 2;
   @override
-  double get headerNameFontSize => 19.sp;
+  double get headerNameFontSize => 19;
   @override
-  double get headerNameLineHeight => 1.3.sp;
+  double get headerNameLineHeight => 1.3;
   @override
-  double get headerCitySpacing => 6.sp;
+  double get headerCitySpacing => 6;
   @override
-  double get headerCityFontSize => 13.sp;
+  double get headerCityFontSize => 13;
   @override
-  double get headerCityIconSize => 14.sp;
+  double get headerCityIconSize => 14;
   @override
-  double get headerCityIconSpacing => 3.sp;
+  double get headerCityIconSpacing => 3;
   @override
-  double get headerBadgeSpacing => 10.sp;
+  double get headerBadgeSpacing => 10;
   @override
-  double get headerBadgePaddingHorizontal => 12.w;
+  double get headerBadgePaddingHorizontal => 12;
   @override
-  double get headerBadgePaddingVertical => 4.h;
+  double get headerBadgePaddingVertical => 4;
   @override
-  double get headerBadgeBorderRadius => 20.r;
+  double get headerBadgeBorderRadius => 20;
   @override
-  double get headerBadgeIconSize => 12.sp;
+  double get headerBadgeIconSize => 12;
   @override
-  double get headerBadgeFontSize => 11.sp;
+  double get headerBadgeFontSize => 11;
   @override
-  double get headerPaddingHorizontal => 32.w;
+  double get headerPaddingHorizontal => 32;
 
   @override
-  double get tabBarHeight => 48.h;
+  double get tabBarHeight => 48;
   @override
-  double get tabBarIndicatorWeight => 2.5.sp;
+  double get tabBarIndicatorWeight => 2.5;
   @override
-  double get tabBarLabelFontSize => 14.sp;
+  double get tabBarLabelFontSize => 14;
   @override
-  double get tabBarUnselectedLabelFontSize => 14.sp;
+  double get tabBarUnselectedLabelFontSize => 14;
 
   @override
-  double get aboutPaddingHorizontal => 16.w;
+  double get aboutPaddingHorizontal => 16;
   @override
-  double get aboutPaddingTop => 20.h;
+  double get aboutPaddingTop => 20;
   @override
-  double get aboutPaddingBottom => 32.h;
+  double get aboutPaddingBottom => 32;
   @override
-  double get aboutSectionSpacing => 20.sp;
+  double get aboutSectionSpacing => 20;
   @override
-  double get aboutSectionTitleSpacing => 8.sp;
+  double get aboutSectionTitleSpacing => 8;
   @override
-  double get aboutDescriptionFontSize => 13.sp;
+  double get aboutDescriptionFontSize => 13;
   @override
-  double get aboutDescriptionLineHeight => 1.6.sp;
+  double get aboutDescriptionLineHeight => 1.6;
   @override
-  double get aboutCardPadding => 14.sp;
+  double get aboutCardPadding => 14;
   @override
-  double get aboutCardBorderRadius => 14.r;
+  double get aboutCardBorderRadius => 14;
 
   @override
-  double get infoRowPaddingHorizontal => 14.w;
+  double get infoRowPaddingHorizontal => 14;
   @override
-  double get infoRowPaddingVertical => 12.h;
+  double get infoRowPaddingVertical => 12;
   @override
-  double get infoRowIconSize => 34.sp;
+  double get infoRowIconSize => 34;
   @override
-  double get infoRowIconRadius => 9.r;
+  double get infoRowIconRadius => 9;
   @override
-  double get infoRowIconInnerSize => 17.sp;
+  double get infoRowIconInnerSize => 17;
   @override
-  double get infoRowIconSpacing => 12.sp;
+  double get infoRowIconSpacing => 12;
   @override
-  double get infoRowLabelFontSize => 11.sp;
+  double get infoRowLabelFontSize => 11;
   @override
-  double get infoRowValueFontSize => 13.sp;
+  double get infoRowValueFontSize => 13;
   @override
-  double get infoRowValueSpacing => 2.sp;
+  double get infoRowValueSpacing => 2;
 
   @override
-  double get linkButtonPaddingHorizontal => 14.w;
+  double get linkButtonPaddingHorizontal => 14;
   @override
-  double get linkButtonPaddingVertical => 12.h;
+  double get linkButtonPaddingVertical => 12;
   @override
-  double get linkButtonIconSize => 34.sp;
+  double get linkButtonIconSize => 34;
   @override
-  double get linkButtonIconRadius => 9.r;
+  double get linkButtonIconRadius => 9;
   @override
-  double get linkButtonIconInnerSize => 17.sp;
+  double get linkButtonIconInnerSize => 17;
   @override
-  double get linkButtonIconSpacing => 12.sp;
+  double get linkButtonIconSpacing => 12;
   @override
-  double get linkButtonLabelFontSize => 13.sp;
+  double get linkButtonLabelFontSize => 13;
   @override
-  double get linkButtonTrailingIconSize => 16.sp;
+  double get linkButtonTrailingIconSize => 16;
 
   @override
-  double get radioCardPadding => 14.sp;
+  double get radioCardPadding => 14;
   @override
-  double get radioCardBorderRadius => 14.r;
+  double get radioCardBorderRadius => 14;
   @override
-  double get radioIconContainerSize => 46.sp;
+  double get radioIconContainerSize => 46;
   @override
-  double get radioIconContainerRadius => 12.r;
+  double get radioIconContainerRadius => 12;
   @override
-  double get radioIconSize => 22.sp;
+  double get radioIconSize => 22;
   @override
-  double get radioIconSpacing => 14.sp;
+  double get radioIconSpacing => 14;
   @override
-  double get radioTitleFontSize => 14.sp;
+  double get radioTitleFontSize => 14;
   @override
-  double get radioSubtitleFontSize => 11.5.sp;
+  double get radioSubtitleFontSize => 11.5;
   @override
-  double get radioPlayButtonSize => 44.sp;
+  double get radioPlayButtonSize => 44;
   @override
-  double get radioPlayButtonRadius => 24.r;
+  double get radioPlayButtonRadius => 24;
   @override
-  double get radioPlayIconSize => 24.sp;
+  double get radioPlayIconSize => 24;
   @override
-  double get radioWaveBarWidth => 3.w;
+  double get radioWaveBarWidth => 3;
   @override
-  double get radioWaveBarSpacing => 1.5.sp;
+  double get radioWaveBarSpacing => 1.5;
   @override
-  double get radioWaveBarBorderRadius => 2.r;
+  double get radioWaveBarBorderRadius => 2;
   @override
-  double get radioWaveBarMaxHeight => 20.h;
+  double get radioWaveBarMaxHeight => 20;
   @override
-  double get radioWaveBarMinHeight => 6.h;
+  double get radioWaveBarMinHeight => 6;
   @override
   double get radioWaveBarAlpha => 0.3; // birimsiz
 
   @override
-  double get miniPlayerPaddingHorizontal => 16.w;
+  double get miniPlayerPaddingHorizontal => 16;
   @override
-  double get miniPlayerPaddingVertical => 10.h;
+  double get miniPlayerPaddingVertical => 10;
   @override
-  double get miniPlayerLogoSize => 42.sp;
+  double get miniPlayerLogoSize => 42;
   @override
-  double get miniPlayerLogoRadius => 10.r;
+  double get miniPlayerLogoRadius => 10;
   @override
-  double get miniPlayerLogoSpacing => 12.sp;
+  double get miniPlayerLogoSpacing => 12;
   @override
-  double get miniPlayerTitleFontSize => 13.sp;
+  double get miniPlayerTitleFontSize => 13;
   @override
-  double get miniPlayerSubtitleFontSize => 11.sp;
+  double get miniPlayerSubtitleFontSize => 11;
   @override
-  double get miniPlayerPlayIconSize => 36.sp;
+  double get miniPlayerPlayIconSize => 36;
   @override
-  double get miniPlayerStopIconSize => 28.sp;
+  double get miniPlayerStopIconSize => 28;
   @override
-  double get miniPlayerLoadingSize => 20.sp;
+  double get miniPlayerLoadingSize => 20;
 
   @override
-  double get shortsCardHeight => 280.h;
+  double get shortsCardHeight => 280;
   @override
-  double get shortsCardRadius => 14.r;
+  double get shortsCardRadius => 14;
   @override
-  double get shortsTitleSize => 12.5.sp;
+  double get shortsTitleSize => 12.5;
   @override
-  double get shortsDescSize => 11.sp;
+  double get shortsDescSize => 11;
   @override
-  double get shortsMetaSize => 10.sp;
+  double get shortsMetaSize => 10;
 
   @override
-  double get errorIconSize => 48.sp;
+  double get errorIconSize => 48;
   @override
-  double get errorSpacingLarge => 16.sp;
+  double get errorSpacingLarge => 16;
   @override
-  double get errorSpacingSmall => 16.sp;
+  double get errorSpacingSmall => 16;
   @override
-  double get errorFontSize => 14.sp;
+  double get errorFontSize => 14;
 
   @override
-  double get emptyIconContainerSize => 72.sp;
+  double get emptyIconContainerSize => 72;
   @override
-  double get emptyIconSize => 36.sp;
+  double get emptyIconSize => 36;
   @override
-  double get emptySpacingLarge => 16.sp;
+  double get emptySpacingLarge => 16;
   @override
-  double get emptySpacingSmall => 6.sp;
+  double get emptySpacingSmall => 6;
   @override
-  double get emptyTitleFontSize => 16.sp;
+  double get emptyTitleFontSize => 16;
   @override
-  double get emptySubtitleFontSize => 13.sp;
+  double get emptySubtitleFontSize => 13;
 
   @override
-  double get shimmerVideoHeight => 100.h;
+  double get shimmerVideoHeight => 100;
   @override
-  double get shimmerVideoBorderRadius => 16.r;
+  double get shimmerVideoBorderRadius => 16;
 
   @override
-  double get sectionTitleFontSize => 15.sp;
+  double get sectionTitleFontSize => 15;
 
   @override
-  double get favButtonPaddingVertical => 13.h;
+  double get favButtonPaddingVertical => 13;
   @override
-  double get favButtonBorderRadius => 14.r;
+  double get favButtonBorderRadius => 14;
   @override
-  double get favButtonIconSize => 18.sp;
+  double get favButtonIconSize => 18;
   @override
-  double get favButtonFontSize => 14.sp;
+  double get favButtonFontSize => 14;
   @override
-  double get favButtonLoadingSize => 16.sp;
+  double get favButtonLoadingSize => 16;
 }
 
 // ==================== TABLET IMPLEMENTATION ====================
@@ -376,277 +374,277 @@ class UniversityDetailTabletSizes extends UniversityDetailSizes {
 
   // ----- AppBar -----
   @override
-  double get appBarExpandedHeight => 300.h;
+  double get appBarExpandedHeight => 300;
   @override
-  double get appBarTitleSize => 20.sp;
+  double get appBarTitleSize => 20;
   @override
-  double get appBarLogoSize => 36.sp;
+  double get appBarLogoSize => 36;
   @override
-  double get appBarLogoIconSize => 22.sp;
+  double get appBarLogoIconSize => 22;
   @override
-  double get appBarActionIconSize => 30.sp;
+  double get appBarActionIconSize => 30;
   @override
-  double get appBarActionPaddingRight => 12.w;
+  double get appBarActionPaddingRight => 12;
   @override
-  double get appBarLeadingIconSize => 26.sp;
+  double get appBarLeadingIconSize => 26;
 
   // ----- Header -----
   @override
-  double get headerTopPadding => 70.h;
+  double get headerTopPadding => 70;
   @override
-  double get headerLogoOuterSize => 130.sp;
+  double get headerLogoOuterSize => 130;
   @override
-  double get headerLogoInnerSize => 100.sp;
+  double get headerLogoInnerSize => 100;
   @override
-  double get headerLogoPadding => 8.sp;
+  double get headerLogoPadding => 8;
   @override
-  double get headerLogoBorderWidth => 2.5.sp;
+  double get headerLogoBorderWidth => 2.5;
   @override
-  double get headerLogoShadowBlur => 30.sp;
+  double get headerLogoShadowBlur => 30;
   @override
-  double get headerLogoShadowSpread => 3.sp;
+  double get headerLogoShadowSpread => 3;
   @override
-  double get headerNameFontSize => 24.sp;
+  double get headerNameFontSize => 24;
   @override
-  double get headerNameLineHeight => 1.35.sp;
+  double get headerNameLineHeight => 1.35;
   @override
-  double get headerCitySpacing => 8.sp;
+  double get headerCitySpacing => 8;
   @override
-  double get headerCityFontSize => 16.sp;
+  double get headerCityFontSize => 16;
   @override
-  double get headerCityIconSize => 18.sp;
+  double get headerCityIconSize => 18;
   @override
-  double get headerCityIconSpacing => 4.sp;
+  double get headerCityIconSpacing => 4;
   @override
-  double get headerBadgeSpacing => 14.sp;
+  double get headerBadgeSpacing => 14;
   @override
-  double get headerBadgePaddingHorizontal => 16.w;
+  double get headerBadgePaddingHorizontal => 16;
   @override
-  double get headerBadgePaddingVertical => 6.h;
+  double get headerBadgePaddingVertical => 6;
   @override
-  double get headerBadgeBorderRadius => 24.r;
+  double get headerBadgeBorderRadius => 24;
   @override
-  double get headerBadgeIconSize => 14.sp;
+  double get headerBadgeIconSize => 14;
   @override
-  double get headerBadgeFontSize => 13.sp;
+  double get headerBadgeFontSize => 13;
   @override
-  double get headerPaddingHorizontal => 48.w;
+  double get headerPaddingHorizontal => 48;
 
   // ----- TabBar -----
   @override
-  double get tabBarHeight => 56.h;
+  double get tabBarHeight => 56;
   @override
-  double get tabBarIndicatorWeight => 3.sp;
+  double get tabBarIndicatorWeight => 3;
   @override
-  double get tabBarLabelFontSize => 16.sp;
+  double get tabBarLabelFontSize => 16;
   @override
-  double get tabBarUnselectedLabelFontSize => 16.sp;
+  double get tabBarUnselectedLabelFontSize => 16;
 
   // ----- About Tab -----
   @override
-  double get aboutPaddingHorizontal => 24.w;
+  double get aboutPaddingHorizontal => 24;
   @override
-  double get aboutPaddingTop => 28.h;
+  double get aboutPaddingTop => 28;
   @override
-  double get aboutPaddingBottom => 40.h;
+  double get aboutPaddingBottom => 40;
   @override
-  double get aboutSectionSpacing => 24.sp;
+  double get aboutSectionSpacing => 24;
   @override
-  double get aboutSectionTitleSpacing => 10.sp;
+  double get aboutSectionTitleSpacing => 10;
   @override
-  double get aboutDescriptionFontSize => 16.sp;
+  double get aboutDescriptionFontSize => 16;
   @override
-  double get aboutDescriptionLineHeight => 1.7.sp;
+  double get aboutDescriptionLineHeight => 1.7;
   @override
-  double get aboutCardPadding => 18.sp;
+  double get aboutCardPadding => 18;
   @override
-  double get aboutCardBorderRadius => 16.r;
+  double get aboutCardBorderRadius => 16;
 
   // ----- Info Row -----
   @override
-  double get infoRowPaddingHorizontal => 18.w;
+  double get infoRowPaddingHorizontal => 18;
   @override
-  double get infoRowPaddingVertical => 16.h;
+  double get infoRowPaddingVertical => 16;
   @override
-  double get infoRowIconSize => 42.sp;
+  double get infoRowIconSize => 42;
   @override
-  double get infoRowIconRadius => 11.r;
+  double get infoRowIconRadius => 11;
   @override
-  double get infoRowIconInnerSize => 21.sp;
+  double get infoRowIconInnerSize => 21;
   @override
-  double get infoRowIconSpacing => 16.sp;
+  double get infoRowIconSpacing => 16;
   @override
-  double get infoRowLabelFontSize => 13.sp;
+  double get infoRowLabelFontSize => 13;
   @override
-  double get infoRowValueFontSize => 16.sp;
+  double get infoRowValueFontSize => 16;
   @override
-  double get infoRowValueSpacing => 3.sp;
+  double get infoRowValueSpacing => 3;
 
   // ----- Link Button -----
   @override
-  double get linkButtonPaddingHorizontal => 18.w;
+  double get linkButtonPaddingHorizontal => 18;
   @override
-  double get linkButtonPaddingVertical => 16.h;
+  double get linkButtonPaddingVertical => 16;
   @override
-  double get linkButtonIconSize => 42.sp;
+  double get linkButtonIconSize => 42;
   @override
-  double get linkButtonIconRadius => 11.r;
+  double get linkButtonIconRadius => 11;
   @override
-  double get linkButtonIconInnerSize => 21.sp;
+  double get linkButtonIconInnerSize => 21;
   @override
-  double get linkButtonIconSpacing => 16.sp;
+  double get linkButtonIconSpacing => 16;
   @override
-  double get linkButtonLabelFontSize => 16.sp;
+  double get linkButtonLabelFontSize => 16;
   @override
-  double get linkButtonTrailingIconSize => 20.sp;
+  double get linkButtonTrailingIconSize => 20;
 
   // ----- Radio Inline Card -----
   @override
-  double get radioCardPadding => 18.sp;
+  double get radioCardPadding => 18;
   @override
-  double get radioCardBorderRadius => 16.r;
+  double get radioCardBorderRadius => 16;
   @override
-  double get radioIconContainerSize => 56.sp;
+  double get radioIconContainerSize => 56;
   @override
-  double get radioIconContainerRadius => 14.r;
+  double get radioIconContainerRadius => 14;
   @override
-  double get radioIconSize => 28.sp;
+  double get radioIconSize => 28;
   @override
-  double get radioIconSpacing => 18.sp;
+  double get radioIconSpacing => 18;
   @override
-  double get radioTitleFontSize => 16.sp;
+  double get radioTitleFontSize => 16;
   @override
-  double get radioSubtitleFontSize => 13.sp;
+  double get radioSubtitleFontSize => 13;
   @override
-  double get radioPlayButtonSize => 54.sp;
+  double get radioPlayButtonSize => 54;
   @override
-  double get radioPlayButtonRadius => 28.r;
+  double get radioPlayButtonRadius => 28;
   @override
-  double get radioPlayIconSize => 28.sp;
+  double get radioPlayIconSize => 28;
   @override
-  double get radioWaveBarWidth => 4.w;
+  double get radioWaveBarWidth => 4;
   @override
-  double get radioWaveBarSpacing => 2.sp;
+  double get radioWaveBarSpacing => 2;
   @override
-  double get radioWaveBarBorderRadius => 3.r;
+  double get radioWaveBarBorderRadius => 3;
   @override
-  double get radioWaveBarMaxHeight => 26.h;
+  double get radioWaveBarMaxHeight => 26;
   @override
-  double get radioWaveBarMinHeight => 8.h;
+  double get radioWaveBarMinHeight => 8;
   @override
   double get radioWaveBarAlpha => 0.3; // oransal
 
   // ----- Mini Player -----
   @override
-  double get miniPlayerPaddingHorizontal => 24.w;
+  double get miniPlayerPaddingHorizontal => 24;
   @override
-  double get miniPlayerPaddingVertical => 14.h;
+  double get miniPlayerPaddingVertical => 14;
   @override
-  double get miniPlayerLogoSize => 50.sp;
+  double get miniPlayerLogoSize => 50;
   @override
-  double get miniPlayerLogoRadius => 12.r;
+  double get miniPlayerLogoRadius => 12;
   @override
-  double get miniPlayerLogoSpacing => 16.sp;
+  double get miniPlayerLogoSpacing => 16;
   @override
-  double get miniPlayerTitleFontSize => 16.sp;
+  double get miniPlayerTitleFontSize => 16;
   @override
-  double get miniPlayerSubtitleFontSize => 13.sp;
+  double get miniPlayerSubtitleFontSize => 13;
   @override
-  double get miniPlayerPlayIconSize => 42.sp;
+  double get miniPlayerPlayIconSize => 42;
   @override
-  double get miniPlayerStopIconSize => 34.sp;
+  double get miniPlayerStopIconSize => 34;
   @override
-  double get miniPlayerLoadingSize => 24.sp;
+  double get miniPlayerLoadingSize => 24;
 
   // ----- Shorts (abstract'teki mevcut getter'lar) -----
   // tablet listesinde shortsCardHeight yok, makul bir değer atanıyor
   @override
-  double get shortsCardHeight => 320.h;
+  double get shortsCardHeight => 320;
   @override
-  double get shortsCardRadius => 16.r; // shortsCardBorderRadius ile eşleşir
+  double get shortsCardRadius => 16; // shortsCardBorderRadius ile eşleşir
   @override
-  double get shortsTitleSize => 16.sp; // shortsTitleFontSize
+  double get shortsTitleSize => 16; // shortsTitleFontSize
   @override
-  double get shortsDescSize => 13.sp; // shortsDescFontSize
+  double get shortsDescSize => 13; // shortsDescFontSize
   @override
-  double get shortsMetaSize => 12.sp; // shortsMetaFontSize
+  double get shortsMetaSize => 12; // shortsMetaFontSize
 
   // ----- Error View -----
   @override
-  double get errorIconSize => 56.sp;
+  double get errorIconSize => 56;
   @override
-  double get errorSpacingLarge => 20.sp;
+  double get errorSpacingLarge => 20;
   @override
-  double get errorSpacingSmall => 20.sp;
+  double get errorSpacingSmall => 20;
   @override
-  double get errorFontSize => 16.sp;
+  double get errorFontSize => 16;
 
   // ----- Empty View -----
   @override
-  double get emptyIconContainerSize => 88.sp;
+  double get emptyIconContainerSize => 88;
   @override
-  double get emptyIconSize => 44.sp;
+  double get emptyIconSize => 44;
   @override
-  double get emptySpacingLarge => 20.sp;
+  double get emptySpacingLarge => 20;
   @override
-  double get emptySpacingSmall => 8.sp;
+  double get emptySpacingSmall => 8;
   @override
-  double get emptyTitleFontSize => 20.sp;
+  double get emptyTitleFontSize => 20;
   @override
-  double get emptySubtitleFontSize => 16.sp;
+  double get emptySubtitleFontSize => 16;
 
   // ----- Shimmer (abstract'tekiler) -----
   @override
-  double get shimmerVideoHeight => 120.h;
+  double get shimmerVideoHeight => 120;
   @override
-  double get shimmerVideoBorderRadius => 18.r;
+  double get shimmerVideoBorderRadius => 18;
 
   // ----- Section Title -----
   @override
-  double get sectionTitleFontSize => 18.sp;
+  double get sectionTitleFontSize => 18;
 
   // ----- Favorite Button -----
   @override
-  double get favButtonPaddingVertical => 16.h;
+  double get favButtonPaddingVertical => 16;
   @override
-  double get favButtonBorderRadius => 16.r;
+  double get favButtonBorderRadius => 16;
   @override
-  double get favButtonIconSize => 22.sp;
+  double get favButtonIconSize => 22;
   @override
-  double get favButtonFontSize => 16.sp;
+  double get favButtonFontSize => 16;
   @override
-  double get favButtonLoadingSize => 20.sp;
+  double get favButtonLoadingSize => 20;
 
   // ================================================
   //  TABLET'E ÖZGÜ EKSTRA GETTER'LAR (abstract'ta yok)
   // ================================================
 
   // Shorts List Card (detaylı)
-  double get shortsCardPadding => 14.sp;
-  double get shortsCardBorderRadius => 16.r;
-  double get shortsThumbnailWidth => 88.w;
-  double get shortsThumbnailHeight => 130.h;
-  double get shortsThumbnailRadius => 12.r;
-  double get shortsThumbnailSpacing => 16.sp;
-  double get shortsTitleFontSize => 16.sp;
-  double get shortsTitleLineHeight => 1.35.sp;
-  double get shortsDescFontSize => 13.sp;
-  double get shortsDescLineHeight => 1.35.sp;
-  double get shortsMetaFontSize => 12.sp;
-  double get shortsMetaSpacing => 14.sp;
-  double get shortsBadgePaddingHorizontal => 8.w;
-  double get shortsBadgePaddingVertical => 3.h;
-  double get shortsBadgeBorderRadius => 5.r;
-  double get shortsBadgeIconSize => 12.sp;
-  double get shortsBadgeFontSize => 9.sp;
-  double get shortsDurationChipPaddingHorizontal => 6.w;
-  double get shortsDurationChipPaddingVertical => 3.h;
-  double get shortsDurationChipBorderRadius => 5.r;
-  double get shortsDurationChipFontSize => 10.sp;
-  double get shortsPlayOverlaySize => 36.sp;
-  double get shortsPlayIconSize => 22.sp;
+  double get shortsCardPadding => 14;
+  double get shortsCardBorderRadius => 16;
+  double get shortsThumbnailWidth => 88;
+  double get shortsThumbnailHeight => 130;
+  double get shortsThumbnailRadius => 12;
+  double get shortsThumbnailSpacing => 16;
+  double get shortsTitleFontSize => 16;
+  double get shortsTitleLineHeight => 1.35;
+  double get shortsDescFontSize => 13;
+  double get shortsDescLineHeight => 1.35;
+  double get shortsMetaFontSize => 12;
+  double get shortsMetaSpacing => 14;
+  double get shortsBadgePaddingHorizontal => 8;
+  double get shortsBadgePaddingVertical => 3;
+  double get shortsBadgeBorderRadius => 5;
+  double get shortsBadgeIconSize => 12;
+  double get shortsBadgeFontSize => 9;
+  double get shortsDurationChipPaddingHorizontal => 6;
+  double get shortsDurationChipPaddingVertical => 3;
+  double get shortsDurationChipBorderRadius => 5;
+  double get shortsDurationChipFontSize => 10;
+  double get shortsPlayOverlaySize => 36;
+  double get shortsPlayIconSize => 22;
 
   // Shimmer (tablet'e özel)
-  double get shimmerShortsHeight => 150.h;
-  double get shimmerShortsBorderRadius => 16.r;
+  double get shimmerShortsHeight => 150;
+  double get shimmerShortsBorderRadius => 16;
 }

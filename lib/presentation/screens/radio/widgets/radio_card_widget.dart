@@ -7,7 +7,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:radio_player/radio_player.dart';
 
@@ -115,27 +114,27 @@ class RadioCardWidget extends StatelessWidget {
   Widget _buildPhone(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.cardPaddingHorizontal.w,
-        vertical: _PhoneSizes.cardPaddingVertical.h,
+        horizontal: _PhoneSizes.cardPaddingHorizontal,
+        vertical: _PhoneSizes.cardPaddingVertical,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // ✨ Logo + Görselleştirici
           _buildLogoSectionPhone(context),
-          SizedBox(height: _PhoneSizes.logoTextSpacing.h),
+          SizedBox(height: _PhoneSizes.logoTextSpacing),
 
           // ✨ İsim
           _buildNameSectionPhone(context),
-          SizedBox(height: _PhoneSizes.textMetaSpacing.h),
+          SizedBox(height: _PhoneSizes.textMetaSpacing),
 
           // ✨ Metadata
           _buildMetaSectionPhone(context),
-          SizedBox(height: _PhoneSizes.metaControlsSpacing.h),
+          SizedBox(height: _PhoneSizes.metaControlsSpacing),
 
           // ✨ Kontroller
           _buildControlsSectionPhone(context),
-          SizedBox(height: _PhoneSizes.waveSpacing.h),
+          SizedBox(height: _PhoneSizes.waveSpacing),
 
           // ✨ Dalga
           _buildWaveSectionPhone(context),
@@ -153,22 +152,22 @@ class RadioCardWidget extends StatelessWidget {
           final playing = ctrl.playbackState.value == PlaybackState.playing;
           return AnimatedContainer(
             duration: _PhoneSizes.animDuration,
-            width: _PhoneSizes.ringSize.r,
-            height: _PhoneSizes.ringSize.r,
+            width: _PhoneSizes.ringSize,
+            height: _PhoneSizes.ringSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color: playing
                     ? AppTheme.primaryColor.withValues(alpha: 0.6)
                     : Colors.white.withValues(alpha: 0.1),
-                width: _PhoneSizes.ringBorderWidth.r,
+                width: _PhoneSizes.ringBorderWidth,
               ),
               boxShadow: playing
                   ? [
                       BoxShadow(
                         color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                        blurRadius: 40.r,
-                        spreadRadius: 10.r,
+                        blurRadius: 40,
+                        spreadRadius: 10,
                       ),
                     ]
                   : null,
@@ -181,8 +180,8 @@ class RadioCardWidget extends StatelessWidget {
 
         // ✨ Logo
         Container(
-          width: _PhoneSizes.logoContainerSize.r,
-          height: _PhoneSizes.logoContainerSize.r,
+          width: _PhoneSizes.logoContainerSize,
+          height: _PhoneSizes.logoContainerSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
@@ -200,8 +199,8 @@ class RadioCardWidget extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.shadowAlpha),
-                blurRadius: _PhoneSizes.shadowBlurRadius.r,
-                spreadRadius: _PhoneSizes.shadowSpreadRadius.r,
+                blurRadius: _PhoneSizes.shadowBlurRadius,
+                spreadRadius: _PhoneSizes.shadowSpreadRadius,
               ),
             ],
           ),
@@ -221,10 +220,10 @@ class RadioCardWidget extends StatelessWidget {
           child: RadioVisualizerWrapper(
             isActive: isActive,
             barCount: _PhoneSizes.visualizerBarCount,
-            barWidth: _PhoneSizes.visualizerBarWidth.w,
-            barSpacing: _PhoneSizes.visualizerBarSpacing.w,
-            barMaxHeight: _PhoneSizes.visualizerBarMaxHeight.r,
-            barBorderRadius: _PhoneSizes.visualizerBarBorderRadius.r,
+            barWidth: _PhoneSizes.visualizerBarWidth,
+            barSpacing: _PhoneSizes.visualizerBarSpacing,
+            barMaxHeight: _PhoneSizes.visualizerBarMaxHeight,
+            barBorderRadius: _PhoneSizes.visualizerBarBorderRadius,
             barAlpha: _PhoneSizes.visualizerBarAlpha,
           ),
         ), */
@@ -260,7 +259,7 @@ class RadioCardWidget extends StatelessWidget {
         uni.name!,
         style: TextStyle(
           color: Colors.white,
-          fontSize: _PhoneSizes.uniNameFontSize.sp,
+          fontSize: _PhoneSizes.uniNameFontSize,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
         ),
@@ -293,18 +292,18 @@ class RadioCardWidget extends StatelessWidget {
         duration: _PhoneSizes.animDurationShort,
         child: Container(
           key: ValueKey(text),
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (state == PlaybackState.playing)
                 Container(
-                  width: 6.r,
-                  height: 6.r,
+                  width: 6,
+                  height: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppTheme.primaryColor,
@@ -317,14 +316,14 @@ class RadioCardWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (state == PlaybackState.playing) SizedBox(width: 8.w),
+              if (state == PlaybackState.playing) SizedBox(width: 8),
               Text(
                 text,
                 style: TextStyle(
                   color: state == PlaybackState.playing
                       ? Colors.white.withValues(alpha: 0.9)
                       : Colors.white.withValues(alpha: 0.5),
-                  fontSize: _PhoneSizes.metaFontSize.sp,
+                  fontSize: _PhoneSizes.metaFontSize,
                   fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
                 ),
                 maxLines: 1,
@@ -348,7 +347,7 @@ class RadioCardWidget extends StatelessWidget {
           },
           enabled: isActive,
         ),
-        SizedBox(width: _PhoneSizes.controlSpacing.w),
+        SizedBox(width: _PhoneSizes.controlSpacing),
         Obx(() {
           final state = ctrl.playbackState.value;
           final buffering = state == PlaybackState.buffering;
@@ -363,8 +362,8 @@ class RadioCardWidget extends StatelessWidget {
           }
           if (buffering) {
             return SizedBox(
-              width: _PhoneSizes.playButtonSize.r,
-              height: _PhoneSizes.playButtonSize.r,
+              width: _PhoneSizes.playButtonSize,
+              height: _PhoneSizes.playButtonSize,
               child: CircularProgressIndicator(
                 strokeWidth: _PhoneSizes.loadingStrokeWidth,
                 color: AppTheme.primaryColor,
@@ -383,7 +382,7 @@ class RadioCardWidget extends StatelessWidget {
             active: true,
           );
         }),
-        SizedBox(width: _PhoneSizes.controlSpacing.w),
+        SizedBox(width: _PhoneSizes.controlSpacing),
         RadioControlButtonWidget(
           icon: Icons.skip_next_rounded,
           onTap: () {

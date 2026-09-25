@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/comment_tile_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -133,12 +132,12 @@ class CommentTileWidget extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: s.cardPaddingH.w,
-        vertical: s.cardPaddingV.h,
+        horizontal: s.cardPaddingH,
+        vertical: s.cardPaddingV,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(s.cardRadius.r),
+        borderRadius: BorderRadius.circular(s.cardRadius),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +161,7 @@ class CommentTileWidget extends StatelessWidget {
                   : null,
             ),
             child: CircleAvatar(
-              radius: s.avatarRadius.r,
+              radius: s.avatarRadius,
               backgroundColor: Colors.transparent,
               backgroundImage: (hasAvatar && !isMasked)
                   ? NetworkImage(profile.avatarUrl!)
@@ -174,20 +173,20 @@ class CommentTileWidget extends StatelessWidget {
                           ? Icon(
                               Icons.person_rounded,
                               color: Colors.white,
-                              size: s.avatarRadius.r,
+                              size: s.avatarRadius,
                             )
                           : Text(
                               initial,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: s.avatarLetterFontSize.sp,
+                                fontSize: s.avatarLetterFontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
             ),
           ),
-          SizedBox(width: s.avatarSpacing.w),
+          SizedBox(width: s.avatarSpacing),
 
           // ── İçerik ──
           Expanded(
@@ -202,35 +201,35 @@ class CommentTileWidget extends StatelessWidget {
                         style: TextStyle(
                           color: AppTheme.textPri(context),
                           fontWeight: FontWeight.w600,
-                          fontSize: s.usernameFontSize.sp,
+                          fontSize: s.usernameFontSize,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: s.usernameTimeSpacing.w),
+                    SizedBox(width: s.usernameTimeSpacing),
                     Text(
                       '·',
                       style: TextStyle(
                         color: AppTheme.textSec(context),
-                        fontSize: s.usernameFontSize.sp,
+                        fontSize: s.usernameFontSize,
                       ),
                     ),
-                    SizedBox(width: s.dotSpacing.w),
+                    SizedBox(width: s.dotSpacing),
                     Text(
                       _timeAgo(comment.createdAt),
                       style: TextStyle(
                         color: AppTheme.textSec(context),
-                        fontSize: s.timeFontSize.sp,
+                        fontSize: s.timeFontSize,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: s.contentSpacing.h),
+                SizedBox(height: s.contentSpacing),
                 Text(
                   comment.content,
                   style: TextStyle(
                     color: AppTheme.textSec(context).withValues(alpha: 0.9),
-                    fontSize: s.commentFontSize.sp,
+                    fontSize: s.commentFontSize,
                     height: s.commentLineHeight,
                   ),
                 ),
@@ -241,19 +240,19 @@ class CommentTileWidget extends StatelessWidget {
           // ── Sil ──
           if (canDelete)
             Padding(
-              padding: EdgeInsets.only(left: s.deleteButtonPadding.w),
+              padding: EdgeInsets.only(left: s.deleteButtonPadding),
               child: IconButton(
                 onPressed: onDelete,
                 icon: Icon(
                   Icons.delete_outline_rounded,
                   color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                  size: s.deleteIconSize.sp,
+                  size: s.deleteIconSize,
                 ),
-                splashRadius: s.deleteSplashRadius.r,
+                splashRadius: s.deleteSplashRadius,
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(
-                  minWidth: s.deleteMinWidth.w,
-                  minHeight: s.deleteMinHeight.h,
+                  minWidth: s.deleteMinWidth,
+                  minHeight: s.deleteMinHeight,
                 ),
               ),
             ),

@@ -1,7 +1,6 @@
 // lib/presentation/screens/profile/widgets/profile_header/profile_header_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
@@ -179,8 +178,8 @@ class ProfileHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = _Sizes.of(context);
-    double w(double v) => spec.isTablet ? v : v.w;
-    double h(double v) => spec.isTablet ? v : v.h;
+    double w(double v) => spec.isTablet ? v : v;
+    double h(double v) => spec.isTablet ? v : v;
 
     return Obx(() {
       final profile = controller.profile.value;
@@ -233,7 +232,7 @@ class ProfileHeaderWidget extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.usernameFontSize.sp,
+                fontSize: spec.usernameFontSize,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.3,
               ),
@@ -249,7 +248,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                 '@${profile!.username}',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: spec.atUsernameFontSize.sp,
+                  fontSize: spec.atUsernameFontSize,
                 ),
               ).animate().fadeIn(delay: 280.ms, duration: 300.ms),
             ],
@@ -260,7 +259,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                 _memberSinceLabel(profile.createdAt),
                 style: TextStyle(
                   color: AppTheme.textSec(context).withValues(alpha: 0.7),
-                  fontSize: spec.memberSinceFontSize.sp,
+                  fontSize: spec.memberSinceFontSize,
                 ),
               ).animate().fadeIn(delay: 340.ms, duration: 300.ms),
             ],
@@ -304,8 +303,8 @@ class _CoverBanner extends StatelessWidget {
   final _Sizes spec;
   const _CoverBanner({required this.spec});
 
-  double w(double v) => spec.isTablet ? v : v.w;
-  double h(double v) => spec.isTablet ? v : v.h;
+  double w(double v) => spec.isTablet ? v : v;
+  double h(double v) => spec.isTablet ? v : v;
 
   @override
   Widget build(BuildContext context) {
@@ -385,18 +384,18 @@ class _EditProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w(double v) => spec.isTablet ? v : v.w;
-    double h(double v) => spec.isTablet ? v : v.h;
+    double w(double v) => spec.isTablet ? v : v;
+    double h(double v) => spec.isTablet ? v : v;
 
     return OutlinedButton.icon(
       onPressed: () => Get.toNamed(AppRoutes.editProfile),
       icon: Icon(
         Icons.edit_outlined,
-        size: spec.editButtonIconSize.sp,
+        size: spec.editButtonIconSize,
       ),
       label: Text(
         'Profili Düzenle',
-        style: TextStyle(fontSize: spec.editButtonFontSize.sp),
+        style: TextStyle(fontSize: spec.editButtonFontSize),
       ),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppTheme.textPri(context),
@@ -431,8 +430,8 @@ class _StatsRow extends StatelessWidget {
     required this.spec,
   });
 
-  double w(double v) => spec.isTablet ? v : v.w;
-  double h(double v) => spec.isTablet ? v : v.h;
+  double w(double v) => spec.isTablet ? v : v;
+  double h(double v) => spec.isTablet ? v : v;
 
   @override
   Widget build(BuildContext context) {

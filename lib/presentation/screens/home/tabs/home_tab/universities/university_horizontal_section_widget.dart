@@ -1,7 +1,6 @@
 /* // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_horizontal_section_widget.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';

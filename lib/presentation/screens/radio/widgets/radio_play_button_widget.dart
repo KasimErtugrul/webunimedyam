@@ -5,7 +5,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -74,8 +73,8 @@ class RadioPlayButtonWidget extends StatelessWidget {
               return Transform.scale(
                 scale: 1.0 + (value * 0.15),
                 child: Container(
-                  width: _PhoneSizes.pulseRingSize.r,
-                  height: _PhoneSizes.pulseRingSize.r,
+                  width: _PhoneSizes.pulseRingSize,
+                  height: _PhoneSizes.pulseRingSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppTheme.primaryColor.withValues(
@@ -93,8 +92,8 @@ class RadioPlayButtonWidget extends StatelessWidget {
           onTap: onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: _PhoneSizes.containerSize.r,
-            height: _PhoneSizes.containerSize.r,
+            width: _PhoneSizes.containerSize,
+            height: _PhoneSizes.containerSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: active
@@ -120,15 +119,15 @@ class RadioPlayButtonWidget extends StatelessWidget {
                   ? [
                       BoxShadow(
                         color: AppTheme.primaryColor.withValues(alpha: _PhoneSizes.shadowAlpha),
-                        blurRadius: _PhoneSizes.shadowBlurRadius.r,
-                        spreadRadius: _PhoneSizes.shadowSpreadRadius.r,
+                        blurRadius: _PhoneSizes.shadowBlurRadius,
+                        spreadRadius: _PhoneSizes.shadowSpreadRadius,
                       ),
                     ]
                   : null,
             ),
             child: Icon(
               icon,
-              size: _PhoneSizes.iconSize.sp,
+              size: _PhoneSizes.iconSize,
               color: active ? Colors.white : AppTheme.primaryColor,
             ),
           ),

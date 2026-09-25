@@ -1,7 +1,6 @@
 // lib/presentation/screens/university_detail/widgets/university_radio_mini_player.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -49,17 +48,17 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
           top: false,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: spec.miniPaddingH.w,
-              vertical: spec.miniPaddingV.h,
+              horizontal: spec.miniPaddingH,
+              vertical: spec.miniPaddingV,
             ),
             child: Row(
               children: [
                 // Logo
                 Container(
-                  width: spec.miniLogoSize.w,
-                  height: spec.miniLogoSize.w,
+                  width: spec.miniLogoSize,
+                  height: spec.miniLogoSize,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(spec.miniLogoRadius.r),
+                    borderRadius: BorderRadius.circular(spec.miniLogoRadius),
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.primaryColor.withValues(alpha: 0.15),
@@ -76,10 +75,10 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                       : Icon(
                           Icons.radio_rounded,
                           color: AppTheme.primaryColor,
-                          size: spec.miniLogoSize.w * 0.55,
+                          size: spec.miniLogoSize * 0.55,
                         ),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 12),
                 // Başlık
                 Expanded(
                   child: Column(
@@ -91,30 +90,30 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: spec.miniTitleFontSize.sp,
+                          fontSize: spec.miniTitleFontSize,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPri(context),
                         ),
                       ),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 2),
                       Row(
                         children: [
                           Container(
-                            width: 6.w,
-                            height: 6.w,
+                            width: 6,
+                            height: 6,
                             decoration: const BoxDecoration(
                               color: Color(0xFFEF4444),
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 5.w),
+                          SizedBox(width: 5),
                           Flexible(
                             child: Text(
                               artist,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: spec.miniSubtitleFontSize.sp,
+                                fontSize: spec.miniSubtitleFontSize,
                                 color: AppTheme.textSec(context),
                               ),
                             ),
@@ -126,10 +125,10 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                 ),
                 if (radioController.isBuffering)
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: SizedBox(
-                      width: 22.w,
-                      height: 22.w,
+                      width: 22,
+                      height: 22,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2.4,
                         color: AppTheme.primaryColor,
@@ -143,7 +142,7 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                           ? Icons.pause_circle_filled
                           : Icons.play_circle_filled,
                       color: AppTheme.primaryColor,
-                      size: spec.miniPlayIconSize.sp,
+                      size: spec.miniPlayIconSize,
                     ),
                     onPressed: () => radioController.togglePlayPause(
                       url: radioController.currentPlayingUrl.value!,
@@ -155,7 +154,7 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                     icon: Icon(
                       Icons.stop_circle_outlined,
                       color: AppTheme.textSec(context),
-                      size: spec.miniStopIconSize.sp,
+                      size: spec.miniStopIconSize,
                     ),
                     onPressed: radioController.stopRadio,
                   ),

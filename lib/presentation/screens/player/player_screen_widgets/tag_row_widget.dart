@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/tag_row_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -52,15 +51,15 @@ class TagsRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = _Sizes.of(context);
     return Wrap(
-      spacing: s.spacing.w,
-      runSpacing: s.runSpacing.h,
+      spacing: s.spacing,
+      runSpacing: s.runSpacing,
       children: tags
           .take(8)
           .map(
             (tag) => Container(
               padding: EdgeInsets.symmetric(
-                horizontal: s.paddingH.w,
-                vertical: s.paddingV.h,
+                horizontal: s.paddingH,
+                vertical: s.paddingV,
               ),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -70,7 +69,7 @@ class TagsRowWidget extends StatelessWidget {
                 '#$tag',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: s.fontSize.sp,
+                  fontSize: s.fontSize,
                 ),
               ),
             ),

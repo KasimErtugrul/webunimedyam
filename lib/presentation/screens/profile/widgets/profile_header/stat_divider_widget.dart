@@ -1,6 +1,5 @@
 // lib/presentation/screens/profile/widgets/profile_header/stat_divider_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
@@ -43,8 +42,8 @@ class StatDividerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final spec = _Sizes.of(context);
     return Container(
-      width: spec.isTablet ? spec.width : spec.width.w,
-      height: spec.isTablet ? spec.height : spec.height.h,
+      width: spec.isTablet ? spec.width : spec.width,
+      height: spec.isTablet ? spec.height : spec.height,
       color: AppTheme.textSec(context).withValues(alpha: spec.opacity),
     );
   }

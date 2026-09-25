@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -7,14 +6,17 @@ import '../../utils/university_detail_sizes.dart';
 
 class UniversityDetailVideosTabErrorViewVideoShimmer extends StatelessWidget {
   final UniversityDetailSizes sizes;
-  const UniversityDetailVideosTabErrorViewVideoShimmer({super.key, required this.sizes});
+  const UniversityDetailVideosTabErrorViewVideoShimmer({
+    super.key,
+    required this.sizes,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: sizes.isTablet ? 18 : 14.w,
-        vertical: sizes.isTablet ? 10 : 8.h,
+        horizontal: sizes.isTablet ? 18 : 14,
+        vertical: sizes.isTablet ? 10 : 8,
       ),
       child: Shimmer.fromColors(
         baseColor: AppTheme.isDark(context)

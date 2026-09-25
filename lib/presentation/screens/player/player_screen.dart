@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -259,10 +258,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
             SliverToBoxAdapter(child: SizedBox(height: topPad + bigH)),
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                spec.contentPaddingLeft.w,
-                spec.contentPaddingTop.h,
-                spec.contentPaddingRight.w,
-                spec.contentPaddingBottom.h,
+                spec.contentPaddingLeft,
+                spec.contentPaddingTop,
+                spec.contentPaddingRight,
+                spec.contentPaddingBottom,
               ),
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
@@ -284,13 +283,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
             curve: spec.animCurve,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(
-                _isMini ? spec.miniBorderRadius.r : 0,
+                _isMini ? spec.miniBorderRadius : 0,
               ),
               boxShadow: _isMini
                   ? [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.45),
-                        blurRadius: spec.miniShadowBlur.r,
+                        blurRadius: spec.miniShadowBlur,
                         offset: const Offset(0, 6),
                       ),
                     ]
@@ -298,7 +297,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(
-                _isMini ? spec.miniBorderRadius.r : 0,
+                _isMini ? spec.miniBorderRadius : 0,
               ),
               child: YoutubePlayer(
                 controller: _controller.youtubeController!,
@@ -325,7 +324,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
         final sure = v.formattedDuration;
         return Padding(
-          padding: EdgeInsets.only(bottom: spec.universitySpacing.h),
+          padding: EdgeInsets.only(bottom: spec.universitySpacing),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -333,19 +332,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 tarih,
                 style: TextStyle(
                   color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                  fontSize: spec.dateFontSize.sp,
+                  fontSize: spec.dateFontSize,
                 ),
               ),
               if (sure.isNotEmpty) ...[
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: spec.dateDurationDotSpacing.w,
+                    horizontal: spec.dateDurationDotSpacing,
                   ),
                   child: Text(
                     '•',
                     style: TextStyle(
                       color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                      fontSize: spec.dateFontSize.sp,
+                      fontSize: spec.dateFontSize,
                     ),
                   ),
                 ),
@@ -353,7 +352,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   sure,
                   style: TextStyle(
                     color: AppTheme.textSec(context).withValues(alpha: 0.6),
-                    fontSize: spec.dateFontSize.sp,
+                    fontSize: spec.dateFontSize,
                   ),
                 ),
               ],
@@ -366,18 +365,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
           _controller.currentVideo.value?.title ?? '',
           style: TextStyle(
             color: AppTheme.textPri(context),
-            fontSize: spec.titleFontSize.sp,
+            fontSize: spec.titleFontSize,
             fontWeight: FontWeight.w700,
             height: spec.titleLineHeight,
           ),
         ),
       ),
-      SizedBox(height: spec.titleSpacing.h),
+      SizedBox(height: spec.titleSpacing),
       Obx(() {
         final v = _controller.currentVideo.value;
         if (v?.universityName?.isNotEmpty == true) {
           return Padding(
-            padding: EdgeInsets.only(top: spec.universitySpacing.h),
+            padding: EdgeInsets.only(top: spec.universitySpacing),
             child: UniversityRowWidget(
               universityName: v!.universityName!,
               onTap: v.universityId != null
@@ -391,9 +390,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: spec.engagementSpacing.h),
+      SizedBox(height: spec.engagementSpacing),
       EngagementBarWidget(controller: _controller),
-      SizedBox(height: spec.engagementBottomSpacing.h),
+      SizedBox(height: spec.engagementBottomSpacing),
       Obx(() {
         final v = _controller.currentVideo.value;
         if (v?.description.isNotEmpty == true) {
@@ -401,30 +400,30 @@ class _PlayerScreenState extends State<PlayerScreen> {
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: spec.descriptionSpacing.h),
+      SizedBox(height: spec.descriptionSpacing),
       Obx(() {
         final v = _controller.currentVideo.value;
         if (v?.tags.isNotEmpty == true) {
           return Padding(
-            padding: EdgeInsets.only(top: spec.tagsSpacing.h),
+            padding: EdgeInsets.only(top: spec.tagsSpacing),
             child: TagsRowWidget(tags: v!.tags),
           );
         }
         return const SizedBox.shrink();
       }),
-      SizedBox(height: spec.tagsBottomSpacing.h),
+      SizedBox(height: spec.tagsBottomSpacing),
       // Tasarımdaki sıra: önce Yorumlar, en altta Önerilen Kampüs Yayınları.
       // (Önceden bu iki bölüm ters sıradaydı — Önerilenler Yorumlar'ın
       // üzerinde çıkıyordu, tasarımla eşleşmiyordu.)
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
-      SizedBox(height: spec.commentsHeaderSpacing.h),
+      SizedBox(height: spec.commentsHeaderSpacing),
       CommentInputWidget(onSend: (String text) => _controller.addComment(text)),
-      SizedBox(height: spec.commentsInputSpacing.h),
+      SizedBox(height: spec.commentsInputSpacing),
       Obx(() {
         if (_controller.isCommentsLoading.value) {
           return Padding(
             padding: EdgeInsets.symmetric(
-              vertical: spec.commentsLoadingSpacing.h,
+              vertical: spec.commentsLoadingSpacing,
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -437,14 +436,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
         if (_controller.comments.isEmpty) {
           return Padding(
             padding: EdgeInsets.symmetric(
-              vertical: spec.commentsEmptySpacing.h,
+              vertical: spec.commentsEmptySpacing,
             ),
             child: Center(
               child: Text(
                 'Henüz yorum yok. İlk yorumu sen yap!',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: spec.commentsEmptyFontSize.sp,
+                  fontSize: spec.commentsEmptyFontSize,
                 ),
               ),
             ),
@@ -465,11 +464,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         );
       }),
-      SizedBox(height: spec.suggestedSpacing.h),
+      SizedBox(height: spec.suggestedSpacing),
       Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
-      SizedBox(height: spec.dividerSpacing.h),
+      SizedBox(height: spec.dividerSpacing),
       const SuggestedVideosSectionWidget(),
-      SizedBox(height: spec.bottomSpacing.h),
+      SizedBox(height: spec.bottomSpacing),
     ];
   }
 
@@ -484,7 +483,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       AlertDialog(
         backgroundColor: const Color(0xFF1E1E2E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(spec.dialogBorderRadius.r),
+          borderRadius: BorderRadius.circular(spec.dialogBorderRadius),
         ),
         title: const Text(
           'Giriş Gerekiyor',
@@ -507,7 +506,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(spec.dialogButtonRadius.r),
+                borderRadius: BorderRadius.circular(spec.dialogButtonRadius),
               ),
             ),
             onPressed: () {

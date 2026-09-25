@@ -1,6 +1,5 @@
 // lib/presentation/screens/profile/widgets/profile_header/avatar_source_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -109,8 +108,8 @@ void showAvatarSourceSheet(BuildContext context, ProfileController controller) {
   if (!controller.isOwnProfile || controller.isUploadingAvatar.value) return;
 
   final spec = _Sizes.of(context);
-  double w(double v) => spec.isTablet ? v : v.w;
-  double h(double v) => spec.isTablet ? v : v.h;
+  double w(double v) => spec.isTablet ? v : v;
+  double h(double v) => spec.isTablet ? v : v;
 
   Get.bottomSheet(
     SafeArea(
@@ -142,7 +141,7 @@ void showAvatarSourceSheet(BuildContext context, ProfileController controller) {
               'Profil Fotoğrafı',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.titleFontSize.sp,
+                fontSize: spec.titleFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -201,11 +200,11 @@ class _SourceOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w(double v) => spec.isTablet ? v : v.w;
-    double h(double v) => spec.isTablet ? v : v.h;
+    double w(double v) => spec.isTablet ? v : v;
+    double h(double v) => spec.isTablet ? v : v;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Material(
         color: AppTheme.surface(context),
         borderRadius: BorderRadius.circular(w(spec.optionRadius)),
@@ -227,7 +226,7 @@ class _SourceOption extends StatelessWidget {
                     borderRadius:
                         BorderRadius.circular(w(spec.optionIconBoxRadius)),
                   ),
-                  child: Icon(icon, color: color, size: spec.optionIconSize.sp),
+                  child: Icon(icon, color: color, size: spec.optionIconSize),
                 ),
                 SizedBox(width: w(12)),
                 Expanded(
@@ -239,7 +238,7 @@ class _SourceOption extends StatelessWidget {
                         title,
                         style: TextStyle(
                           color: AppTheme.textPri(context),
-                          fontSize: spec.optionTitleFontSize.sp,
+                          fontSize: spec.optionTitleFontSize,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -248,7 +247,7 @@ class _SourceOption extends StatelessWidget {
                         subtitle,
                         style: TextStyle(
                           color: AppTheme.textSec(context),
-                          fontSize: spec.optionSubtitleFontSize.sp,
+                          fontSize: spec.optionSubtitleFontSize,
                         ),
                       ),
                     ],
@@ -257,7 +256,7 @@ class _SourceOption extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   color: AppTheme.textSec(context).withValues(alpha: 0.5),
-                  size: spec.optionIconSize.sp + 2,
+                  size: spec.optionIconSize + 2,
                 ),
               ],
             ),

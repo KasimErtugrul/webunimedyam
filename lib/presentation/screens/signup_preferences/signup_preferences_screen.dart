@@ -1,14 +1,12 @@
 // lib/presentation/screens/signup_preferences/signup_preferences_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../controllers/signup_preferences_controller.dart';
 import 'utils/singup_preferences_sizes.dart';
-
 import 'widgets/auto_play_step.dart';
 import 'widgets/notifications_step.dart';
 import 'widgets/signup_header.dart';
@@ -56,7 +54,8 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
       showPulse: false,
       buttonLabel: 'Devam Et',
       buttonIcon: Icons.arrow_forward_rounded,
-      caption: 'Seçtiğin tema canlı yayın sohbeti ve kampüs akışında anında uygulanır.',
+      caption:
+          'Seçtiğin tema canlı yayın sohbeti ve kampüs akışında anında uygulanır.',
     ),
     (
       leftLabel: 'ADIM 2 / 5',
@@ -88,7 +87,8 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
       showPulse: true,
       buttonLabel: 'Bitir ve Keşfetmeye Başla',
       buttonIcon: Icons.rocket_launch_rounded,
-      caption: 'Üniversite tercihini profil ayarlarından her zaman değiştirebilirsin.',
+      caption:
+          'Üniversite tercihini profil ayarlarından her zaman değiştirebilirsin.',
     ),
   ];
 
@@ -145,11 +145,7 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
         child: Column(
           children: [
             // ── Sabit üst bar (geri + logo + ÜniTV + Atla + avatar) ──
-            SignupHeader(
-              sizes: sizes,
-              onBack: _back,
-              onSkip: controller.skip,
-            ),
+            SignupHeader(sizes: sizes, onBack: _back, onSkip: controller.skip),
 
             // ── Progress tracker (Adım N / 5 + segmentler) ──────────
             SignupProgressTracker(
@@ -165,8 +161,7 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                onPageChanged: (index) =>
-                    setState(() => _currentPage = index),
+                onPageChanged: (index) => setState(() => _currentPage = index),
                 children: [
                   ThemeStep(
                     sizes: sizes,
@@ -233,22 +228,26 @@ class _StepFooter extends StatelessWidget {
     final button = SizedBox(
       height: s.buttonHeight,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isLast ? scheme.primaryContainer : scheme.primary,
-          foregroundColor:
-              isLast ? scheme.onPrimaryContainer : scheme.onPrimary,
-          elevation: 0,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              isLast ? s.dockButtonRadius : s.buttonRadius,
+        style:
+            ElevatedButton.styleFrom(
+              backgroundColor: isLast
+                  ? scheme.primaryContainer
+                  : scheme.primary,
+              foregroundColor: isLast
+                  ? scheme.onPrimaryContainer
+                  : scheme.onPrimary,
+              elevation: 0,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  isLast ? s.dockButtonRadius : s.buttonRadius,
+                ),
+              ),
+            ).copyWith(
+              elevation: WidgetStateProperty.all(isLast ? 0 : 0),
+              shadowColor: WidgetStateProperty.all(Colors.transparent),
+              // gölge dıştan: isLast → primaryContainer/35
             ),
-          ),
-        ).copyWith(
-          elevation: WidgetStateProperty.all(isLast ? 0 : 0),
-          shadowColor: WidgetStateProperty.all(Colors.transparent),
-          // gölge dıştan: isLast → primaryContainer/35
-        ),
         onPressed: onNext,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -283,7 +282,7 @@ class _StepFooter extends StatelessWidget {
           s.footerHPadding,
           s.dockVPadding,
           s.footerHPadding,
-          s.dockVPadding + 4.h,
+          s.dockVPadding + 4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -1,7 +1,6 @@
 // lib/presentation/screens/settings/widgets/settings_hero.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -17,7 +16,7 @@ class SettingsHero extends StatelessWidget {
     final primary = AppTheme.primaryColor;
 
     return SizedBox(
-      height: spec.heroHeight.h + topInset,
+      height: spec.heroHeight + topInset,
       child: Stack(
         children: [
           // Gradient bg + blobs
@@ -34,19 +33,19 @@ class SettingsHero extends StatelessWidget {
                 clipBehavior: Clip.none,
                 children: [
                   Positioned(
-                    right: -40.w,
-                    top: topInset - 30.h,
-                    child: _Blob(size: 160.w, opacity: 0.10),
+                    right: -40,
+                    top: topInset - 30,
+                    child: _Blob(size: 160, opacity: 0.10),
                   ),
                   Positioned(
-                    left: -30.w,
-                    bottom: -40.h,
-                    child: _Blob(size: 120.w, opacity: 0.08),
+                    left: -30,
+                    bottom: -40,
+                    child: _Blob(size: 120, opacity: 0.08),
                   ),
                   Positioned(
-                    left: 100.w,
-                    top: topInset + 30.h,
-                    child: _Blob(size: 50.w, opacity: 0.06),
+                    left: 100,
+                    top: topInset + 30,
+                    child: _Blob(size: 50, opacity: 0.06),
                   ),
                 ],
               ),
@@ -55,8 +54,8 @@ class SettingsHero extends StatelessWidget {
 
           // Floating back button
           Positioned(
-            top: topInset + 8.h,
-            left: 8.w,
+            top: topInset + 8,
+            left: 8,
             child: Material(
               color: Colors.white.withValues(alpha: 0.15),
               shape: const CircleBorder(),
@@ -64,11 +63,11 @@ class SettingsHero extends StatelessWidget {
                 customBorder: const CircleBorder(),
                 onTap: Get.back,
                 child: Padding(
-                  padding: EdgeInsets.all(spec.backButtonPadding.w),
+                  padding: EdgeInsets.all(spec.backButtonPadding),
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     color: Colors.white,
-                    size: spec.backButtonSize.sp,
+                    size: spec.backButtonSize,
                   ),
                 ),
               ),
@@ -82,30 +81,31 @@ class SettingsHero extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: spec.heroIconBoxSize.w,
-                  height: spec.heroIconBoxSize.w,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius:
-                        BorderRadius.circular(spec.heroIconRadius.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primary.withValues(alpha: 0.45),
-                        blurRadius: 24,
-                        spreadRadius: 2,
+                      width: spec.heroIconBoxSize,
+                      height: spec.heroIconBoxSize,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(
+                          spec.heroIconRadius,
+                        ),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primary.withValues(alpha: 0.45),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: Colors.white,
-                    size: spec.heroIconSize.sp,
-                  ),
-                )
+                      child: Icon(
+                        Icons.tune_rounded,
+                        color: Colors.white,
+                        size: spec.heroIconSize,
+                      ),
+                    )
                     .animate()
                     .fadeIn(duration: 400.ms)
                     .scaleXY(
@@ -115,25 +115,25 @@ class SettingsHero extends StatelessWidget {
                       curve: Curves.easeOutBack,
                     ),
 
-                SizedBox(height: spec.heroTitleSpacing.h),
+                SizedBox(height: spec.heroTitleSpacing),
 
                 Text(
                   'Ayarlar',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: spec.heroTitleFontSize.sp,
+                    fontSize: spec.heroTitleFontSize,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.4,
                   ),
                 ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
 
-                SizedBox(height: 4.h),
+                SizedBox(height: 4),
 
                 Text(
                   'Uygulama tercihlerinizi yönetin',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: spec.heroSubtitleFontSize.sp,
+                    fontSize: spec.heroSubtitleFontSize,
                   ),
                 ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
               ],

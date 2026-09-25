@@ -1,6 +1,5 @@
 // lib/presentation/screens/university_detail/tabs/live_tab/live_tab.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -67,13 +66,13 @@ class UniversityDetailLiveTab extends StatelessWidget {
   }) {
     if (skeleton) {
       return ListView.builder(
-        padding: EdgeInsets.symmetric(vertical: 8.h),
+        padding: EdgeInsets.symmetric(vertical: 8),
         itemCount: 3,
         itemBuilder: (_, _) => UniversityVideoSkeletonCard(spec: spec),
       );
     }
     return ListView.builder(
-      padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+      padding: EdgeInsets.only(top: 8, bottom: 32),
       itemCount: liveList.length,
       itemBuilder: (_, i) => VideoCardWidget(video: liveList[i]),
     );

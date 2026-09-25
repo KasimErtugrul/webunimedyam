@@ -1,6 +1,5 @@
 // lib/presentation/screens/settings/widgets/settings_tile.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../settings_layout_spec.dart';
 
@@ -38,18 +37,18 @@ class SettingsRow extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.rowPaddingH.w,
-            vertical: spec.rowPaddingV.h,
+            horizontal: spec.rowPaddingH,
+            vertical: spec.rowPaddingV,
           ),
           child: Row(
             children: [
               if (icon != null) ...[
                 Icon(
                   icon,
-                  size: spec.rowIconSize.sp,
+                  size: spec.rowIconSize,
                   color: scheme.onSurfaceVariant,
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 12),
               ],
               Expanded(
                 child: Column(
@@ -63,24 +62,24 @@ class SettingsRow extends StatelessWidget {
                             title,
                             style: TextStyle(
                               color: scheme.onSurface,
-                              fontSize: spec.rowTitleFontSize.sp,
+                              fontSize: spec.rowTitleFontSize,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                         if (titleIcon != null) ...[
-                          SizedBox(width: 6.w),
+                          SizedBox(width: 6),
                           titleIcon!,
                         ],
                       ],
                     ),
                     if (subtitle != null) ...[
-                      SizedBox(height: spec.rowGap.h),
+                      SizedBox(height: spec.rowGap),
                       Text(
                         subtitle!,
                         style: TextStyle(
                           color: scheme.onSurfaceVariant,
-                          fontSize: spec.rowSubtitleFontSize.sp,
+                          fontSize: spec.rowSubtitleFontSize,
                           height: 1.35,
                         ),
                       ),
@@ -88,10 +87,7 @@ class SettingsRow extends StatelessWidget {
                   ],
                 ),
               ),
-              if (trailing != null) ...[
-                SizedBox(width: 12.w),
-                trailing!,
-              ],
+              if (trailing != null) ...[SizedBox(width: 12), trailing!],
             ],
           ),
         ),
@@ -149,10 +145,9 @@ class SettingsSwitchRow extends StatelessWidget {
           trackColor: WidgetStateProperty.resolveWith((states) {
             return states.contains(WidgetState.selected)
                 ? scheme.primary
-                : scheme.surfaceVariant;
+                : scheme.surfaceContainerHighest;
           }),
-          trackOutlineColor:
-              const WidgetStatePropertyAll(Colors.transparent),
+          trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
         ),
       ),
     );
@@ -182,29 +177,29 @@ class SettingsStateButton extends StatelessWidget {
       color: isPrivate
           ? scheme.surfaceContainerHighest
           : scheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(spec.stateButtonRadius.r),
+      borderRadius: BorderRadius.circular(spec.stateButtonRadius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(spec.stateButtonRadius.r),
+        borderRadius: BorderRadius.circular(spec.stateButtonRadius),
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.stateButtonPaddingH.w,
-            vertical: spec.stateButtonPaddingV.h,
+            horizontal: spec.stateButtonPaddingH,
+            vertical: spec.stateButtonPaddingV,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 isPrivate ? Icons.lock_rounded : Icons.public_rounded,
-                size: spec.stateButtonIconSize.sp,
+                size: spec.stateButtonIconSize,
                 color: fg,
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 6),
               Text(
                 isPrivate ? 'Gizli' : 'Herkese Açık',
                 style: TextStyle(
                   color: fg,
-                  fontSize: spec.stateButtonFontSize.sp,
+                  fontSize: spec.stateButtonFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -233,20 +228,20 @@ class SettingsCacheBadge extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.cacheBadgePaddingH.w,
-        vertical: spec.cacheBadgePaddingV.h,
+        horizontal: spec.cacheBadgePaddingH,
+        vertical: spec.cacheBadgePaddingV,
       ),
       decoration: BoxDecoration(
         color: cleared
             ? scheme.primaryContainer
             : scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(spec.cacheBadgeRadius.r),
+        borderRadius: BorderRadius.circular(spec.cacheBadgeRadius),
       ),
       child: Text(
         cleared ? 'Temizlendi (0 KB)' : '124 MB temizle',
         style: TextStyle(
           color: cleared ? scheme.onPrimaryContainer : scheme.primary,
-          fontSize: spec.cacheBadgeFontSize.sp,
+          fontSize: spec.cacheBadgeFontSize,
           fontWeight: FontWeight.w700,
         ),
       ),

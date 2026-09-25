@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../utils/university_stats_section_detail_sizes.dart';
 
 class UniversityStatsSectionDetailErrorView extends StatelessWidget {
-  const UniversityStatsSectionDetailErrorView({super.key, 
+  const UniversityStatsSectionDetailErrorView({
+    super.key,
     required this.sizes,
     required this.message,
     required this.onRetry,
@@ -20,7 +19,7 @@ class UniversityStatsSectionDetailErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

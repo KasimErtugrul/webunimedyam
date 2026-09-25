@@ -1,7 +1,6 @@
 // lib/presentation/screens/settings/settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
@@ -84,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
                   child: (isLoading && s == null)
                       ? Padding(
-                          padding: EdgeInsets.only(top: 120.h),
+                          padding: EdgeInsets.only(top: 120),
                           child: const CircularProgressIndicator(
                             color: AppTheme.primaryColor,
                           ),
@@ -103,12 +102,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Model değerini ('1080p') tasarım etiketine ('1080p (FHD)') çevirir.
   String _qualityLabel(String value) => switch (value) {
-        '1080p' => '1080p (FHD)',
-        '720p' => '720p (HD)',
-        '480p' => '480p (SD)',
-        '360p' => '360p (SD)',
-        _ => 'Otomatik',
-      };
+    '1080p' => '1080p (FHD)',
+    '720p' => '720p (HD)',
+    '480p' => '480p (SD)',
+    '360p' => '360p (SD)',
+    _ => 'Otomatik',
+  };
 
   Widget _buildContent(
     BuildContext context,
@@ -127,23 +126,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         icon: Icons.palette_rounded,
         title: 'Görünüm',
         divided: false,
-        padding: EdgeInsets.all(spec.cardPadding.w),
+        padding: EdgeInsets.all(spec.cardPadding),
         children: [
           Text(
             'Tema Seçimi',
             style: TextStyle(
               color: scheme.onSurfaceVariant,
-              fontSize: spec.labelFontSize.sp,
+              fontSize: spec.labelFontSize,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: spec.labelGap.h),
+          SizedBox(height: spec.labelGap),
           SettingsThemeSelector(
             spec: spec,
             current: s?.theme ?? 'system',
             onChanged: c.changeTheme,
           ),
-          SizedBox(height: spec.cardInnerGap.h),
+          SizedBox(height: spec.cardInnerGap),
           Row(
             children: [
               Expanded(
@@ -154,22 +153,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Ana Sayfa Akış Şekli',
                       style: TextStyle(
                         color: scheme.onSurface,
-                        fontSize: spec.rowTitleFontSize.sp,
+                        fontSize: spec.rowTitleFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: spec.rowGap.h),
+                    SizedBox(height: spec.rowGap),
                     Text(
                       'Çark (Carousel) veya Dikey Liste',
                       style: TextStyle(
                         color: scheme.onSurfaceVariant,
-                        fontSize: spec.rowSubtitleFontSize.sp,
+                        fontSize: spec.rowSubtitleFontSize,
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 12),
               SettingsFeedModeToggle(
                 spec: spec,
                 current: c.homeLayout.value,
@@ -180,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
 
-      SizedBox(height: spec.sectionGap.h),
+      SizedBox(height: spec.sectionGap),
 
       // ── 2. OYNATMA TERCİHLERİ ─────────────────────────────────
       SettingsSection(
@@ -223,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
 
-      SizedBox(height: spec.sectionGap.h),
+      SizedBox(height: spec.sectionGap),
 
       // ── 3. BİLDİRİMLER ────────────────────────────────────────
       SettingsSection(
@@ -256,7 +255,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
 
-      SizedBox(height: spec.sectionGap.h),
+      SizedBox(height: spec.sectionGap),
 
       // ── 4. GİZLİLİK VE GÜVENLİK ───────────────────────────────
       SettingsSection(
@@ -266,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: isPrivate ? _ProtectionBadge(spec: spec) : null,
         aboveCard: isPrivate
             ? Padding(
-                padding: EdgeInsets.only(bottom: 12.h),
+                padding: EdgeInsets.only(bottom: 12),
                 child: SettingsPrivacyNotice(spec: spec),
               )
             : null,
@@ -277,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Gizli Profil Modu',
             titleIcon: Icon(
               Icons.lock_rounded,
-              size: 16.sp,
+              size: 16,
               color: scheme.primary,
             ),
             subtitle: 'Arama sonuçlarında yalnızca onaylı öğrenciler görebilir',
@@ -291,50 +290,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: double.infinity,
             color: scheme.surfaceContainerLowest,
             padding: EdgeInsets.symmetric(
-              horizontal: spec.stripPaddingH.w,
-              vertical: spec.stripPaddingV.h,
+              horizontal: spec.stripPaddingH,
+              vertical: spec.stripPaddingV,
             ),
             child: Text(
               'AKTİVİTE BAZLI İZİNLER',
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
-                fontSize: spec.stripFontSize.sp,
+                fontSize: spec.stripFontSize,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
               ),
             ),
           ),
           _activityRow(
-            context, spec, Icons.history_rounded,
-            'İzleme Geçmişi', 'Hangi dersleri izlediğiniz',
+            context,
+            spec,
+            Icons.history_rounded,
+            'İzleme Geçmişi',
+            'Hangi dersleri izlediğiniz',
             s?.watchHistoryVisibility ?? VisibilityOption.public,
             c.changeWatchHistoryVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context, spec, Icons.thumb_up_rounded,
-            'Beğenilen Videolar', 'Beğendiğiniz yayın ve içerikler',
+            context,
+            spec,
+            Icons.thumb_up_rounded,
+            'Beğenilen Videolar',
+            'Beğendiğiniz yayın ve içerikler',
             s?.likesVisibility ?? VisibilityOption.public,
             c.changeLikesVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context, spec, Icons.bookmark_rounded,
-            'Favori Dersler & Oynatma Listeleri', 'Kaydettiğiniz arşivler',
+            context,
+            spec,
+            Icons.bookmark_rounded,
+            'Favori Dersler & Oynatma Listeleri',
+            'Kaydettiğiniz arşivler',
             s?.favoritesVisibility ?? VisibilityOption.public,
             c.changeFavoritesVisibility,
           ),
           _dividerRow(spec, scheme),
           _activityRow(
-            context, spec, Icons.forum_rounded,
-            'Kampüs Yorumları', 'Yayınlara bıraktığınız notlar',
+            context,
+            spec,
+            Icons.forum_rounded,
+            'Kampüs Yorumları',
+            'Yayınlara bıraktığınız notlar',
             s?.commentsVisibility ?? VisibilityOption.public,
             c.changeCommentsVisibility,
           ),
         ],
       ),
 
-      SizedBox(height: spec.sectionGap.h),
+      SizedBox(height: spec.sectionGap),
 
       // ── 5. DİL VE SİSTEM ──────────────────────────────────────
       SettingsSection(
@@ -356,13 +367,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Türkçe (TR)',
                   style: TextStyle(
                     color: scheme.onSurface,
-                    fontSize: spec.qualityFontSize.sp,
+                    fontSize: spec.qualityFontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  size: spec.qualityIconSize.sp,
+                  size: spec.qualityIconSize,
                   color: scheme.onSurfaceVariant,
                 ),
               ],
@@ -379,7 +390,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
 
-      SizedBox(height: spec.sectionGap.h),
+      SizedBox(height: spec.sectionGap),
 
       // ── 6. HESAP İŞLEMLERİ ────────────────────────────────────
       SettingsSection(
@@ -395,7 +406,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () => Get.toNamed(AppRoutes.changePassword),
             trailing: Icon(
               Icons.chevron_right_rounded,
-              size: spec.qualityIconSize.sp,
+              size: spec.qualityIconSize,
               color: scheme.onSurfaceVariant,
             ),
           ),
@@ -413,32 +424,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           _dividerRow(spec, scheme),
           Padding(
-            padding: EdgeInsets.all(spec.logoutAreaPadding.w),
+            padding: EdgeInsets.all(spec.logoutAreaPadding),
             child: Material(
               color: scheme.errorContainer,
-              borderRadius: BorderRadius.circular(spec.logoutButtonRadius.r),
+              borderRadius: BorderRadius.circular(spec.logoutButtonRadius),
               child: InkWell(
-                borderRadius: BorderRadius.circular(spec.logoutButtonRadius.r),
+                borderRadius: BorderRadius.circular(spec.logoutButtonRadius),
                 onTap: () => _confirmSignOut(context, spec),
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(
-                    vertical: spec.logoutButtonPaddingV.h,
+                    vertical: spec.logoutButtonPaddingV,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.logout_rounded,
-                        size: spec.logoutIconSize.sp,
+                        size: spec.logoutIconSize,
                         color: scheme.onError,
                       ),
-                      SizedBox(width: spec.logoutGap.w),
+                      SizedBox(width: spec.logoutGap),
                       Text(
                         'Oturumu Kapat',
                         style: TextStyle(
                           color: scheme.onError,
-                          fontSize: spec.logoutFontSize.sp,
+                          fontSize: spec.logoutFontSize,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -453,21 +464,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ];
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: spec.contentPaddingH.w),
+      padding: EdgeInsets.symmetric(horizontal: spec.contentPaddingH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: EdgeInsets.only(
-              top: spec.subtitleTopPadding.h,
-              bottom: spec.subtitleBottomPadding.h,
+              top: spec.subtitleTopPadding,
+              bottom: spec.subtitleBottomPadding,
             ),
             child: Text(
               'Uygulama tercihlerinizi, gizlilik düzeyinizi ve video '
               'deneyiminizi yönetin.',
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
-                fontSize: spec.subtitleFontSize.sp,
+                fontSize: spec.subtitleFontSize,
                 height: 20 / 14,
               ),
             ),
@@ -527,17 +538,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// FIX (S3): Tasarım token'ı `bg-surface-variant` + SettingsSection içindeki
   /// ayraçla aynı renk — surfaceContainerHighest yerine surfaceVariant.
   Widget _dividerRow(SettingsLayoutSpec spec, ColorScheme scheme) => Container(
-        height: 1,
-        margin: EdgeInsets.symmetric(horizontal: spec.dividerInset.w),
-        color: scheme.surfaceVariant.withValues(alpha: 0.4),
-      );
+    height: 1,
+    margin: EdgeInsets.symmetric(horizontal: spec.dividerInset),
+    color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+  );
 
   Widget _buildFooter(BuildContext context, SettingsLayoutSpec spec) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(
-        top: spec.sectionGap.h,
-        bottom: spec.footerBottomSpacing.h,
+        top: spec.sectionGap,
+        bottom: spec.footerBottomSpacing,
       ),
       child: Column(
         children: [
@@ -546,26 +557,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Icon(
                 Icons.school_rounded,
-                size: spec.footerIconSize.sp,
+                size: spec.footerIconSize,
                 color: scheme.primary.withValues(alpha: 0.6),
               ),
-              SizedBox(width: spec.footerGap.w),
+              SizedBox(width: spec.footerGap),
               Text(
                 'ÜniTV Campus Media Hub',
                 style: TextStyle(
                   color: scheme.onSurface.withValues(alpha: 0.6),
-                  fontSize: spec.footerTitleFontSize.sp,
+                  fontSize: spec.footerTitleFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: 4),
           Text(
             'Sürüm 2.4.1 (Build 8904) · Lisanslı Üniversite Ağı',
             style: TextStyle(
               color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
-              fontSize: spec.footerVersionFontSize.sp,
+              fontSize: spec.footerVersionFontSize,
             ),
           ),
         ],
@@ -582,13 +593,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(spec.dialogRadius.r),
+          borderRadius: BorderRadius.circular(spec.dialogRadius),
         ),
-        icon: Icon(Icons.logout_rounded, color: scheme.error, size: 32.sp),
+        icon: Icon(Icons.logout_rounded, color: scheme.error, size: 32),
         title: Text(
           'Çıkış Yap?',
           style: TextStyle(
-            fontSize: spec.dialogTitleFontSize.sp,
+            fontSize: spec.dialogTitleFontSize,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -606,16 +617,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: scheme.error,
               foregroundColor: scheme.onError,
-              minimumSize: Size(120.w, spec.dialogButtonHeight.h),
+              minimumSize: Size(120, spec.dialogButtonHeight),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             onPressed: () => Get.back(result: true),
             child: Text(
               'Çıkış Yap',
               style: TextStyle(
-                fontSize: spec.dialogButtonFontSize.sp,
+                fontSize: spec.dialogButtonFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -650,8 +661,10 @@ class _EntranceState extends State<_Entrance>
     vsync: this,
     duration: const Duration(milliseconds: 400),
   );
-  late final CurvedAnimation _fade =
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+  late final CurvedAnimation _fade = CurvedAnimation(
+    parent: _ctrl,
+    curve: Curves.easeOut,
+  );
   late final Animation<Offset> _slide = Tween<Offset>(
     begin: const Offset(0, 0.06),
     end: Offset.zero,
@@ -679,10 +692,7 @@ class _EntranceState extends State<_Entrance>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fade,
-      child: SlideTransition(
-        position: _slide,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }
@@ -700,12 +710,12 @@ class _QualityButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.qualityPaddingH.w,
-        vertical: spec.qualityPaddingV.h,
+        horizontal: spec.qualityPaddingH,
+        vertical: spec.qualityPaddingV,
       ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(spec.qualityRadius.r),
+        borderRadius: BorderRadius.circular(spec.qualityRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -714,13 +724,13 @@ class _QualityButton extends StatelessWidget {
             label,
             style: TextStyle(
               color: scheme.primary,
-              fontSize: spec.qualityFontSize.sp,
+              fontSize: spec.qualityFontSize,
               fontWeight: FontWeight.w600,
             ),
           ),
           Icon(
             Icons.expand_more_rounded,
-            size: spec.qualityIconSize.sp,
+            size: spec.qualityIconSize,
             color: scheme.primary,
           ),
         ],
@@ -739,32 +749,32 @@ class _ProtectionBadge extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: spec.badgePaddingH.w,
-        vertical: spec.badgePaddingV.h,
+        horizontal: spec.badgePaddingH,
+        vertical: spec.badgePaddingV,
       ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999.r),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: spec.badgeDotSize.w,
-            height: spec.badgeDotSize.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: scheme.primary,
-            ),
-          )
+                width: spec.badgeDotSize,
+                height: spec.badgeDotSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.primary,
+                ),
+              )
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .fade(begin: 0.25, end: 1, duration: 900.ms),
-          SizedBox(width: spec.badgeGap.w),
+          SizedBox(width: spec.badgeGap),
           Text(
             'Yüksek Koruma',
             style: TextStyle(
               color: scheme.primary,
-              fontSize: spec.badgeFontSize.sp,
+              fontSize: spec.badgeFontSize,
               fontWeight: FontWeight.w700,
             ),
           ),

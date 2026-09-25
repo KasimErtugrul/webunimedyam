@@ -2,7 +2,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -49,12 +48,12 @@ class UniversityDetailHeader extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: spec.headerTopPadding.h),
+            SizedBox(height: spec.headerTopPadding),
 
             // ── Logo ──
             Container(
-                  width: spec.headerLogoOuter.w,
-                  height: spec.headerLogoOuter.w,
+                  width: spec.headerLogoOuter,
+                  height: spec.headerLogoOuter,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
@@ -67,9 +66,9 @@ class UniversityDetailHeader extends StatelessWidget {
                   ),
                   child: Center(
                     child: Container(
-                      width: spec.headerLogoInner.w,
-                      height: spec.headerLogoInner.w,
-                      padding: EdgeInsets.all(spec.headerLogoPadding.w),
+                      width: spec.headerLogoInner,
+                      height: spec.headerLogoInner,
+                      padding: EdgeInsets.all(spec.headerLogoPadding),
                       decoration: BoxDecoration(
                         color: AppTheme.card(context),
                         shape: BoxShape.circle,
@@ -93,13 +92,13 @@ class UniversityDetailHeader extends StatelessWidget {
                                 errorWidget: (_, _, _) => Icon(
                                   Icons.school_rounded,
                                   color: primary,
-                                  size: spec.headerLogoInner.w * 0.4,
+                                  size: spec.headerLogoInner * 0.4,
                                 ),
                               )
                             : Icon(
                                 Icons.school_rounded,
                                 color: primary,
-                                size: spec.headerLogoInner.w * 0.4,
+                                size: spec.headerLogoInner * 0.4,
                               ),
                       ),
                     ),
@@ -109,18 +108,18 @@ class UniversityDetailHeader extends StatelessWidget {
                 .fadeIn(duration: 400.ms)
                 .scaleXY(begin: 0.85, end: 1, curve: Curves.easeOutBack),
 
-            SizedBox(height: 14.h),
+            SizedBox(height: 14),
 
             // ── Ad ──
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.w),
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 uni.name ?? '',
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: spec.headerNameFontSize.sp,
+                  fontSize: spec.headerNameFontSize,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPri(context),
                   height: spec.headerNameLineHeight,
@@ -130,7 +129,7 @@ class UniversityDetailHeader extends StatelessWidget {
 
             // ── Şehir · Tip (yan yana) ──
             if (hasCity || hasType) ...[
-              SizedBox(height: 8.h),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -139,14 +138,14 @@ class UniversityDetailHeader extends StatelessWidget {
                   if (hasCity) ...[
                     Icon(
                       Icons.location_on_rounded,
-                      size: (spec.headerCityFontSize + 1).sp,
+                      size: (spec.headerCityFontSize + 1),
                       color: AppTheme.textSec(context),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 4),
                     Text(
                       uni.city!,
                       style: TextStyle(
-                        fontSize: spec.headerCityFontSize.sp,
+                        fontSize: spec.headerCityFontSize,
                         color: AppTheme.textSec(context),
                       ),
                     ),
@@ -155,11 +154,11 @@ class UniversityDetailHeader extends StatelessWidget {
                   // Ayraç
                   if (hasCity && hasType) ...[
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         '•',
                         style: TextStyle(
-                          fontSize: spec.headerCityFontSize.sp,
+                          fontSize: spec.headerCityFontSize,
                           color: AppTheme.textSec(
                             context,
                           ).withValues(alpha: 0.5),
@@ -173,14 +172,14 @@ class UniversityDetailHeader extends StatelessWidget {
                   if (hasType) ...[
                     Icon(
                       Icons.account_balance_rounded,
-                      size: (spec.headerCityFontSize + 1).sp,
+                      size: (spec.headerCityFontSize + 1),
                       color: AppTheme.textSec(context),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 4),
                     Text(
                       typeText,
                       style: TextStyle(
-                        fontSize: spec.headerCityFontSize.sp,
+                        fontSize: spec.headerCityFontSize,
                         color: AppTheme.textSec(context),
                       ),
                     ),
@@ -189,19 +188,19 @@ class UniversityDetailHeader extends StatelessWidget {
               ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
             ],
 
-            SizedBox(height: 10.h),
+            SizedBox(height: 10),
 
             // ── Favori badge ──
             Obx(() {
               if (!controller.isFavorite.value) return const SizedBox.shrink();
               return Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: spec.headerBadgePaddingH.w,
-                      vertical: spec.headerBadgePaddingV.h,
+                      horizontal: spec.headerBadgePaddingH,
+                      vertical: spec.headerBadgePaddingV,
                     ),
                     decoration: BoxDecoration(
                       color: primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20.r),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: primary.withValues(alpha: 0.3)),
                     ),
                     child: Row(
@@ -209,14 +208,14 @@ class UniversityDetailHeader extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.bookmark_rounded,
-                          size: spec.headerBadgeFontSize.sp + 2,
+                          size: spec.headerBadgeFontSize + 2,
                           color: primary,
                         ),
-                        SizedBox(width: 5.w),
+                        SizedBox(width: 5),
                         Text(
                           'Favorilerimde',
                           style: TextStyle(
-                            fontSize: spec.headerBadgeFontSize.sp,
+                            fontSize: spec.headerBadgeFontSize,
                             fontWeight: FontWeight.w600,
                             color: primary,
                           ),

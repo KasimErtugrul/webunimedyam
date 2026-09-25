@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/suggested_videos_section_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -100,20 +99,20 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: s.titleBottomPadding.h),
+            padding: EdgeInsets.only(bottom: s.titleBottomPadding),
             child: Row(
               children: [
                 Icon(
                   Icons.recommend_rounded,
-                  size: s.titleIconSize.sp,
+                  size: s.titleIconSize,
                   color: AppTheme.primaryColor,
                 ),
-                SizedBox(width: s.titleIconSpacing.w),
+                SizedBox(width: s.titleIconSpacing),
                 Text(
                   'Önerilen Videolar',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: s.titleFontSize.sp,
+                    fontSize: s.titleFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -121,7 +120,7 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: s.listHeight.h,
+            height: s.listHeight,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -140,26 +139,26 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: s.shimmerTitleWidth.w,
-          height: s.shimmerTitleHeight.h,
+          width: s.shimmerTitleWidth,
+          height: s.shimmerTitleHeight,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(s.shimmerTitleRadius.r),
+            borderRadius: BorderRadius.circular(s.shimmerTitleRadius),
           ),
         ),
-        SizedBox(height: s.shimmerTitleSpacing.h),
+        SizedBox(height: s.shimmerTitleSpacing),
         SizedBox(
-          height: s.shimmerListHeight.h,
+          height: s.shimmerListHeight,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: s.shimmerItemCount,
             itemBuilder: (_, _) => Container(
-              width: s.shimmerCardWidth.w,
-              margin: EdgeInsets.only(right: s.shimmerCardMarginRight.w),
+              width: s.shimmerCardWidth,
+              margin: EdgeInsets.only(right: s.shimmerCardMarginRight),
               decoration: BoxDecoration(
                 color: AppTheme.surface(context),
-                borderRadius: BorderRadius.circular(s.shimmerCardRadius.r),
+                borderRadius: BorderRadius.circular(s.shimmerCardRadius),
               ),
             ),
           ),

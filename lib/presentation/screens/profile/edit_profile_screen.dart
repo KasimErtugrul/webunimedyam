@@ -1,7 +1,6 @@
 // lib/presentation/screens/profile/edit_profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
@@ -210,7 +209,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         title: Text(
           'Profili Düzenle',
-          style: TextStyle(fontSize: spec.appBarTitleSize.sp),
+          style: TextStyle(fontSize: spec.appBarTitleSize),
         ),
       ),
       body: Center(
@@ -226,10 +225,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
-                  spec.paddingH.w,
-                  spec.paddingTop.h,
-                  spec.paddingH.w,
-                  spec.paddingBottom.h,
+                  spec.paddingH,
+                  spec.paddingTop,
+                  spec.paddingH,
+                  spec.paddingBottom,
                 ),
                 children: [
                   // ── Avatar ──
@@ -239,7 +238,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       username: profile?.username ?? 'U',
                       isOwnProfile: true,
                       isUploading: isUploading,
-                      size: spec.avatarSize.w,
+                      size: spec.avatarSize,
                       onTap: () => showAvatarSourceSheet(context, _controller),
                     ),
                   ).animate().fadeIn(duration: 400.ms).scaleXY(
@@ -248,7 +247,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         duration: 500.ms,
                         curve: Curves.easeOutBack,
                       ),
-                  SizedBox(height: spec.avatarSpacing.h),
+                  SizedBox(height: spec.avatarSpacing),
                   Center(
                     child: TextButton(
                       onPressed: isUploading
@@ -260,22 +259,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: Text(
                         'Fotoğrafı Değiştir',
                         style: TextStyle(
-                          fontSize: spec.avatarChangeButtonFontSize.sp,
+                          fontSize: spec.avatarChangeButtonFontSize,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
-                  SizedBox(height: spec.formSpacing.h),
+                  SizedBox(height: spec.formSpacing),
 
                   // ── Kullanıcı adı ──
                   _FieldLabel(text: 'Kullanıcı Adı', spec: spec),
-                  SizedBox(height: spec.labelSpacing.h),
+                  SizedBox(height: spec.labelSpacing),
                   TextFormField(
                     controller: _usernameCtrl,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: spec.fieldFontSize.sp,
+                      fontSize: spec.fieldFontSize,
                       fontWeight: FontWeight.w500,
                     ),
                     maxLength: spec.fieldMaxLength,
@@ -287,16 +286,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     validator: _validateUsername,
                   ).animate().fadeIn(delay: 250.ms, duration: 300.ms),
-                  SizedBox(height: spec.formSpacing.h),
+                  SizedBox(height: spec.formSpacing),
 
                   // ── Ad Soyad ──
                   _FieldLabel(text: 'Ad Soyad', spec: spec),
-                  SizedBox(height: spec.labelSpacing.h),
+                  SizedBox(height: spec.labelSpacing),
                   TextFormField(
                     controller: _fullNameCtrl,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: spec.fieldFontSize.sp,
+                      fontSize: spec.fieldFontSize,
                       fontWeight: FontWeight.w500,
                     ),
                     maxLength: spec.fieldMaxLengthFull,
@@ -308,49 +307,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       icon: Icons.badge_outlined,
                     ),
                   ).animate().fadeIn(delay: 350.ms, duration: 300.ms),
-                  SizedBox(height: spec.labelSpacing.h),
+                  SizedBox(height: spec.labelSpacing),
                   Row(
                     children: [
                       Icon(
                         Icons.info_outline_rounded,
-                        size: spec.hintFontSize.sp + 2,
+                        size: spec.hintFontSize + 2,
                         color: AppTheme.textSec(context).withValues(alpha: 0.6),
                       ),
-                      SizedBox(width: 6.w),
+                      SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           'Boş bırakılırsa profilinde kullanıcı adın öne çıkar.',
                           style: TextStyle(
                             color: AppTheme.textSec(context)
                                 .withValues(alpha: 0.75),
-                            fontSize: spec.hintFontSize.sp,
+                            fontSize: spec.hintFontSize,
                             height: spec.hintLineHeight,
                           ),
                         ),
                       ),
                     ],
                   ).animate().fadeIn(delay: 400.ms, duration: 300.ms),
-                  SizedBox(height: spec.formSpacing.h),
+                  SizedBox(height: spec.formSpacing),
 
                   // ── Kaydet ──
                   SizedBox(
                     width: double.infinity,
-                    height: spec.buttonHeight.h,
+                    height: spec.buttonHeight,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            spec.buttonRadius.r,
+                            spec.buttonRadius,
                           ),
                         ),
                       ),
                       onPressed: isSaving ? null : _save,
                       icon: isSaving
                           ? SizedBox(
-                              width: spec.savingIndicatorSize.w,
-                              height: spec.savingIndicatorSize.w,
+                              width: spec.savingIndicatorSize,
+                              height: spec.savingIndicatorSize,
                               child: CircularProgressIndicator(
                                 strokeWidth: spec.savingStrokeWidth,
                                 color: Colors.white,
@@ -360,7 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: Text(
                         'Kaydet',
                         style: TextStyle(
-                          fontSize: spec.buttonFontSize.sp,
+                          fontSize: spec.buttonFontSize,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -390,38 +389,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       prefixIcon: Icon(
         icon,
         color: AppTheme.textSec(context),
-        size: spec.fieldIconSize.sp,
+        size: spec.fieldIconSize,
       ),
       counterText: '',
       filled: true,
       fillColor: AppTheme.card(context),
       contentPadding: EdgeInsets.symmetric(
-        horizontal: spec.fieldPaddingH.w,
-        vertical: spec.fieldPaddingV.h,
+        horizontal: spec.fieldPaddingH,
+        vertical: spec.fieldPaddingV,
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderRadius: BorderRadius.circular(spec.fieldRadius),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderRadius: BorderRadius.circular(spec.fieldRadius),
         borderSide: BorderSide(
           color: AppTheme.textSec(context).withValues(alpha: 0.08),
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderRadius: BorderRadius.circular(spec.fieldRadius),
         borderSide: BorderSide(
           color: AppTheme.primaryColor.withValues(alpha: 0.6),
           width: 1.5,
         ),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderRadius: BorderRadius.circular(spec.fieldRadius),
         borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+        borderRadius: BorderRadius.circular(spec.fieldRadius),
         borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
       ),
     );
@@ -436,12 +435,12 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 4.w),
+      padding: EdgeInsets.only(left: 4),
       child: Text(
         text,
         style: TextStyle(
           color: AppTheme.textSec(context),
-          fontSize: spec.labelFontSize.sp,
+          fontSize: spec.labelFontSize,
           fontWeight: FontWeight.w700,
           letterSpacing: spec.labelLetterSpacing,
         ),

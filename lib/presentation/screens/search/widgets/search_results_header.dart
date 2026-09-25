@@ -1,6 +1,5 @@
 // lib/presentation/screens/search/widgets/search_results_header.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../search_layout_spec.dart';
@@ -19,16 +18,16 @@ class SearchResultsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        spec.resultsPaddingH.w,
-        spec.resultsPaddingV.h,
-        spec.resultsPaddingH.w,
-        spec.resultsCountSpacing.h,
+        spec.resultsPaddingH,
+        spec.resultsPaddingV,
+        spec.resultsPaddingH,
+        spec.resultsCountSpacing,
       ),
       child: Text(
         count == 1 ? '1 sonuç' : '$count sonuç',
         style: TextStyle(
           color: AppTheme.textSec(context),
-          fontSize: spec.resultsCountFontSize.sp,
+          fontSize: spec.resultsCountFontSize,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.2,
         ),

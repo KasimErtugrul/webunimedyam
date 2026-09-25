@@ -1,6 +1,5 @@
 // lib/presentation/screens/university_detail/widgets/university_detail_tab_bar.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../university_detail_layout_spec.dart';
@@ -18,13 +17,13 @@ class UniversityDetailTabBar extends StatelessWidget {
     return SizedBox.expand(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: spec.tabBarHPadding.w,
-          vertical: 6.h,
+          horizontal: spec.tabBarHPadding,
+          vertical: 6,
         ),
         child: Container(
           decoration: BoxDecoration(
             color: AppTheme.card(context),
-            borderRadius: BorderRadius.circular(spec.tabBarRadius.r),
+            borderRadius: BorderRadius.circular(spec.tabBarRadius),
             border: Border.all(
               color: AppTheme.textSec(context).withValues(alpha: 0.06),
             ),
@@ -33,18 +32,18 @@ class UniversityDetailTabBar extends StatelessWidget {
             dividerColor: Colors.transparent,
             indicator: BoxDecoration(
               color: primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(spec.tabBarRadius.r - 4),
+              borderRadius: BorderRadius.circular(spec.tabBarRadius - 4),
             ),
             indicatorSize: TabBarIndicatorSize.tab,
-            indicatorPadding: EdgeInsets.all(4.w),
+            indicatorPadding: EdgeInsets.all(4),
             labelColor: primary,
             unselectedLabelColor: AppTheme.textSec(context),
             labelStyle: TextStyle(
-              fontSize: spec.tabBarFontSize.sp,
+              fontSize: spec.tabBarFontSize,
               fontWeight: FontWeight.w700,
             ),
             unselectedLabelStyle: TextStyle(
-              fontSize: spec.tabBarFontSize.sp,
+              fontSize: spec.tabBarFontSize,
               fontWeight: FontWeight.w500,
             ),
             splashFactory: NoSplash.splashFactory,

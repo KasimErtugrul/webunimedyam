@@ -2,7 +2,6 @@
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
 // ═══════════════════════════════════════════════════════════
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class SettingsSizes {
   const SettingsSizes();

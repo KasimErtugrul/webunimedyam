@@ -2,7 +2,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
@@ -86,8 +85,8 @@ class ProfileAvatarWidget extends StatelessWidget {
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
     final badgeSize = size * spec.badgeSizeRatio;
 
-    double w(double v) => spec.isTablet ? v : v.w;
-    double h(double v) => spec.isTablet ? v : v.h;
+    double w(double v) => spec.isTablet ? v : v;
+    double h(double v) => spec.isTablet ? v : v;
 
     return GestureDetector(
       onTap: isOwnProfile ? onTap : null,
@@ -161,8 +160,8 @@ class ProfileAvatarWidget extends StatelessWidget {
           // ── Kamera badge (kendi profil, pulse) ──
           if (isOwnProfile && !isUploading && onTap != null)
             Positioned(
-              right: -2.w,
-              bottom: -2.h,
+              right: -2,
+              bottom: -2,
               child: Container(
                 width: badgeSize,
                 height: badgeSize,

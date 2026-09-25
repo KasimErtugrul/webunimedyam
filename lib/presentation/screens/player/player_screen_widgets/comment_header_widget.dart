@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/comment_header_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
@@ -92,26 +91,26 @@ class CommentsHeaderWidget extends StatelessWidget {
               'Yorumlar',
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: s.titleFontSize.sp,
+                fontSize: s.titleFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
             if (count > 0) ...[
-              SizedBox(width: s.badgeSpacing.w),
+              SizedBox(width: s.badgeSpacing),
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: s.badgePaddingH.w,
-                  vertical: s.badgePaddingV.h,
+                  horizontal: s.badgePaddingH,
+                  vertical: s.badgePaddingV,
                 ),
                 decoration: BoxDecoration(
                   color: primary.withValues(alpha: s.badgeOpacity),
-                  borderRadius: BorderRadius.circular(s.badgeRadius.r),
+                  borderRadius: BorderRadius.circular(s.badgeRadius),
                 ),
                 child: Text(
                   '$count',
                   style: TextStyle(
                     color: primary,
-                    fontSize: s.badgeFontSize.sp,
+                    fontSize: s.badgeFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -121,17 +120,17 @@ class CommentsHeaderWidget extends StatelessWidget {
         ),
         if (count == 0)
           Padding(
-            padding: EdgeInsets.only(top: s.emptyTopPadding.h),
+            padding: EdgeInsets.only(top: s.emptyTopPadding),
             child: Text(
               'Henüz yorum yapılmamış. İlk sen yaz!',
               style: TextStyle(
                 color: AppTheme.textSec(context),
-                fontSize: s.emptyFontSize.sp,
+                fontSize: s.emptyFontSize,
                 fontStyle: FontStyle.italic,
               ),
             ),
           ),
-        SizedBox(height: s.dividerTopSpacing.h),
+        SizedBox(height: s.dividerTopSpacing),
         Divider(
           height: s.dividerHeight,
           thickness: s.dividerThickness,
