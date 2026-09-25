@@ -14,7 +14,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -114,7 +113,7 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
     final isTablet = Responsive.isTablet(context);
     final hPad = isTablet
         ? _TabletSizes.listPadHorizontal
-        : _PhoneSizes.listPadHorizontal.w;
+        : _PhoneSizes.listPadHorizontal;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -272,26 +271,26 @@ class _AlphabetRailState extends State<_AlphabetRail> {
     final isTablet = Responsive.isTablet(context);
     final width = isTablet
         ? _TabletSizes.sidebarWidth
-        : _PhoneSizes.sidebarWidth.w;
+        : _PhoneSizes.sidebarWidth;
 
     double activeFont = isTablet
         ? _TabletSizes.railActiveFont
-        : _PhoneSizes.railActiveFont.sp;
+        : _PhoneSizes.railActiveFont;
     double nearFont = isTablet
         ? _TabletSizes.railNearFont
-        : _PhoneSizes.railNearFont.sp;
+        : _PhoneSizes.railNearFont;
     double farFont = isTablet
         ? _TabletSizes.railFarFont
-        : _PhoneSizes.railFarFont.sp;
+        : _PhoneSizes.railFarFont;
     final activeScale = _PhoneSizes.railActiveScale;
     final nearScale = _PhoneSizes.railNearScale;
 
     final bubbleSize = isTablet
         ? _TabletSizes.railBubbleSize
-        : _PhoneSizes.railBubbleSize.w;
+        : _PhoneSizes.railBubbleSize;
     final bubbleFont = isTablet
         ? _TabletSizes.railBubbleFont
-        : _PhoneSizes.railBubbleFont.sp;
+        : _PhoneSizes.railBubbleFont;
 
     return LayoutBuilder(
       builder: (context, c) {

@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/register_sizes.dart
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT — Stitch "Register - ÜniTV" tasarımının
@@ -149,119 +148,119 @@ class RegisterPhoneSizes extends RegisterSizes {
 
   @override bool get isTablet => false;
 
-  @override double get maxContentWidth => 448.w;
-  @override double get pageHPadding => 16.w;
-  @override double get pageBottomPadding => 32.h;
+  @override double get maxContentWidth => 448;
+  @override double get pageHPadding => 16;
+  @override double get pageBottomPadding => 32;
 
-  @override double get topBarVPadding => 16.h;
-  @override double get backButtonSize => 40.w;
-  @override double get backButtonIconSize => 16.sp;
-  @override double get livePillGap => 4.w;
-  @override double get livePillHPadding => 8.w;
-  @override double get livePillVPadding => 4.h;
-  @override double get livePillDotSize => 8.r;
-  @override double get livePillFontSize => 10.sp;
+  @override double get topBarVPadding => 16;
+  @override double get backButtonSize => 40;
+  @override double get backButtonIconSize => 16;
+  @override double get livePillGap => 4;
+  @override double get livePillHPadding => 8;
+  @override double get livePillVPadding => 4;
+  @override double get livePillDotSize => 8;
+  @override double get livePillFontSize => 10;
 
-  @override double get headerTopGap => 8.h;
-  @override double get headerBottomGap => 24.h;
-  @override double get headerGroupGap => 4.h;
-  @override double get headerLabelFontSize => 12.sp;
-  @override double get headerLabelIconSize => 14.sp;
-  @override double get titleFontSize => 26.sp;
-  @override double get descFontSize => 14.sp;
+  @override double get headerTopGap => 8;
+  @override double get headerBottomGap => 24;
+  @override double get headerGroupGap => 4;
+  @override double get headerLabelFontSize => 12;
+  @override double get headerLabelIconSize => 14;
+  @override double get titleFontSize => 26;
+  @override double get descFontSize => 14;
   @override double get descLineHeight => 1.625;
 
-  @override double get previewRadius => 12.r;
-  @override double get previewPadding => 16.w;
-  @override double get previewGap => 16.w;
-  @override double get previewImageSize => 56.w;
-  @override double get previewImageRadius => 8.r;
-  @override double get previewTitleFontSize => 12.sp;
-  @override double get previewVerifiedIconSize => 10.sp;
-  @override double get previewSubFontSize => 12.sp;
+  @override double get previewRadius => 12;
+  @override double get previewPadding => 16;
+  @override double get previewGap => 16;
+  @override double get previewImageSize => 56;
+  @override double get previewImageRadius => 8;
+  @override double get previewTitleFontSize => 12;
+  @override double get previewVerifiedIconSize => 10;
+  @override double get previewSubFontSize => 12;
 
-  @override double get formGap => 16.h;
-  @override double get fieldGroupGap => 4.h;
-  @override double get labelFontSize => 12.sp;
-  @override double get labelHintFontSize => 10.sp;
-  @override double get fieldRadius => 8.r;
-  @override double get fieldFontSize => 14.sp;
-  @override double get fieldIconSize => 16.sp;
-  @override double get fieldIconLeft => 14.w;
-  @override double get fieldPaddingLeft => 44.w;
-  @override double get fieldPaddingRight => 16.w;
-  @override double get fieldPaddingRightPassword => 48.w;
-  @override double get fieldVPadding => 12.h;
-  @override double get toggleSize => 32.w;
-  @override double get toggleRight => 8.w;
-  @override double get toggleIconSize => 16.sp;
+  @override double get formGap => 16;
+  @override double get fieldGroupGap => 4;
+  @override double get labelFontSize => 12;
+  @override double get labelHintFontSize => 10;
+  @override double get fieldRadius => 8;
+  @override double get fieldFontSize => 14;
+  @override double get fieldIconSize => 16;
+  @override double get fieldIconLeft => 14;
+  @override double get fieldPaddingLeft => 44;
+  @override double get fieldPaddingRight => 16;
+  @override double get fieldPaddingRightPassword => 48;
+  @override double get fieldVPadding => 12;
+  @override double get toggleSize => 32;
+  @override double get toggleRight => 8;
+  @override double get toggleIconSize => 16;
 
-  @override double get strengthTopGap => 4.h;
-  @override double get strengthRowHPadding => 4.w;
-  @override double get strengthRowGap => 8.w;
-  @override double get strengthBarHeight => 4.h;
-  @override double get strengthBarGap => 4.w;
-  @override double get strengthHintFontSize => 10.sp;
+  @override double get strengthTopGap => 4;
+  @override double get strengthRowHPadding => 4;
+  @override double get strengthRowGap => 8;
+  @override double get strengthBarHeight => 4;
+  @override double get strengthBarGap => 4;
+  @override double get strengthHintFontSize => 10;
 
-  @override double get campusTopGap => 4.h;
-  @override double get campusCardPadding => 16.w;
-  @override double get campusCardRadius => 12.r;
-  @override double get campusCardGap => 16.h;
-  @override double get campusIconBoxSize => 36.w;
-  @override double get campusIconBoxRadius => 8.r;
-  @override double get campusIconSize => 18.sp;
-  @override double get campusTitleFontSize => 14.sp;
-  @override double get campusSubFontSize => 12.sp;
-  @override double get chevronSize => 32.w;
-  @override double get chevronIconSize => 18.sp;
-  @override double get chipHPadding => 12.w;
-  @override double get chipVPadding => 6.h;
-  @override double get chipFontSize => 12.sp;
-  @override double get chipGap => 6.w;
-  @override double get chipSpacing => 4.w;
-  @override double get chipIconSize => 12.sp;
-  @override double get dropdownRadius => 8.r;
-  @override double get dropdownVPadding => 10.h;
-  @override double get dropdownHPadding => 12.w;
-  @override double get dropdownFontSize => 14.sp;
-  @override double get dropdownIconSize => 14.sp;
+  @override double get campusTopGap => 4;
+  @override double get campusCardPadding => 16;
+  @override double get campusCardRadius => 12;
+  @override double get campusCardGap => 16;
+  @override double get campusIconBoxSize => 36;
+  @override double get campusIconBoxRadius => 8;
+  @override double get campusIconSize => 18;
+  @override double get campusTitleFontSize => 14;
+  @override double get campusSubFontSize => 12;
+  @override double get chevronSize => 32;
+  @override double get chevronIconSize => 18;
+  @override double get chipHPadding => 12;
+  @override double get chipVPadding => 6;
+  @override double get chipFontSize => 12;
+  @override double get chipGap => 6;
+  @override double get chipSpacing => 4;
+  @override double get chipIconSize => 12;
+  @override double get dropdownRadius => 8;
+  @override double get dropdownVPadding => 10;
+  @override double get dropdownHPadding => 12;
+  @override double get dropdownFontSize => 14;
+  @override double get dropdownIconSize => 14;
 
-  @override double get termsTopGap => 4.h;
-  @override double get termsGap => 8.w;
-  @override double get termsBoxSize => 20.w;
-  @override double get termsBoxRadius => 4.r;
-  @override double get termsIconSize => 14.sp;
-  @override double get termsFontSize => 12.sp;
+  @override double get termsTopGap => 4;
+  @override double get termsGap => 8;
+  @override double get termsBoxSize => 20;
+  @override double get termsBoxRadius => 4;
+  @override double get termsIconSize => 14;
+  @override double get termsFontSize => 12;
 
-  @override double get submitTopGap => 8.h;
-  @override double get submitHeight => 52.h;
-  @override double get submitRadius => 8.r;
-  @override double get submitFontSize => 18.sp;
-  @override double get submitIconSize => 18.sp;
-  @override double get submitHPadding => 24.w;
+  @override double get submitTopGap => 8;
+  @override double get submitHeight => 52;
+  @override double get submitRadius => 8;
+  @override double get submitFontSize => 18;
+  @override double get submitIconSize => 18;
+  @override double get submitHPadding => 24;
 
-  @override double get footerTopGap => 32.h;
-  @override double get footerVPadding => 8.h;
-  @override double get footerGap => 4.w;
-  @override double get footerFontSize => 14.sp;
-  @override double get footerLinkFontSize => 14.sp;
-  @override double get footerLinkIconSize => 14.sp;
+  @override double get footerTopGap => 32;
+  @override double get footerVPadding => 8;
+  @override double get footerGap => 4;
+  @override double get footerFontSize => 14;
+  @override double get footerLinkFontSize => 14;
+  @override double get footerLinkIconSize => 14;
 
-  @override double get stripTopGap => 16.h;
-  @override double get stripPadding => 8.w;
-  @override double get stripRadius => 12.r;
-  @override double get stripIconSize => 14.sp;
-  @override double get stripFontSize => 10.sp;
-  @override double get stripAvatarSize => 20.w;
-  @override double get stripAvatarFontSize => 10.sp;
-  @override double get stripAvatarOverlap => 6.r;
+  @override double get stripTopGap => 16;
+  @override double get stripPadding => 8;
+  @override double get stripRadius => 12;
+  @override double get stripIconSize => 14;
+  @override double get stripFontSize => 10;
+  @override double get stripAvatarSize => 20;
+  @override double get stripAvatarFontSize => 10;
+  @override double get stripAvatarOverlap => 6;
 
-  @override double get errorFontSize => 13.sp;
-  @override double get errorPadding => 12.w;
-  @override double get errorRadius => 10.r;
-  @override double get errorIconSize => 20.sp;
-  @override double get errorMarginBottom => 12.h;
-  @override double get loaderSize => 20.w;
+  @override double get errorFontSize => 13;
+  @override double get errorPadding => 12;
+  @override double get errorRadius => 10;
+  @override double get errorIconSize => 20;
+  @override double get errorMarginBottom => 12;
+  @override double get loaderSize => 20;
   @override double get loaderStroke => 2.2;
 }
 

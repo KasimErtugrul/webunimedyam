@@ -3,7 +3,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -154,22 +153,22 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
 
       return Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.horizontalPadding.w,
+          horizontal: _PhoneSizes.horizontalPadding,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              height: _PhoneSizes.wheelCardHeight.h,
+              height: _PhoneSizes.wheelCardHeight,
               child: WheelVideoCardWidget(
                 key: ValueKey(active.videoId),
                 video: active,
                 university: activeUni,
               ),
             ),
-            SizedBox(height: _PhoneSizes.cardBottomSpacing.h),
+            SizedBox(height: _PhoneSizes.cardBottomSpacing),
             SizedBox(
-              height: _PhoneSizes.logoWheelHeight.h,
+              height: _PhoneSizes.logoWheelHeight,
               child: _LogoWheelPhone(
                 key: ValueKey('lw_${videos.length}'),
                 videos: videos,
@@ -180,7 +179,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
                 onChanged: _onChanged,
               ),
             ),
-            SizedBox(height: _PhoneSizes.wheelBottomSpacing.h),
+            SizedBox(height: _PhoneSizes.wheelBottomSpacing),
           ],
         ),
       );
@@ -319,10 +318,10 @@ class _LogoWheelPhoneState extends State<_LogoWheelPhone> {
               child = widget.isLoading
                   ? Center(
                       child: SizedBox(
-                        width: _PhoneSizes.loadingIndicatorSize.w,
-                        height: _PhoneSizes.loadingIndicatorSize.w,
+                        width: _PhoneSizes.loadingIndicatorSize,
+                        height: _PhoneSizes.loadingIndicatorSize,
                         child: CircularProgressIndicator(
-                          strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+                          strokeWidth: _PhoneSizes.loadingStrokeWidth,
                           color: AppTheme.primaryColor.withValues(alpha: 0.7),
                         ),
                       ),
@@ -331,15 +330,15 @@ class _LogoWheelPhoneState extends State<_LogoWheelPhone> {
                       child: Icon(
                         Icons.more_horiz_rounded,
                         color: AppTheme.textSec(context).withValues(alpha: 0.4),
-                        size: _PhoneSizes.moreIconSize.sp,
+                        size: _PhoneSizes.moreIconSize,
                       ),
                     );
             } else {
               final uni = _uniFor(widget.videos[i]);
               final isActive = i == widget.activeIndex;
               final size = isActive
-                  ? _PhoneSizes.logoWheelActiveSize.w
-                  : _PhoneSizes.logoWheelInactiveSize.w;
+                  ? _PhoneSizes.logoWheelActiveSize
+                  : _PhoneSizes.logoWheelInactiveSize;
               final hasLogo = uni?.logoUrl != null && uni!.logoUrl!.isNotEmpty;
               final bg = AppTheme.isDark(context)
                   ? const Color(0xFF2A2A2A)
@@ -363,13 +362,13 @@ class _LogoWheelPhoneState extends State<_LogoWheelPhone> {
                                 color: AppTheme.primaryColor.withValues(
                                   alpha: 0.4,
                                 ),
-                                blurRadius: 10.r,
-                                spreadRadius: 1.r,
+                                blurRadius: 10,
+                                spreadRadius: 1,
                               ),
                             ]
                           : null,
                     ),
-                    padding: EdgeInsets.all(_PhoneSizes.logoPadding.w),
+                    padding: EdgeInsets.all(_PhoneSizes.logoPadding),
                     child: ClipOval(
                       child: hasLogo
                           ? CachedNetworkImage(

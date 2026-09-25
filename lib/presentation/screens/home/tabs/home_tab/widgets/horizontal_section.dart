@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/horizontal_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -49,18 +48,18 @@ class HorizontalSection<T> extends StatelessWidget {
           animationIndex: animationIndex,
         ),
         SizedBox(
-          height: spec.sectionListViewHeight.h,
+          height: spec.sectionListViewHeight,
           child: isLoading
               ? _SkeletonList(spec: spec)
               : ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(
-                    horizontal: spec.sectionListPaddingH.w,
+                    horizontal: spec.sectionListPaddingH,
                   ),
                   itemCount: items.length,
                   separatorBuilder: (_, _) => SizedBox(
-                    width: spec.sectionCardSpacing.w,
+                    width: spec.sectionCardSpacing,
                   ),
                   itemBuilder: (ctx, i) {
                     return itemBuilder(ctx, items[i])
@@ -99,10 +98,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        spec.sectionTitlePaddingLeft.w,
+        spec.sectionTitlePaddingLeft,
         0,
-        8.w,
-        spec.sectionTitlePaddingBottom.h,
+        8,
+        spec.sectionTitlePaddingBottom,
       ),
       child: Row(
         children: [
@@ -113,7 +112,7 @@ class _SectionHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.sectionTitleFontSize.sp,
+                fontSize: spec.sectionTitleFontSize,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.3,
               ),
@@ -123,10 +122,10 @@ class _SectionHeader extends StatelessWidget {
             onPressed: () => _showInfoDialog(context),
             icon: Icon(
               Icons.info_outline_rounded,
-              size: spec.sectionInfoIconSize.sp,
+              size: spec.sectionInfoIconSize,
               color: AppTheme.textSec(context).withValues(alpha: 0.7),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             constraints: const BoxConstraints(),
             splashRadius: spec.sectionInfoIconSplash,
             tooltip: 'Bu liste hakkında',
@@ -135,7 +134,7 @@ class _SectionHeader extends StatelessWidget {
             TextButton(
               onPressed: onSeeAll,
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 foregroundColor: AppTheme.primaryColor,
@@ -147,13 +146,13 @@ class _SectionHeader extends StatelessWidget {
                     'Tümü',
                     style: TextStyle(
                       color: AppTheme.primaryColor,
-                      fontSize: spec.sectionViewAllFontSize.sp,
+                      fontSize: spec.sectionViewAllFontSize,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    size: spec.sectionViewAllFontSize.sp + 4,
+                    size: spec.sectionViewAllFontSize + 4,
                     color: AppTheme.primaryColor,
                   ),
                 ],
@@ -169,18 +168,18 @@ class _SectionHeader extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(spec.dialogRadius.r),
+          borderRadius: BorderRadius.circular(spec.dialogRadius),
         ),
         icon: Icon(
           Icons.info_outline_rounded,
           color: AppTheme.primaryColor,
-          size: 28.sp,
+          size: 28,
         ),
         title: Text(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: spec.dialogTitleFontSize.sp,
+            fontSize: spec.dialogTitleFontSize,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPri(context),
           ),
@@ -188,7 +187,7 @@ class _SectionHeader extends StatelessWidget {
         content: Text(
           description,
           style: TextStyle(
-            fontSize: spec.dialogContentFontSize.sp,
+            fontSize: spec.dialogContentFontSize,
             color: AppTheme.textSec(context),
             height: spec.dialogContentLineHeight,
           ),
@@ -200,9 +199,9 @@ class _SectionHeader extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
               foregroundColor: Colors.white,
-              minimumSize: Size(120.w, 44.h),
+              minimumSize: Size(120, 44),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: const Text('Anladım'),
@@ -224,16 +223,16 @@ class _SkeletonList extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: spec.sectionListPaddingH.w),
+        padding: EdgeInsets.symmetric(horizontal: spec.sectionListPaddingH),
         itemCount: spec.shimmerItemCount,
         separatorBuilder: (_, _) => SizedBox(
-          width: spec.sectionCardSpacing.w,
+          width: spec.sectionCardSpacing,
         ),
         itemBuilder: (_, _) => Container(
-          width: spec.shimmerCardWidth.w,
+          width: spec.shimmerCardWidth,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(spec.shimmerCardRadius.r),
+            borderRadius: BorderRadius.circular(spec.shimmerCardRadius),
           ),
         ),
       ),

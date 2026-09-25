@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_bar_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
@@ -71,8 +70,8 @@ class EngagementBarWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: s.containerPaddingH.w,
-        vertical: s.containerPaddingV.h,
+        horizontal: s.containerPaddingH,
+        vertical: s.containerPaddingV,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -88,7 +87,7 @@ class EngagementBarWidget extends StatelessWidget {
               onTap: controller.toggleLike,
             ),
           ),
-          SizedBox(width: s.actionSpacing.w),
+          SizedBox(width: s.actionSpacing),
           Obx(
             () => EngagementActionWidget(
               icon: Icons.share_outlined,
@@ -98,7 +97,7 @@ class EngagementBarWidget extends StatelessWidget {
               onTap: controller.shareVideo,
             ),
           ),
-          SizedBox(width: s.actionSpacing.w),
+          SizedBox(width: s.actionSpacing),
           Obx(
             () => EngagementActionWidget(
               icon: controller.isFavorite.value
@@ -112,10 +111,10 @@ class EngagementBarWidget extends StatelessWidget {
           ),
           const Spacer(),
           Container(
-            width: s.dividerWidth.w,
-            height: s.dividerHeight.h,
+            width: s.dividerWidth,
+            height: s.dividerHeight,
             margin: EdgeInsets.symmetric(
-              horizontal: s.dividerHorizontalMargin.w,
+              horizontal: s.dividerHorizontalMargin,
             ),
             color:
                 AppTheme.textSec(context).withValues(alpha: s.dividerOpacity),
@@ -134,7 +133,7 @@ class EngagementBarWidget extends StatelessWidget {
                             'totalViewCount': controller.appViewCount.value,
                           },
                         ),
-                borderRadius: BorderRadius.circular(s.tappableRadius.r),
+                borderRadius: BorderRadius.circular(s.tappableRadius),
                 child: StatBadgeWidget(
                   icon: Icons.visibility_outlined,
                   count: controller.appViewCount.value,
@@ -144,7 +143,7 @@ class EngagementBarWidget extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: s.rightSpacing.w),
+          SizedBox(width: s.rightSpacing),
           Obx(
             () => StatBadgeWidget(
               icon: Icons.chat_bubble_outline_rounded,
@@ -152,7 +151,7 @@ class EngagementBarWidget extends StatelessWidget {
               loading: controller.isInitialStatsLoading.value,
             ),
           ),
-          SizedBox(width: s.rightSpacing.w),
+          SizedBox(width: s.rightSpacing),
         ],
       ),
     );

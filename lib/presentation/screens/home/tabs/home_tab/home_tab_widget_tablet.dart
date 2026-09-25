@@ -12,7 +12,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -94,8 +93,8 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   // yeniden kurulacak, şimdilik birebir korundu.
   Widget _buildRadioPanel(BuildContext context) {
     return Container(
-      width: 50.w,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      width: 50,
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -108,8 +107,8 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
           stops: const [0.0, 0.55, 1.0],
         ),
         borderRadius: BorderRadius.only(
-          topRight: Radius.circular(20.r),
-          bottomRight: Radius.circular(20.r),
+          topRight: Radius.circular(20),
+          bottomRight: Radius.circular(20),
         ),
       ),
       child: Column(
@@ -120,25 +119,25 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
             'Üniversite Radyoları',
             style: TextStyle(
               color: AppTheme.textSec(context),
-              fontSize: 10.sp,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               height: 1.2,
             ),
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: 4),
           Text(
             'Sizlerle',
             style: TextStyle(
               color: AppTheme.textSec(context).withValues(alpha: 0.85),
-              fontSize: 10.sp,
+              fontSize: 10,
               fontWeight: FontWeight.w400,
               height: 1.2,
             ),
           ),
-          SizedBox(height: 14.h),
+          SizedBox(height: 14),
           Container(
-            width: 40.w,
-            height: 40.w,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.18),
@@ -150,7 +149,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
             child: Icon(
               Icons.play_arrow_rounded,
               color: AppTheme.textSec(context),
-              size: 7.sp,
+              size: 7,
             ),
           ),
         ],
@@ -185,8 +184,8 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
       // DÜRÜST NOT: itemWidth gerçek render genişliği değil (o, viewportFraction
       // × Expanded sonucu); yalnızca yükseklik tahmini için kullanılıyor.
       final double fraction = isTablet ? .5 : 0.82;
-      final double itemWidth = 250.w;
-      final double cardHeight = itemWidth * 9 / 16 + (isTablet ? 55.w : 90);
+      final double itemWidth = 250;
+      final double cardHeight = itemWidth * 9 / 16 + (isTablet ? 55 : 90);
       // enlargeCenterPage kapalı olduğu için yüksekliğe pay bırakılıyor.
       final double carouselHeight = cardHeight * .55;
       final scheme = Theme.of(context).colorScheme;
@@ -196,7 +195,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
           CarouselSlider(
             items: featured.map((video) {
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: isTablet ? 6 : 4.w),
+                padding: EdgeInsets.symmetric(horizontal: isTablet ? 6 : 4),
                 child: _buildLargeVideoCard(
                   context,
                   scheme,
@@ -235,7 +234,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                   duration: const Duration(milliseconds: 200),
                   width: active ? 18 : 6,
                   height: 6,
-                  margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 8.h),
+                  margin: EdgeInsets.symmetric(horizontal: 3, vertical: 8),
                   decoration: BoxDecoration(
                     color: active
                         ? AppTheme.primaryColor
@@ -267,7 +266,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
       child: Container(
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(2.r),
+          borderRadius: BorderRadius.circular(2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
@@ -314,24 +313,24 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
                   // Sağ Alt Süre
                   Positioned(
-                    bottom: 10.h,
-                    right: 10.w,
+                    bottom: 10,
+                    right: 10,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 6.w,
-                        vertical: 2.h,
+                        horizontal: 6,
+                        vertical: 2,
                       ),
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerLowest.withValues(
                           alpha: 0.85,
                         ),
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         video.duration.isNotEmpty ? video.duration : '18:42',
                         style: TextStyle(
                           color: scheme.onSurface,
-                          fontSize: 4.sp,
+                          fontSize: 4,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -343,7 +342,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
             // Kart Alt Bilgileri
             Padding(
-              padding: EdgeInsets.all(5.w),
+              padding: EdgeInsets.all(5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -353,11 +352,11 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: scheme.onSurface,
-                      fontSize: isTablet ? 4.sp : 13.5.sp,
+                      fontSize: isTablet ? 4 : 13.5,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -369,7 +368,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: scheme.onSurface,
-                            fontSize: isTablet ? 4.sp : 7.sp,
+                            fontSize: isTablet ? 4 : 7,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -378,7 +377,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                         timeAgoTr(video.publishedAt),
                         style: TextStyle(
                           color: scheme.onSurfaceVariant,
-                          fontSize: 4.sp,
+                          fontSize: 4,
                         ),
                       ),
                     ],
@@ -398,12 +397,12 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Container(
-          height: isTablet ? 280 : 240.h,
+          height: isTablet ? 280 : 240,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),

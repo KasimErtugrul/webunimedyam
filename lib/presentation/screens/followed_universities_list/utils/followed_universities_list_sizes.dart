@@ -2,7 +2,6 @@
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
 // ═══════════════════════════════════════════════════════════
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class FollowedUniversitiesListSizes {
   const FollowedUniversitiesListSizes();
@@ -48,31 +47,31 @@ class FollowedUniversitiesListPhoneSizes extends FollowedUniversitiesListSizes {
 
   @override bool get isTablet => false;
 
-  @override double get loadingStrokeWidth => 3.w;
+  @override double get loadingStrokeWidth => 3;
 
-  @override double get emptyPaddingHorizontal => 32.w;
-  @override double get emptyIconSize => 56.sp;
-  @override double get emptySpacingLarge => 16.h;
-  @override double get emptySpacingSmall => 6.h;
-  @override double get emptyTitleFontSize => 16.sp;
-  @override double get emptySubtitleFontSize => 13.sp;
+  @override double get emptyPaddingHorizontal => 32;
+  @override double get emptyIconSize => 56;
+  @override double get emptySpacingLarge => 16;
+  @override double get emptySpacingSmall => 6;
+  @override double get emptyTitleFontSize => 16;
+  @override double get emptySubtitleFontSize => 13;
 
-  @override double get listPaddingHorizontal => 14.w;
-  @override double get listPaddingVertical => 12.h;
-  @override double get listCardBottomMargin => 10.h;
-  @override double get listCardPaddingHorizontal => 12.w;
-  @override double get listCardPaddingVertical => 10.h;
-  @override double get listCardBorderRadius => 12.r;
-  @override double get listLogoSize => 52.w;
-  @override double get listLogoBorderRadius => 8.r;
-  @override double get listLogoSpacing => 12.w;
-  @override double get listTitleFontSize => 14.sp;
-  @override double get listCityIconSize => 13.sp;
-  @override double get listCityFontSize => 12.sp;
-  @override double get listCitySpacing => 3.w;
-  @override double get listCityTopSpacing => 4.h;
-  @override double get listChevronSize => 20.sp;
-  @override double get listPlaceholderIconSize => 28.sp;
+  @override double get listPaddingHorizontal => 14;
+  @override double get listPaddingVertical => 12;
+  @override double get listCardBottomMargin => 10;
+  @override double get listCardPaddingHorizontal => 12;
+  @override double get listCardPaddingVertical => 10;
+  @override double get listCardBorderRadius => 12;
+  @override double get listLogoSize => 52;
+  @override double get listLogoBorderRadius => 8;
+  @override double get listLogoSpacing => 12;
+  @override double get listTitleFontSize => 14;
+  @override double get listCityIconSize => 13;
+  @override double get listCityFontSize => 12;
+  @override double get listCitySpacing => 3;
+  @override double get listCityTopSpacing => 4;
+  @override double get listChevronSize => 20;
+  @override double get listPlaceholderIconSize => 28;
 }
 
 // ═══════════════════════════════════════════════════════════

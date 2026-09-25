@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'services/connectivity_service.dart';
 
 import 'app/routes/app_routes.dart';
@@ -101,8 +100,6 @@ void main() async {
   // senkron erişir.
   await Hive.initFlutter();
   await Hive.openBox(AppCacheBox.name);
-
-  await ScreenUtil.ensureScreenSize();
 
   // ── Dependency Injection ──────────────────────────────────────────────────
   Get.put<SupabaseDataSource>(SupabaseDataSource(), permanent: true);
@@ -214,53 +211,48 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
+    return GetMaterialApp(
+      title: 'Uni TV',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: widget.initialTheme == 'light'
+          ? ThemeMode.light
+          : ThemeMode.dark,
+      initialRoute: widget.initialRoute,
+      getPages: AppPages.pages,
+      navigatorObservers: [AnalyticsService.instance.observer],
       builder: (context, child) {
-        return GetMaterialApp(
-          title: 'Uni TV',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: widget.initialTheme == 'light'
-              ? ThemeMode.light
-              : ThemeMode.dark,
-          initialRoute: widget.initialRoute,
-          getPages: AppPages.pages,
-          navigatorObservers: [AnalyticsService.instance.observer],
-          builder: (context, child) {
-            return Column(
-              children: [
-                Obx(
-                  () => ConnectivityService.instance.isOnline.value
-                      ? const SizedBox.shrink()
-                      : Material(
-                          color: Colors.red.shade700,
-                          child: SafeArea(
-                            bottom: false,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Center(
-                                child: Text(
-                                  'İnternet bağlantısı yok',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13.sp,
-                                  ),
-                                ),
+       
+
+        return Column(
+          children: [
+            Obx(
+              () => ConnectivityService.instance.isOnline.value
+                  ? const SizedBox.shrink()
+                  : Material(
+                      color: Colors.red.shade700,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Center(
+                            child: Text(
+                              'İnternet bağlantısı yok',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
                               ),
                             ),
                           ),
                         ),
-                ),
-                Expanded(child: child ?? const SizedBox.shrink()),
-              ],
-            );
-          },
+                      ),
+                    ),
+            ),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
         );
       },
     );

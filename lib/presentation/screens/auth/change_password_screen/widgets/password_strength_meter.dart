@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/password_strength_meter.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -26,7 +25,7 @@ class PasswordStrengthMeter extends GetView<ChangePassController> {
                 'Şifre Gücü',
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: spec.smallFontSize.sp,
+                  fontSize: spec.smallFontSize,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -35,25 +34,25 @@ class PasswordStrengthMeter extends GetView<ChangePassController> {
                 controller.strengthLabel,
                 style: TextStyle(
                   color: s == 0 ? AppTheme.textPri(context) : color,
-                  fontSize: spec.smallFontSize.sp,
+                  fontSize: spec.smallFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 8),
           Row(
             children: List.generate(4, (i) {
               final active = i < s;
               return Expanded(
                 child: Container(
-                  height: 4.h,
-                  margin: EdgeInsets.only(right: i == 3 ? 0 : 8.w),
+                  height: 4,
+                  margin: EdgeInsets.only(right: i == 3 ? 0 : 8),
                   decoration: BoxDecoration(
                     color: active
                         ? color
                         : Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(999.r),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               );

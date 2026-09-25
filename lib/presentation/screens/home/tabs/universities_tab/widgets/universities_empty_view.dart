@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/universities_empty_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../universities_tab_layout_spec.dart';
@@ -24,61 +23,61 @@ class UniversitiesEmptyView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        padding: EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: spec.emptyIconSize.w,
-              height: spec.emptyIconSize.w,
+              width: spec.emptyIconSize,
+              height: spec.emptyIconSize,
               decoration: BoxDecoration(
                 color: AppTheme.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 hasQuery ? Icons.search_off_rounded : Icons.school_outlined,
-                size: spec.emptyIconInner.sp,
+                size: spec.emptyIconInner,
                 color: AppTheme.primaryColor.withValues(alpha: 0.7),
               ),
             )
                 .animate()
                 .fadeIn(duration: 350.ms)
                 .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: spec.emptySpacingL.h),
+            SizedBox(height: spec.emptySpacingL),
             Text(
               hasQuery ? 'Sonuç bulunamadı' : 'Üniversite bulunamadı',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: spec.emptyTitleFontSize.sp,
+                fontSize: spec.emptyTitleFontSize,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.textPri(context),
               ),
             ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-            SizedBox(height: spec.emptySpacingM.h),
+            SizedBox(height: spec.emptySpacingM),
             Text(
               hasQuery
                   ? '"$query" için eşleşen üniversite yok.\nFarklı bir kelime dene.'
                   : 'Şu anda listelenecek üniversite yok.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: spec.emptySubtitleFontSize.sp,
+                fontSize: spec.emptySubtitleFontSize,
                 color: AppTheme.textSec(context),
                 height: 1.5,
               ),
             ).animate().fadeIn(delay: 180.ms, duration: 300.ms),
-            SizedBox(height: spec.emptySpacingL.h),
+            SizedBox(height: spec.emptySpacingL),
             SizedBox(
-              height: spec.emptyButtonHeight.h,
+              height: spec.emptyButtonHeight,
               child: FilledButton.icon(
                 onPressed: onRetry,
                 icon: Icon(
                   hasQuery ? Icons.close_rounded : Icons.refresh_rounded,
-                  size: 18.sp,
+                  size: 18,
                 ),
                 label: Text(
                   hasQuery ? 'Aramayı temizle' : 'Tekrar dene',
                   style: TextStyle(
-                    fontSize: spec.emptyButtonFontSize.sp,
+                    fontSize: spec.emptyButtonFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -87,9 +86,9 @@ class UniversitiesEmptyView extends StatelessWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(spec.emptyButtonRadius.r),
+                        BorderRadius.circular(spec.emptyButtonRadius),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.symmetric(horizontal: 24),
                 ),
               ),
             ).animate().fadeIn(delay: 260.ms, duration: 300.ms),

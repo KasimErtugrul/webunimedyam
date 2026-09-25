@@ -14,7 +14,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
@@ -41,7 +40,7 @@ class _PhoneSizes {
   static const double columnGap = 12; // sütunlar arasındaki yatay boşluk
   static const double listGap =
       8; // aynı sütundaki 2 kart arasındaki dikey boşluk
-  static const double listPeek = 24; // sağdan görünen sonraki sütunun ucu
+  //static const double listPeek = 24; // sağdan görünen sonraki sütunun ucu
   static const double listBottomSpacing = 8;
 
   // Kart
@@ -166,27 +165,27 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
     // genişliğinden geriye hesaplanır (sağdaki "peek" kadar pay bırakılarak)
     // — böylece kart tasarımı (tam genişlik) bozulmadan ekranda TAM 2 KART
     // görünür ve yapı yatayda kaydırılabilir olur.
-    final double columnWidth =
-        ScreenUtil().screenWidth -
+    final double columnWidth =150
+       /*  ScreenUtil().screenWidth -
         2 * _PhoneSizes.listPadHorizontal.w -
-        _PhoneSizes.listPeek.w;
+        _PhoneSizes.listPeek.w */;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.fromLTRB(
-            _PhoneSizes.sectionPadLeft.w,
-            _PhoneSizes.sectionPadTop.h,
-            _PhoneSizes.sectionPadRight.w,
-            _PhoneSizes.sectionPadBottom.h,
+            _PhoneSizes.sectionPadLeft,
+            _PhoneSizes.sectionPadTop,
+            _PhoneSizes.sectionPadRight,
+            _PhoneSizes.sectionPadBottom,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               /*  Icon(
                 Icons.history_rounded,
-                size: _PhoneSizes.sectionIconSize.sp,
+                size: _PhoneSizes.sectionIconSize,
                 color: scheme.primary,
               ), */
               Container(
@@ -198,7 +197,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                   'İzlemeye Devam Et',
                   style: TextStyle(
                     color: scheme.onSurface,
-                    fontSize: _PhoneSizes.sectionTitleFontSize.sp,
+                    fontSize: _PhoneSizes.sectionTitleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -207,7 +206,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                 '${items.length} video',
                 style: TextStyle(
                   color: scheme.onSurfaceVariant,
-                  fontSize: _PhoneSizes.sectionCountFontSize.sp,
+                  fontSize: _PhoneSizes.sectionCountFontSize,
                 ),
               ),
             ],
@@ -217,7 +216,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
-            horizontal: _PhoneSizes.listPadHorizontal.w,
+            horizontal: _PhoneSizes.listPadHorizontal,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +224,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
               // Kartlar 2'li gruplara ayrılır: her yatay adım bir sütun,
               // sütunun içinde 2 kart üst üste durur.
               for (int i = 0; i < items.length; i += 2) ...[
-                if (i > 0) SizedBox(width: _PhoneSizes.columnGap.w),
+                if (i > 0) SizedBox(width: _PhoneSizes.columnGap),
                 SizedBox(
                   width: columnWidth,
                   child: Column(
@@ -236,7 +235,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                         onRemove: () => onRemove(items[i].video.videoId),
                       ),
                       if (i + 1 < items.length) ...[
-                        SizedBox(height: _PhoneSizes.listGap.h),
+                        SizedBox(height: _PhoneSizes.listGap),
                         _CardPhone(
                           key: ValueKey(items[i + 1].video.videoId),
                           item: items[i + 1],
@@ -250,7 +249,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: _PhoneSizes.listBottomSpacing.h),
+        SizedBox(height: _PhoneSizes.listBottomSpacing),
       ],
     );
   }
@@ -369,7 +368,7 @@ class _CardPhone extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
+          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
@@ -377,17 +376,17 @@ class _CardPhone extends StatelessWidget {
             Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(_PhoneSizes.cardInnerPadding.w),
+                  padding: EdgeInsets.all(_PhoneSizes.cardInnerPadding),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ── Thumbnail + oynat overlay ─────────────────────
                       SizedBox(
-                        width: _PhoneSizes.thumbWidth.w,
-                        height: _PhoneSizes.thumbHeight.h,
+                        width: _PhoneSizes.thumbWidth,
+                        height: _PhoneSizes.thumbHeight,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(
-                            _PhoneSizes.thumbBorderRadius.r,
+                            _PhoneSizes.thumbBorderRadius,
                           ),
                           child: Stack(
                             fit: StackFit.expand,
@@ -403,7 +402,7 @@ class _CardPhone extends StatelessWidget {
                                   child: Icon(
                                     Icons.play_circle_outline_rounded,
                                     color: scheme.onSurfaceVariant,
-                                    size: _PhoneSizes.errorIconSize.sp,
+                                    size: _PhoneSizes.errorIconSize,
                                   ),
                                 ),
                               ),
@@ -412,8 +411,8 @@ class _CardPhone extends StatelessWidget {
                               ),
                               Center(
                                 child: Container(
-                                  width: _PhoneSizes.playOverlaySize.w,
-                                  height: _PhoneSizes.playOverlaySize.w,
+                                  width: _PhoneSizes.playOverlaySize,
+                                  height: _PhoneSizes.playOverlaySize,
                                   decoration: BoxDecoration(
                                     color: scheme.primary.withValues(
                                       alpha: 0.9,
@@ -423,7 +422,7 @@ class _CardPhone extends StatelessWidget {
                                   child: Icon(
                                     Icons.play_arrow_rounded,
                                     color: scheme.onPrimary,
-                                    size: _PhoneSizes.playIconSize.sp,
+                                    size: _PhoneSizes.playIconSize,
                                   ),
                                 ),
                               ),
@@ -431,12 +430,12 @@ class _CardPhone extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: _PhoneSizes.cardGap.w),
+                      SizedBox(width: _PhoneSizes.cardGap),
                       // ── İçerik: kanal + başlık + süre ─────────────────
                       Expanded(
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right: _PhoneSizes.contentPaddingRight.w,
+                            right: _PhoneSizes.contentPaddingRight,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,23 +455,23 @@ class _CardPhone extends StatelessWidget {
                                           style: TextStyle(
                                             color: scheme.primary,
                                             fontSize:
-                                                _PhoneSizes.channelFontSize.sp,
+                                                _PhoneSizes.channelFontSize,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                       SizedBox(
-                                        width: _PhoneSizes.channelIconSpacing.w,
+                                        width: _PhoneSizes.channelIconSpacing,
                                       ),
                                       Icon(
                                         Icons.verified_rounded,
-                                        size: _PhoneSizes.verifiedIconSize.sp,
+                                        size: _PhoneSizes.verifiedIconSize,
                                         color: scheme.primary,
                                       ),
                                     ],
                                   ),
                                   SizedBox(
-                                    height: _PhoneSizes.titleTopSpacing.h,
+                                    height: _PhoneSizes.titleTopSpacing,
                                   ),
                                   Text(
                                     video.title,
@@ -480,7 +479,7 @@ class _CardPhone extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: scheme.onSurface,
-                                      fontSize: _PhoneSizes.titleFontSize.sp,
+                                      fontSize: _PhoneSizes.titleFontSize,
                                       fontWeight: FontWeight.w600,
                                       height: _PhoneSizes.titleLineHeight,
                                     ),
@@ -489,7 +488,7 @@ class _CardPhone extends StatelessWidget {
                               ),
                               Padding(
                                 padding: EdgeInsets.only(
-                                  top: _PhoneSizes.metaTopSpacing.h,
+                                  top: _PhoneSizes.metaTopSpacing,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -499,7 +498,7 @@ class _CardPhone extends StatelessWidget {
                                       '${item.formattedPosition} / ${item.formattedDuration}',
                                       style: TextStyle(
                                         color: scheme.onSurfaceVariant,
-                                        fontSize: _PhoneSizes.metaFontSize.sp,
+                                        fontSize: _PhoneSizes.metaFontSize,
                                       ),
                                     ),
                                     Text(
@@ -507,7 +506,7 @@ class _CardPhone extends StatelessWidget {
                                       style: TextStyle(
                                         color: scheme.primary,
                                         fontWeight: FontWeight.w600,
-                                        fontSize: _PhoneSizes.metaFontSize.sp,
+                                        fontSize: _PhoneSizes.metaFontSize,
                                       ),
                                     ),
                                   ],
@@ -522,13 +521,13 @@ class _CardPhone extends StatelessWidget {
                 ),
                 // ── Kaldır (X) butonu ────────────────────────────────
                 Positioned(
-                  top: _PhoneSizes.removeTop.h,
-                  right: _PhoneSizes.removeRight.w,
+                  top: _PhoneSizes.removeTop,
+                  right: _PhoneSizes.removeRight,
                   child: GestureDetector(
                     onTap: onRemove,
                     child: Container(
-                      width: _PhoneSizes.removeSize.w,
-                      height: _PhoneSizes.removeSize.w,
+                      width: _PhoneSizes.removeSize,
+                      height: _PhoneSizes.removeSize,
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerHigh,
                         shape: BoxShape.circle,
@@ -537,7 +536,7 @@ class _CardPhone extends StatelessWidget {
                       child: Icon(
                         Icons.close_rounded,
                         color: scheme.onSurfaceVariant,
-                        size: _PhoneSizes.removeIconSize.sp,
+                        size: _PhoneSizes.removeIconSize,
                       ),
                     ),
                   ),
@@ -547,10 +546,10 @@ class _CardPhone extends StatelessWidget {
             // ── İlerleme çubuğu — kartın tam altında, tam genişlik ────
             SizedBox(
               width: double.infinity,
-              height: _PhoneSizes.progressHeight.h,
+              height: _PhoneSizes.progressHeight,
               child: LinearProgressIndicator(
                 value: item.progressFraction,
-                minHeight: _PhoneSizes.progressHeight.h,
+                minHeight: _PhoneSizes.progressHeight,
                 backgroundColor: scheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
               ),

@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/forgot_password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -64,7 +63,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.h),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -150,7 +149,7 @@ class _NavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: spec.navVerticalPadding.h),
+      padding: EdgeInsets.symmetric(vertical: spec.navVerticalPadding),
       child: Row(
         children: [
           // ── bg-surface-container rounded-full geri butonu ──
@@ -161,11 +160,11 @@ class _NavBar extends StatelessWidget {
               customBorder: const CircleBorder(),
               onTap: Get.back,
               child: SizedBox(
-                width: spec.navButtonSize.w,
-                height: spec.navButtonSize.w,
+                width: spec.navButtonSize,
+                height: spec.navButtonSize,
                 child: Icon(
                   Icons.arrow_back_rounded,
-                  size: spec.navIconSize.sp,
+                  size: spec.navIconSize,
                   color: scheme.onSurface,
                 ),
               ),
@@ -180,7 +179,7 @@ class _NavBar extends StatelessWidget {
             ),
           ),
           // Tasarımdaki sağdaki boş kutu → başlığın gerçekten ortalanması için.
-          SizedBox(width: spec.navButtonSize.w),
+          SizedBox(width: spec.navButtonSize),
         ],
       ),
     );
@@ -198,8 +197,8 @@ class _HeroSection extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(
-        top: spec.heroTopSpacing.h,
-        bottom: spec.heroBottomSpacing.h,
+        top: spec.heroTopSpacing,
+        bottom: spec.heroBottomSpacing,
       ),
       child: Column(
         children: [
@@ -210,72 +209,72 @@ class _HeroSection extends StatelessWidget {
             children: [
               // bg-primary/10 blur-xl
               Container(
-                width: spec.heroGlowSize.w,
-                height: spec.heroGlowSize.w,
+                width: spec.heroGlowSize,
+                height: spec.heroGlowSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.primary.withValues(alpha: 0.10),
                   boxShadow: [
                     BoxShadow(
                       color: scheme.primary.withValues(alpha: 0.28),
-                      blurRadius: 48.r,
-                      spreadRadius: 10.r,
+                      blurRadius: 48,
+                      spreadRadius: 10,
                     ),
                   ],
                 ),
               ),
               // w-20 h-20 bg-surface-container shadow-lg
               Container(
-                width: spec.heroOuterSize.w,
-                height: spec.heroOuterSize.w,
+                width: spec.heroOuterSize,
+                height: spec.heroOuterSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.surfaceContainer,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 20.r,
-                      offset: Offset(0, 8.h),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
                     ),
                   ],
                 ),
                 alignment: Alignment.center,
                 // w-14 h-14 bg-surface-container-high + lock_reset (FILL 1)
                 child: Container(
-                  width: spec.heroInnerSize.w,
-                  height: spec.heroInnerSize.w,
+                  width: spec.heroInnerSize,
+                  height: spec.heroInnerSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: scheme.surfaceContainerHigh,
                   ),
                   child: Icon(
                     Icons.lock_reset_rounded,
-                    size: spec.heroLockIconSize.sp,
+                    size: spec.heroLockIconSize,
                     color: scheme.primary,
                   ),
                 ),
               ),
               // -bottom-1 -right-1 → bg-primary, verified_user 14px
               Positioned(
-                right: -2.w,
-                bottom: -2.h,
+                right: -2,
+                bottom: -2,
                 child: Container(
-                  width: spec.heroBadgeSize.w,
-                  height: spec.heroBadgeSize.w,
+                  width: spec.heroBadgeSize,
+                  height: spec.heroBadgeSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: scheme.primary,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.20),
-                        blurRadius: 6.r,
-                        offset: Offset(0, 2.h),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Icon(
                     Icons.verified_user_rounded,
-                    size: spec.heroBadgeIconSize.sp,
+                    size: spec.heroBadgeIconSize,
                     color: scheme.onPrimary,
                   ),
                 ),
@@ -291,7 +290,7 @@ class _HeroSection extends StatelessWidget {
                 curve: Curves.easeOutBack,
               ),
 
-          SizedBox(height: spec.heroStackToTitleSpacing.h),
+          SizedBox(height: spec.heroStackToTitleSpacing),
 
           // ── "Hesabını Kurtar" (headline-lg) ──
           Text(
@@ -308,12 +307,12 @@ class _HeroSection extends StatelessWidget {
                 duration: 400.ms,
               ),
 
-          SizedBox(height: spec.heroTitleToSubtitleSpacing.h),
+          SizedBox(height: spec.heroTitleToSubtitleSpacing),
 
           // ── Açıklama (body-md, on-surface-variant, max-w-xs) ──
           ConstrainedBox(
             constraints:
-                BoxConstraints(maxWidth: spec.heroSubtitleMaxWidth.w),
+                BoxConstraints(maxWidth: spec.heroSubtitleMaxWidth),
             child: Text(
               'Kayıtlı e-posta adresinizi girin. Size şifrenizi yenilemeniz '
               'için 6 haneli bir doğrulama kodu göndereceğiz.',
@@ -364,25 +363,25 @@ class _FormSection extends StatelessWidget {
             );
           }),
 
-          SizedBox(height: spec.formGap.h),
+          SizedBox(height: spec.formGap),
 
           // ── GÜVENLİK NOTU kutusu ──
           _SecurityNote(spec: spec),
 
-          SizedBox(height: spec.formGap.h),
+          SizedBox(height: spec.formGap),
 
           // ── "Kod Gönder ⚡" ──
           _SubmitButton(form: form, spec: spec),
 
           // ── Koddaki bilgi notu (tasarımda yok → butonun altında korundu) ──
-          SizedBox(height: 12.h),
+          SizedBox(height: 12),
           Center(
             child: Text(
               'Kod, kayıtlı email adresinize gönderilir.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textSec(context).withValues(alpha: 0.7),
-                fontSize: 12.sp,
+                fontSize: 12,
               ),
             ),
           ).animate().fadeIn(delay: 700.ms, duration: 350.ms),
@@ -390,7 +389,7 @@ class _FormSection extends StatelessWidget {
           // ── Başarı bildirimi (gönderim sonrası) ──
           _SuccessAlert(form: form, spec: spec),
 
-          SizedBox(height: spec.bottomLinkSpacing.h),
+          SizedBox(height: spec.bottomLinkSpacing),
 
           // ── "Giriş ekranına geri dön" ──
           Center(child: _BackToLoginLink(spec: spec)),
@@ -423,7 +422,7 @@ class _EmailField extends StatelessWidget {
       children: [
         // Tasarım: label-md, on-surface-variant, ml-1
         Padding(
-          padding: EdgeInsets.only(left: 4.w, bottom: spec.fieldLabelGap.h),
+          padding: EdgeInsets.only(left: 4, bottom: spec.fieldLabelGap),
           child: Text(
             'Üniversite E-postası',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -444,7 +443,7 @@ class _EmailField extends StatelessWidget {
                 color: focused
                     ? scheme.surfaceContainerHigh
                     : scheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                borderRadius: BorderRadius.circular(spec.fieldRadius),
               ),
               child: TextFormField(
                 controller: form.emailCtrl,
@@ -459,7 +458,7 @@ class _EmailField extends StatelessWidget {
                 validator: form.validateEmail,
                 style: TextStyle(
                   color: scheme.onSurface,
-                  fontSize: spec.fieldFontSize.sp,
+                  fontSize: spec.fieldFontSize,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
@@ -467,35 +466,35 @@ class _EmailField extends StatelessWidget {
                   hintText: 'ornek@universite.edu.tr',
                   hintStyle: TextStyle(
                     color: scheme.outline, // placeholder:text-outline
-                    fontSize: spec.fieldFontSize.sp,
+                    fontSize: spec.fieldFontSize,
                     fontWeight: FontWeight.w400,
                   ),
                   prefixIcon: Icon(
                     Icons.mail_outline_rounded,
                     color: scheme.onSurfaceVariant,
-                    size: spec.fieldIconSize.sp,
+                    size: spec.fieldIconSize,
                   ),
                   prefixIconConstraints: BoxConstraints(
-                    minWidth: 44.w,
-                    minHeight: 24.h,
+                    minWidth: 44,
+                    minHeight: 24,
                   ),
                   // Tasarımdaki X temizle butonu (alan doluyken görünür)
                   suffixIcon: Obx(() {
                     if (!form.showClear.value) return const SizedBox.shrink();
                     return Padding(
-                      padding: EdgeInsets.only(right: 10.w),
+                      padding: EdgeInsets.only(right: 10),
                       child: GestureDetector(
                         onTap: form.clearEmail,
                         child: Container(
-                          width: spec.clearButtonSize.w,
-                          height: spec.clearButtonSize.w,
+                          width: spec.clearButtonSize,
+                          height: spec.clearButtonSize,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: scheme.surfaceContainerHighest,
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: spec.clearIconSize.sp,
+                            size: spec.clearIconSize,
                             color: scheme.onSurfaceVariant,
                           ),
                         ),
@@ -503,30 +502,30 @@ class _EmailField extends StatelessWidget {
                     );
                   }),
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: spec.fieldPaddingV.h,
+                    horizontal: 16,
+                    vertical: spec.fieldPaddingV,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                    borderRadius: BorderRadius.circular(spec.fieldRadius),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                    borderRadius: BorderRadius.circular(spec.fieldRadius),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                    borderRadius: BorderRadius.circular(spec.fieldRadius),
                     borderSide: BorderSide.none,
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                    borderRadius: BorderRadius.circular(spec.fieldRadius),
                     borderSide: BorderSide(
                       color: scheme.error,
                       width: 1.2,
                     ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(spec.fieldRadius.r),
+                    borderRadius: BorderRadius.circular(spec.fieldRadius),
                     borderSide: BorderSide(
                       color: scheme.error,
                       width: 1.5,
@@ -534,7 +533,7 @@ class _EmailField extends StatelessWidget {
                   ),
                   errorStyle: TextStyle(
                     color: scheme.error,
-                    fontSize: 11.sp,
+                    fontSize: 11,
                     height: 1.2,
                   ),
                 ),
@@ -557,10 +556,10 @@ class _SecurityNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.notePadding.w),
+      padding: EdgeInsets.all(spec.notePadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow, // bg-surface-container-low
-        borderRadius: BorderRadius.circular(spec.noteRadius.r),
+        borderRadius: BorderRadius.circular(spec.noteRadius),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,9 +567,9 @@ class _SecurityNote extends StatelessWidget {
           Icon(
             Icons.info_rounded, // FILL 1
             color: scheme.secondary,
-            size: spec.noteIconSize.sp,
+            size: spec.noteIconSize,
           ),
-          SizedBox(width: spec.noteGap.w),
+          SizedBox(width: spec.noteGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,18 +578,18 @@ class _SecurityNote extends StatelessWidget {
                   'GÜVENLİK NOTU',
                   style: TextStyle(
                     color: scheme.secondary,
-                    fontSize: spec.noteTitleFontSize.sp,
+                    fontSize: spec.noteTitleFontSize,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8, // tracking-wider
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 3),
                 Text(
                   'Doğrulama kodu e-posta adresinizin spam/gereksiz '
                   'klasörüne de düşebilir. Lütfen kontrol ediniz.',
                   style: TextStyle(
                     color: scheme.onSurfaceVariant,
-                    fontSize: spec.noteTextFontSize.sp,
+                    fontSize: spec.noteTextFontSize,
                     height: 1.45,
                   ),
                 ),
@@ -619,14 +618,14 @@ class _SubmitButton extends StatelessWidget {
       final sent = form.otpSent.value;
       return DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+          borderRadius: BorderRadius.circular(spec.buttonRadius),
           boxShadow: loading
               ? const []
               : [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.18),
-                    blurRadius: 14.r,
-                    offset: Offset(0, 5.h),
+                    blurRadius: 14,
+                    offset: Offset(0, 5),
                   ),
                 ],
         ),
@@ -640,9 +639,9 @@ class _SubmitButton extends StatelessWidget {
             disabledForegroundColor: scheme.onPrimary,
             elevation: 0,
             shadowColor: Colors.transparent,
-            minimumSize: Size(double.infinity, spec.buttonHeight.h),
+            minimumSize: Size(double.infinity, spec.buttonHeight),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+              borderRadius: BorderRadius.circular(spec.buttonRadius),
             ),
           ),
           child: loading
@@ -650,14 +649,14 @@ class _SubmitButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: spec.loaderSize.w,
-                      height: spec.loaderSize.w,
+                      width: spec.loaderSize,
+                      height: spec.loaderSize,
                       child: CircularProgressIndicator(
                         strokeWidth: spec.loaderStroke,
                         color: scheme.onPrimary,
                       ),
                     ),
-                    SizedBox(width: 10.w),
+                    SizedBox(width: 10),
                     Text(
                       'Gönderiliyor...',
                       style: _labelStyle(scheme),
@@ -671,13 +670,13 @@ class _SubmitButton extends StatelessWidget {
                       sent ? 'Tekrar Gönder' : 'Kod Gönder',
                       style: _labelStyle(scheme),
                     ),
-                    SizedBox(width: spec.buttonGap.w),
+                    SizedBox(width: spec.buttonGap),
                     Icon(
                       // Tasarım: ilk gönderim bolt, sonrasında refresh
                       sent
                           ? Icons.refresh_rounded
                           : Icons.bolt_rounded,
-                      size: spec.buttonIconSize.sp,
+                      size: spec.buttonIconSize,
                       color: scheme.onPrimary,
                     ),
                   ],
@@ -689,7 +688,7 @@ class _SubmitButton extends StatelessWidget {
 
   TextStyle _labelStyle(ColorScheme scheme) => TextStyle(
         color: scheme.onPrimary,
-        fontSize: spec.buttonFontSize.sp,
+        fontSize: spec.buttonFontSize,
         fontWeight: FontWeight.w600, // label-lg
         letterSpacing: 0.2,
       );
@@ -708,26 +707,26 @@ class _SuccessAlert extends StatelessWidget {
     return Obx(() {
       if (!form.otpSent.value) return const SizedBox.shrink();
       return Container(
-        margin: EdgeInsets.only(top: 16.h), // mt-space-md
-        padding: EdgeInsets.all(spec.alertPadding.w),
+        margin: EdgeInsets.only(top: 16), // mt-space-md
+        padding: EdgeInsets.all(spec.alertPadding),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh, // bg-surface-container-high
-          borderRadius: BorderRadius.circular(spec.alertRadius.r),
+          borderRadius: BorderRadius.circular(spec.alertRadius),
         ),
         child: Row(
           children: [
             Icon(
               Icons.mark_email_read_outlined,
               color: scheme.primary,
-              size: spec.alertIconSize.sp,
+              size: spec.alertIconSize,
             ),
-            SizedBox(width: spec.alertGap.w),
+            SizedBox(width: spec.alertGap),
             Expanded(
               child: Text(
                 'Doğrulama kodu başarıyla e-postanıza iletildi.',
                 style: TextStyle(
                   color: scheme.onSurface,
-                  fontSize: spec.alertTextFontSize.sp,
+                  fontSize: spec.alertTextFontSize,
                   height: 1.45,
                 ),
               ),
@@ -756,8 +755,8 @@ class _BackToLoginLink extends StatelessWidget {
       style: TextButton.styleFrom(
         foregroundColor: scheme.onSurfaceVariant,
         padding: EdgeInsets.symmetric(
-          horizontal: 8.w,
-          vertical: spec.linkVerticalPadding.h,
+          horizontal: 8,
+          vertical: spec.linkVerticalPadding,
         ),
       ),
       child: Row(
@@ -765,15 +764,15 @@ class _BackToLoginLink extends StatelessWidget {
         children: [
           Icon(
             Icons.arrow_back_ios_new_rounded,
-            size: spec.linkIconSize.sp,
+            size: spec.linkIconSize,
             color: scheme.onSurfaceVariant,
           ),
-          SizedBox(width: spec.linkGap.w),
+          SizedBox(width: spec.linkGap),
           Text(
             'Giriş ekranına geri dön',
             style: TextStyle(
               color: scheme.onSurfaceVariant,
-              fontSize: spec.linkFontSize.sp,
+              fontSize: spec.linkFontSize,
               fontWeight: FontWeight.w600, // label-md
             ),
           ),

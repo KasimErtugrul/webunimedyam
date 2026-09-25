@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/login_live_teaser.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../login_layout_spec.dart';
@@ -88,7 +87,7 @@ class LoginLiveTeaser extends StatelessWidget {
 
           // İzleyici sayacı — pill, bg-surface-container-high
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -104,7 +103,7 @@ class LoginLiveTeaser extends StatelessWidget {
                     color: scheme.error,
                   ),
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 4),
                 Text(
                   '1.4k',
                   style: TextStyle(

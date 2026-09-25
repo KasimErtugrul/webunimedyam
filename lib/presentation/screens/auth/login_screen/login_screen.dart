@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -299,8 +298,8 @@ class _LoginFormCardState extends State<_LoginFormCard> {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
+                      horizontal: 8,
+                      vertical: 4,
                     ),
                   ),
                   child: Text(

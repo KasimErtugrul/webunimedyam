@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/register_screen/widgets/register_terms_checkbox.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../register_layout_spec.dart';
@@ -43,7 +42,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
             onTap: () => onChanged(!value),
             child: Padding(
               // mt-0.5 → metinle hizalı
-              padding: EdgeInsets.only(top: 2.h),
+              padding: EdgeInsets.only(top: 2),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 width: s.termsBoxSize,

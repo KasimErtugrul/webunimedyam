@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// ÜniTV — Uygulama Teması
@@ -169,95 +168,95 @@ abstract class AppTheme {
     // label-lg 14/20/0.01em/600       label-md 12/16/0.02em/600  label-sm 10/12/0.04em/700
     return font.copyWith(
       displayLarge: font.displayLarge?.copyWith(
-        fontSize: 32.sp,
+        fontSize: 32,
         height: 40 / 32,
         letterSpacing: -0.03 * 32,
         fontWeight: FontWeight.w800,
         color: onColor,
       ),
       displayMedium: font.displayMedium?.copyWith(
-        fontSize: 28.sp,
+        fontSize: 28,
         fontWeight: FontWeight.w800,
         color: onColor,
       ),
       displaySmall: font.displaySmall?.copyWith(
-        fontSize: 26.sp,
+        fontSize: 26,
         height: 34 / 26,
         letterSpacing: -0.025 * 26,
         fontWeight: FontWeight.w800,
         color: onColor,
       ),
       headlineLarge: font.headlineLarge?.copyWith(
-        fontSize: 24.sp,
+        fontSize: 24,
         height: 32 / 24,
         letterSpacing: -0.02 * 24,
         fontWeight: FontWeight.w700,
         color: onColor,
       ),
       headlineMedium: font.headlineMedium?.copyWith(
-        fontSize: 20.sp,
+        fontSize: 20,
         height: 28 / 20,
         letterSpacing: -0.015 * 20,
         fontWeight: FontWeight.w700,
         color: onColor,
       ),
       headlineSmall: font.headlineSmall?.copyWith(
-        fontSize: 18.sp,
+        fontSize: 18,
         height: 24 / 18,
         letterSpacing: -0.01 * 18,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       titleLarge: font.titleLarge?.copyWith(
-        fontSize: 18.sp,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       titleMedium: font.titleMedium?.copyWith(
-        fontSize: 16.sp,
+        fontSize: 16,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       titleSmall: font.titleSmall?.copyWith(
-        fontSize: 14.sp,
+        fontSize: 14,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       bodyLarge: font.bodyLarge?.copyWith(
-        fontSize: 16.sp,
+        fontSize: 16,
         height: 24 / 16,
         fontWeight: FontWeight.w400,
         color: onColor,
       ),
       bodyMedium: font.bodyMedium?.copyWith(
-        fontSize: 14.sp,
+        fontSize: 14,
         height: 20 / 14,
         fontWeight: FontWeight.w400,
         color: onColor,
       ),
       bodySmall: font.bodySmall?.copyWith(
-        fontSize: 12.sp,
+        fontSize: 12,
         height: 16 / 12,
         letterSpacing: 0.01 * 12,
         fontWeight: FontWeight.w400,
         color: onColor,
       ),
       labelLarge: font.labelLarge?.copyWith(
-        fontSize: 14.sp,
+        fontSize: 14,
         height: 20 / 14,
         letterSpacing: 0.01 * 14,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       labelMedium: font.labelMedium?.copyWith(
-        fontSize: 12.sp,
+        fontSize: 12,
         height: 16 / 12,
         letterSpacing: 0.02 * 12,
         fontWeight: FontWeight.w600,
         color: onColor,
       ),
       labelSmall: font.labelSmall?.copyWith(
-        fontSize: 10.sp,
+        fontSize: 10,
         height: 12 / 10,
         letterSpacing: 0.04 * 10,
         fontWeight: FontWeight.w700,
@@ -365,7 +364,7 @@ abstract class AppTheme {
         iconTheme: IconThemeData(color: scheme.onSurface),
         actionsIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
         titleTextStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18.sp,
+          fontSize: 18,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.01 * 18,
           color: scheme.onSurface,
@@ -383,12 +382,12 @@ abstract class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         selectedLabelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 10.sp,
+          fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.04 * 10,
         ),
         unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 10.sp,
+          fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.04 * 10,
         ),
@@ -404,7 +403,7 @@ abstract class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return GoogleFonts.plusJakartaSans(
-            fontSize: 10.sp,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.04 * 10,
             color: selected ? scheme.primary : scheme.onSurfaceVariant,
@@ -436,13 +435,13 @@ abstract class AppTheme {
           disabledBackgroundColor: scheme.onSurface.withValues(alpha: 0.12),
           disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
           elevation: 0,
-          minimumSize: Size(double.infinity, 48.h),
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
+          minimumSize: Size(double.infinity, 48),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
           textStyle: GoogleFonts.plusJakartaSans(
-            fontSize: 14.sp,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.01 * 14,
           ),
@@ -453,7 +452,7 @@ abstract class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
-          minimumSize: Size(double.infinity, 48.h),
+          minimumSize: Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
@@ -468,7 +467,7 @@ abstract class AppTheme {
             borderRadius: BorderRadius.circular(radiusMd),
           ),
           textStyle: GoogleFonts.plusJakartaSans(
-            fontSize: 14.sp,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -478,7 +477,7 @@ abstract class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: scheme.primary,
           side: BorderSide(color: scheme.outline),
-          minimumSize: Size(double.infinity, 48.h),
+          minimumSize: Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
@@ -499,7 +498,7 @@ abstract class AppTheme {
         fillColor: isDarkTheme
             ? darkSurfaceContainerHigh
             : scheme.surfaceContainerHigh,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide.none,
@@ -518,11 +517,11 @@ abstract class AppTheme {
         ),
         hintStyle: GoogleFonts.plusJakartaSans(
           color: scheme.outline,
-          fontSize: 14.sp,
+          fontSize: 14,
         ),
         labelStyle: GoogleFonts.plusJakartaSans(
           color: scheme.onSurfaceVariant,
-          fontSize: 12.sp,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -533,16 +532,16 @@ abstract class AppTheme {
             isDarkTheme ? darkSurfaceContainer : scheme.surfaceContainer,
         selectedColor: scheme.primary.withValues(alpha: 0.20),
         labelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 12.sp,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
           color: scheme.onSurfaceVariant,
         ),
         secondaryLabelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 12.sp,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
           color: scheme.primary,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusFull),
         ),
@@ -604,11 +603,11 @@ abstract class AppTheme {
         unselectedLabelColor: scheme.onSurfaceVariant,
         indicatorColor: scheme.primary,
         labelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 14.sp,
+          fontSize: 14,
           fontWeight: FontWeight.w700,
         ),
         unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 14.sp,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -630,12 +629,12 @@ abstract class AppTheme {
           borderRadius: BorderRadius.circular(radiusLg),
         ),
         titleTextStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18.sp,
+          fontSize: 18,
           fontWeight: FontWeight.w700,
           color: scheme.onSurface,
         ),
         contentTextStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 14.sp,
+          fontSize: 14,
           color: scheme.onSurfaceVariant,
         ),
       ),
@@ -645,7 +644,7 @@ abstract class AppTheme {
             isDarkTheme ? darkSurfaceContainerHighest : scheme.inverseSurface,
         contentTextStyle: GoogleFonts.plusJakartaSans(
           color: isDarkTheme ? scheme.onSurface : scheme.onInverseSurface,
-          fontSize: 14.sp,
+          fontSize: 14,
         ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -653,7 +652,7 @@ abstract class AppTheme {
         ),
       ),
 
-      iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 22.sp),
+      iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 22),
     );
   }
 }
@@ -665,42 +664,42 @@ abstract class AppTheme {
 // Plus Jakarta Sans kullanıyor (öncesindeki Poppins/Inter karışımı yerine).
 extension ResponsiveTextStyle on TextTheme {
   TextStyle get displayLarge =>
-      GoogleFonts.plusJakartaSans(fontSize: 32.sp, fontWeight: FontWeight.w800);
+      GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800);
   TextStyle get displayMedium =>
-      GoogleFonts.plusJakartaSans(fontSize: 28.sp, fontWeight: FontWeight.w800);
+      GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w800);
   TextStyle get displaySmall =>
-      GoogleFonts.plusJakartaSans(fontSize: 26.sp, fontWeight: FontWeight.w800);
+      GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w800);
 
   TextStyle get headlineLarge =>
-      GoogleFonts.plusJakartaSans(fontSize: 24.sp, fontWeight: FontWeight.w700);
+      GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w700);
   TextStyle get headlineMedium =>
-      GoogleFonts.plusJakartaSans(fontSize: 20.sp, fontWeight: FontWeight.w700);
+      GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w700);
   TextStyle get headlineSmall =>
-      GoogleFonts.plusJakartaSans(fontSize: 18.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w600);
 
   TextStyle get titleLarge =>
-      GoogleFonts.plusJakartaSans(fontSize: 18.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w600);
   TextStyle get titleMedium =>
-      GoogleFonts.plusJakartaSans(fontSize: 16.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600);
   TextStyle get titleSmall =>
-      GoogleFonts.plusJakartaSans(fontSize: 14.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600);
 
-  TextStyle get bodyLarge => GoogleFonts.plusJakartaSans(fontSize: 16.sp);
-  TextStyle get bodyMedium => GoogleFonts.plusJakartaSans(fontSize: 14.sp);
-  TextStyle get bodySmall => GoogleFonts.plusJakartaSans(fontSize: 12.sp);
+  TextStyle get bodyLarge => GoogleFonts.plusJakartaSans(fontSize: 16);
+  TextStyle get bodyMedium => GoogleFonts.plusJakartaSans(fontSize: 14);
+  TextStyle get bodySmall => GoogleFonts.plusJakartaSans(fontSize: 12);
 
   TextStyle get labelLarge =>
-      GoogleFonts.plusJakartaSans(fontSize: 14.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600);
   TextStyle get labelMedium =>
-      GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w600);
+      GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600);
   TextStyle get labelSmall =>
-      GoogleFonts.plusJakartaSans(fontSize: 10.sp, fontWeight: FontWeight.w700);
+      GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700);
 }
 
 // ─── AppBar Title için Responsive Helper ────────────────────────────────────
 extension ResponsiveAppBar on AppBarTheme {
   static TextStyle get titleStyle => GoogleFonts.plusJakartaSans(
-        fontSize: 18.sp,
+        fontSize: 18,
         fontWeight: FontWeight.w700,
       );
 }

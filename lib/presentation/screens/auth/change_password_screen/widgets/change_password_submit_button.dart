@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/change_password_submit_button.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../controllers/change_password_controller.dart';
@@ -25,15 +24,15 @@ class ChangePasswordSubmitButton extends GetView<ChangePassController> {
           disabledForegroundColor: scheme.onPrimary,
           elevation: 0,
           shadowColor: Colors.transparent,
-          minimumSize: Size(double.infinity, spec.buttonHeight.h),
+          minimumSize: Size(double.infinity, spec.buttonHeight),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(spec.radius.r),
+            borderRadius: BorderRadius.circular(spec.radius),
           ),
         ),
         child: loading
             ? SizedBox(
-                width: spec.loaderSize.w,
-                height: spec.loaderSize.w,
+                width: spec.loaderSize,
+                height: spec.loaderSize,
                 child: CircularProgressIndicator(
                   strokeWidth: spec.loaderStroke,
                   color: scheme.onPrimary,
@@ -43,13 +42,13 @@ class ChangePasswordSubmitButton extends GetView<ChangePassController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check_rounded,
-                      size: spec.iconSize.sp, color: scheme.onPrimary),
-                  SizedBox(width: 8.w),
+                      size: spec.iconSize, color: scheme.onPrimary),
+                  SizedBox(width: 8),
                   Text(
                     'Şifreyi Güncelle',
                     style: TextStyle(
                       color: scheme.onPrimary,
-                      fontSize: spec.fontSize.sp,
+                      fontSize: spec.fontSize,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

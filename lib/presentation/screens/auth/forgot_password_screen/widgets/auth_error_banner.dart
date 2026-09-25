@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/auth_error_banner.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Auth ekranlarında server/client hatasını göstermek için ortak kart.
 class AuthErrorBanner extends StatelessWidget {
@@ -27,23 +26,23 @@ class AuthErrorBanner extends StatelessWidget {
     final red = Colors.red.shade400;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(padding.w),
-      margin: EdgeInsets.only(bottom: marginBottom.h),
+      padding: EdgeInsets.all(padding),
+      margin: EdgeInsets.only(bottom: marginBottom),
       decoration: BoxDecoration(
         color: Colors.red.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(radius.r),
+        borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: Colors.red.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline_rounded, color: red, size: iconSize.sp),
-          SizedBox(width: 10.w),
+          Icon(Icons.error_outline_rounded, color: red, size: iconSize),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
                 color: red,
-                fontSize: fontSize.sp,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w500,
                 height: 1.35,
               ),

@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/login_brand_header.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../login_layout_spec.dart';
@@ -35,7 +34,6 @@ class LoginBrandHeader extends StatelessWidget {
             ],
           ),
           child: Image.asset(
-            // TODO: kendi logo asset'inizin yolu
             'assets/images/unitv_logo.png',
             height: s.logoHeight,
             fit: BoxFit.contain,
@@ -46,7 +44,7 @@ class LoginBrandHeader extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         // Rozet — bg-surface-container-high, pulse dot + label-sm
         Container(
           padding: EdgeInsets.symmetric(

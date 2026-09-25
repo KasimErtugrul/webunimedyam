@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/engagement_action_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
@@ -91,29 +90,29 @@ class EngagementActionWidget extends StatelessWidget {
 
     return InkWell(
       onTap: loading ? null : onTap,
-      borderRadius: BorderRadius.circular(s.borderRadius.r),
+      borderRadius: BorderRadius.circular(s.borderRadius),
       splashColor: primary.withValues(alpha: 0.1),
       highlightColor: primary.withValues(alpha: 0.05),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
         padding: EdgeInsets.symmetric(
-          horizontal: s.horizontalPadding.w,
-          vertical: s.verticalPadding.h,
+          horizontal: s.horizontalPadding,
+          vertical: s.verticalPadding,
         ),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(s.borderRadius.r),
+          borderRadius: BorderRadius.circular(s.borderRadius),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (loading)
               SizedBox(
-                width: s.loadingIndicatorSize.sp,
-                height: s.loadingIndicatorSize.sp,
+                width: s.loadingIndicatorSize,
+                height: s.loadingIndicatorSize,
                 child: CircularProgressIndicator(
-                  strokeWidth: s.loadingStrokeWidth.w,
+                  strokeWidth: s.loadingStrokeWidth,
                   color: color,
                 ),
               )
@@ -122,10 +121,10 @@ class EngagementActionWidget extends StatelessWidget {
                 scale: active ? 1.15 : 1.0,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOutBack,
-                child: Icon(icon, color: color, size: s.iconSize.sp),
+                child: Icon(icon, color: color, size: s.iconSize),
               ),
             if (countText.isNotEmpty) ...[
-              SizedBox(width: s.textSpacing.w),
+              SizedBox(width: s.textSpacing),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, anim) =>
@@ -135,7 +134,7 @@ class EngagementActionWidget extends StatelessWidget {
                   key: ValueKey(count),
                   style: TextStyle(
                     color: color,
-                    fontSize: s.textFontSize.sp,
+                    fontSize: s.textFontSize,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                     height: 1.0,
                   ),

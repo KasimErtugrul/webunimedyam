@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/universities_hero_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -40,23 +39,23 @@ class UniversitiesHeroHeader extends StatelessWidget {
           children: [
             // ── Ambient blobs (arka plan) ──
             Positioned(
-              right: -50.w,
-              top: -40.h,
-              child: _Blob(size: 160.w, opacity: 0.10),
+              right: -50,
+              top: -40,
+              child: _Blob(size: 160, opacity: 0.10),
             ),
             Positioned(
-              left: -40.w,
-              bottom: -60.h,
-              child: _Blob(size: 130.w, opacity: 0.08),
+              left: -40,
+              bottom: -60,
+              child: _Blob(size: 130, opacity: 0.08),
             ),
 
             // ── İçerik ──
             Padding(
               padding: EdgeInsets.fromLTRB(
-                spec.heroHPadding.w,
-                topInset + spec.heroTopPadding.h,
-                spec.heroHPadding.w,
-                spec.heroBottomPadding.h,
+                spec.heroHPadding,
+                topInset + spec.heroTopPadding,
+                spec.heroHPadding,
+                spec.heroBottomPadding,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -66,12 +65,12 @@ class UniversitiesHeroHeader extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                            width: spec.heroIconSize.w,
-                            height: spec.heroIconSize.w,
+                            width: spec.heroIconSize,
+                            height: spec.heroIconSize,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.18),
                               borderRadius: BorderRadius.circular(
-                                spec.heroIconRadius.r,
+                                spec.heroIconRadius,
                               ),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.25),
@@ -81,7 +80,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                             child: Icon(
                               Icons.school_rounded,
                               color: Colors.white,
-                              size: spec.heroIconInner.sp,
+                              size: spec.heroIconInner,
                             ),
                           )
                           .animate()
@@ -91,7 +90,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                             end: 1,
                             curve: Curves.easeOutBack,
                           ),
-                      SizedBox(width: 12.w),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,17 +100,17 @@ class UniversitiesHeroHeader extends StatelessWidget {
                               'Üniversiteler',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: spec.heroTitleFontSize.sp,
+                                fontSize: spec.heroTitleFontSize,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.2,
                               ),
                             ).animate().fadeIn(delay: 100.ms, duration: 350.ms),
-                            SizedBox(height: 2.h),
+                            SizedBox(height: 2),
                             Text(
                               'Keşfet, sırala, takip et',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.75),
-                                fontSize: spec.heroSubtitleFontSize.sp,
+                                fontSize: spec.heroSubtitleFontSize,
                               ),
                             ).animate().fadeIn(delay: 180.ms, duration: 350.ms),
                           ],
@@ -124,7 +123,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 16),
 
                   // Arama çubuğu — hero'nun İÇİNDE, alt kısımda
                   _SearchBar(
@@ -164,17 +163,17 @@ class _HeroSortButton extends StatelessWidget {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(10),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(Icons.tune_rounded, color: Colors.white, size: 22.sp),
+              Icon(Icons.tune_rounded, color: Colors.white, size: 22),
               if (activeCount > 0)
                 Positioned(
-                  right: -4.w,
-                  top: -4.w,
+                  right: -4,
+                  top: -4,
                   child: Container(
-                    padding: EdgeInsets.all(3.w),
+                    padding: EdgeInsets.all(3),
                     decoration: const BoxDecoration(
                       color: Color(0xFFF59E0B),
                       shape: BoxShape.circle,
@@ -183,7 +182,7 @@ class _HeroSortButton extends StatelessWidget {
                       '$activeCount',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 9.sp,
+                        fontSize: 9,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -217,10 +216,10 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: spec.searchHeight.h,
+      height: spec.searchHeight,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(spec.searchRadius.r),
+        borderRadius: BorderRadius.circular(spec.searchRadius),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.22),
           width: 1,
@@ -230,7 +229,7 @@ class _SearchBar extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         style: TextStyle(
-          fontSize: spec.searchFontSize.sp,
+          fontSize: spec.searchFontSize,
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
@@ -239,7 +238,7 @@ class _SearchBar extends StatelessWidget {
           prefixIcon: Icon(
             Icons.search_rounded,
             color: Colors.white.withValues(alpha: 0.8),
-            size: spec.searchIconSize.sp,
+            size: spec.searchIconSize,
           ),
           suffixIcon: Obx(
             () => searchQuery.value.isEmpty
@@ -248,28 +247,28 @@ class _SearchBar extends StatelessWidget {
                     icon: Icon(
                       Icons.close_rounded,
                       color: Colors.white.withValues(alpha: 0.8),
-                      size: spec.searchIconSize.sp,
+                      size: spec.searchIconSize,
                     ),
                     onPressed: onClear,
                   ),
           ),
           hintText: 'Üniversite veya şehir ara...',
           hintStyle: TextStyle(
-            fontSize: spec.searchFontSize.sp,
+            fontSize: spec.searchFontSize,
             color: Colors.white.withValues(alpha: 0.6),
           ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(spec.searchRadius.r),
+            borderRadius: BorderRadius.circular(spec.searchRadius),
             borderSide: BorderSide(
               color: Colors.white.withValues(alpha: 0.55),
               width: 1.5,
             ),
           ),
           contentPadding: EdgeInsets.symmetric(
-            horizontal: spec.searchHPadding.w,
-            vertical: 12.h,
+            horizontal: spec.searchHPadding,
+            vertical: 12,
           ),
         ),
       ),

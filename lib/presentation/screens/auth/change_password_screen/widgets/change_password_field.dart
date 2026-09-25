@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/change_password_field.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -70,7 +69,7 @@ class ChangePasswordField extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: spec.labelFontSize.sp,
+                  fontSize: spec.labelFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -78,7 +77,7 @@ class ChangePasswordField extends StatelessWidget {
             if (labelTrailing != null) labelTrailing!,
           ],
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         field,
       ],
     );
@@ -99,13 +98,13 @@ class ChangePasswordField extends StatelessWidget {
       validator: validator,
       style: TextStyle(
         color: AppTheme.textPri(context),
-        fontSize: spec.fontSize.sp,
+        fontSize: spec.fontSize,
       ),
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(
           prefixIcon,
-          size: spec.iconSize.sp,
+          size: spec.iconSize,
           color: AppTheme.textSec(context),
         ),
         suffixIcon: showEye
@@ -116,7 +115,7 @@ class ChangePasswordField extends StatelessWidget {
                   isObscured
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  size: spec.iconSize.sp,
+                  size: spec.iconSize,
                   color: AppTheme.textSec(context),
                 ),
               )

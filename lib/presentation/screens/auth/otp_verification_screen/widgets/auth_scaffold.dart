@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_scaffold.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -43,7 +42,7 @@ class AuthScaffold extends StatelessWidget {
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppTheme.textPri(context),
-            size: 20.sp,
+            size: 20,
           ),
           onPressed: Get.back,
         ),
@@ -57,10 +56,10 @@ class AuthScaffold extends StatelessWidget {
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
-                horizontalPadding.w,
-                verticalPadding.h,
-                horizontalPadding.w,
-                bottomPadding.h,
+                horizontalPadding,
+                verticalPadding,
+                horizontalPadding,
+                bottomPadding,
               ),
               child: child,
             ),

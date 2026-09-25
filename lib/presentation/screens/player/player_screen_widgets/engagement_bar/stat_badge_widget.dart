@@ -1,6 +1,5 @@
 // lib/presentation/screens/player/player_screen_widgets/engagement_bar/stat_badge_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
@@ -110,8 +109,8 @@ class StatBadgeWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: s.verticalPadding.h,
-        horizontal: s.horizontalPadding.w,
+        vertical: s.verticalPadding,
+        horizontal: s.horizontalPadding,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -119,24 +118,24 @@ class StatBadgeWidget extends StatelessWidget {
         children: [
           if (loading)
             SizedBox(
-              width: s.loadingSize.sp,
-              height: s.loadingSize.sp,
+              width: s.loadingSize,
+              height: s.loadingSize,
               child: CircularProgressIndicator(
-                strokeWidth: s.loadingStrokeWidth.w,
+                strokeWidth: s.loadingStrokeWidth,
                 color: AppTheme.textSec(context).withValues(alpha: 0.5),
               ),
             )
           else
-            Icon(icon, color: iconColor, size: s.iconSize.sp),
-          SizedBox(width: s.iconTextSpacing.w),
+            Icon(icon, color: iconColor, size: s.iconSize),
+          SizedBox(width: s.iconTextSpacing),
           if (loading)
             Container(
-              width: s.skeletonWidth.w,
-              height: s.skeletonHeight.h,
+              width: s.skeletonWidth,
+              height: s.skeletonHeight,
               decoration: BoxDecoration(
                 color: AppTheme.textSec(context)
                     .withValues(alpha: s.skeletonOpacity),
-                borderRadius: BorderRadius.circular(s.skeletonRadius.r),
+                borderRadius: BorderRadius.circular(s.skeletonRadius),
               ),
             )
           else
@@ -149,7 +148,7 @@ class StatBadgeWidget extends StatelessWidget {
                 key: ValueKey(count),
                 style: TextStyle(
                   color: textColor,
-                  fontSize: s.textFontSize.sp,
+                  fontSize: s.textFontSize,
                   fontWeight: tappable ? FontWeight.w600 : FontWeight.normal,
                   height: s.textLineHeight,
                   decoration: tappable

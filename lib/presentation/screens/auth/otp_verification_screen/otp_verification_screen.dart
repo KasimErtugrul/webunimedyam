@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -43,10 +42,10 @@ class OtpVerificationScreen extends GetView<OtpVerificationController> {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
-                  spec.horizontalPadding.w,
-                  spec.heroTopSpacing.h,
-                  spec.horizontalPadding.w,
-                  spec.bottomPadding.h,
+                  spec.horizontalPadding,
+                  spec.heroTopSpacing,
+                  spec.horizontalPadding,
+                  spec.bottomPadding,
                 ),
                 child: Center(
                   child: ConstrainedBox(
@@ -55,14 +54,14 @@ class OtpVerificationScreen extends GetView<OtpVerificationController> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const _Hero(),
-                        SizedBox(height: spec.formTopSpacing.h),
+                        SizedBox(height: spec.formTopSpacing),
                         _OtpCard(spec: spec),
                         // ── Server hatası (koddaki öğe — korundu) ──
                         Obx(() {
                           final msg = _auth.errorMessage.value;
-                          if (msg.isEmpty) return SizedBox(height: 16.h);
+                          if (msg.isEmpty) return SizedBox(height: 16);
                           return Padding(
-                            padding: EdgeInsets.only(bottom: 16.h),
+                            padding: EdgeInsets.only(bottom: 16),
                             child: AuthErrorBanner(
                               message: msg,
                               fontSize: spec.errorFontSize,
@@ -76,12 +75,12 @@ class OtpVerificationScreen extends GetView<OtpVerificationController> {
                         // ── EKLENDİ: "Kodu almadınız mı?" kartı ──
                         _ResendCard(spec: spec),
                         SizedBox(
-                          height: spec.resendCardBottomSpacing.h,
+                          height: spec.resendCardBottomSpacing,
                         ), // tasarım: mb-5 = 20
                         _SubmitButton(spec: spec),
-                        SizedBox(height: spec.buttonBottomSpacing.h),
+                        SizedBox(height: spec.buttonBottomSpacing),
                         _Keypad(spec: spec),
-                        SizedBox(height: spec.keypadBottomSpacing.h),
+                        SizedBox(height: spec.keypadBottomSpacing),
                         const _SupportFooter(),
                       ],
                     ),
@@ -148,20 +147,20 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: spec.headerHeight.h,
+      height: spec.headerHeight,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // Ortada başlık (headline-sm, max 200px, truncate)
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 200.w),
+            constraints: BoxConstraints(maxWidth: 200),
             child: Text(
               'Email Onayı',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: scheme.onSurface,
-                fontSize: spec.headerTitleFontSize.sp,
+                fontSize: spec.headerTitleFontSize,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.01 * spec.headerTitleFontSize,
               ),
@@ -174,12 +173,12 @@ class _Header extends StatelessWidget {
               onPressed: Get.back,
               icon: Icon(
                 Icons.arrow_back_rounded,
-                size: spec.headerBackIconSize.sp,
+                size: spec.headerBackIconSize,
                 color: scheme.onSurfaceVariant,
               ),
               constraints: BoxConstraints(
-                minWidth: spec.headerBackSize.w,
-                minHeight: spec.headerBackSize.h,
+                minWidth: spec.headerBackSize,
+                minHeight: spec.headerBackSize,
               ),
             ),
           ),
@@ -187,21 +186,21 @@ class _Header extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              width: spec.headerAvatarSize.w,
-              height: spec.headerAvatarSize.w,
+              width: spec.headerAvatarSize,
+              height: spec.headerAvatarSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: scheme.primary,
                 boxShadow: [
                   BoxShadow(
                     color: scheme.primary.withValues(alpha: 0.35),
-                    blurRadius: 16.r,
+                    blurRadius: 16,
                   ),
                 ],
               ),
               child: Icon(
                 Icons.person_rounded,
-                size: spec.headerAvatarIconSize.sp,
+                size: spec.headerAvatarIconSize,
                 color: scheme.onPrimary,
               ),
             ),
@@ -226,16 +225,16 @@ class _Hero extends StatelessWidget {
       children: [
         // ── Rozet: glow + gradient ring + gradient daire + verified nişanı ──
         SizedBox(
-          width: spec.heroGlowSize.w,
-          height: spec.heroGlowSize.w,
+          width: spec.heroGlowSize,
+          height: spec.heroGlowSize,
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
               // bg-primary/20 blur-xl animate-pulse
               Container(
-                    width: spec.heroGlowSize.w,
-                    height: spec.heroGlowSize.w,
+                    width: spec.heroGlowSize,
+                    height: spec.heroGlowSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: scheme.primary.withValues(alpha: 0.20),
@@ -245,8 +244,8 @@ class _Hero extends StatelessWidget {
                   .fade(begin: 0.4, end: 1, duration: 1200.ms),
               // -inset-1.5 gradient ring, opacity-40, blur-sm
               Container(
-                width: spec.heroRingSize.w,
-                height: spec.heroRingSize.w,
+                width: spec.heroRingSize,
+                height: spec.heroRingSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
@@ -260,15 +259,15 @@ class _Hero extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: scheme.primary.withValues(alpha: 0.40),
-                      blurRadius: 4.r,
+                      blurRadius: 4,
                     ),
                   ],
                 ),
               ),
               // w-16 gradient daire + glow
               Container(
-                width: spec.heroCircleSize.w,
-                height: spec.heroCircleSize.w,
+                width: spec.heroCircleSize,
+                height: spec.heroCircleSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
@@ -282,37 +281,37 @@ class _Hero extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: scheme.primary.withValues(alpha: 0.45),
-                      blurRadius: 24.r,
+                      blurRadius: 24,
                     ),
                   ],
                 ),
                 child: Icon(
                   Icons.mark_email_read_rounded, // FILL 1
-                  size: spec.heroGlyphSize.sp,
+                  size: spec.heroGlyphSize,
                   color: scheme.onPrimary,
                 ),
               ),
               // -bottom-1 -right-1 nişan: koyu daire + verified
               Positioned(
-                right: -4.w,
-                bottom: -4.h,
+                right: -4,
+                bottom: -4,
                 child: Container(
-                  width: spec.heroBadgeSize.w,
-                  height: spec.heroBadgeSize.w,
+                  width: spec.heroBadgeSize,
+                  height: spec.heroBadgeSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: scheme.surfaceContainerHigh,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.25),
-                        blurRadius: 6.r,
-                        offset: Offset(0, 2.h),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Icon(
                     Icons.verified_rounded, // FILL 1
-                    size: spec.heroBadgeIconSize.sp,
+                    size: spec.heroBadgeIconSize,
                     color: scheme.primary,
                   ),
                 ),
@@ -321,24 +320,24 @@ class _Hero extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: spec.heroToPillSpacing.h),
+        SizedBox(height: spec.heroToPillSpacing),
 
         // ── "• AKADEMİK KİMLİK DOĞRULAMA" pill'i ──
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: spec.pillPaddingH.w,
-            vertical: spec.pillPaddingV.h,
+            horizontal: spec.pillPaddingH,
+            vertical: spec.pillPaddingV,
           ),
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(999.r),
+            borderRadius: BorderRadius.circular(999),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                    width: spec.pillDotSize.w,
-                    height: spec.pillDotSize.w,
+                    width: spec.pillDotSize,
+                    height: spec.pillDotSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: scheme.primary,
@@ -346,12 +345,12 @@ class _Hero extends StatelessWidget {
                   )
                   .animate(onPlay: (c) => c.repeat(reverse: true))
                   .fade(begin: 0.2, end: 1, duration: 900.ms),
-              SizedBox(width: spec.pillGap.w),
+              SizedBox(width: spec.pillGap),
               Text(
                 'AKADEMİK KİMLİK DOĞRULAMA',
                 style: TextStyle(
                   color: scheme.primary,
-                  fontSize: spec.pillFontSize.sp,
+                  fontSize: spec.pillFontSize,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.8, // tracking-wider
                 ),
@@ -360,7 +359,7 @@ class _Hero extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: spec.titleTopSpacing.h),
+        SizedBox(height: spec.titleTopSpacing),
 
         // ── "Kodu Girin" — "Girin" primary renkte ──
         Text.rich(
@@ -376,37 +375,37 @@ class _Hero extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             color: scheme.onSurface,
-            fontSize: spec.titleFontSize.sp,
+            fontSize: spec.titleFontSize,
             fontWeight: FontWeight.w800,
             height: 34 / 26,
             letterSpacing: -0.025 * spec.titleFontSize,
           ),
         ),
 
-        SizedBox(height: spec.subtitleTopSpacing.h),
+        SizedBox(height: spec.subtitleTopSpacing),
 
         // ── Açıklama: e-posta bold + kalan metin ──
         _Subtitle(spec: spec),
 
         // ── "E-postayı Değiştir" ──
-        SizedBox(height: spec.changeEmailTopSpacing.h),
+        SizedBox(height: spec.changeEmailTopSpacing),
         TextButton(
           onPressed: Get.back, // önceki ekrandan e-posta değiştirilir
           style: TextButton.styleFrom(
             foregroundColor: scheme.primary,
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-            minimumSize: Size(0, 32.h),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            minimumSize: Size(0, 32),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.edit_rounded, size: spec.changeEmailIconSize.sp),
-              SizedBox(width: spec.pillGap.w),
+              Icon(Icons.edit_rounded, size: spec.changeEmailIconSize),
+              SizedBox(width: spec.pillGap),
               Text(
                 'E-postayı Değiştir',
                 style: TextStyle(
-                  fontSize: spec.changeEmailFontSize.sp,
+                  fontSize: spec.changeEmailFontSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -429,12 +428,12 @@ class _Subtitle extends StatelessWidget {
 
     final baseStyle = TextStyle(
       color: scheme.onSurfaceVariant,
-      fontSize: spec.subtitleFontSize.sp,
+      fontSize: spec.subtitleFontSize,
       height: 20 / 14,
     );
 
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: spec.subtitleMaxWidth.w),
+      constraints: BoxConstraints(maxWidth: spec.subtitleMaxWidth),
       child: Text.rich(
         TextSpan(
           style: baseStyle,
@@ -445,7 +444,7 @@ class _Subtitle extends StatelessWidget {
                 style: TextStyle(
                   color: scheme.onSurface,
                   fontWeight: FontWeight.w600,
-                  fontSize: spec.subtitleFontSize.sp,
+                  fontSize: spec.subtitleFontSize,
                 ),
               ),
               const TextSpan(text: ' adresine gönderilen '),
@@ -470,10 +469,10 @@ class _OtpCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.cardPadding.w),
+      padding: EdgeInsets.all(spec.cardPadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow, // bg-surface-container-low
-        borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+        borderRadius: BorderRadius.circular(spec.otpBoxRadius),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -486,25 +485,25 @@ class _OtpCard extends StatelessWidget {
               _PasteButton(spec: spec),
             ],
           ),
-          SizedBox(height: spec.cardRowGap.h),
+          SizedBox(height: spec.cardRowGap),
           // ── 6 kutu ──
           const _OtpBoxes(),
-          SizedBox(height: spec.gridBottomSpacing.h),
+          SizedBox(height: spec.gridBottomSpacing),
           // ── 256-Bit satırı ──
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.lock_rounded,
-                size: spec.securityIconSize.sp,
+                size: spec.securityIconSize,
                 color: scheme.primary,
               ),
-              SizedBox(width: spec.chipGap.w),
+              SizedBox(width: spec.chipGap),
               Text(
                 '256-Bit Uçtan Uca Kampüs Doğrulaması',
                 style: TextStyle(
                   color: scheme.onSurfaceVariant,
-                  fontSize: spec.securityFontSize.sp,
+                  fontSize: spec.securityFontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -526,36 +525,36 @@ class _TimerChip extends StatelessWidget {
     return Obx(
       () => Container(
         padding: EdgeInsets.symmetric(
-          horizontal: spec.chipPaddingH.w,
-          vertical: spec.chipPaddingV.h,
+          horizontal: spec.chipPaddingH,
+          vertical: spec.chipPaddingV,
         ),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(999.r),
+          borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.timer_outlined,
-              size: spec.timerIconSize.sp,
+              size: spec.timerIconSize,
               color: scheme.primary,
             ),
-            SizedBox(width: spec.chipGap.w),
+            SizedBox(width: spec.chipGap),
             Text(
               'Kalan Süre:',
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
-                fontSize: spec.timerLabelFontSize.sp,
+                fontSize: spec.timerLabelFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(width: 4.w),
+            SizedBox(width: 4),
             Text(
               _auth.formattedCodeExpiry,
               style: TextStyle(
                 color: scheme.primary,
-                fontSize: spec.timerValueFontSize.sp,
+                fontSize: spec.timerValueFontSize,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -578,29 +577,29 @@ class _PasteButton extends StatelessWidget {
       final busy = _auth.isVerifyingOtp.value;
       return Material(
         color: flashing ? scheme.primary : scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999.r),
+        borderRadius: BorderRadius.circular(999),
         child: InkWell(
-          borderRadius: BorderRadius.circular(999.r),
+          borderRadius: BorderRadius.circular(999),
           onTap: busy ? null : _onPaste,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: spec.chipPaddingH.w,
-              vertical: spec.chipPaddingV.h,
+              horizontal: spec.chipPaddingH,
+              vertical: spec.chipPaddingV,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.content_paste_rounded,
-                  size: spec.timerIconSize.sp,
+                  size: spec.timerIconSize,
                   color: flashing ? scheme.onPrimary : scheme.primary,
                 ),
-                SizedBox(width: spec.chipGap.w),
+                SizedBox(width: spec.chipGap),
                 Text(
                   'Panodan Yapıştır',
                   style: TextStyle(
                     color: flashing ? scheme.onPrimary : scheme.onSurface,
-                    fontSize: spec.timerLabelFontSize.sp,
+                    fontSize: spec.timerLabelFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -666,7 +665,7 @@ class _OtpBoxes extends StatelessWidget {
         return Row(
           children: [
             for (var i = 0; i < OtpVerificationController.codeLength; i++) ...[
-              if (i > 0) SizedBox(width: 8.w),
+              if (i > 0) SizedBox(width: 8),
               Expanded(child: _box(context, i)),
             ],
           ],
@@ -687,17 +686,17 @@ class _OtpBoxes extends StatelessWidget {
     final BoxDecoration decoration = isActive
         ? BoxDecoration(
             color: scheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+            borderRadius: BorderRadius.circular(spec.otpBoxRadius),
             boxShadow: [
               BoxShadow(
                 color: AppTheme.primaryColor.withValues(alpha: 0.25),
-                blurRadius: 16.r,
+                blurRadius: 16,
               ),
             ],
           )
         : BoxDecoration(
             color: scheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+            borderRadius: BorderRadius.circular(spec.otpBoxRadius),
           );
 
     Widget content;
@@ -706,7 +705,7 @@ class _OtpBoxes extends StatelessWidget {
         digit,
         style: TextStyle(
           color: scheme.onSurface,
-          fontSize: spec.otpFontSize.sp,
+          fontSize: spec.otpFontSize,
           fontWeight: FontWeight.w700,
           height: 1,
         ),
@@ -715,11 +714,11 @@ class _OtpBoxes extends StatelessWidget {
       // Yanıp sönen primary imleç (animate-pulse)
       content =
           Container(
-                width: spec.boxCursorWidth.w,
-                height: spec.boxCursorHeight.h,
+                width: spec.boxCursorWidth,
+                height: spec.boxCursorHeight,
                 decoration: BoxDecoration(
                   color: scheme.primary,
-                  borderRadius: BorderRadius.circular(999.r),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               )
               .animate(onPlay: (c) => c.repeat(reverse: true))
@@ -727,8 +726,8 @@ class _OtpBoxes extends StatelessWidget {
     } else {
       // Boş gelecek kutular: küçük gri nokta
       content = Container(
-        width: spec.boxDotSize.w,
-        height: spec.boxDotSize.w,
+        width: spec.boxDotSize,
+        height: spec.boxDotSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: scheme.outlineVariant,
@@ -739,7 +738,7 @@ class _OtpBoxes extends StatelessWidget {
     return Opacity(
       opacity: (!hasDigit && !isActive) ? 0.6 : 1,
       child: Container(
-        height: spec.otpBoxHeight.h,
+        height: spec.otpBoxHeight,
         decoration: decoration,
         alignment: Alignment.center,
         child: content,
@@ -758,28 +757,28 @@ class _ResendCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.all(spec.resendCardPadding.w),
+      padding: EdgeInsets.all(spec.resendCardPadding),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+        borderRadius: BorderRadius.circular(spec.otpBoxRadius),
       ),
       child: Row(
         children: [
           // ── Sol: ikon kutusu + metinler ──
           Container(
-            width: spec.resendIconBoxSize.w,
-            height: spec.resendIconBoxSize.w,
+            width: spec.resendIconBoxSize,
+            height: spec.resendIconBoxSize,
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(spec.resendIconBoxRadius.r),
+              borderRadius: BorderRadius.circular(spec.resendIconBoxRadius),
             ),
             child: Icon(
               Icons.mark_email_unread_outlined,
-              size: spec.resendIconBoxIconSize.sp,
+              size: spec.resendIconBoxIconSize,
               color: scheme.primary,
             ),
           ),
-          SizedBox(width: 10.w),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,22 +787,22 @@ class _ResendCard extends StatelessWidget {
                   'Kodu almadınız mı?',
                   style: TextStyle(
                     color: scheme.onSurface,
-                    fontSize: spec.resendTitleFontSize.sp,
+                    fontSize: spec.resendTitleFontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 2),
                 Text(
                   'Spam klasörünü kontrol edin',
                   style: TextStyle(
                     color: scheme.onSurfaceVariant,
-                    fontSize: spec.resendSubtitleFontSize.sp,
+                    fontSize: spec.resendSubtitleFontSize,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 8),
           // ── Sağ: Tekrar Gönder (48s) / Kodu Şimdi Gönder ──
           const _ResendAction(),
         ],
@@ -836,35 +835,35 @@ class _ResendAction extends StatelessWidget {
 
       return Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(spec.keyRadius.r),
+        borderRadius: BorderRadius.circular(spec.keyRadius),
         child: InkWell(
-          borderRadius: BorderRadius.circular(spec.keyRadius.r),
+          borderRadius: BorderRadius.circular(spec.keyRadius),
           onTap: canResend ? () => _auth.resendOtp(email: _email) : null,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!loading) ...[
                   Icon(
                     Icons.replay_rounded,
-                    size: spec.resendActionIconSize.sp,
+                    size: spec.resendActionIconSize,
                     color: canResend ? scheme.primary : scheme.onSurfaceVariant,
                   ),
-                  SizedBox(width: 4.w),
+                  SizedBox(width: 4),
                 ] else ...[
                   SizedBox(
-                    width: spec.loaderSize.w,
-                    height: spec.loaderSize.w,
+                    width: spec.loaderSize,
+                    height: spec.loaderSize,
                     child: CircularProgressIndicator(
                       strokeWidth: spec.loaderStroke,
                       color: scheme.primary,
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: 6),
                 ],
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 110.w),
+                  constraints: BoxConstraints(maxWidth: 110),
                   child: Text(
                     label,
                     textAlign: TextAlign.right,
@@ -872,7 +871,7 @@ class _ResendAction extends StatelessWidget {
                       color: canResend
                           ? scheme.primary
                           : scheme.onSurfaceVariant,
-                      fontSize: spec.resendFontSize.sp,
+                      fontSize: spec.resendFontSize,
                       fontWeight: FontWeight.w600,
                       height: 1.25,
                     ),
@@ -900,14 +899,14 @@ class _SubmitButton extends StatelessWidget {
       final loading = _auth.isVerifyingOtp.value;
       return DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+          borderRadius: BorderRadius.circular(spec.buttonRadius),
           boxShadow: loading
               ? const []
               : [
                   BoxShadow(
                     color: AppTheme.primaryColor.withValues(alpha: 0.35),
-                    blurRadius: 20.r,
-                    offset: Offset(0, 4.h),
+                    blurRadius: 20,
+                    offset: Offset(0, 4),
                   ),
                 ],
         ),
@@ -920,9 +919,9 @@ class _SubmitButton extends StatelessWidget {
             disabledForegroundColor: scheme.onPrimary,
             elevation: 0,
             shadowColor: Colors.transparent,
-            minimumSize: Size(double.infinity, spec.buttonHeight.h),
+            minimumSize: Size(double.infinity, spec.buttonHeight),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(spec.buttonRadius.r),
+              borderRadius: BorderRadius.circular(spec.buttonRadius),
             ),
           ),
           child: loading
@@ -930,19 +929,19 @@ class _SubmitButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: spec.loaderSize.w,
-                      height: spec.loaderSize.w,
+                      width: spec.loaderSize,
+                      height: spec.loaderSize,
                       child: CircularProgressIndicator(
                         strokeWidth: spec.loaderStroke,
                         color: scheme.onPrimary,
                       ),
                     ),
-                    SizedBox(width: 10.w),
+                    SizedBox(width: 10),
                     Text(
                       'Doğrulanıyor...',
                       style: TextStyle(
                         color: scheme.onPrimary,
-                        fontSize: spec.buttonFontSize.sp,
+                        fontSize: spec.buttonFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -956,16 +955,16 @@ class _SubmitButton extends StatelessWidget {
                         'Doğrula & Kampüse Bağlan',
                         style: TextStyle(
                           color: scheme.onPrimary,
-                          fontSize: spec.buttonFontSize.sp,
+                          fontSize: spec.buttonFontSize,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.2,
                         ),
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 8),
                     Icon(
                       Icons.arrow_forward_rounded,
-                      size: spec.buttonIconSize.sp,
+                      size: spec.buttonIconSize,
                       color: scheme.onPrimary,
                     ),
                   ],
@@ -987,21 +986,21 @@ class _Keypad extends StatelessWidget {
     return Obx(() {
       final busy = _auth.isVerifyingOtp.value;
       return Container(
-        padding: EdgeInsets.all(spec.keypadPadding.w),
+        padding: EdgeInsets.all(spec.keypadPadding),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerLow.withValues(
             alpha: 0.7,
           ), // bg-surface-container-low/70
-          borderRadius: BorderRadius.circular(spec.keypadRadius.r),
+          borderRadius: BorderRadius.circular(spec.keypadRadius),
         ),
         child: Column(
           children: [
             _row(context, busy, ['1', '2', '3']),
-            SizedBox(height: spec.keypadGap.h),
+            SizedBox(height: spec.keypadGap),
             _row(context, busy, ['4', '5', '6']),
-            SizedBox(height: spec.keypadGap.h),
+            SizedBox(height: spec.keypadGap),
             _row(context, busy, ['7', '8', '9']),
-            SizedBox(height: spec.keypadGap.h),
+            SizedBox(height: spec.keypadGap),
             _row(context, busy, ['C', '0', 'backspace']),
           ],
         ),
@@ -1013,7 +1012,7 @@ class _Keypad extends StatelessWidget {
     return Row(
       children: [
         for (var i = 0; i < keys.length; i++) ...[
-          if (i > 0) SizedBox(width: spec.keypadGap.w),
+          if (i > 0) SizedBox(width: spec.keypadGap),
           Expanded(child: _key(context, keys[i], busy)),
         ],
       ],
@@ -1033,7 +1032,7 @@ class _Keypad extends StatelessWidget {
         'C',
         style: TextStyle(
           color: scheme.onSurfaceVariant,
-          fontSize: spec.resendTitleFontSize.sp,
+          fontSize: spec.resendTitleFontSize,
           fontWeight: FontWeight.w600,
         ),
       );
@@ -1041,7 +1040,7 @@ class _Keypad extends StatelessWidget {
       color = Colors.transparent;
       child = Icon(
         Icons.backspace_outlined,
-        size: 20.sp,
+        size: 20,
         color: scheme.onSurface,
       );
     } else {
@@ -1050,7 +1049,7 @@ class _Keypad extends StatelessWidget {
         key,
         style: TextStyle(
           color: scheme.onSurface,
-          fontSize: spec.keyFontSize.sp,
+          fontSize: spec.keyFontSize,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.01 * spec.keyFontSize,
         ),
@@ -1069,12 +1068,12 @@ class _Keypad extends StatelessWidget {
 
     return Material(
       color: color ?? scheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(spec.keyRadius.r),
+      borderRadius: BorderRadius.circular(spec.keyRadius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(spec.keyRadius.r),
+        borderRadius: BorderRadius.circular(spec.keyRadius),
         onTap: busy ? null : onTap,
         child: SizedBox(
-          height: spec.keyHeight.h,
+          height: spec.keyHeight,
           child: Center(child: child),
         ),
       ),
@@ -1098,21 +1097,21 @@ class _SupportFooter extends StatelessWidget {
           'Sorun mu yaşıyorsunuz?',
           style: TextStyle(
             color: scheme.onSurfaceVariant,
-            fontSize: spec.supportFontSize.sp,
+            fontSize: spec.supportFontSize,
           ),
         ),
-        SizedBox(width: spec.supportGap.w),
+        SizedBox(width: spec.supportGap),
         InkWell(
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: BorderRadius.circular(6),
           // TODO: destek masası bağlantısı (URL/route)
           onTap: () {},
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Text(
               'Öğrenci Destek Masası',
               style: TextStyle(
                 color: scheme.primary,
-                fontSize: spec.supportLinkFontSize.sp,
+                fontSize: spec.supportLinkFontSize,
                 fontWeight: FontWeight.w600,
                 decoration: TextDecoration.none,
               ),

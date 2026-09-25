@@ -1,6 +1,5 @@
 // lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/universities_sort_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -44,37 +43,37 @@ class _SortSheetState extends State<_SortSheet> {
     final sortController = widget.sortController;
 
     return Container(
-      constraints: BoxConstraints(maxHeight: 0.85.sh),
+      constraints: BoxConstraints(maxHeight: 0.85),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(spec.sheetRadius.r),
+          top: Radius.circular(spec.sheetRadius),
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 12.h),
+          SizedBox(height: 12),
           // Handle
           Container(
-            width: spec.sheetHandleW.w,
-            height: spec.sheetHandleH.h,
+            width: spec.sheetHandleW,
+            height: spec.sheetHandleH,
             decoration: BoxDecoration(
               color: AppTheme.textSec(context).withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(spec.sheetHandleH.r),
+              borderRadius: BorderRadius.circular(spec.sheetHandleH),
             ),
           ),
-          SizedBox(height: 14.h),
+          SizedBox(height: 14),
 
           // Başlık + Sıfırla
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
             child: Row(
               children: [
                 Text(
                   'Filtrele & Sırala',
                   style: TextStyle(
-                    fontSize: spec.sheetTitleFontSize.sp,
+                    fontSize: spec.sheetTitleFontSize,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPri(context),
                   ),
@@ -82,31 +81,31 @@ class _SortSheetState extends State<_SortSheet> {
                 const Spacer(),
                 TextButton.icon(
                   onPressed: sortController.resetSortsAndFilters,
-                  icon: Icon(Icons.refresh_rounded, size: 18.sp),
+                  icon: Icon(Icons.refresh_rounded, size: 18),
                   label: Text(
                     'Sıfırla',
-                    style: TextStyle(fontSize: 13.sp),
+                    style: TextStyle(fontSize: 13),
                   ),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    padding: EdgeInsets.symmetric(horizontal: 10),
                   ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 8),
 
           // ─── FİLTRELER ────────────────────────────────────────────────
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
             child: const _SectionHeader(title: 'FİLTRELER'),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
             child: _TypeFilterTile(
               spec: spec,
               sortController: sortController,
@@ -115,38 +114,38 @@ class _SortSheetState extends State<_SortSheet> {
             ),
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 8),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
             child: _RadioFilterTile(
               spec: spec,
               sortController: sortController,
             ),
           ),
 
-          SizedBox(height: 18.h),
+          SizedBox(height: 18),
 
           // ─── SIRALAMA ─────────────────────────────────────────────────
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding.w),
+            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
             child: const _SectionHeader(title: 'SIRALAMA'),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 10),
 
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(
-                spec.sheetHPadding.w,
+                spec.sheetHPadding,
                 0,
-                spec.sheetHPadding.w,
-                20.h,
+                spec.sheetHPadding,
+                20,
               ),
               itemCount: SortCriteria.values.length,
               itemBuilder: (_, i) {
                 final c = SortCriteria.values[i];
                 return Padding(
-                  padding: EdgeInsets.only(bottom: spec.sheetOptionSpacing.h),
+                  padding: EdgeInsets.only(bottom: spec.sheetOptionSpacing),
                   child: _SortOptionTile(
                     spec: spec,
                     criteria: c,
@@ -175,18 +174,18 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 3.w,
-          height: 13.h,
+          width: 3,
+          height: 13,
           decoration: BoxDecoration(
             color: AppTheme.primaryColor,
-            borderRadius: BorderRadius.circular(2.r),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
             color: AppTheme.textSec(context),
             letterSpacing: 1.2,
@@ -230,33 +229,33 @@ class _TypeFilterTile extends StatelessWidget {
             color: isFiltered
                 ? _typeColor.withValues(alpha: 0.12)
                 : AppTheme.surface(context).withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(14),
             child: InkWell(
               onTap: onToggle,
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(14),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 10.h,
+                  horizontal: 12,
+                  vertical: 10,
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: spec.sheetOptionIconBox.w,
-                      height: spec.sheetOptionIconBox.w,
+                      width: spec.sheetOptionIconBox,
+                      height: spec.sheetOptionIconBox,
                       decoration: BoxDecoration(
                         color: _typeColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(
-                          spec.sheetOptionIconBoxRadius.r,
+                          spec.sheetOptionIconBoxRadius,
                         ),
                       ),
                       child: Icon(
                         Icons.account_balance_rounded,
-                        size: spec.sheetOptionIconSize.sp,
+                        size: spec.sheetOptionIconSize,
                         color: _typeColor,
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,16 +264,16 @@ class _TypeFilterTile extends StatelessWidget {
                           Text(
                             'Üniversite Tipi',
                             style: TextStyle(
-                              fontSize: spec.sheetOptionFontSize.sp,
+                              fontSize: spec.sheetOptionFontSize,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.textPri(context),
                             ),
                           ),
-                          SizedBox(height: 2.h),
+                          SizedBox(height: 2),
                           Text(
                             selected.label,
                             style: TextStyle(
-                              fontSize: (spec.sheetOptionFontSize - 2).sp,
+                              fontSize: (spec.sheetOptionFontSize - 2),
                               color: isFiltered
                                   ? _typeColor
                                   : AppTheme.textSec(context),
@@ -292,7 +291,7 @@ class _TypeFilterTile extends StatelessWidget {
                       child: Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: AppTheme.textSec(context),
-                        size: 24.sp,
+                        size: 24,
                       ),
                     ),
                   ],
@@ -307,7 +306,7 @@ class _TypeFilterTile extends StatelessWidget {
             curve: Curves.easeOut,
             child: expanded
                 ? Padding(
-                    padding: EdgeInsets.only(top: 8.h),
+                    padding: EdgeInsets.only(top: 8),
                     child: Column(
                       children: UniversityTypeFilter.values
                           .map((f) => _TypeRadioRow(
@@ -346,26 +345,26 @@ class _TypeRadioRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 4.h),
+      padding: EdgeInsets.only(bottom: 4),
       child: Material(
         color: selected
             ? color.withValues(alpha: 0.10)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 8.h,
+              horizontal: 10,
+              vertical: 8,
             ),
             child: Row(
               children: [
                 // Radio circle
                 Container(
-                  width: 20.w,
-                  height: 20.w,
+                  width: 20,
+                  height: 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selected ? color : Colors.transparent,
@@ -380,25 +379,25 @@ class _TypeRadioRow extends StatelessWidget {
                   child: selected
                       ? Icon(
                           Icons.check_rounded,
-                          size: 13.sp,
+                          size: 13,
                           color: Colors.white,
                         )
                       : null,
                 ),
-                SizedBox(width: 10.w),
+                SizedBox(width: 10),
                 Icon(
                   filter.icon,
-                  size: 16.sp,
+                  size: 16,
                   color: selected
                       ? color
                       : AppTheme.textSec(context),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     filter.label,
                     style: TextStyle(
-                      fontSize: spec.sheetOptionFontSize.sp,
+                      fontSize: spec.sheetOptionFontSize,
                       color: selected
                           ? color
                           : AppTheme.textPri(context),
@@ -440,33 +439,33 @@ class _RadioFilterTile extends StatelessWidget {
         color: value
             ? _radioColor.withValues(alpha: 0.12)
             : AppTheme.surface(context).withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: () => sortController.setOnlyWithRadio(!value),
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 10.h,
+              horizontal: 12,
+              vertical: 10,
             ),
             child: Row(
               children: [
                 Container(
-                  width: spec.sheetOptionIconBox.w,
-                  height: spec.sheetOptionIconBox.w,
+                  width: spec.sheetOptionIconBox,
+                  height: spec.sheetOptionIconBox,
                   decoration: BoxDecoration(
                     color: _radioColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(
-                      spec.sheetOptionIconBoxRadius.r,
+                      spec.sheetOptionIconBoxRadius,
                     ),
                   ),
                   child: Icon(
                     Icons.radio_rounded,
-                    size: spec.sheetOptionIconSize.sp,
+                    size: spec.sheetOptionIconSize,
                     color: _radioColor,
                   ),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,18 +474,18 @@ class _RadioFilterTile extends StatelessWidget {
                       Text(
                         'Radyo Yayını',
                         style: TextStyle(
-                          fontSize: spec.sheetOptionFontSize.sp,
+                          fontSize: spec.sheetOptionFontSize,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPri(context),
                         ),
                       ),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 2),
                       Text(
                         value
                             ? 'Sadece radyosu olanlar'
                             : 'Tüm üniversiteler',
                         style: TextStyle(
-                          fontSize: (spec.sheetOptionFontSize - 2).sp,
+                          fontSize: (spec.sheetOptionFontSize - 2),
                           color: value
                               ? _radioColor
                               : AppTheme.textSec(context),
@@ -577,38 +576,38 @@ class _SortOptionTile extends StatelessWidget {
         color: isActive
             ? _color.withValues(alpha: 0.10)
             : AppTheme.surface(context).withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: () => sortController.addOrRemoveSort(criteria),
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 10.h,
+              horizontal: 12,
+              vertical: 10,
             ),
             child: Row(
               children: [
                 Container(
-                  width: spec.sheetOptionIconBox.w,
-                  height: spec.sheetOptionIconBox.w,
+                  width: spec.sheetOptionIconBox,
+                  height: spec.sheetOptionIconBox,
                   decoration: BoxDecoration(
                     color: _color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(
-                      spec.sheetOptionIconBoxRadius.r,
+                      spec.sheetOptionIconBoxRadius,
                     ),
                   ),
                   child: Icon(
                     _icon,
-                    size: spec.sheetOptionIconSize.sp,
+                    size: spec.sheetOptionIconSize,
                     color: _color,
                   ),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     _title,
                     style: TextStyle(
-                      fontSize: spec.sheetOptionFontSize.sp,
+                      fontSize: spec.sheetOptionFontSize,
                       fontWeight:
                           isActive ? FontWeight.w700 : FontWeight.w600,
                       color: isActive
@@ -624,7 +623,7 @@ class _SortOptionTile extends StatelessWidget {
                           ? Icons.arrow_upward_rounded
                           : Icons.arrow_downward_rounded,
                       color: _color,
-                      size: 20.sp,
+                      size: 20,
                     ),
                     tooltip: isAscending
                         ? 'Artan → Azalan'
@@ -638,8 +637,8 @@ class _SortOptionTile extends StatelessWidget {
                     ),
                   ),
                 Container(
-                  width: 22.w,
-                  height: 22.w,
+                  width: 22,
+                  height: 22,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isActive ? _color : Colors.transparent,
@@ -654,7 +653,7 @@ class _SortOptionTile extends StatelessWidget {
                   child: isActive
                       ? Icon(
                           Icons.check_rounded,
-                          size: 14.sp,
+                          size: 14,
                           color: Colors.white,
                         )
                       : null,

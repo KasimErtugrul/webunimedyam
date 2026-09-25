@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/widgets/university_horizontal_card_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
@@ -118,13 +117,13 @@ class UniversityHorizontalCard extends StatelessWidget {
 
     return Material(
       color: AppTheme.card(context),
-      borderRadius: BorderRadius.circular(spec.cardRadius.r),
+      borderRadius: BorderRadius.circular(spec.cardRadius),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: _navigateToDetail,
         child: SizedBox(
-          width: spec.cardWidth.w,
-          height: spec.cardHeight.h,
+          width: spec.cardWidth,
+          height: spec.cardHeight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -138,7 +137,7 @@ class UniversityHorizontalCard extends StatelessWidget {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      height: spec.gradientHeight.h,
+                      height: spec.gradientHeight,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -159,8 +158,8 @@ class UniversityHorizontalCard extends StatelessWidget {
                 flex: 4,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: spec.contentPaddingH.w,
-                    vertical: spec.contentPaddingV.h,
+                    horizontal: spec.contentPaddingH,
+                    vertical: spec.contentPaddingV,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,20 +171,20 @@ class UniversityHorizontalCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppTheme.textPri(context),
-                          fontSize: spec.titleFontSize.sp,
+                          fontSize: spec.titleFontSize,
                           fontWeight: FontWeight.w700,
                           height: spec.titleLineHeight,
                         ),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: spec.statPaddingH.w,
-                          vertical: spec.statPaddingV.h,
+                          horizontal: spec.statPaddingH,
+                          vertical: spec.statPaddingV,
                         ),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(
-                            spec.statRadius.r,
+                            spec.statRadius,
                           ),
                         ),
                         child: Row(
@@ -193,10 +192,10 @@ class UniversityHorizontalCard extends StatelessWidget {
                           children: [
                             Icon(
                               statIcon,
-                              size: spec.statIconSize.sp,
+                              size: spec.statIconSize,
                               color: AppTheme.primaryColor,
                             ),
-                            SizedBox(width: spec.statSpacing.w),
+                            SizedBox(width: spec.statSpacing),
                             Flexible(
                               child: Text(
                                 statLabel,
@@ -204,7 +203,7 @@ class UniversityHorizontalCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: AppTheme.primaryColor,
-                                  fontSize: spec.statFontSize.sp,
+                                  fontSize: spec.statFontSize,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -235,8 +234,8 @@ class UniversityHorizontalCard extends StatelessWidget {
         child: Center(
           child: CachedNetworkImage(
             imageUrl: url,
-            width: spec.logoSize.w,
-            height: spec.logoSize.w,
+            width: spec.logoSize,
+            height: spec.logoSize,
             fit: BoxFit.contain,
             errorWidget: (_, _, _) => _placeholder(context, spec),
             placeholder: (_, _) => _shimmerBox(context),
@@ -258,7 +257,7 @@ class UniversityHorizontalCard extends StatelessWidget {
     child: Icon(
       Icons.school_rounded,
       color: AppTheme.textSec(context),
-      size: spec.placeholderIconSize.sp,
+      size: spec.placeholderIconSize,
     ),
   );
 

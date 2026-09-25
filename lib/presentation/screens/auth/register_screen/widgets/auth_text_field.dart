@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_text_field.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -79,24 +78,24 @@ class AuthTextField extends StatelessWidget {
       validator: validator,
       style: TextStyle(
         color: AppTheme.textPri(context),
-        fontSize: fontSize.sp,
+        fontSize: fontSize,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
           color: AppTheme.textSec(context),
-          fontSize: (fontSize - 1).sp,
+          fontSize: (fontSize - 1),
           fontWeight: FontWeight.w500,
         ),
         floatingLabelStyle: TextStyle(
           color: AppTheme.primaryColor,
-          fontSize: (fontSize - 2).sp,
+          fontSize: (fontSize - 2),
           fontWeight: FontWeight.w600,
         ),
         prefixIcon: Icon(
           prefixIcon,
           color: AppTheme.primaryColor,
-          size: iconSize.sp,
+          size: iconSize,
         ),
         suffixIcon: onToggleObscure != null
             ? IconButton(
@@ -106,7 +105,7 @@ class AuthTextField extends StatelessWidget {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   color: AppTheme.textSec(context),
-                  size: iconSize.sp,
+                  size: iconSize,
                 ),
                 onPressed: onToggleObscure,
               )
@@ -117,26 +116,26 @@ class AuthTextField extends StatelessWidget {
             : AppTheme.lightBackground,
         counterText: '',
         contentPadding: EdgeInsets.symmetric(
-          horizontal: paddingH.w,
-          vertical: paddingV.h,
+          horizontal: paddingH,
+          vertical: paddingV,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: borderColor, width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: const BorderSide(
             color: AppTheme.primaryColor,
             width: 1.8,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: Colors.red.shade400, width: 1.8),
         ),
       ),

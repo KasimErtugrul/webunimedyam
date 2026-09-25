@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/reset_password_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -136,7 +135,7 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
         children: [
           // ── Açıklama ─────────────────────────────────
           if (spec.subtitleTopSpacing > 0)
-            SizedBox(height: spec.subtitleTopSpacing.h),
+            SizedBox(height: spec.subtitleTopSpacing),
           Text(
             _email.isEmpty
                 ? 'Email adresinize gönderilen kodu girin'
@@ -144,12 +143,12 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppTheme.textSec(context),
-              fontSize: spec.subtitleFontSize.sp,
+              fontSize: spec.subtitleFontSize,
             ),
           ),
 
           // ── OTP kutuları ─────────────────────────────
-          SizedBox(height: spec.otpTopSpacing.h),
+          SizedBox(height: spec.otpTopSpacing),
           OtpCodeInput(
             key: _otpKey,
             spec: spec.otpSpec,
@@ -157,7 +156,7 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
           ),
 
           // ── Resend ───────────────────────────────────
-          SizedBox(height: spec.resendTopSpacing.h),
+          SizedBox(height: spec.resendTopSpacing),
           Obx(
             () => OtpResendButton(
               cooldownSeconds: _auth.resetResendCooldown.value,
@@ -168,7 +167,7 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
           ),
 
           // ── Yeni şifreler ────────────────────────────
-          SizedBox(height: spec.passwordsTopSpacing.h),
+          SizedBox(height: spec.passwordsTopSpacing),
           AuthPasswordField(
             controller: _newPasswordController,
             focusNode: _newPasswordFocus,
@@ -186,7 +185,7 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
             paddingH: spec.fieldPaddingH,
             paddingV: spec.fieldPaddingV,
           ),
-          SizedBox(height: spec.fieldSpacing.h),
+          SizedBox(height: spec.fieldSpacing),
           AuthPasswordField(
             controller: _confirmPasswordController,
             focusNode: _confirmPasswordFocus,
@@ -205,7 +204,7 @@ class _ResetPasswordFormState extends State<_ResetPasswordForm> {
             paddingV: spec.fieldPaddingV,
           ),
 
-          SizedBox(height: spec.errorTopSpacing.h),
+          SizedBox(height: spec.errorTopSpacing),
 
           // ── Hata mesajı (client OTP + server birleşik) ─
           Obx(() {

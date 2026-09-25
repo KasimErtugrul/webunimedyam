@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/login_sizes.dart
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT — Stitch "Login - ÜniTV" tasarımının
@@ -119,88 +118,88 @@ class LoginPhoneSizes extends LoginSizes {
 
   @override bool get isTablet => false;
 
-  @override double get maxContentWidth => 448.w;
-  @override double get pageHPadding => 16.w;
-  @override double get pageVPadding => 24.h;
+  @override double get maxContentWidth => 448;
+  @override double get pageHPadding => 16;
+  @override double get pageVPadding => 24;
 
-  @override double get glowPrimarySize => 256.w;
-  @override double get glowPrimaryTop => -48.h;
-  @override double get glowSecondarySize => 192.w;
-  @override double get glowSecondaryTop => 192.h;
-  @override double get glowSecondaryRight => -48.w;
+  @override double get glowPrimarySize => 256;
+  @override double get glowPrimaryTop => -48;
+  @override double get glowSecondarySize => 192;
+  @override double get glowSecondaryTop => 192;
+  @override double get glowSecondaryRight => -48;
 
-  @override double get brandBottomGap => 24.h;
-  @override double get logoPad => 4.w;
-  @override double get logoRadius => 12.r;
-  @override double get logoHeight => 40.h;
-  @override double get badgeGap => 6.w;
-  @override double get badgeHPadding => 8.w;
-  @override double get badgeVPadding => 2.h;
-  @override double get badgeDotSize => 6.r;
-  @override double get badgeFontSize => 10.sp;
+  @override double get brandBottomGap => 24;
+  @override double get logoPad => 4;
+  @override double get logoRadius => 12;
+  @override double get logoHeight => 40;
+  @override double get badgeGap => 6;
+  @override double get badgeHPadding => 8;
+  @override double get badgeVPadding => 2;
+  @override double get badgeDotSize => 6;
+  @override double get badgeFontSize => 10;
 
-  @override double get greetingBottomGap => 32.h;
-  @override double get titleFontSize => 26.sp;
-  @override double get titleSubtitleGap => 4.h;
-  @override double get subtitleFontSize => 14.sp;
-  @override double get subtitleMaxWidth => 320.w;
+  @override double get greetingBottomGap => 32;
+  @override double get titleFontSize => 26;
+  @override double get titleSubtitleGap => 4;
+  @override double get subtitleFontSize => 14;
+  @override double get subtitleMaxWidth => 320;
 
-  @override double get cardRadius => 12.r;
-  @override double get cardPadding => 24.w;
-  @override double get cardGap => 16.h;
+  @override double get cardRadius => 12;
+  @override double get cardPadding => 24;
+  @override double get cardGap => 16;
 
-  @override double get fieldHeight => 48.h;
-  @override double get fieldRadius => 8.r;
-  @override double get fieldFontSize => 14.sp;
-  @override double get fieldLabelFontSize => 12.sp;
-  @override double get fieldLabelGap => 4.h;
-  @override double get fieldIconSize => 20.sp;
-  @override double get fieldIconLeft => 16.w;
-  @override double get fieldPaddingLeft => 44.w;
-  @override double get fieldPaddingRightEmail => 16.w;
-  @override double get toggleSize => 36.w;
-  @override double get toggleRight => 8.w;
+  @override double get fieldHeight => 48;
+  @override double get fieldRadius => 8;
+  @override double get fieldFontSize => 14;
+  @override double get fieldLabelFontSize => 12;
+  @override double get fieldLabelGap => 4;
+  @override double get fieldIconSize => 20;
+  @override double get fieldIconLeft => 16;
+  @override double get fieldPaddingLeft => 44;
+  @override double get fieldPaddingRightEmail => 16;
+  @override double get toggleSize => 36;
+  @override double get toggleRight => 8;
 
-  @override double get forgotTopOffset => 4.h;
+  @override double get forgotTopOffset => 4;
 
-  @override double get buttonHeight => 48.h;
-  @override double get submitTopGap => 4.h;
-  @override double get buttonFontSize => 14.sp;
-  @override double get buttonIconSize => 18.sp;
-  @override double get googleIconSize => 20.w;
-  @override double get googleGap => 16.w;
-  @override double get guestButtonHeight => 44.h;
-  @override double get guestFontSize => 12.sp;
-  @override double get guestIconSize => 18.sp;
-  @override double get guestGap => 6.w;
+  @override double get buttonHeight => 48;
+  @override double get submitTopGap => 4;
+  @override double get buttonFontSize => 14;
+  @override double get buttonIconSize => 18;
+  @override double get googleIconSize => 20;
+  @override double get googleGap => 16;
+  @override double get guestButtonHeight => 44;
+  @override double get guestFontSize => 12;
+  @override double get guestIconSize => 18;
+  @override double get guestGap => 6;
 
-  @override double get dividerFontSize => 10.sp;
-  @override double get dividerHPadding => 16.w;
+  @override double get dividerFontSize => 10;
+  @override double get dividerHPadding => 16;
 
-  @override double get footerTopGap => 32.h;
-  @override double get footerFontSize => 14.sp;
-  @override double get footerLinkFontSize => 14.sp;
-  @override double get footerChevronSize => 16.sp;
+  @override double get footerTopGap => 32;
+  @override double get footerFontSize => 14;
+  @override double get footerLinkFontSize => 14;
+  @override double get footerChevronSize => 16;
 
-  @override double get teaserTopGap => 32.h;
-  @override double get teaserPadding => 16.w;
-  @override double get teaserRadius => 12.r;
-  @override double get teaserGap => 8.w;
-  @override double get teaserIconBoxSize => 40.w;
-  @override double get teaserIconBoxRadius => 8.r;
-  @override double get teaserIconSize => 22.sp;
-  @override double get teaserPingSize => 8.r;
-  @override double get teaserPingOffset => 4.r;
-  @override double get teaserLabelFontSize => 10.sp;
-  @override double get teaserTitleFontSize => 12.sp;
-  @override double get teaserBadgeDotSize => 6.r;
-  @override double get teaserBadgeFontSize => 10.sp;
+  @override double get teaserTopGap => 32;
+  @override double get teaserPadding => 16;
+  @override double get teaserRadius => 12;
+  @override double get teaserGap => 8;
+  @override double get teaserIconBoxSize => 40;
+  @override double get teaserIconBoxRadius => 8;
+  @override double get teaserIconSize => 22;
+  @override double get teaserPingSize => 8;
+  @override double get teaserPingOffset => 4;
+  @override double get teaserLabelFontSize => 10;
+  @override double get teaserTitleFontSize => 12;
+  @override double get teaserBadgeDotSize => 6;
+  @override double get teaserBadgeFontSize => 10;
 
-  @override double get errorFontSize => 13.sp;
-  @override double get errorPadding => 12.w;
-  @override double get errorRadius => 10.r;
+  @override double get errorFontSize => 13;
+  @override double get errorPadding => 12;
+  @override double get errorRadius => 10;
 
-  @override double get loaderSize => 20.w;
+  @override double get loaderSize => 20;
   @override double get loaderStroke => 2.2;
 }
 

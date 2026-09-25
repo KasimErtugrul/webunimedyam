@@ -11,7 +11,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -189,10 +188,10 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   Widget _buildSectionTitlePhone(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        _PhoneSizes.sectionPadLeft.w,
-        _PhoneSizes.sectionPadTop.h,
-        _PhoneSizes.sectionPadRight.w,
-        _PhoneSizes.sectionPadBottom.h,
+        _PhoneSizes.sectionPadLeft,
+        _PhoneSizes.sectionPadTop,
+        _PhoneSizes.sectionPadRight,
+        _PhoneSizes.sectionPadBottom,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -201,15 +200,15 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
             children: [
               Icon(
                 Icons.bolt_rounded,
-                size: _PhoneSizes.sectionIconSize.sp,
+                size: _PhoneSizes.sectionIconSize,
                 color: AppTheme.primaryColor,
               ),
-              SizedBox(width: _PhoneSizes.sectionIconSpacing.w),
+              SizedBox(width: _PhoneSizes.sectionIconSpacing),
               Text(
                 'Üniversite Shorts',
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.sectionTitleFontSize.sp,
+                  fontSize: _PhoneSizes.sectionTitleFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -218,10 +217,10 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
           // TODO(kasım): "Tümü" — tüm shorts'ları gösteren ayrı bir ekrana
           // yönlendirme henüz bağlanmadı; onTap boş bırakıldı.
           InkWell(
-            borderRadius: BorderRadius.circular(6.r),
+            borderRadius: BorderRadius.circular(6),
             onTap: () {},
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -229,13 +228,13 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
                     'Tümü',
                     style: TextStyle(
                       color: AppTheme.primaryColor,
-                      fontSize: 13.sp,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    size: 16.sp,
+                    size: 16,
                     color: AppTheme.primaryColor,
                   ),
                 ],
@@ -314,12 +313,12 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
 
   Widget _phone(BuildContext context, ShortsController controller) {
     return SizedBox(
-      height: _PhoneSizes.rowHeight.h,
+      height: _PhoneSizes.rowHeight,
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.listPaddingHorizontal.w,
+          horizontal: _PhoneSizes.listPaddingHorizontal,
         ),
         itemCount:
             controller.shorts.length + (controller.hasMore.value ? 1 : 0),
@@ -344,21 +343,21 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: SizedBox(
-        height: _PhoneSizes.rowHeight.h,
+        height: _PhoneSizes.rowHeight,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(
-            horizontal: _PhoneSizes.listPaddingHorizontal.w,
+            horizontal: _PhoneSizes.listPaddingHorizontal,
           ),
           itemCount: 6,
           itemBuilder: (_, _) => Container(
-            width: _PhoneSizes.cardWidth.w,
-            height: _PhoneSizes.cardHeight.h,
-            margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
+            width: _PhoneSizes.cardWidth,
+            height: _PhoneSizes.cardHeight,
+            margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
             decoration: BoxDecoration(
               color: AppTheme.surface(context),
               borderRadius: BorderRadius.circular(
-                _PhoneSizes.cardBorderRadius.r,
+                _PhoneSizes.cardBorderRadius,
               ),
             ),
           ),
@@ -438,12 +437,12 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 56.w,
+      width: 56,
       child: Center(
         child: isLoading
             ? SizedBox(
-                width: 22.w,
-                height: 22.w,
+                width: 22,
+                height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: AppTheme.primaryColor,
@@ -505,12 +504,12 @@ class _ShortsThumbItemPhone extends StatelessWidget {
         arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
       ),
       child: Container(
-        width: _PhoneSizes.cardWidth.w,
-        height: _PhoneSizes.cardHeight.h,
-        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight.w),
+        width: _PhoneSizes.cardWidth,
+        height: _PhoneSizes.cardHeight,
+        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
+          borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
         ),
         clipBehavior: Clip.hardEdge,
         child: Stack(
@@ -528,7 +527,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              height: _PhoneSizes.gradientHeight.h,
+              height: _PhoneSizes.gradientHeight,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -546,24 +545,24 @@ class _ShortsThumbItemPhone extends StatelessWidget {
             // Süre rozeti — sağ üst
             if (shorts.duration.isNotEmpty)
               Positioned(
-                top: _PhoneSizes.durationTop.h,
-                right: _PhoneSizes.durationRight.w,
+                top: _PhoneSizes.durationTop,
+                right: _PhoneSizes.durationRight,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _PhoneSizes.durationPaddingHorizontal.w,
-                    vertical: _PhoneSizes.durationPaddingVertical.h,
+                    horizontal: _PhoneSizes.durationPaddingHorizontal,
+                    vertical: _PhoneSizes.durationPaddingVertical,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(
-                      _PhoneSizes.durationBorderRadius.r,
+                      _PhoneSizes.durationBorderRadius,
                     ),
                   ),
                   child: Text(
                     _formatDuration(shorts.duration),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: _PhoneSizes.durationFontSize.sp,
+                      fontSize: _PhoneSizes.durationFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -572,9 +571,9 @@ class _ShortsThumbItemPhone extends StatelessWidget {
 
             // Alt içerik: logo + üniversite adı + başlık + tarih
             Positioned(
-              left: _PhoneSizes.contentPaddingHorizontal.w,
-              right: _PhoneSizes.contentPaddingHorizontal.w,
-              bottom: _PhoneSizes.contentPaddingBottom.h,
+              left: _PhoneSizes.contentPaddingHorizontal,
+              right: _PhoneSizes.contentPaddingHorizontal,
+              bottom: _PhoneSizes.contentPaddingBottom,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -582,8 +581,8 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        width: _PhoneSizes.logoSize.w,
-                        height: _PhoneSizes.logoSize.w,
+                        width: _PhoneSizes.logoSize,
+                        height: _PhoneSizes.logoSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
@@ -605,7 +604,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                               : const Icon(Icons.school, size: 10),
                         ),
                       ),
-                      SizedBox(width: _PhoneSizes.logoTitleSpacing.w),
+                      SizedBox(width: _PhoneSizes.logoTitleSpacing),
                       Expanded(
                         child: Text(
                           shorts.universityName,
@@ -613,33 +612,33 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.85),
-                            fontSize: _PhoneSizes.uniNameFontSize.sp,
+                            fontSize: _PhoneSizes.uniNameFontSize,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.rowToTitleSpacing.h),
+                  SizedBox(height: _PhoneSizes.rowToTitleSpacing),
                   Text(
                     shorts.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: _PhoneSizes.titleFontSize.sp,
+                      fontSize: _PhoneSizes.titleFontSize,
                       fontWeight: FontWeight.w700,
                       height: _PhoneSizes.titleLineHeight,
                     ),
                   ),
-                  SizedBox(height: _PhoneSizes.titleToTimeSpacing.h),
+                  SizedBox(height: _PhoneSizes.titleToTimeSpacing),
                   Text(
                     timeAgo,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.65),
-                      fontSize: _PhoneSizes.timeAgoFontSize.sp,
+                      fontSize: _PhoneSizes.timeAgoFontSize,
                     ),
                   ),
                 ],
@@ -656,7 +655,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
     child: Icon(
       Icons.play_circle_outline_rounded,
       color: AppTheme.textSec(context),
-      size: _PhoneSizes.placeholderIconSize.sp,
+      size: _PhoneSizes.placeholderIconSize,
     ),
   );
 

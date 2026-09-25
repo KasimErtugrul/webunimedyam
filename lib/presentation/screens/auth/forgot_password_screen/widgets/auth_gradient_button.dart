@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_gradient_button.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -45,7 +44,7 @@ class AuthGradientButton extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
         color: loading ? surface : null,
-        borderRadius: BorderRadius.circular(radius.r),
+        borderRadius: BorderRadius.circular(radius),
         boxShadow: loading
             ? const []
             : [
@@ -62,15 +61,15 @@ class AuthGradientButton extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           disabledBackgroundColor: Colors.transparent,
-          minimumSize: Size(double.infinity, height.h),
+          minimumSize: Size(double.infinity, height),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radius.r),
+            borderRadius: BorderRadius.circular(radius),
           ),
         ),
         child: loading
             ? SizedBox(
-                width: loaderSize.w,
-                height: loaderSize.w,
+                width: loaderSize,
+                height: loaderSize,
                 child: CircularProgressIndicator(
                   color: textSec,
                   strokeWidth: loaderStroke,
@@ -83,17 +82,17 @@ class AuthGradientButton extends StatelessWidget {
                     label,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: fontSize.sp,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
                     ),
                   ),
                   if (trailingIcon != null) ...[
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 8),
                     Icon(
                       trailingIcon,
                       color: Colors.white,
-                      size: (fontSize + 2).sp,
+                      size: (fontSize + 2),
                     ),
                   ],
                 ],

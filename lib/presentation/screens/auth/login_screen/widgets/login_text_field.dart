@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/login_text_field.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../login_layout_spec.dart';
 
 
@@ -124,9 +123,9 @@ class _LoginTextFieldState extends State<LoginTextField> {
             constraints: BoxConstraints(minHeight: s.fieldHeight),
             contentPadding: EdgeInsets.fromLTRB(
               0,
-              14.h,
+              14,
               widget.suffix != null ? s.toggleRight : s.fieldPaddingRightEmail,
-              14.h,
+              14,
             ),
             // Soldaki absolute ikon: left-4 + 20px ikon → metin pl-11 (44)
             prefixIcon: Padding(
@@ -138,7 +137,7 @@ class _LoginTextFieldState extends State<LoginTextField> {
               ),
             ),
             prefixIconConstraints: BoxConstraints(
-              minWidth: s.fieldIconLeft + s.fieldIconSize + 8.w,
+              minWidth: s.fieldIconLeft + s.fieldIconSize + 8,
               minHeight: s.fieldIconSize,
             ),
             suffixIcon: widget.suffix,

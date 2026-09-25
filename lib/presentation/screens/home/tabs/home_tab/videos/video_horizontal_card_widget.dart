@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/widgets/tabs/home_tab/videos/video_horizontal_card_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
@@ -136,7 +135,7 @@ class VideoHorizontalCard extends StatelessWidget {
 
     return Material(
       color: AppTheme.card(context),
-      borderRadius: BorderRadius.circular(spec.cardRadius.r),
+      borderRadius: BorderRadius.circular(spec.cardRadius),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () => Get.toNamed(
@@ -145,8 +144,8 @@ class VideoHorizontalCard extends StatelessWidget {
           parameters: {'videoId': vm.videoId},
         ),
         child: SizedBox(
-          width: spec.cardWidth.w,
-          height: spec.cardHeight.h,
+          width: spec.cardWidth,
+          height: spec.cardHeight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -171,7 +170,7 @@ class VideoHorizontalCard extends StatelessWidget {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      height: spec.gradientHeight.h,
+                      height: spec.gradientHeight,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -187,23 +186,23 @@ class VideoHorizontalCard extends StatelessWidget {
                     ),
                     if (video.duration.isNotEmpty)
                       Positioned(
-                        bottom: spec.durationBottom.h,
-                        right: spec.durationRight.w,
+                        bottom: spec.durationBottom,
+                        right: spec.durationRight,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: spec.durationPaddingH.w,
-                            vertical: spec.durationPaddingV.h,
+                            horizontal: spec.durationPaddingH,
+                            vertical: spec.durationPaddingV,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.75),
                             borderRadius:
-                                BorderRadius.circular(spec.durationRadius.r),
+                                BorderRadius.circular(spec.durationRadius),
                           ),
                           child: Text(
                             formatIsoDuration(video.duration),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: spec.durationFontSize.sp,
+                              fontSize: spec.durationFontSize,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -218,8 +217,8 @@ class VideoHorizontalCard extends StatelessWidget {
                 flex: 4,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: spec.contentPaddingH.w,
-                    vertical: spec.contentPaddingV.h,
+                    horizontal: spec.contentPaddingH,
+                    vertical: spec.contentPaddingV,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +230,7 @@ class VideoHorizontalCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: spec.titleFontSize.sp,
+                            fontSize: spec.titleFontSize,
                             fontWeight: FontWeight.w700,
                             height: spec.titleLineHeight,
                           ),
@@ -243,30 +242,30 @@ class VideoHorizontalCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppTheme.textSec(context),
-                          fontSize: spec.channelFontSize.sp,
+                          fontSize: spec.channelFontSize,
                         ),
                       ),
-                      SizedBox(height: spec.statSpacing.h),
+                      SizedBox(height: spec.statSpacing),
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: spec.statPaddingH.w,
-                          vertical: spec.statPaddingV.h,
+                          horizontal: spec.statPaddingH,
+                          vertical: spec.statPaddingV,
                         ),
                         decoration: BoxDecoration(
                           color:
                               AppTheme.primaryColor.withValues(alpha: 0.15),
                           borderRadius:
-                              BorderRadius.circular(spec.statRadius.r),
+                              BorderRadius.circular(spec.statRadius),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               statIcon,
-                              size: spec.statIconSize.sp,
+                              size: spec.statIconSize,
                               color: AppTheme.primaryColor,
                             ),
-                            SizedBox(width: spec.statSpacing.w),
+                            SizedBox(width: spec.statSpacing),
                             Flexible(
                               child: Text(
                                 statLabelBuilder(video),
@@ -274,7 +273,7 @@ class VideoHorizontalCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: AppTheme.primaryColor,
-                                  fontSize: spec.statFontSize.sp,
+                                  fontSize: spec.statFontSize,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -298,7 +297,7 @@ class VideoHorizontalCard extends StatelessWidget {
     child: Icon(
       Icons.play_circle_outline_rounded,
       color: AppTheme.textSec(context),
-      size: spec.placeholderIconSize.sp,
+      size: spec.placeholderIconSize,
     ),
   );
 

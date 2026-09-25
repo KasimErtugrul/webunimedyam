@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/change_password_cancel_button.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../change_password_layout_spec.dart';
@@ -20,16 +19,16 @@ class ChangePasswordCancelButton extends StatelessWidget {
         foregroundColor: scheme.onSurface,
         elevation: 0,
         shadowColor: Colors.transparent,
-        minimumSize: Size(double.infinity, spec.buttonHeight.h),
+        minimumSize: Size(double.infinity, spec.buttonHeight),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(spec.radius.r),
+          borderRadius: BorderRadius.circular(spec.radius),
         ),
       ),
       child: Text(
         'Vazgeç',
         style: TextStyle(
           color: scheme.onSurface,
-          fontSize: spec.fontSize.sp,
+          fontSize: spec.fontSize,
           fontWeight: FontWeight.w600,
         ),
       ),

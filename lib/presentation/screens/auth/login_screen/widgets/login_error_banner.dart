@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../controllers/auth/login_controller.dart';
@@ -34,7 +33,7 @@ class LoginErrorBanner extends GetView<LoginController> {
         child: Row(
           children: [
             Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
-            SizedBox(width: 10.w),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 msg,

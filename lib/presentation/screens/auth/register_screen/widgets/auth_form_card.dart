@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_form_card.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -20,10 +19,10 @@ class AuthFormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = AppTheme.isDark(context);
     return Container(
-      padding: EdgeInsets.all(padding.w),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(radius.r),
+        borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.06)

@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/login_footer_links.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 
@@ -35,7 +34,7 @@ class LoginFooterLinks extends StatelessWidget {
           onTap: () => Get.toNamed(AppRoutes.register),
           behavior: HitTestBehavior.opaque,
           child: Padding(
-            padding: EdgeInsets.only(left: 4.w),
+            padding: EdgeInsets.only(left: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

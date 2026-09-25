@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/change_password_error_banner.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../change_password_layout_spec.dart';
 
@@ -19,23 +18,23 @@ class ChangePasswordErrorBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14.w),
-      margin: EdgeInsets.only(top: 16.h),
+      padding: EdgeInsets.all(14),
+      margin: EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         color: scheme.error.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(spec.radius.r),
+        borderRadius: BorderRadius.circular(spec.radius),
         border: Border.all(color: scheme.error.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline_rounded, color: scheme.error, size: 20.sp),
-          SizedBox(width: 10.w),
+          Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
                 color: scheme.error,
-                fontSize: spec.errorFontSize.sp,
+                fontSize: spec.errorFontSize,
                 fontWeight: FontWeight.w500,
               ),
             ),

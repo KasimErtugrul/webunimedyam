@@ -2,7 +2,6 @@
 // ABSTRACT SIZES CONTRACT
 // ═══════════════════════════════════════════════════════════
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class InterestSelectionSizes {
   const InterestSelectionSizes();
@@ -73,53 +72,53 @@ class InterestSelectionPhoneSizes extends InterestSelectionSizes {
 
   @override bool get isTablet => false;
 
-  @override double get headerPaddingLeft => 20.w;
-  @override double get headerPaddingTop => 12.h;
-  @override double get headerPaddingRight => 20.w;
-  @override double get headerPaddingBottom => 8.h;
-  @override double get headerTitleFontSize => 22.sp;
-  @override double get headerSkipFontSize => 14.sp;
-  @override double get headerDescriptionSpacing => 6.h;
-  @override double get headerDescriptionFontSize => 13.sp;
+  @override double get headerPaddingLeft => 20;
+  @override double get headerPaddingTop => 12;
+  @override double get headerPaddingRight => 20;
+  @override double get headerPaddingBottom => 8;
+  @override double get headerTitleFontSize => 22;
+  @override double get headerSkipFontSize => 14;
+  @override double get headerDescriptionSpacing => 6;
+  @override double get headerDescriptionFontSize => 13;
   @override double get headerDescriptionLineHeight => 1.4;
-  @override double get headerSearchSpacing => 14.h;
-  @override double get headerSearchFontSize => 14.sp;
-  @override double get headerSearchHintFontSize => 14.sp;
-  @override double get headerSearchContentPaddingVertical => 10.h;
-  @override double get headerSearchBorderRadius => 12.r;
+  @override double get headerSearchSpacing => 14;
+  @override double get headerSearchFontSize => 14;
+  @override double get headerSearchHintFontSize => 14;
+  @override double get headerSearchContentPaddingVertical => 10;
+  @override double get headerSearchBorderRadius => 12;
 
-  @override double get gridPaddingLeft => 20.w;
-  @override double get gridPaddingTop => 8.h;
-  @override double get gridPaddingRight => 20.w;
-  @override double get gridPaddingBottom => 16.h;
-  @override double get gridMainAxisSpacing => 12.h;
-  @override double get gridCrossAxisSpacing => 12.w;
+  @override double get gridPaddingLeft => 20;
+  @override double get gridPaddingTop => 8;
+  @override double get gridPaddingRight => 20;
+  @override double get gridPaddingBottom => 16;
+  @override double get gridMainAxisSpacing => 12;
+  @override double get gridCrossAxisSpacing => 12;
   @override double get gridChildAspectRatio => 2.6;
 
-  @override double get chipPaddingHorizontal => 12.w;
-  @override double get chipPaddingVertical => 10.h;
-  @override double get chipBorderRadius => 14.r;
+  @override double get chipPaddingHorizontal => 12;
+  @override double get chipPaddingVertical => 10;
+  @override double get chipBorderRadius => 14;
   @override double get chipBorderWidth => 1.5;
-  @override double get chipAvatarRadius => 16.r;
-  @override double get chipAvatarIconSize => 16.sp;
-  @override double get chipAvatarSpacing => 8.w;
-  @override double get chipTitleFontSize => 12.5.sp;
-  @override double get chipCheckIconSize => 18.sp;
+  @override double get chipAvatarRadius => 16;
+  @override double get chipAvatarIconSize => 16;
+  @override double get chipAvatarSpacing => 8;
+  @override double get chipTitleFontSize => 12.5;
+  @override double get chipCheckIconSize => 18;
 
-  @override double get bottomBarPaddingLeft => 20.w;
-  @override double get bottomBarPaddingTop => 8.h;
-  @override double get bottomBarPaddingRight => 20.w;
-  @override double get bottomBarPaddingBottom => 20.h;
-  @override double get bottomBarButtonHeight => 48.h;
-  @override double get bottomBarButtonFontSize => 16.sp;
-  @override double get bottomBarLoaderSize => 20.w;
+  @override double get bottomBarPaddingLeft => 20;
+  @override double get bottomBarPaddingTop => 8;
+  @override double get bottomBarPaddingRight => 20;
+  @override double get bottomBarPaddingBottom => 20;
+  @override double get bottomBarButtonHeight => 48;
+  @override double get bottomBarButtonFontSize => 16;
+  @override double get bottomBarLoaderSize => 20;
   @override double get bottomBarLoaderStrokeWidth => 2;
 
-  @override double get errorPaddingHorizontal => 32.w;
-  @override double get errorFontSize => 14.sp;
-  @override double get errorSpacing => 12.h;
+  @override double get errorPaddingHorizontal => 32;
+  @override double get errorFontSize => 14;
+  @override double get errorSpacing => 12;
 
-  @override double get emptyFontSize => 14.sp;
+  @override double get emptyFontSize => 14;
 }
 
 // ═══════════════════════════════════════════════════════════

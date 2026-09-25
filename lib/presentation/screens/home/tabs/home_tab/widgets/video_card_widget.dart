@@ -2,7 +2,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -291,7 +290,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 0,
-        vertical: _PhoneSizes.cardOuterPadV.h,
+        vertical: _PhoneSizes.cardOuterPadV,
       ),
       child: Container(
         decoration: BoxDecoration(color: AppTheme.card(context)),
@@ -304,7 +303,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             _buildPhoneActionRow(context, controller),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: _PhoneSizes.dividerPadH.w,
+                horizontal: _PhoneSizes.dividerPadH,
               ),
               child: Divider(
                 height: _PhoneSizes.dividerHeight,
@@ -323,13 +322,13 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   Widget _buildPhoneHeader(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.headerPadH.w,
-        vertical: _PhoneSizes.headerPadV.h,
+        horizontal: _PhoneSizes.headerPadH,
+        vertical: _PhoneSizes.headerPadV,
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(_PhoneSizes.logoPadding.w),
+            padding: EdgeInsets.all(_PhoneSizes.logoPadding),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -339,7 +338,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ),
             ),
             child: Container(
-              padding: EdgeInsets.all(_PhoneSizes.logoInnerPadding.w),
+              padding: EdgeInsets.all(_PhoneSizes.logoInnerPadding),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.card(context),
@@ -347,7 +346,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               child: _buildPhoneAvatarInner(context, controller),
             ),
           ),
-          SizedBox(width: _PhoneSizes.logoSpacing.w),
+          SizedBox(width: _PhoneSizes.logoSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,19 +363,19 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     video.universityName ?? video.channelTitle,
                     style: TextStyle(
                       color: AppTheme.textPri(context),
-                      fontSize: _PhoneSizes.uniNameFontSize.sp,
+                      fontSize: _PhoneSizes.uniNameFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                SizedBox(height: _PhoneSizes.timeSpacing.h),
+                SizedBox(height: _PhoneSizes.timeSpacing),
                 Text(
                   timeago.format(video.publishedAt, locale: 'tr'),
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: _PhoneSizes.timeFontSize.sp,
+                    fontSize: _PhoneSizes.timeFontSize,
                   ),
                 ),
               ],
@@ -395,8 +394,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.followPadH.w,
-                  vertical: _PhoneSizes.followPadV.h,
+                  horizontal: _PhoneSizes.followPadH,
+                  vertical: _PhoneSizes.followPadV,
                 ),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -405,13 +404,13 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               child: isFav
                   ? Icon(
                       Icons.check_rounded,
-                      size: _PhoneSizes.followCheckIconSize.sp,
+                      size: _PhoneSizes.followCheckIconSize,
                       color: Theme.of(context).colorScheme.primary,
                     )
                   : Text(
                       'Takip Et',
                       style: TextStyle(
-                        fontSize: _PhoneSizes.followTextFontSize.sp,
+                        fontSize: _PhoneSizes.followTextFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -420,11 +419,11 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           GestureDetector(
             onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
-              padding: EdgeInsets.only(left: _PhoneSizes.menuPaddingLeft.w),
+              padding: EdgeInsets.only(left: _PhoneSizes.menuPaddingLeft),
               child: Icon(
                 Icons.more_horiz_rounded,
                 color: AppTheme.textPri(context),
-                size: _PhoneSizes.menuIconSize.sp,
+                size: _PhoneSizes.menuIconSize,
               ),
             ),
           ),
@@ -444,8 +443,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       final logoUrl = uni?.logoUrl;
       final hasLogo = logoUrl != null && logoUrl.isNotEmpty;
       return SizedBox(
-        width: _PhoneSizes.logoSize.w,
-        height: _PhoneSizes.logoSize.w,
+        width: _PhoneSizes.logoSize,
+        height: _PhoneSizes.logoSize,
         child: ClipOval(
           child: hasLogo
               ? CachedNetworkImage(
@@ -490,9 +489,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               parameters: {'videoId': video.videoId},
             ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.thumbPadH.w),
+        padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.thumbPadH),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(_PhoneSizes.thumbBorderRadius.r),
+          borderRadius: BorderRadius.circular(_PhoneSizes.thumbBorderRadius),
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: Stack(
@@ -506,7 +505,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     child: Center(
                       child: CircularProgressIndicator(
                         color: Theme.of(context).colorScheme.primary,
-                        strokeWidth: _PhoneSizes.loadingStrokeWidth.w,
+                        strokeWidth: _PhoneSizes.loadingStrokeWidth,
                       ),
                     ),
                   ),
@@ -515,14 +514,14 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     child: Icon(
                       Icons.play_circle_outline_rounded,
                       color: AppTheme.textSec(context),
-                      size: _PhoneSizes.thumbErrorIconSize.sp,
+                      size: _PhoneSizes.thumbErrorIconSize,
                     ),
                   ),
                 ),
                 if (isLive)
                   Positioned(
-                    top: _PhoneSizes.badgeTop.h,
-                    left: _PhoneSizes.badgeLeft.w,
+                    top: _PhoneSizes.badgeTop,
+                    left: _PhoneSizes.badgeLeft,
                     child: _LiveBadgePhone(
                       label: 'CANLI',
                       color: const Color(0xFFE53935),
@@ -530,8 +529,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 if (isUpcoming)
                   Positioned(
-                    top: _PhoneSizes.badgeTop.h,
-                    left: _PhoneSizes.badgeLeft.w,
+                    top: _PhoneSizes.badgeTop,
+                    left: _PhoneSizes.badgeLeft,
                     child: _LiveBadgePhone(
                       label: 'YAKINDA',
                       color: const Color(0xFF5C6BC0),
@@ -539,26 +538,26 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 if (!isLive)
                   Positioned(
-                    bottom: _PhoneSizes.durationBottom.h,
-                    right: _PhoneSizes.durationRight.w,
+                    bottom: _PhoneSizes.durationBottom,
+                    right: _PhoneSizes.durationRight,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: _PhoneSizes.durationPadH.w,
-                        vertical: _PhoneSizes.durationPadV.h,
+                        horizontal: _PhoneSizes.durationPadH,
+                        vertical: _PhoneSizes.durationPadV,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(
                           alpha: _PhoneSizes.durationBgAlpha,
                         ),
                         borderRadius: BorderRadius.circular(
-                          _PhoneSizes.durationBorderRadius.r,
+                          _PhoneSizes.durationBorderRadius,
                         ),
                       ),
                       child: Text(
                         video.formattedDuration,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: _PhoneSizes.durationFontSize.sp,
+                          fontSize: _PhoneSizes.durationFontSize,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -575,8 +574,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   Widget _buildPhoneActionRow(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.actionRowPadH.w,
-        vertical: _PhoneSizes.actionRowPadV.h,
+        horizontal: _PhoneSizes.actionRowPadH,
+        vertical: _PhoneSizes.actionRowPadV,
       ),
       child: Row(
         children: [
@@ -629,10 +628,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final hasShared = controller.sharedVideoIds.contains(video.videoId);
             if (isLoading) {
               return Padding(
-                padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding.w),
+                padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
                 child: SizedBox(
-                  width: _PhoneSizes.shareLoadingSize.sp,
-                  height: _PhoneSizes.shareLoadingSize.sp,
+                  width: _PhoneSizes.shareLoadingSize,
+                  height: _PhoneSizes.shareLoadingSize,
                   child: CircularProgressIndicator(
                     strokeWidth: _PhoneSizes.shareLoadingStrokeWidth,
                     color: AppTheme.textSec(context),
@@ -687,23 +686,23 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final viewCount =
                 override ?? liveVideo?.appViewCount ?? video.appViewCount;
             return Padding(
-              padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding.w),
+              padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.visibility_outlined,
-                    size: _PhoneSizes.viewIconSize.sp,
+                    size: _PhoneSizes.viewIconSize,
                     color: AppTheme.textSec(context),
                   ),
-                  SizedBox(width: _PhoneSizes.actionIconTextSpacing.w),
+                  SizedBox(width: _PhoneSizes.actionIconTextSpacing),
                   Text(
                     _formatViewCount(
                       viewCount,
                     ), // eskisi: _formatCount(viewCount)
                     style: TextStyle(
                       color: AppTheme.textSec(context),
-                      fontSize: _PhoneSizes.actionTextFontSize.sp,
+                      fontSize: _PhoneSizes.actionTextFontSize,
                     ),
                   ),
                 ],
@@ -718,10 +717,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   Widget _buildPhoneContent(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        _PhoneSizes.contentPadL.w,
-        _PhoneSizes.contentPadT.h,
-        _PhoneSizes.contentPadR.w,
-        _PhoneSizes.contentPadB.h,
+        _PhoneSizes.contentPadL,
+        _PhoneSizes.contentPadT,
+        _PhoneSizes.contentPadR,
+        _PhoneSizes.contentPadB,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -730,7 +729,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             video.title,
             style: TextStyle(
               color: AppTheme.textPri(context),
-              fontSize: _PhoneSizes.titleFontSize.sp,
+              fontSize: _PhoneSizes.titleFontSize,
               fontWeight: FontWeight.w700,
               height: _PhoneSizes.titleLineHeight,
             ),
@@ -738,14 +737,14 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             overflow: TextOverflow.ellipsis,
           ),
           if (video.description.isNotEmpty) ...[
-            SizedBox(height: _PhoneSizes.descSpacing.h),
+            SizedBox(height: _PhoneSizes.descSpacing),
             RichText(
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
                 style: TextStyle(
                   color: AppTheme.textSec(context),
-                  fontSize: _PhoneSizes.descFontSize.sp,
+                  fontSize: _PhoneSizes.descFontSize,
                   height: _PhoneSizes.descLineHeight,
                 ),
                 children: [
@@ -1305,7 +1304,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       backgroundColor: AppTheme.card(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(_PhoneSizes.sheetBorderRadius.r),
+          top: Radius.circular(_PhoneSizes.sheetBorderRadius),
         ),
       ),
       builder: (sheetContext) {
@@ -1313,20 +1312,20 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: _PhoneSizes.handleTopSpacing.h),
+              SizedBox(height: _PhoneSizes.handleTopSpacing),
               Container(
-                width: _PhoneSizes.handleWidth.w,
-                height: _PhoneSizes.handleHeight.h,
+                width: _PhoneSizes.handleWidth,
+                height: _PhoneSizes.handleHeight,
                 decoration: BoxDecoration(
                   color: AppTheme.textSec(
                     context,
                   ).withValues(alpha: _PhoneSizes.handleAlpha),
                   borderRadius: BorderRadius.circular(
-                    _PhoneSizes.handleBorderRadius.r,
+                    _PhoneSizes.handleBorderRadius,
                   ),
                 ),
               ),
-              SizedBox(height: _PhoneSizes.handleBottomSpacing.h),
+              SizedBox(height: _PhoneSizes.handleBottomSpacing),
               _OptionTilePhone(
                 themeContext: context,
                 icon: Icons.bolt_rounded,
@@ -1374,7 +1373,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   controller.shareVideo(video);
                 },
               ),
-              SizedBox(height: _PhoneSizes.optBottomSpacing.h),
+              SizedBox(height: _PhoneSizes.optBottomSpacing),
             ],
           ),
         );
@@ -1392,7 +1391,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       backgroundColor: AppTheme.card(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(_PhoneSizes.sheetBorderRadius.r),
+          top: Radius.circular(_PhoneSizes.sheetBorderRadius),
         ),
       ),
       builder: (sheetContext) {
@@ -1403,10 +1402,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.fromLTRB(
-                _PhoneSizes.qcPadL.w,
-                _PhoneSizes.qcPadT.h,
-                _PhoneSizes.qcPadR.w,
-                _PhoneSizes.qcPadB.h,
+                _PhoneSizes.qcPadL,
+                _PhoneSizes.qcPadT,
+                _PhoneSizes.qcPadR,
+                _PhoneSizes.qcPadB,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1416,10 +1415,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     children: [
                       Icon(
                         Icons.bolt_rounded,
-                        size: _PhoneSizes.qcHeaderIconSize.sp,
+                        size: _PhoneSizes.qcHeaderIconSize,
                         color: Theme.of(context).colorScheme.primary,
                       ),
-                      SizedBox(width: _PhoneSizes.qcHeaderIconSpacing.w),
+                      SizedBox(width: _PhoneSizes.qcHeaderIconSpacing),
                       Expanded(
                         child: Text(
                           video.universityName ?? video.channelTitle,
@@ -1427,7 +1426,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppTheme.textPri(context),
-                            fontSize: _PhoneSizes.qcHeaderTextFontSize.sp,
+                            fontSize: _PhoneSizes.qcHeaderTextFontSize,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1436,23 +1435,23 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                         onTap: () => Navigator.pop(sheetContext),
                         child: Icon(
                           Icons.close_rounded,
-                          size: _PhoneSizes.qcCloseIconSize.sp,
+                          size: _PhoneSizes.qcCloseIconSize,
                           color: AppTheme.textSec(context),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.qcTitleSpacing.h),
+                  SizedBox(height: _PhoneSizes.qcTitleSpacing),
                   Text(
                     video.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppTheme.textSec(context),
-                      fontSize: _PhoneSizes.qcTitleFontSize.sp,
+                      fontSize: _PhoneSizes.qcTitleFontSize,
                     ),
                   ),
-                  SizedBox(height: _PhoneSizes.qcInputSpacing.h),
+                  SizedBox(height: _PhoneSizes.qcInputSpacing),
                   Obx(() {
                     final isSending = controller.quickCommentSendingIds
                         .contains(video.videoId);
@@ -1714,17 +1713,17 @@ class _OptionTilePhone extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.optTilePadH.w,
-          vertical: _PhoneSizes.optTilePadV.h,
+          horizontal: _PhoneSizes.optTilePadH,
+          vertical: _PhoneSizes.optTilePadV,
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              size: _PhoneSizes.optIconSize.sp,
+              size: _PhoneSizes.optIconSize,
               color: iconColor ?? AppTheme.textPri(themeContext),
             ),
-            SizedBox(width: _PhoneSizes.optIconSpacing.w),
+            SizedBox(width: _PhoneSizes.optIconSpacing),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1733,17 +1732,17 @@ class _OptionTilePhone extends StatelessWidget {
                     label,
                     style: TextStyle(
                       color: AppTheme.textPri(themeContext),
-                      fontSize: _PhoneSizes.optLabelFontSize.sp,
+                      fontSize: _PhoneSizes.optLabelFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (subtitle != null) ...[
-                    SizedBox(height: _PhoneSizes.optSubtitleSpacing.h),
+                    SizedBox(height: _PhoneSizes.optSubtitleSpacing),
                     Text(
                       subtitle!,
                       style: TextStyle(
                         color: AppTheme.textSec(themeContext),
-                        fontSize: _PhoneSizes.optSubtitleFontSize.sp,
+                        fontSize: _PhoneSizes.optSubtitleFontSize,
                       ),
                     ),
                   ],
@@ -1780,22 +1779,22 @@ class _IgActionBtnPhone extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(
-          _PhoneSizes.actionBtnBorderRadius.r,
+          _PhoneSizes.actionBtnBorderRadius,
         ),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding.w),
+          padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: color, size: _PhoneSizes.actionIconSize.sp),
+              Icon(icon, color: color, size: _PhoneSizes.actionIconSize),
               if (count > 0) ...[
-                SizedBox(width: _PhoneSizes.actionIconTextSpacing.w),
+                SizedBox(width: _PhoneSizes.actionIconTextSpacing),
                 Text(
                   _formatCount(count),
                   style: TextStyle(
                     color: isActive ? color : AppTheme.textSec(themeContext),
-                    fontSize: _PhoneSizes.actionTextFontSize.sp,
+                    fontSize: _PhoneSizes.actionTextFontSize,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -1818,12 +1817,12 @@ class _LiveBadgePhone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.badgePadH.w,
-        vertical: _PhoneSizes.badgePadV.h,
+        horizontal: _PhoneSizes.badgePadH,
+        vertical: _PhoneSizes.badgePadV,
       ),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(_PhoneSizes.badgeBorderRadius.r),
+        borderRadius: BorderRadius.circular(_PhoneSizes.badgeBorderRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1831,14 +1830,14 @@ class _LiveBadgePhone extends StatelessWidget {
           Icon(
             Icons.circle,
             color: Colors.white,
-            size: _PhoneSizes.badgeDotSize.sp,
+            size: _PhoneSizes.badgeDotSize,
           ),
-          SizedBox(width: _PhoneSizes.badgeDotSpacing.w),
+          SizedBox(width: _PhoneSizes.badgeDotSpacing),
           Text(
             label,
             style: TextStyle(
               color: Colors.white,
-              fontSize: _PhoneSizes.badgeFontSize.sp,
+              fontSize: _PhoneSizes.badgeFontSize,
               fontWeight: FontWeight.w800,
               letterSpacing: _PhoneSizes.badgeLetterSpacing,
             ),
@@ -1860,7 +1859,7 @@ class _AvatarFallbackPhone extends StatelessWidget {
       child: Icon(
         Icons.school_rounded,
         color: AppTheme.textSec(themeContext),
-        size: _PhoneSizes.avatarFallbackIconSize.sp,
+        size: _PhoneSizes.avatarFallbackIconSize,
       ),
     );
   }

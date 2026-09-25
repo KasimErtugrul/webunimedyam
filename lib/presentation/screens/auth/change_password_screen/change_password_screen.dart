@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/change_password_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -31,14 +30,14 @@ class ChangePasswordScreen extends GetView<ChangePassController> {
               physics: const BouncingScrollPhysics(),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.symmetric(
-                horizontal: spec.horizontalPadding.w,
-                vertical: spec.verticalPadding.h,
+                horizontal: spec.horizontalPadding,
+                vertical: spec.verticalPadding,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const _Header(),
-                  SizedBox(height: spec.sectionSpacing.h),
+                  SizedBox(height: spec.sectionSpacing),
                   _FormCard(spec: spec),
                   // Sunucu hatası (client validator'lar geçildikten sonra)
                   Obx(() {
@@ -46,13 +45,13 @@ class ChangePasswordScreen extends GetView<ChangePassController> {
                     if (msg.isEmpty) return const SizedBox.shrink();
                     final scheme = Theme.of(context).colorScheme;
                     return Padding(
-                      padding: EdgeInsets.only(top: 16.h),
+                      padding: EdgeInsets.only(top: 16),
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.all(14.w),
+                        padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: scheme.error.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(spec.radius.r),
+                          borderRadius: BorderRadius.circular(spec.radius),
                           border: Border.all(
                             color: scheme.error.withValues(alpha: 0.35),
                           ),
@@ -62,15 +61,15 @@ class ChangePasswordScreen extends GetView<ChangePassController> {
                             Icon(
                               Icons.error_outline_rounded,
                               color: scheme.error,
-                              size: 20.sp,
+                              size: 20,
                             ),
-                            SizedBox(width: 10.w),
+                            SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 msg,
                                 style: TextStyle(
                                   color: scheme.error,
-                                  fontSize: spec.errorFontSize.sp,
+                                  fontSize: spec.errorFontSize,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -80,11 +79,11 @@ class ChangePasswordScreen extends GetView<ChangePassController> {
                       ),
                     );
                   }),
-                  SizedBox(height: spec.sectionSpacing.h),
+                  SizedBox(height: spec.sectionSpacing),
                   _SubmitButton(spec: spec),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 12),
                   _CancelButton(spec: spec),
-                  SizedBox(height: spec.bottomSpacing.h),
+                  SizedBox(height: spec.bottomSpacing),
                 ],
               ),
             ),
@@ -106,19 +105,19 @@ class ChangePasswordScreen extends GetView<ChangePassController> {
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       centerTitle: false,
-      toolbarHeight: 72.h,
-      titleSpacing: spec.horizontalPadding.w,
+      toolbarHeight: 72,
+      titleSpacing: spec.horizontalPadding,
       title: Row(
         children: [
           const _BackButton(),
-          SizedBox(width: 14.w),
+          SizedBox(width: 14),
           Expanded(
             child: Text(
               'Şifre Değiştir',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 12),
           const _ProfileAvatar(),
         ],
       ),
@@ -132,7 +131,7 @@ class _BackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = BorderRadius.circular(AppTheme.radiusLg.r);
+    final r = BorderRadius.circular(AppTheme.radiusLg);
     return Material(
       color: AppTheme.card(context),
       borderRadius: r,
@@ -140,11 +139,11 @@ class _BackButton extends StatelessWidget {
         borderRadius: r,
         onTap: Get.back,
         child: SizedBox(
-          width: 44.w,
-          height: 44.w,
+          width: 44,
+          height: 44,
           child: Icon(
             Icons.arrow_back_ios_new_rounded,
-            size: 18.sp,
+            size: 18,
             color: AppTheme.textPri(context),
           ),
         ),
@@ -159,15 +158,15 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44.w,
-      height: 44.w,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Theme.of(context).colorScheme.primary,
       ),
       child: Icon(
         Icons.person_rounded,
-        size: 22.sp,
+        size: 22,
         color: Colors.white, // tasarımdaki gibi beyaz ikon
       ),
     );
@@ -184,8 +183,8 @@ class _Header extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 96.w,
-          height: 96.w,
+          width: 96,
+          height: 96,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: scheme.primary.withValues(alpha: 0.08),
@@ -193,33 +192,33 @@ class _Header extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: scheme.primary.withValues(alpha: 0.25),
-                blurRadius: 48.r,
-                spreadRadius: 8.r,
+                blurRadius: 48,
+                spreadRadius: 8,
               ),
             ],
           ),
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Icon(Icons.shield_outlined, size: 46.sp, color: scheme.primary),
+              Icon(Icons.shield_outlined, size: 46, color: scheme.primary),
               Padding(
-                padding: EdgeInsets.only(top: 4.h),
+                padding: EdgeInsets.only(top: 4),
                 child: Icon(
                   Icons.lock_rounded,
-                  size: 14.sp,
+                  size: 14,
                   color: scheme.primary,
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 24.h),
+        SizedBox(height: 24),
         Text(
           'Hesap Güvenliği',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineLarge,
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 10),
         Text(
           'Şifreniz en az 8 karakterden oluşmalı, harf ve rakam içermelidir.',
           textAlign: TextAlign.center,
@@ -243,10 +242,10 @@ class _FormCard extends StatelessWidget {
     final c = Get.find<ChangePassController>();
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
+      padding: EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg.r),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       ),
       child: Form(
         key: c.formKey,
@@ -267,7 +266,7 @@ class _FormCard extends StatelessWidget {
               validator: c.validateCurrent,
               onSubmitted: (_) => c.newFocus.requestFocus(),
             ),
-            SizedBox(height: spec.fieldSpacing.h),
+            SizedBox(height: spec.fieldSpacing),
             _Field(
               spec: spec,
               label: 'Yeni Şifre',
@@ -281,11 +280,11 @@ class _FormCard extends StatelessWidget {
               validator: c.validateNew,
               onSubmitted: (_) => c.confirmFocus.requestFocus(),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 16),
             _StrengthMeter(spec: spec),
-            SizedBox(height: 16.h),
+            SizedBox(height: 16),
             const _Checklist(),
-            SizedBox(height: spec.fieldSpacing.h),
+            SizedBox(height: spec.fieldSpacing),
             // Tasarımda bu alanın göz ikonu yok → düz metin doğrulama.
             _Field(
               spec: spec,
@@ -299,7 +298,7 @@ class _FormCard extends StatelessWidget {
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => c.submit(),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 20),
             const _EndSessionsToggle(),
           ],
         ),
@@ -318,15 +317,15 @@ class _ForgotLink extends StatelessWidget {
     return TextButton(
       onPressed: c.forgotPassword,
       style: TextButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-        minimumSize: Size(44.w, 32.h),
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        minimumSize: Size(44, 32),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(
         'Şifremi Unuttum?',
         style: TextStyle(
           color: Theme.of(context).colorScheme.primary,
-          fontSize: 14.sp,
+          fontSize: 14,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -392,7 +391,7 @@ class _Field extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: 16.sp,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -400,7 +399,7 @@ class _Field extends StatelessWidget {
             ?trailing,
           ],
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 8),
         field,
       ],
     );
@@ -421,13 +420,13 @@ class _Field extends StatelessWidget {
       validator: validator,
       style: TextStyle(
         color: AppTheme.textPri(context),
-        fontSize: spec.fontSize.sp,
+        fontSize: spec.fontSize,
       ),
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(
           icon,
-          size: spec.iconSize.sp,
+          size: spec.iconSize,
           color: AppTheme.textSec(context),
         ),
         suffixIcon: showEye
@@ -438,7 +437,7 @@ class _Field extends StatelessWidget {
                   isObscured
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  size: spec.iconSize.sp,
+                  size: spec.iconSize,
                   color: AppTheme.textSec(context),
                 ),
               )
@@ -483,7 +482,7 @@ class _StrengthMeter extends StatelessWidget {
                 'Şifre Gücü',
                 style: TextStyle(
                   color: AppTheme.textPri(context),
-                  fontSize: 13.sp,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -492,25 +491,25 @@ class _StrengthMeter extends StatelessWidget {
                 c.strengthLabel,
                 style: TextStyle(
                   color: s == 0 ? AppTheme.textPri(context) : color,
-                  fontSize: 13.sp,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 8),
           Row(
             children: List.generate(4, (i) {
               final active = i < s;
               return Expanded(
                 child: Container(
-                  height: 4.h,
-                  margin: EdgeInsets.only(right: i == 3 ? 0 : 6.w),
+                  height: 4,
+                  margin: EdgeInsets.only(right: i == 3 ? 0 : 6),
                   decoration: BoxDecoration(
                     color: active
                         ? color
                         : Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(999.r),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               );
@@ -534,19 +533,19 @@ class _Checklist extends StatelessWidget {
         children: [
           Icon(
             met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-            size: 18.sp,
+            size: 18,
             color: met
                 ? Theme.of(context).colorScheme.primary
                 : AppTheme.textSec(context),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 13,
                 color: met
                     ? AppTheme.textPri(context)
                     : AppTheme.textSec(context),
@@ -562,15 +561,15 @@ class _Checklist extends StatelessWidget {
           Row(
             children: [
               Expanded(child: item(c.hasMinLength.value, 'En az 8 karakter')),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16),
               Expanded(child: item(c.hasUppercase.value, 'Büyük harf (A-Z)')),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 12),
           Row(
             children: [
               Expanded(child: item(c.hasDigit.value, 'Rakam (0-9)')),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16),
               Expanded(child: item(c.hasSpecial.value, 'Özel sembol (!@#\$)')),
             ],
           ),
@@ -598,22 +597,22 @@ class _EndSessionsToggle extends StatelessWidget {
                   'Diğer oturumları sonlandır',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: 16.sp,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 4),
                 Text(
                   'Tüm diğer mobil ve web oturumları kapatılır',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: 13.sp,
+                    fontSize: 13,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 12),
           Switch(
             value: c.endOtherSessions.value,
             onChanged: c.setEndOtherSessions,
@@ -647,15 +646,15 @@ class _SubmitButton extends StatelessWidget {
           disabledForegroundColor: scheme.onPrimary,
           elevation: 0,
           shadowColor: Colors.transparent,
-          minimumSize: Size(double.infinity, spec.buttonHeight.h),
+          minimumSize: Size(double.infinity, spec.buttonHeight),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(spec.radius.r),
+            borderRadius: BorderRadius.circular(spec.radius),
           ),
         ),
         child: loading
             ? SizedBox(
-                width: spec.loaderSize.w,
-                height: spec.loaderSize.w,
+                width: spec.loaderSize,
+                height: spec.loaderSize,
                 child: CircularProgressIndicator(
                   strokeWidth: spec.loaderStroke,
                   color: scheme.onPrimary,
@@ -666,15 +665,15 @@ class _SubmitButton extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.check_rounded,
-                    size: spec.iconSize.sp,
+                    size: spec.iconSize,
                     color: scheme.onPrimary,
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: 8),
                   Text(
                     'Şifre Güncelle',
                     style: TextStyle(
                       color: scheme.onPrimary,
-                      fontSize: spec.fontSize.sp,
+                      fontSize: spec.fontSize,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -699,16 +698,16 @@ class _CancelButton extends StatelessWidget {
         foregroundColor: scheme.onSurface,
         elevation: 0,
         shadowColor: Colors.transparent,
-        minimumSize: Size(double.infinity, spec.buttonHeight.h),
+        minimumSize: Size(double.infinity, spec.buttonHeight),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(spec.radius.r),
+          borderRadius: BorderRadius.circular(spec.radius),
         ),
       ),
       child: Text(
         'Vazgeç',
         style: TextStyle(
           color: scheme.onSurface,
-          fontSize: spec.fontSize.sp,
+          fontSize: spec.fontSize,
           fontWeight: FontWeight.w600,
         ),
       ),

@@ -1,4 +1,3 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT (TEK ORTAK SÖZLEŞME)
@@ -110,78 +109,78 @@ class OnboardingPhoneSizes extends OnboardingSizes {
 
   @override bool get isTablet => false;
 
-  @override double get headerHPadding => 24.w;
-  @override double get headerVPadding => 16.h;
-  @override double get logoSize => 32.w;
-  @override double get logoRadius => 12.r;
-  @override double get logoIconSize => 20.sp;
-  @override double get logoGap => 8.w;
-  @override double get logoFontSize => 20.sp;
-  @override double get skipFontSize => 14.sp;
+  @override double get headerHPadding => 24;
+  @override double get headerVPadding => 16;
+  @override double get logoSize => 32;
+  @override double get logoRadius => 12;
+  @override double get logoIconSize => 20;
+  @override double get logoGap => 8;
+  @override double get logoFontSize => 20;
+  @override double get skipFontSize => 14;
 
-  @override double get pageHPadding => 24.w;
-  @override double get pageTopPadding => 8.h;
-  @override double get visualMaxHeight => 300.h;
-  @override double get visualMaxWidth => 340.w;
-  @override double get visualRadius => 24.r;
-  @override double get visualPadding => 24.w;
-  @override double get glowSize => 176.w;
+  @override double get pageHPadding => 24;
+  @override double get pageTopPadding => 8;
+  @override double get visualMaxHeight => 300;
+  @override double get visualMaxWidth => 340;
+  @override double get visualRadius => 24;
+  @override double get visualPadding => 24;
+  @override double get glowSize => 176;
 
-  @override double get typographyTopGap => 16.h;
-  @override double get labelFontSize => 12.sp;
-  @override double get labelSpacing => 8.h;
-  @override double get titleFontSize => 24.sp;
-  @override double get titleSpacing => 10.h;
-  @override double get descriptionFontSize => 14.sp;
+  @override double get typographyTopGap => 16;
+  @override double get labelFontSize => 12;
+  @override double get labelSpacing => 8;
+  @override double get titleFontSize => 24;
+  @override double get titleSpacing => 10;
+  @override double get descriptionFontSize => 14;
   @override double get descriptionLineHeight => 1.625;
 
-  @override double get tileRadius => 16.r;
-  @override double get pillHPadding => 12.w;
-  @override double get pillVPadding => 6.h;
-  @override double get pillFontSize => 12.sp;
-  @override double get pillIconSize => 16.sp;
-  @override double get pillGap => 6.w;
-  @override double get dotSize => 8.r;
+  @override double get tileRadius => 16;
+  @override double get pillHPadding => 12;
+  @override double get pillVPadding => 6;
+  @override double get pillFontSize => 12;
+  @override double get pillIconSize => 16;
+  @override double get pillGap => 6;
+  @override double get dotSize => 8;
 
-  @override double get innerCardHPadding => 16.w;
-  @override double get innerCardVPadding => 10.h;
-  @override double get innerGap => 12.w;
-  @override double get iconTextGap => 8.w;
-  @override double get visualGap => 16.h;
-  @override double get visualGapSm => 14.h;
-  @override double get stackWidth => 270.w;
+  @override double get innerCardHPadding => 16;
+  @override double get innerCardVPadding => 10;
+  @override double get innerGap => 12;
+  @override double get iconTextGap => 8;
+  @override double get visualGap => 16;
+  @override double get visualGapSm => 14;
+  @override double get stackWidth => 270;
 
-  @override double get heroTileSize => 80.w;
-  @override double get heroIconSize => 40.sp;
-  @override double get spinnerSize => 80.w;
-  @override double get spinnerIconSize => 36.sp;
-  @override double get notifTileSize => 40.w;
-  @override double get notifIconSize => 22.sp;
-  @override double get notifTitleFontSize => 12.sp;
-  @override double get notifBodyFontSize => 11.sp;
-  @override double get actionTileSize => 56.w;
-  @override double get actionIconSize => 28.sp;
-  @override double get avatarSize => 64.w;
-  @override double get avatarIconSize => 32.sp;
-  @override double get radioIconSize => 18.sp;
-  @override double get eqBarWidth => 4.w;
-  @override double get eqBarMaxHeight => 16.h;
-  @override double get eqBarMinHeight => 6.h;
+  @override double get heroTileSize => 80;
+  @override double get heroIconSize => 40;
+  @override double get spinnerSize => 80;
+  @override double get spinnerIconSize => 36;
+  @override double get notifTileSize => 40;
+  @override double get notifIconSize => 22;
+  @override double get notifTitleFontSize => 12;
+  @override double get notifBodyFontSize => 11;
+  @override double get actionTileSize => 56;
+  @override double get actionIconSize => 28;
+  @override double get avatarSize => 64;
+  @override double get avatarIconSize => 32;
+  @override double get radioIconSize => 18;
+  @override double get eqBarWidth => 4;
+  @override double get eqBarMaxHeight => 16;
+  @override double get eqBarMinHeight => 6;
 
-  @override double get dotHeight => 8.h;
-  @override double get dotActiveWidth => 24.w;
-  @override double get dotInactiveWidth => 8.w;
-  @override double get dotGap => 8.w;
+  @override double get dotHeight => 8;
+  @override double get dotActiveWidth => 24;
+  @override double get dotInactiveWidth => 8;
+  @override double get dotGap => 8;
 
-  @override double get buttonHeight => 48.h;
-  @override double get buttonRadius => 16.r;
-  @override double get buttonFontSize => 14.sp;
-  @override double get buttonIconSize => 18.sp;
-  @override double get buttonHPadding => 24.w;
-  @override double get buttonsGap => 10.h;
-  @override double get navRowHeight => 56.h;
-  @override double get footerTopPadding => 8.h;
-  @override double get footerBottomPadding => 20.h;
+  @override double get buttonHeight => 48;
+  @override double get buttonRadius => 16;
+  @override double get buttonFontSize => 14;
+  @override double get buttonIconSize => 18;
+  @override double get buttonHPadding => 24;
+  @override double get buttonsGap => 10;
+  @override double get navRowHeight => 56;
+  @override double get footerTopPadding => 8;
+  @override double get footerBottomPadding => 20;
 }
 
 // ═══════════════════════════════════════════════════════════

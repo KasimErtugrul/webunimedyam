@@ -1,6 +1,5 @@
 // lib/presentation/screens/home/widgets/tabs/universities_tab/widgets/university_card_shimmer_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -15,12 +14,12 @@ class UniversityCardShimmerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: spec.cardBottomMargin.h),
+      padding: EdgeInsets.only(bottom: spec.cardBottomMargin),
       child: Container(
-        padding: EdgeInsets.all(spec.cardPadding.w),
+        padding: EdgeInsets.all(spec.cardPadding),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
-          borderRadius: BorderRadius.circular(spec.cardRadius.r),
+          borderRadius: BorderRadius.circular(spec.cardRadius),
           border: Border.all(
             color: AppTheme.textSec(context).withValues(alpha: 0.06),
           ),
@@ -29,14 +28,14 @@ class UniversityCardShimmerWidget extends StatelessWidget {
           children: [
             // Logo placeholder
             Container(
-              width: spec.cardLogoSize.w,
-              height: spec.cardLogoSize.w,
+              width: spec.cardLogoSize,
+              height: spec.cardLogoSize,
               decoration: const BoxDecoration(
                 color: Colors.grey,
                 shape: BoxShape.circle,
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 12),
             // Metin placeholder
             Expanded(
               child: Column(
@@ -44,34 +43,34 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    height: 14.h,
+                    height: 14,
                     width: double.infinity,
                     color: Colors.grey,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Container(
-                    height: 10.h,
-                    width: 140.w,
+                    height: 10,
+                    width: 140,
                     color: Colors.grey,
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       Container(
-                        height: 18.h,
-                        width: 55.w,
+                        height: 18,
+                        width: 55,
                         decoration: BoxDecoration(
                           color: Colors.grey,
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 6.w),
+                      SizedBox(width: 6),
                       Container(
-                        height: 18.h,
-                        width: 55.w,
+                        height: 18,
+                        width: 55,
                         decoration: BoxDecoration(
                           color: Colors.grey,
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                     ],
@@ -79,13 +78,13 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 10.w),
+            SizedBox(width: 10),
             Container(
-              height: spec.cardFollowHeight.h,
-              width: 80.w,
+              height: spec.cardFollowHeight,
+              width: 80,
               decoration: BoxDecoration(
                 color: Colors.grey,
-                borderRadius: BorderRadius.circular(spec.cardFollowRadius.r),
+                borderRadius: BorderRadius.circular(spec.cardFollowRadius),
               ),
             ),
           ],
@@ -111,7 +110,7 @@ class UniversityCardShimmerList extends StatelessWidget {
       enabled: true,
       child: ListView.builder(
         padding: EdgeInsets.symmetric(
-          horizontal: spec.contentHPadding.w,
+          horizontal: spec.contentHPadding,
         ),
         itemCount: count,
         itemBuilder: (_, _) => UniversityCardShimmerWidget(spec: spec),

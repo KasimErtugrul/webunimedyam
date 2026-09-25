@@ -1,7 +1,6 @@
 // lib/presentation/screens/home/tabs/universities_tab/universities_tab_widget.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
@@ -39,7 +38,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   static const double _cardGap = 8;
 
   double _alphabetItemExtent(bool isTablet) =>
-      ((isTablet ? 110.0 : 96.0) + _cardGap).w;
+      ((isTablet ? 110.0 : 96.0) + _cardGap);
 
   /// A-Z listesinin layout spec'i.
   /// ⚠️ GEÇİCİ DEĞERLER: UniversitiesTabLayoutSpec kurucusu farklıysa
@@ -121,7 +120,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: 6,
         itemBuilder: (_, _) => _buildCardShimmer(context, scheme),
       );
@@ -133,9 +132,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.only(bottom: 24.h),
+        padding: EdgeInsets.only(bottom: 24),
         children: [
-          SizedBox(height: 60.h),
+          SizedBox(height: 60),
           _buildEmptyState(context, scheme, isTablet: isTablet),
         ],
       );
@@ -146,7 +145,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     // aktif harf güncellenir, şeride dokununca/sürükleyince liste kayar.
     if (_currentSort == 'alpha') {
       return Padding(
-        padding: EdgeInsets.only(bottom: 24.h),
+        padding: EdgeInsets.only(bottom: 24),
         child: UniversitiesAlphabetList(
           //spec: _buildAlphabetSpec(isTablet),
           universities: filtered,
@@ -166,11 +165,11 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
       itemCount: filtered.length,
       itemBuilder: (_, i) => Padding(
         padding: EdgeInsets.only(
-          bottom: i == filtered.length - 1 ? 0 : _cardGap.h,
+          bottom: i == filtered.length - 1 ? 0 : _cardGap,
         ),
         child: _buildUniversityCard(
           context,
@@ -191,7 +190,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     required bool isTablet,
   }) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
+      padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -205,7 +204,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                     'Üniversiteler',
                     style: TextStyle(
                       color: scheme.onSurface,
-                      fontSize: isTablet ? 24.sp : 20.sp,
+                      fontSize: isTablet ? 24.sp : 20,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.3,
                     ),
@@ -214,23 +213,23 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                     'Türkiye & KKTC akademik yayın ağları',
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
-                      fontSize: isTablet ? 13.sp : 11.5.sp,
+                      fontSize: isTablet ? 13.sp : 11.5,
                     ),
                   ),
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(20.r),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                          width: 6.w,
-                          height: 6.w,
+                          width: 6,
+                          height: 6,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: scheme.primary,
@@ -242,12 +241,12 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           end: const Offset(1.4, 1.4),
                           duration: 800.ms,
                         ),
-                    SizedBox(width: 5.w),
+                    SizedBox(width: 5),
                     Text(
                       'Canlı Odalar',
                       style: TextStyle(
                         color: scheme.primary,
-                        fontSize: isTablet ? 11.sp : 9.5.sp,
+                        fontSize: isTablet ? 11.sp : 9.5,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -256,31 +255,31 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               ),
             ],
           ),
-          SizedBox(height: 12.h), */
+          SizedBox(height: 12), */
           Container(
-            height: isTablet ? 46.h : 42.h,
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            height: isTablet ? 46 : 42,
+            padding: EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
-                Icon(Icons.search_rounded, color: scheme.outline, size: 20.sp),
-                SizedBox(width: 8.w),
+                Icon(Icons.search_rounded, color: scheme.outline, size: 20),
+                SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _searchController,
                     onChanged: (_) => setState(() {}),
                     style: TextStyle(
                       color: scheme.onSurface,
-                      fontSize: isTablet ? 14.sp : 12.5.sp,
+                      fontSize: isTablet ? 14 : 12.5,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Üniversite veya şehir ara...',
                       hintStyle: TextStyle(
                         color: scheme.outline,
-                        fontSize: isTablet ? 13.5.sp : 12.sp,
+                        fontSize: isTablet ? 13.5 : 12,
                       ),
                       border: InputBorder.none,
                       isDense: true,
@@ -297,7 +296,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                     child: Icon(
                       Icons.cancel_rounded,
                       color: scheme.outline,
-                      size: 18.sp,
+                      size: 18,
                     ),
                   ),
               ],
@@ -345,13 +344,13 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       ];
 
       return SizedBox(
-        height: isTablet ? 38.h : 34.h,
+        height: isTablet ? 38 : 34,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           itemCount: pills.length,
-          separatorBuilder: (_, _) => SizedBox(width: 8.w),
+          separatorBuilder: (_, _) => SizedBox(width: 8),
           itemBuilder: (context, index) {
             final p = pills[index];
             final isSelected = _selectedTypeFilter == p['key'];
@@ -363,14 +362,14 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 14.w : 12.w,
-                  vertical: 6.h,
+                  horizontal: isTablet ? 14 : 12,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? scheme.primary.withValues(alpha: 0.2)
                       : scheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(20.r),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
                         ? scheme.primary.withValues(alpha: 0.4)
@@ -387,14 +386,14 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                         color: isSelected
                             ? scheme.primary
                             : scheme.onSurfaceVariant,
-                        fontSize: isTablet ? 12.5.sp : 11.5.sp,
+                        fontSize: isTablet ? 12.5 : 11.5,
                         fontWeight: isSelected
                             ? FontWeight.w700
                             : FontWeight.w500,
                       ),
                     ),
                     if (count > 0 && p['key'] != 'all') ...[
-                      SizedBox(width: 3.w),
+                      SizedBox(width: 3),
                       Text(
                         '($count)',
                         style: TextStyle(
@@ -403,7 +402,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                       ? scheme.primary
                                       : scheme.onSurfaceVariant)
                                   .withValues(alpha: 0.6),
-                          fontSize: isTablet ? 10.5.sp : 9.5.sp,
+                          fontSize: isTablet ? 10.5 : 9.5,
                         ),
                       ),
                     ],
@@ -428,19 +427,19 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     return Obx(() {
       final filtered = _getFilteredUniversities();
       return Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
+        padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                Icon(Icons.school_rounded, color: scheme.primary, size: 16.sp),
-                SizedBox(width: 5.w),
+                Icon(Icons.school_rounded, color: scheme.primary, size: 16),
+                SizedBox(width: 5),
                 Text(
                   '${filtered.length} Üniversite',
                   style: TextStyle(
                     color: scheme.onSurface,
-                    fontSize: isTablet ? 13.5.sp : 12.5.sp,
+                    fontSize: isTablet ? 13.5 : 12.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -468,7 +467,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     return PopupMenuButton<String>(
       onSelected: (val) => setState(() => _currentSort = val),
       color: scheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       itemBuilder: (ctx) => [
         PopupMenuItem(
           value: 'alpha',
@@ -481,12 +480,12 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                   color: _currentSort == 'alpha'
                       ? scheme.primary
                       : scheme.onSurface,
-                  fontSize: 12.5.sp,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (_currentSort == 'alpha')
-                Icon(Icons.check_rounded, color: scheme.primary, size: 16.sp),
+                Icon(Icons.check_rounded, color: scheme.primary, size: 16),
             ],
           ),
         ),
@@ -501,12 +500,12 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                   color: _currentSort == 'followers'
                       ? scheme.primary
                       : scheme.onSurface,
-                  fontSize: 12.5.sp,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (_currentSort == 'followers')
-                Icon(Icons.check_rounded, color: scheme.primary, size: 16.sp),
+                Icon(Icons.check_rounded, color: scheme.primary, size: 16),
             ],
           ),
         ),
@@ -521,21 +520,21 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                   color: _currentSort == 'videos'
                       ? scheme.primary
                       : scheme.onSurface,
-                  fontSize: 12.5.sp,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (_currentSort == 'videos')
-                Icon(Icons.check_rounded, color: scheme.primary, size: 16.sp),
+                Icon(Icons.check_rounded, color: scheme.primary, size: 16),
             ],
           ),
         ),
       ],
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.5.h),
+        padding: EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -544,22 +543,22 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               'Sırala: ',
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
-                fontSize: isTablet ? 11.5.sp : 10.5.sp,
+                fontSize: isTablet ? 11.5 : 10.5,
               ),
             ),
             Text(
               currentSortLabel,
               style: TextStyle(
                 color: scheme.primary,
-                fontSize: isTablet ? 12.5.sp : 11.5.sp,
+                fontSize: isTablet ? 12.5 : 11.5,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 2.w),
+            SizedBox(width: 2),
             Icon(
               Icons.expand_more_rounded,
               color: scheme.onSurfaceVariant,
-              size: 16.sp,
+              size: 16,
             ),
           ],
         ),
@@ -588,7 +587,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       child: Container(
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Stack(
           children: [
@@ -597,19 +596,19 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 top: 0,
                 right: 0,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(14.r),
-                      bottomLeft: Radius.circular(8.r),
+                      topRight: Radius.circular(14),
+                      bottomLeft: Radius.circular(8),
                     ),
                   ),
                   child: Text(
                     'POPÜLER',
                     style: TextStyle(
                       color: scheme.primary,
-                      fontSize: 8.sp,
+                      fontSize: 8,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
@@ -617,7 +616,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 ),
               ),
             Padding(
-              padding: EdgeInsets.all(10.w),
+              padding: EdgeInsets.all(10),
               child: Column(
                 children: [
                   Row(
@@ -627,16 +626,16 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                         clipBehavior: Clip.none,
                         children: [
                           Container(
-                            width: isTablet ? 48.w : 42.w,
-                            height: isTablet ? 48.w : 42.w,
+                            width: isTablet ? 48 : 42,
+                            height: isTablet ? 48 : 42,
                             decoration: BoxDecoration(
                               color: scheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(10.r),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             alignment: Alignment.center,
                             child: hasLogo
                                 ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderRadius: BorderRadius.circular(10),
                                     child: CachedNetworkImage(
                                       imageUrl: uni.logoUrl!,
                                       fit: BoxFit.contain,
@@ -648,17 +647,17 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                     initials,
                                     style: TextStyle(
                                       color: scheme.primary,
-                                      fontSize: isTablet ? 15.sp : 13.sp,
+                                      fontSize: isTablet ? 15 : 13,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
                           ),
                           Positioned(
-                            bottom: -2.h,
-                            right: -2.w,
+                            bottom: -2,
+                            right: -2,
                             child: Container(
-                              width: 13.w,
-                              height: 13.w,
+                              width: 13,
+                              height: 13,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: scheme.primary,
@@ -666,13 +665,13 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                               child: Icon(
                                 Icons.check,
                                 color: scheme.onPrimary,
-                                size: 8.5.sp,
+                                size: 8.5,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(width: 10.w),
+                      SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,35 +685,35 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: scheme.onSurface,
-                                      fontSize: isTablet ? 14.5.sp : 13.sp,
+                                      fontSize: isTablet ? 14.5 : 13,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                                 if ((uni.subscriberCount ?? 0) > 30000) ...[
-                                  SizedBox(width: 3.w),
+                                  SizedBox(width: 3),
                                   Icon(
                                     Icons.verified_rounded,
                                     color: scheme.primary,
-                                    size: 13.sp,
+                                    size: 13,
                                   ),
                                 ],
                               ],
                             ),
-                            SizedBox(height: 2.h),
+                            SizedBox(height: 2),
                             Text(
                               _buildMetaText(uni),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: scheme.onSurfaceVariant,
-                                fontSize: isTablet ? 12.sp : 10.5.sp,
+                                fontSize: isTablet ? 12 : 10.5,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(width: 6.w),
+                      SizedBox(width: 6),
                       Obx(() {
                         final isFav = controller.favoriteUniversityIds.contains(
                           uni.id,
@@ -724,33 +723,33 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           onTap: () => controller.toggleUniversityFavorite(uni),
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 9.w,
-                              vertical: 5.5.h,
+                              horizontal: 9,
+                              vertical: 5.5,
                             ),
                             decoration: BoxDecoration(
                               color: isFav
                                   ? scheme.primary
                                   : scheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(8.r),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   isFav ? Icons.done : Icons.add,
-                                  size: 13.sp,
+                                  size: 13,
                                   color: isFav
                                       ? scheme.onPrimary
                                       : scheme.primary,
                                 ),
-                                SizedBox(width: 3.w),
+                                SizedBox(width: 3),
                                 Text(
                                   isFav ? 'Takipte' : 'Takip Et',
                                   style: TextStyle(
                                     color: isFav
                                         ? scheme.onPrimary
                                         : scheme.primary,
-                                    fontSize: 10.5.sp,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -761,15 +760,15 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                       }),
                     ],
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 5.h,
+                      horizontal: 10,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: scheme.surfaceContainerHigh.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -784,7 +783,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           '•',
                           style: TextStyle(
                             color: scheme.outline.withValues(alpha: 0.5),
-                            fontSize: 10.sp,
+                            fontSize: 10,
                           ),
                         ),
                         _buildMetricItem(
@@ -797,7 +796,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           '•',
                           style: TextStyle(
                             color: scheme.outline.withValues(alpha: 0.5),
-                            fontSize: 10.sp,
+                            fontSize: 10,
                           ),
                         ),
                         _buildMetricItem(
@@ -827,14 +826,14 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12.sp, color: scheme.outline),
-        SizedBox(width: 4.w),
+        Icon(icon, size: 12, color: scheme.outline),
+        SizedBox(width: 4),
         RichText(
           text: TextSpan(
             text: '$value ',
             style: TextStyle(
               color: scheme.onSurface,
-              fontSize: 10.5.sp,
+              fontSize: 10.5,
               fontWeight: FontWeight.bold,
             ),
             children: [
@@ -842,7 +841,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 text: label,
                 style: TextStyle(
                   color: scheme.onSurfaceVariant,
-                  fontSize: 10.sp,
+                  fontSize: 10,
                   fontWeight: FontWeight.normal,
                 ),
               ),
@@ -889,13 +888,13 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   }) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 56.w,
-              height: 56.w,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: scheme.surfaceContainerHigh,
@@ -903,44 +902,44 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               child: Icon(
                 Icons.school_rounded,
                 color: scheme.outline,
-                size: 28.sp,
+                size: 28,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 12),
             Text(
               'Sonuç Bulunamadı',
               style: TextStyle(
                 color: scheme.onSurface,
-                fontSize: isTablet ? 17.sp : 15.sp,
+                fontSize: isTablet ? 17 : 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 4),
             Text(
               'Arama kriterine uygun üniversite veya kampüs kanalı bulunamadı.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
-                fontSize: isTablet ? 13.sp : 11.5.sp,
+                fontSize: isTablet ? 13 : 11.5,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 16),
             GestureDetector(
               onTap: () {
                 _searchController.clear();
                 setState(() => _selectedTypeFilter = 'all');
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Filtreleri Sıfırla',
                   style: TextStyle(
                     color: scheme.primary,
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -954,11 +953,11 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
 
   Widget _buildCardShimmer(BuildContext context, ColorScheme scheme) {
     return Container(
-      height: 96.h,
-      margin: EdgeInsets.only(bottom: 8.h),
+      height: 96,
+      margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
       ),
     );
   }

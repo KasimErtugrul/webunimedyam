@@ -13,7 +13,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -232,7 +231,7 @@ class WheelVideoCardWidget extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius.r),
+        borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 
@@ -248,11 +247,11 @@ class WheelVideoCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: _PhoneSizes.mediaHeight.h,
+            height: _PhoneSizes.mediaHeight,
             child: _buildMediaPhone(context, controller),
           ),
           SizedBox(
-            height: _PhoneSizes.statsHeight.h,
+            height: _PhoneSizes.statsHeight,
             child: _buildStatsRowPhone(context, controller),
           ),
           Expanded(child: _buildDescriptionPhone(context)),
@@ -288,7 +287,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppTheme.primaryColor,
-                      strokeWidth: _PhoneSizes.progressIndicatorStrokeWidth.w,
+                      strokeWidth: _PhoneSizes.progressIndicatorStrokeWidth,
                     ),
                   ),
                 ),
@@ -297,7 +296,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                   child: Icon(
                     Icons.play_circle_outline_rounded,
                     color: AppTheme.textSec(context),
-                    size: _PhoneSizes.errorIconSize.sp,
+                    size: _PhoneSizes.errorIconSize,
                   ),
                 ),
               ),
@@ -305,7 +304,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 left: 0,
                 right: 0,
                 top: 0,
-                height: _PhoneSizes.topGradientHeight.h,
+                height: _PhoneSizes.topGradientHeight,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -323,7 +322,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: _PhoneSizes.bottomGradientHeight.h,
+                height: _PhoneSizes.bottomGradientHeight,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -340,9 +339,9 @@ class WheelVideoCardWidget extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: _PhoneSizes.titleLeft.w,
-                right: _PhoneSizes.titleRight.w,
-                bottom: _PhoneSizes.titleBottom.h,
+                left: _PhoneSizes.titleLeft,
+                right: _PhoneSizes.titleRight,
+                bottom: _PhoneSizes.titleBottom,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -353,7 +352,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: _PhoneSizes.titleFontSize.sp,
+                        fontSize: _PhoneSizes.titleFontSize,
                         fontWeight: FontWeight.w700,
                         height: _PhoneSizes.titleLineHeight,
                         shadows: const [
@@ -361,12 +360,12 @@ class WheelVideoCardWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: _PhoneSizes.titleSpacing.h),
+                    SizedBox(height: _PhoneSizes.titleSpacing),
                     Text(
                       timeago.format(video.publishedAt, locale: 'tr'),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha:0.75),
-                        fontSize: _PhoneSizes.timeFontSize.sp,
+                        fontSize: _PhoneSizes.timeFontSize,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -377,26 +376,26 @@ class WheelVideoCardWidget extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: _PhoneSizes.uniBlockTop.h,
-          left: _PhoneSizes.uniBlockLeft.w,
-          right: _PhoneSizes.uniBlockRight.w,
+          top: _PhoneSizes.uniBlockTop,
+          left: _PhoneSizes.uniBlockLeft,
+          right: _PhoneSizes.uniBlockRight,
           child: _buildUniversityBlockPhone(context, controller),
         ),
         Positioned(
-          top: _PhoneSizes.badgeTop.h,
-          right: _PhoneSizes.badgeRight.w,
+          top: _PhoneSizes.badgeTop,
+          right: _PhoneSizes.badgeRight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (isLive) _badgePhone('CANLI', const Color(0xFFE53935)),
               if (isUpcoming) _badgePhone('YAKINDA', const Color(0xFF5C6BC0)),
               if (isLive || isUpcoming)
-                SizedBox(height: _PhoneSizes.badgeSpacingBetween.h),
+                SizedBox(height: _PhoneSizes.badgeSpacingBetween),
               Row(
                 children: [
                   if (video.isHd) ...[
                     _pillLabelPhone('HD', small: true),
-                    SizedBox(width: _PhoneSizes.pillSpacing.w),
+                    SizedBox(width: _PhoneSizes.pillSpacing),
                   ],
                   if (!isLive) _pillLabelPhone(video.formattedDuration),
                 ],
@@ -430,13 +429,13 @@ class WheelVideoCardWidget extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Colors.white,
-              fontSize: _PhoneSizes.uniNameFontSize.sp,
+              fontSize: _PhoneSizes.uniNameFontSize,
               fontWeight: FontWeight.w700,
               shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
             ),
           ),
         ),
-        SizedBox(height: _PhoneSizes.uniButtonSpacing.h),
+        SizedBox(height: _PhoneSizes.uniButtonSpacing),
         Obx(() {
           final uniId = uni?.id ?? video.universityId;
           final isFav = controller.favoriteUniversityIds.contains(uniId);
@@ -447,15 +446,15 @@ class WheelVideoCardWidget extends StatelessWidget {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               padding: EdgeInsets.symmetric(
-                horizontal: _PhoneSizes.followButtonPaddingHorizontal.w,
-                vertical: _PhoneSizes.followButtonPaddingVertical.h,
+                horizontal: _PhoneSizes.followButtonPaddingHorizontal,
+                vertical: _PhoneSizes.followButtonPaddingVertical,
               ),
               decoration: BoxDecoration(
                 color: isFav
                     ? Colors.white.withValues(alpha:0.16)
                     : AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(
-                  _PhoneSizes.followButtonRadius.r,
+                  _PhoneSizes.followButtonRadius,
                 ),
                 border: isFav
                     ? Border.all(color: Colors.white.withValues(alpha:0.5))
@@ -466,14 +465,14 @@ class WheelVideoCardWidget extends StatelessWidget {
                 children: [
                   Icon(
                     isFav ? Icons.check_rounded : Icons.add_rounded,
-                    size: _PhoneSizes.followIconSize.sp,
+                    size: _PhoneSizes.followIconSize,
                     color: Colors.white,
                   ),
-                  SizedBox(width: _PhoneSizes.followSpacing.w),
+                  SizedBox(width: _PhoneSizes.followSpacing),
                   Text(
                     isFav ? 'Takipte' : 'Takip Et',
                     style: TextStyle(
-                      fontSize: _PhoneSizes.followTextSize.sp,
+                      fontSize: _PhoneSizes.followTextSize,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
@@ -490,12 +489,12 @@ class WheelVideoCardWidget extends StatelessWidget {
   Widget _badgePhone(String label, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: _PhoneSizes.badgePaddingHorizontal.w,
-        vertical: _PhoneSizes.badgePaddingVertical.h,
+        horizontal: _PhoneSizes.badgePaddingHorizontal,
+        vertical: _PhoneSizes.badgePaddingVertical,
       ),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(_PhoneSizes.badgeRadius.r),
+        borderRadius: BorderRadius.circular(_PhoneSizes.badgeRadius),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha:0.45),
@@ -510,14 +509,14 @@ class WheelVideoCardWidget extends StatelessWidget {
           Icon(
             Icons.circle,
             color: Colors.white,
-            size: _PhoneSizes.badgeIconSize.sp,
+            size: _PhoneSizes.badgeIconSize,
           ),
-          SizedBox(width: _PhoneSizes.badgeSpacing.w),
+          SizedBox(width: _PhoneSizes.badgeSpacing),
           Text(
             label,
             style: TextStyle(
               color: Colors.white,
-              fontSize: _PhoneSizes.badgeFontSize.sp,
+              fontSize: _PhoneSizes.badgeFontSize,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.3,
             ),
@@ -531,23 +530,23 @@ class WheelVideoCardWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: small
-            ? _PhoneSizes.pillPaddingHorizontalSmall.w
-            : _PhoneSizes.pillPaddingHorizontal.w,
+            ? _PhoneSizes.pillPaddingHorizontalSmall
+            : _PhoneSizes.pillPaddingHorizontal,
         vertical: small
-            ? _PhoneSizes.pillPaddingVerticalSmall.h
-            : _PhoneSizes.pillPaddingVertical.h,
+            ? _PhoneSizes.pillPaddingVerticalSmall
+            : _PhoneSizes.pillPaddingVertical,
       ),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha:0.6),
-        borderRadius: BorderRadius.circular(_PhoneSizes.pillRadius.r),
+        borderRadius: BorderRadius.circular(_PhoneSizes.pillRadius),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: Colors.white,
           fontSize: small
-              ? _PhoneSizes.pillFontSizeSmall.sp
-              : _PhoneSizes.pillFontSize.sp,
+              ? _PhoneSizes.pillFontSizeSmall
+              : _PhoneSizes.pillFontSize,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -558,10 +557,10 @@ class WheelVideoCardWidget extends StatelessWidget {
   Widget _buildStatsRowPhone(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        _PhoneSizes.statsPaddingLeft.w,
-        _PhoneSizes.statsPaddingTop.h,
-        _PhoneSizes.statsPaddingRight.w,
-        _PhoneSizes.statsPaddingBottom.h,
+        _PhoneSizes.statsPaddingLeft,
+        _PhoneSizes.statsPaddingTop,
+        _PhoneSizes.statsPaddingRight,
+        _PhoneSizes.statsPaddingBottom,
       ),
       child: Obx(() {
         final liveVideo = controller.videos.firstWhereOrNull(
@@ -615,11 +614,11 @@ class WheelVideoCardWidget extends StatelessWidget {
             if (isShareLoading)
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.statPaddingHorizontal.w,
+                  horizontal: _PhoneSizes.statPaddingHorizontal,
                 ),
                 child: SizedBox(
-                  width: _PhoneSizes.statLoadingSize.sp,
-                  height: _PhoneSizes.statLoadingSize.sp,
+                  width: _PhoneSizes.statLoadingSize,
+                  height: _PhoneSizes.statLoadingSize,
                   child: CircularProgressIndicator(
                     strokeWidth: _PhoneSizes.statLoadingStrokeWidth,
                     color: AppTheme.textSec(context),
@@ -661,14 +660,14 @@ class WheelVideoCardWidget extends StatelessWidget {
     final content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: _PhoneSizes.statIconSize.sp, color: color),
+        Icon(icon, size: _PhoneSizes.statIconSize, color: color),
         if (count > 0) ...[
-          SizedBox(width: _PhoneSizes.statSpacing.w),
+          SizedBox(width: _PhoneSizes.statSpacing),
           Text(
             _formatCount(count),
             style: TextStyle(
               color: color,
-              fontSize: _PhoneSizes.statFontSize.sp,
+              fontSize: _PhoneSizes.statFontSize,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -679,7 +678,7 @@ class WheelVideoCardWidget extends StatelessWidget {
     if (onTap == null) {
       return Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: _PhoneSizes.statPaddingHorizontal.w,
+          horizontal: _PhoneSizes.statPaddingHorizontal,
         ),
         child: content,
       );
@@ -688,12 +687,12 @@ class WheelVideoCardWidget extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(_PhoneSizes.statRadius.r),
+        borderRadius: BorderRadius.circular(_PhoneSizes.statRadius),
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: _PhoneSizes.statPaddingHorizontal.w,
-            vertical: _PhoneSizes.statPaddingVertical.h,
+            horizontal: _PhoneSizes.statPaddingHorizontal,
+            vertical: _PhoneSizes.statPaddingVertical,
           ),
           child: content,
         ),
@@ -710,10 +709,10 @@ class WheelVideoCardWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        _PhoneSizes.descPaddingLeft.w,
-        _PhoneSizes.descPaddingTop.h,
-        _PhoneSizes.descPaddingRight.w,
-        _PhoneSizes.descPaddingBottom.h,
+        _PhoneSizes.descPaddingLeft,
+        _PhoneSizes.descPaddingTop,
+        _PhoneSizes.descPaddingRight,
+        _PhoneSizes.descPaddingBottom,
       ),
       child: Align(
         alignment: Alignment.topLeft,
@@ -722,7 +721,7 @@ class WheelVideoCardWidget extends StatelessWidget {
           overflow: TextOverflow.fade,
           style: TextStyle(
             color: AppTheme.textSec(context),
-            fontSize: _PhoneSizes.descFontSize.sp,
+            fontSize: _PhoneSizes.descFontSize,
             height: _PhoneSizes.descLineHeight,
             fontStyle: hasDescription ? FontStyle.normal : FontStyle.italic,
           ),

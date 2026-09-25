@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/end_sessions_toggle.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -26,22 +25,22 @@ class EndSessionsToggle extends GetView<ChangePassController> {
                   'Diğer oturumları sonlandır',
                   style: TextStyle(
                     color: AppTheme.textPri(context),
-                    fontSize: spec.labelFontSize.sp,
+                    fontSize: spec.labelFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 4),
                 Text(
                   'Tüm diğer mobil ve web oturumları kapatılır',
                   style: TextStyle(
                     color: AppTheme.textSec(context),
-                    fontSize: spec.smallFontSize.sp,
+                    fontSize: spec.smallFontSize,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 12),
           Switch(
             value: controller.endOtherSessions.value,
             onChanged: controller.setEndOtherSessions,

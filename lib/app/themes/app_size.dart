@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppSizes {
@@ -54,4 +54,4 @@ class AppSizes {
   static EdgeInsets onlyPadding({
     double l = 0, double t = 0, double r = 0, double b = 0,
   }) => EdgeInsets.only(left: l.w, top: t.h, right: r.w, bottom: b.h);
-}
+} */

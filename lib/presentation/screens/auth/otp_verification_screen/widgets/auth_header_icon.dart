@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_header_icon.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -22,24 +21,24 @@ class AuthHeaderIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: size.w,
-        height: size.w,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           boxShadow: [
             BoxShadow(
               color: AppTheme.primaryColor.withValues(alpha: 0.3),
-              blurRadius: 16.r,
-              offset: Offset(0, 6.h),
+              blurRadius: 16,
+              offset: Offset(0, 6),
             ),
           ],
         ),
-        child: Icon(icon, color: Colors.white, size: iconSize.sp),
+        child: Icon(icon, color: Colors.white, size: iconSize),
       ),
     );
   }

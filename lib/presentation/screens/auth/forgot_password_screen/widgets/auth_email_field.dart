@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/auth_email_field.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -55,41 +54,41 @@ class AuthEmailField extends StatelessWidget {
       validator: validator,
       style: TextStyle(
         color: AppTheme.textPri(context),
-        fontSize: fontSize.sp,
+        fontSize: fontSize,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        labelStyle: TextStyle(fontSize: fontSize.sp),
+        labelStyle: TextStyle(fontSize: fontSize),
         prefixIcon: Icon(
           Icons.email_outlined,
           color: AppTheme.textSec(context),
-          size: iconSize.sp,
+          size: iconSize,
         ),
         filled: true,
         fillColor: fill,
         contentPadding: EdgeInsets.symmetric(
-          horizontal: paddingH.w,
-          vertical: paddingV.h,
+          horizontal: paddingH,
+          vertical: paddingV,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(
             color: border.withValues(alpha: 0.15),
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: Colors.red.shade400, width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius.r),
+          borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
         ),
       ),

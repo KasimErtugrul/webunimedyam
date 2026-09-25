@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/login_submit_button.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../controllers/auth/login_controller.dart';
@@ -59,7 +58,7 @@ class LoginSubmitButton extends GetView<LoginController> {
                         letterSpacing: 0.01 * s.buttonFontSize, // label-lg
                       ),
                     ),
-                    SizedBox(width: 8.w), // gap-2
+                    SizedBox(width: 8), // gap-2
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: s.buttonIconSize,

@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/otp_code_input.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../otp_verification_layout_spec.dart';
@@ -107,8 +106,8 @@ class OtpCodeInputState extends State<OtpCodeInput> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(OtpCodeInput.length, (index) {
           return SizedBox(
-            width: spec.otpBoxWidth.w,
-            height: spec.otpBoxHeight.h,
+            width: spec.otpBoxWidth,
+            height: spec.otpBoxHeight,
             child: TextField(
               controller: _controllers[index],
               focusNode: _focusNodes[index],
@@ -119,7 +118,7 @@ class OtpCodeInputState extends State<OtpCodeInput> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               style: TextStyle(
                 color: AppTheme.textPri(context),
-                fontSize: spec.otpFontSize.sp,
+                fontSize: spec.otpFontSize,
                 fontWeight: FontWeight.w600,
               ),
               decoration: InputDecoration(
@@ -128,18 +127,18 @@ class OtpCodeInputState extends State<OtpCodeInput> {
                 fillColor: fillColor,
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+                  borderRadius: BorderRadius.circular(spec.otpBoxRadius),
                   borderSide: BorderSide(color: borderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+                  borderRadius: BorderRadius.circular(spec.otpBoxRadius),
                   borderSide: const BorderSide(
                     color: AppTheme.primaryColor,
                     width: 1.8,
                   ),
                 ),
                 disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(spec.otpBoxRadius.r),
+                  borderRadius: BorderRadius.circular(spec.otpBoxRadius),
                   borderSide: BorderSide(color: borderColor),
                 ),
               ),

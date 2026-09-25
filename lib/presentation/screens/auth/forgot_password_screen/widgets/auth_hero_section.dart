@@ -1,7 +1,6 @@
 // lib/presentation/screens/auth/widgets/auth_hero_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -65,19 +64,19 @@ class AuthHeroSection extends StatelessWidget {
                 clipBehavior: Clip.none,
                 children: [
                   Positioned(
-                    right: -40.w,
-                    top: topInset - 30.h,
-                    child: _Blob(size: 180.w, opacity: 0.10),
+                    right: -40,
+                    top: topInset - 30,
+                    child: _Blob(size: 180, opacity: 0.10),
                   ),
                   Positioned(
-                    left: -30.w,
-                    bottom: -40.h,
-                    child: _Blob(size: 140.w, opacity: 0.08),
+                    left: -30,
+                    bottom: -40,
+                    child: _Blob(size: 140, opacity: 0.08),
                   ),
                   Positioned(
-                    left: 80.w,
-                    top: topInset + 40.h,
-                    child: _Blob(size: 60.w, opacity: 0.06),
+                    left: 80,
+                    top: topInset + 40,
+                    child: _Blob(size: 60, opacity: 0.06),
                   ),
                 ],
               ),
@@ -87,8 +86,8 @@ class AuthHeroSection extends StatelessWidget {
           // ── Floating back button ──
           if (showBackButton)
             Positioned(
-              top: topInset + 8.h,
-              left: 8.w,
+              top: topInset + 8,
+              left: 8,
               child: Material(
                 color: Colors.white.withValues(alpha: 0.15),
                 shape: const CircleBorder(),
@@ -96,11 +95,11 @@ class AuthHeroSection extends StatelessWidget {
                   customBorder: const CircleBorder(),
                   onTap: Get.back,
                   child: Padding(
-                    padding: EdgeInsets.all(backButtonPadding.w),
+                    padding: EdgeInsets.all(backButtonPadding),
                     child: Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: Colors.white,
-                      size: backButtonSize.sp,
+                      size: backButtonSize,
                     ),
                   ),
                 ),
@@ -115,11 +114,11 @@ class AuthHeroSection extends StatelessWidget {
               children: [
                 // İkon kutusu
                 Container(
-                  width: iconBoxSize.w,
-                  height: iconBoxSize.w,
+                  width: iconBoxSize,
+                  height: iconBoxSize,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(iconRadius.r),
+                    borderRadius: BorderRadius.circular(iconRadius),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.25),
                       width: 1.5,
@@ -132,7 +131,7 @@ class AuthHeroSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Icon(icon, color: Colors.white, size: iconSize.sp),
+                  child: Icon(icon, color: Colors.white, size: iconSize),
                 )
                     .animate()
                     .fadeIn(duration: 400.ms)
@@ -148,17 +147,17 @@ class AuthHeroSection extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.2),
                     ),
 
-                SizedBox(height: titleSpacing.h),
+                SizedBox(height: titleSpacing),
 
                 // Başlık
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: titleFontSize.sp,
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.3,
                     ),
@@ -173,17 +172,17 @@ class AuthHeroSection extends StatelessWidget {
                       duration: 400.ms,
                     ),
 
-                SizedBox(height: subtitleSpacing.h),
+                SizedBox(height: subtitleSpacing),
 
                 // Alt başlık
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40.w),
+                  padding: EdgeInsets.symmetric(horizontal: 40),
                   child: Text(
                     subtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: subtitleFontSize.sp,
+                      fontSize: subtitleFontSize,
                       height: 1.4,
                     ),
                   ),

@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/otp_resend_button.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 
@@ -42,7 +41,7 @@ class OtpResendButton extends StatelessWidget {
             color: canResend
                 ? AppTheme.primaryColor
                 : AppTheme.textSec(context),
-            fontSize: fontSize.sp,
+            fontSize: fontSize,
             fontWeight: FontWeight.w600,
           ),
         ),

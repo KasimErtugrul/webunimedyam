@@ -1,6 +1,5 @@
 // lib/presentation/screens/auth/widgets/password_requirements_checklist.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
@@ -28,7 +27,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
                   spec: spec,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16),
               Expanded(
                 child: _Requirement(
                   met: controller.hasUppercase.value,
@@ -38,7 +37,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -48,7 +47,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
                   spec: spec,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16),
               Expanded(
                 child: _Requirement(
                   met: controller.hasSpecial.value,
@@ -80,19 +79,19 @@ class _Requirement extends StatelessWidget {
       children: [
         Icon(
           met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-          size: 18.sp,
+          size: 18,
           color: met
               ? Theme.of(context).colorScheme.primary
               : AppTheme.textSec(context),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: 8),
         Expanded(
           child: Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: spec.smallFontSize.sp,
+              fontSize: spec.smallFontSize,
               color: met
                   ? AppTheme.textPri(context)
                   : AppTheme.textSec(context),

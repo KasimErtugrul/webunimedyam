@@ -14,7 +14,6 @@
 // sekmelere özel scroll view'ların bir parçası değil, en dıştaki Scaffold'a
 // ait.
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -45,7 +44,7 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isTablet = Responsive.isTablet(context);
-    final sizes = isTablet ? _TabletSizes.titleIconSize : _PhoneSizes.titleIconSize.w;
+    final sizes = isTablet ? _TabletSizes.titleIconSize : _PhoneSizes.titleIconSize;
 
     return AppBar(
       elevation: 0,
@@ -54,7 +53,7 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       titleSpacing: isTablet
           ? _TabletSizes.titleSpacingLarge
-          : _PhoneSizes.titleSpacingLarge.w,
+          : _PhoneSizes.titleSpacingLarge,
       toolbarHeight: kToolbarHeight,
       actions: [
         IconButton(
@@ -79,7 +78,7 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: EdgeInsets.only(
             right: isTablet
                 ? _TabletSizes.titleSpacingLarge
-                : _PhoneSizes.titleSpacingLarge.w,
+                : _PhoneSizes.titleSpacingLarge,
           ),
           child: CircleAvatar(
             radius: isTablet ? 18 : 16.r,
@@ -102,7 +101,7 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
               borderRadius: BorderRadius.circular(
                 isTablet
                     ? _TabletSizes.titleIconBorderRadius
-                    : _PhoneSizes.titleIconBorderRadius.r,
+                    : _PhoneSizes.titleIconBorderRadius,
               ),
             ),
             child: Icon(
@@ -110,11 +109,11 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: scheme.primary,
               size: isTablet
                   ? _TabletSizes.titleIconInnerSize
-                  : _PhoneSizes.titleIconInnerSize.sp,
+                  : _PhoneSizes.titleIconInnerSize,
             ),
           ),
           SizedBox(
-            width: isTablet ? _TabletSizes.titleSpacing : _PhoneSizes.titleSpacing.w,
+            width: isTablet ? _TabletSizes.titleSpacing : _PhoneSizes.titleSpacing,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
