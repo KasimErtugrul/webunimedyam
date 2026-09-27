@@ -510,11 +510,15 @@ class _CardPhone extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    Flexible(
+                                      child: Text(
                                       '${item.formattedPosition} / ${item.formattedDuration}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         color: scheme.onSurfaceVariant,
                                         fontSize: _PhoneSizes.metaFontSize,
+                                      ),
                                       ),
                                     ),
                                     Text(
@@ -725,11 +729,15 @@ class _CardTablet extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    Flexible(
+                                      child: Text(
                                       '${item.formattedPosition} / ${item.formattedDuration}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         color: scheme.onSurfaceVariant,
                                         fontSize: _TabletSizes.metaFontSize,
+                                      ),
                                       ),
                                     ),
                                     Text(

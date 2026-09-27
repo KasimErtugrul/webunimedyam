@@ -32,9 +32,13 @@ class _HomeTabWidgetPhoneState extends State<HomeTabWidgetPhone>
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => maybeAutoLoadMore());
 
-    return Scaffold(
-      backgroundColor: AppTheme.bg(context),
-      body: SafeArea(
+    // NOT: Bu tab, HomeScreen'in kendi Scaffold'u içinde IndexedStack ile
+    // gösteriliyor; appBar/drawer/FAB burada tekrar tanımlanmadığı için
+    // ayrı bir Scaffold yerine sade bir Container + SafeArea yeterli
+    // (gereksiz iç içe Scaffold/Material ağacını önler).
+    return Container(
+      color: AppTheme.bg(context),
+      child: SafeArea(
         child: RefreshIndicator(
           key: refreshIndicatorKey,
           color: Theme.of(context).colorScheme.primary,

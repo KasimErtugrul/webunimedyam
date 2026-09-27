@@ -73,12 +73,16 @@ class _SortSheetState extends State<_SortSheet> {
               padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
               child: Row(
                 children: [
-                  Text(
-                    'Filtrele & Sırala',
-                    style: TextStyle(
-                      fontSize: spec.sheetTitleFontSize,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPri(context),
+                  Flexible(
+                    child: Text(
+                      'Filtrele & Sırala',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: spec.sheetTitleFontSize,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPri(context),
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -186,13 +190,17 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: AppTheme.textSec(context),
-            letterSpacing: 1.2,
+        Flexible(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textSec(context),
+              letterSpacing: 1.2,
+            ),
           ),
         ),
       ],

@@ -36,12 +36,16 @@ class UniversityAboutSectionTitle extends StatelessWidget {
           ),
         ),
         SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: spec.sectionTitleFontSize,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPri(context),
+        Flexible(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: spec.sectionTitleFontSize,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPri(context),
+            ),
           ),
         ),
       ],

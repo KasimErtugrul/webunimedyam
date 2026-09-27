@@ -41,9 +41,12 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
     final spec = DiscoverLayoutSpec.of(context);
     final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      backgroundColor: AppTheme.bg(context),
-      body: SafeArea(
+    // NOT: Bu tab, HomeScreen'in kendi Scaffold'u içinde IndexedStack ile
+    // gösteriliyor; ayrı bir Scaffold yerine Container + SafeArea yeterli
+    // (gereksiz iç içe Scaffold/Material ağacını önler).
+    return Container(
+      color: AppTheme.bg(context),
+      child: SafeArea(
         top: false,
         child: RefreshIndicator(
           color: scheme.primary,

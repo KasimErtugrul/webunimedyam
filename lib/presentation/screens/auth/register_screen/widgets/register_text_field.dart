@@ -92,13 +92,17 @@ class _RegisterTextFieldState extends State<RegisterTextField> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              widget.label,
-              style: TextStyle(
-                color: scheme.onSurfaceVariant,
-                fontSize: s.labelFontSize,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.02 * s.labelFontSize,
+            Flexible(
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: s.labelFontSize,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.02 * s.labelFontSize,
+                ),
               ),
             ),
             if (widget.labelHint != null) widget.labelHint!,

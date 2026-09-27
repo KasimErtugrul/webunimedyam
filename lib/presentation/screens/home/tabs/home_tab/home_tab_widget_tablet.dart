@@ -47,9 +47,12 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => maybeAutoLoadMore());
 
-    return Scaffold(
-      backgroundColor: AppTheme.bg(context),
-      body: SafeArea(
+    // NOT: Bu tab, HomeScreen'in kendi Scaffold'u içinde IndexedStack ile
+    // gösteriliyor; ayrı bir Scaffold yerine Container + SafeArea yeterli
+    // (gereksiz iç içe Scaffold/Material ağacını önler).
+    return Container(
+      color: AppTheme.bg(context),
+      child: SafeArea(
         child: RefreshIndicator(
           key: refreshIndicatorKey,
           color: Theme.of(context).colorScheme.primary,
@@ -180,20 +183,20 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
       if (featured.isEmpty) return const SizedBox.shrink();
 
-      // FIX: kart yüksekliği önceki sürümde sabit `itemWidth = 250`
-      // varsayımıyla hesaplanıyordu; bu değerin gerçek render genişliğiyle
-      // ilişkisi yoktu. Artık itemWidth, LayoutBuilder ile bu widget'a
-      // ayrılan gerçek genişlikten (constraints.maxWidth × viewportFraction)
-      // türetiliyor.
+      // FIX: itemWidth artık gerçek genişlikten (LayoutBuilder) hesaplanıyor.
+      // Önceki "FIX" denemesi bunu doğru yaptı ama sonuna eklenen keyfi
+      // `* .55` küçültmeyi fark etmemişti — kart içeriği (16:9 thumbnail +
+      // metin bloğu) her zaman bu hesaplanan yüksekliğin TAMAMINI istiyor,
+      // %55'ini değil. O çarpan taşmanın asıl sebebiydi, kaldırıldı.
       final double fraction = isTablet ? .5 : 0.82;
       final scheme = Theme.of(context).colorScheme;
 
       return LayoutBuilder(
         builder: (context, constraints) {
           final double itemWidth = constraints.maxWidth * fraction;
-          final double cardHeight = itemWidth * 9 / 16 + (isTablet ? 55 : 90);
-          // enlargeCenterPage kapalı olduğu için yüksekliğe pay bırakılıyor.
-          final double carouselHeight = cardHeight * .55;
+          final double thumbHeight = itemWidth * 9 / 16;
+          final double textBlockHeight = _cardTextBlockHeight(isTablet);
+          final double carouselHeight = thumbHeight + textBlockHeight;
 
           return Column(
             children: [
@@ -257,6 +260,20 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
         },
       );
     });
+  }
+
+  // 3 satırlık başlık + kanal adı + tarih satırının gerektirdiği yükseklik.
+  // _buildLargeVideoCard'daki font boyutlarıyla (aşağıda da düzeltildi)
+  // tutarlı; küçük bir güvenlik payı eklendi.
+  double _cardTextBlockHeight(bool isTablet) {
+    final double titleFont = isTablet ? 15 : 13.5;
+    final double metaFont = isTablet ? 12 : 11;
+    const double padding = 10; // Padding(all: 5) üst+alt
+    const double gap = 8; // başlık ile kanal adı arası SizedBox
+    const double lineHeightFactor = 1.3;
+    final double titleBlock = titleFont * lineHeightFactor * 3; // maxLines: 3
+    final double metaBlock = metaFont * lineHeightFactor * 2; // kanal + tarih
+    return padding + titleBlock + gap + metaBlock + 6; // +6 güvenlik payı
   }
 
   Widget _buildLargeVideoCard(
@@ -337,7 +354,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                         video.duration.isNotEmpty ? video.duration : '18:42',
                         style: TextStyle(
                           color: scheme.onSurface,
-                          fontSize: 4,
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -359,7 +376,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: scheme.onSurface,
-                      fontSize: isTablet ? 4 : 13.5,
+                      fontSize: isTablet ? 15 : 13.5,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -375,7 +392,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: scheme.onSurface,
-                            fontSize: isTablet ? 4 : 7,
+                            fontSize: isTablet ? 12 : 11,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -384,7 +401,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                         timeAgoTr(video.publishedAt),
                         style: TextStyle(
                           color: scheme.onSurfaceVariant,
-                          fontSize: 4,
+                          fontSize: isTablet ? 11 : 10,
                         ),
                       ),
                     ],
