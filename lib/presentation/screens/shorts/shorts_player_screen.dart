@@ -1,4 +1,14 @@
 // lib/presentation/screens/shorts/shorts_player_screen.dart
+//
+// "Shorts Oynatıcı — Saf Video" tasarımından ilham alınarak yeniden
+// düzenlendi: video artık tam ekranı kaplayan bir overlay değil, üzerinde
+// KESİNLİKLE buton/metin/gradyan barındırmayan saf bir kart. İlerleme,
+// aksiyonlar (beğen/kaydet/paylaş/ses), kanal bilgisi ve aynı üniversitenin
+// diğer shorts'ları videonun ALTINDA, kaydırılabilir panellerde yer alır.
+//
+// Mockup'taki fazlalıklar (canlı sohbet, üniversite kategori şeridi, emoji
+// tepki çubuğu) bilinçli olarak alınmadı — bu ekranın amacı tek bir kısa
+// videoyu üniversiteler arası "wheel" ile gezmek, sosyal bir akış değil.
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -13,12 +23,41 @@ import '../../../core/responsive.dart';
 import '../../../core/utils/share_helper.dart';
 import '../../../data/models/shorts_model.dart';
 import '../../controllers/shorts_player_controller.dart';
+import 'shorts_player_screen_widgets/action_bar.dart';
+import 'shorts_player_screen_widgets/info_card.dart';
 import 'shorts_player_screen_widgets/logo_wheel.dart';
-import 'shorts_player_screen_widgets/text_button.dart';
+import 'shorts_player_screen_widgets/related_shelf.dart';
 import 'utils/shorts_player_sizes.dart';
 
-class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
+class ShortsPlayerScreen extends StatefulWidget {
   const ShortsPlayerScreen({super.key});
+
+  @override
+  State<ShortsPlayerScreen> createState() => _ShortsPlayerScreenState();
+}
+
+class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
+  final ShortsPlayerController controller = Get.find<ShortsPlayerController>();
+
+  // Sosyal aksiyonlar için — henüz bir engagement repository bağlı değil,
+  // bu yüzden yalnızca UI-only, videoId'ye göre saklanan yerel durum.
+  final Set<String> _likedIds = {};
+  final Set<String> _savedIds = {};
+  final Set<int> _followedUniversityIds = {};
+
+  void _toggleLike(String videoId) => setState(() {
+    if (!_likedIds.remove(videoId)) _likedIds.add(videoId);
+  });
+
+  void _toggleSave(String videoId) => setState(() {
+    if (!_savedIds.remove(videoId)) _savedIds.add(videoId);
+  });
+
+  void _toggleFollow(int universityId) => setState(() {
+    if (!_followedUniversityIds.remove(universityId)) {
+      _followedUniversityIds.add(universityId);
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,28 +80,122 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
           : const ShortsPlayerPhoneSizes();
 
       final short = controller.current!;
+      final related = controller.shorts
+          .where((s) => s.universityId == short.universityId && s.videoId != short.videoId)
+          .toList();
+
       return Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
           child: Column(
             children: [
               _buildTopBar(sizes, short),
-              SizedBox(
-                height: sizes.wheelHeight,
-                child: ShortsPlayerUniversityLogoWheel(
-                  sizes: sizes,
-                  shorts: controller.shorts,
-                  activeIndex: controller.currentIndex.value,
-                  onChanged: controller.onWheelChanged,
+              ShortsPlayerUniversityLogoWheel(
+                sizes: sizes,
+                shorts: controller.shorts,
+                activeIndex: controller.currentIndex.value,
+                onChanged: controller.onWheelChanged,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    sizes.pageHorizontalPadding,
+                    sizes.sectionSpacing,
+                    sizes.pageHorizontalPadding,
+                    sizes.sectionSpacing * 2,
+                  ),
+                  child: sizes.isTablet
+                      ? _buildTabletBody(sizes, short, related)
+                      : _buildPhoneBody(sizes, short, related),
                 ),
               ),
-              Expanded(child: _buildVideoArea(sizes, short)),
             ],
           ),
         ),
       );
     });
   }
+
+  // ─── Düzenler ─────────────────────────────────────────────────────────
+
+  Widget _buildPhoneBody(
+    ShortsPlayerSizes sizes,
+    ShortsModel short,
+    List<ShortsModel> related,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildVideoCard(sizes, short),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildProgressBar(sizes),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildActionBar(sizes, short),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildInfoCard(sizes, short),
+        SizedBox(height: sizes.sectionSpacing * 1.5),
+        ShortsPlayerRelatedShelf<ShortsModel>(
+          sizes: sizes,
+          universityName: short.universityName,
+          items: related,
+          thumbnailOf: (s) => s.bestThumbnail,
+          titleOf: (s) => s.title,
+          durationOf: (s) => s.duration,
+          onSelect: (item) => controller.onWheelChanged(
+            controller.shorts.indexWhere((s) => s.videoId == item.videoId),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabletBody(
+    ShortsPlayerSizes sizes,
+    ShortsModel short,
+    List<ShortsModel> related,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: sizes.videoMaxWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildVideoCard(sizes, short),
+              SizedBox(height: sizes.sectionSpacing),
+              _buildProgressBar(sizes),
+              SizedBox(height: sizes.sectionSpacing),
+              _buildActionBar(sizes, short),
+            ],
+          ),
+        ),
+        SizedBox(width: sizes.sectionSpacing * 1.5),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoCard(sizes, short),
+              SizedBox(height: sizes.sectionSpacing * 1.5),
+              ShortsPlayerRelatedShelf<ShortsModel>(
+                sizes: sizes,
+                universityName: short.universityName,
+                items: related,
+                thumbnailOf: (s) => s.bestThumbnail,
+                titleOf: (s) => s.title,
+                durationOf: (s) => s.duration,
+                onSelect: (item) => controller.onWheelChanged(
+                  controller.shorts.indexWhere((s) => s.videoId == item.videoId),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Parçalar ─────────────────────────────────────────────────────────
 
   Widget _buildTopBar(ShortsPlayerSizes sizes, ShortsModel short) {
     return Padding(
@@ -87,72 +220,123 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
             ),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(
-                sizes.shortsBadgeBorderRadius,
-              ),
+              borderRadius: BorderRadius.circular(sizes.shortsBadgeBorderRadius),
             ),
             child: Text(
               'SHORTS',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: sizes.shortsBadgeFontSize,
                 fontWeight: FontWeight.w800,
                 letterSpacing: sizes.shortsBadgeLetterSpacing,
               ),
             ),
           ),
-          // Right-hand cluster: takes all remaining width after the back
-          // button + SHORTS badge. The Paylaş button is allowed to shrink
-          // (its internal label ellipsizes) so the row can never overflow.
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Obx(
-                  () => Text(
-                    '${controller.currentIndex.value + 1} / ${controller.shorts.length}',
-                    style: TextStyle(
-                      color: Colors.white60,
-                      fontSize: sizes.counterFontSize,
+          const Spacer(),
+          Obx(
+            () => Text(
+              '${controller.currentIndex.value + 1} / ${controller.shorts.length}',
+              style: TextStyle(color: Colors.white60, fontSize: sizes.counterFontSize),
+            ),
+          ),
+          SizedBox(width: sizes.counterSpacing),
+          GestureDetector(
+            onTap: controller.toggleMute,
+            child: Container(
+              width: sizes.muteButtonSize,
+              height: sizes.muteButtonSize,
+              decoration: const BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
+              child: Obx(
+                () => Icon(
+                  controller.isMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                  color: Colors.white,
+                  size: sizes.muteIconSize,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: sizes.topBarPaddingHorizontal),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVideoCard(ShortsPlayerSizes sizes, ShortsModel short) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: sizes.videoMaxWidth),
+        child: AspectRatio(
+          aspectRatio: sizes.videoAspectRatio,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(sizes.videoBorderRadius),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(color: Colors.white12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
+                  Obx(() {
+                    final yt = controller.ytController;
+                    if (yt == null) return const SizedBox.shrink();
+                    return IgnorePointer(
+                      child: YoutubePlayer(
+                        key: ValueKey(controller.playerKey.value),
+                        controller: yt,
+                        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                      ),
+                    );
+                  }),
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: controller.togglePlayPause,
                     ),
                   ),
-                ),
-                SizedBox(width: sizes.counterSpacing),
-                GestureDetector(
-                  onTap: controller.toggleMute,
-                  child: Container(
-                    width: sizes.muteButtonSize,
-                    height: sizes.muteButtonSize,
-                    decoration: const BoxDecoration(
-                      color: Colors.white12,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Obx(
-                      () => Icon(
-                        controller.isMuted.value
-                            ? Icons.volume_off_rounded
-                            : Icons.volume_up_rounded,
-                        color: Colors.white,
-                        size: sizes.muteIconSize,
+                  Obx(
+                    () => AnimatedOpacity(
+                      duration: const Duration(milliseconds: 150),
+                      opacity: controller.isPaused.value ? 1 : 0,
+                      child: Center(
+                        child: Icon(
+                          Icons.play_arrow_rounded,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          size: sizes.playIconSize,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Flexible(
-                  child: ShortsPlayerTextButton(
-                    sizes: sizes,
-                    icon: Icons.share_rounded,
-                    label: 'Paylaş',
-                    onTap: () => ShareHelper.shareVideo(
-                      videoId: short.videoId,
-                      title: short.title,
-                      universityName: short.universityName,
-                      thumbnailUrl: short.bestThumbnail,
-                    ),
-                  ),
-                ),
-                SizedBox(width: sizes.topBarPaddingHorizontal),
-              ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressBar(ShortsPlayerSizes sizes) {
+    return ValueListenableBuilder<double>(
+      valueListenable: controller.progressNotifier,
+      builder: (context, progress, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(sizes.progressBarRadius),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.white12,
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+              minHeight: sizes.progressBarHeight,
             ),
           ),
         ],
@@ -160,166 +344,38 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
     );
   }
 
-  Widget _buildVideoArea(ShortsPlayerSizes sizes, ShortsModel short) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
-        Obx(() {
-          final yt = controller.ytController;
-          if (yt == null) return const SizedBox.shrink();
-          return IgnorePointer(
-            child: YoutubePlayer(
-              key: ValueKey(controller.playerKey.value),
-              controller: yt,
-              gestureRecognizers:
-                  const <Factory<OneSequenceGestureRecognizer>>{},
-            ),
-          );
-        }),
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: controller.togglePlayPause,
-          ),
+  Widget _buildActionBar(ShortsPlayerSizes sizes, ShortsModel short) {
+    return Obx(
+      () => ShortsPlayerActionBar(
+        sizes: sizes,
+        isLiked: _likedIds.contains(short.videoId),
+        isSaved: _savedIds.contains(short.videoId),
+        isMuted: controller.isMuted.value,
+        onLike: () => _toggleLike(short.videoId),
+        onSave: () => _toggleSave(short.videoId),
+        onShare: () => ShareHelper.shareVideo(
+          videoId: short.videoId,
+          title: short.title,
+          universityName: short.universityName,
+          thumbnailUrl: short.bestThumbnail,
         ),
-        Obx(
-          () => controller.isPaused.value
-              ? Center(
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    size: sizes.playIconSize,
-                  ),
-                )
-              : const SizedBox.shrink(),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-              sizes.bottomPaddingHorizontal,
-              sizes.isTablet ? 72 : 60,
-              sizes.bottomPaddingHorizontal,
-              0,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.88),
-                ],
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: sizes.bottomPaddingVertical),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        if (short.logoUrl != null && short.logoUrl!.isNotEmpty)
-                          Container(
-                            width: sizes.logoContainerSize,
-                            height: sizes.logoContainerSize,
-                            margin: EdgeInsets.only(right: sizes.logoSpacing),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl: short.logoUrl!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: Text(
-                            short.universityName,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: sizes.titleFontSize,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: sizes.topBarPaddingVertical),
-                    Text(
-                      short.title,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: sizes.subtitleFontSize,
-                        height: sizes.subtitleLineHeight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: sizes.topBarPaddingVertical),
-                    ValueListenableBuilder<double>(
-                      valueListenable: controller.progressNotifier,
-                      builder: (context, progress, _) => ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          sizes.progressBarRadius,
-                        ),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: Colors.white24,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryColor,
-                          ),
-                          minHeight: sizes.progressBarHeight,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: sizes.topBarPaddingVertical),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ShortsPlayerTextButton(
-                            sizes: sizes,
-                            icon: Icons.play_circle_outline_rounded,
-                            label: 'Tam İzle',
-                            onTap: () => Get.toNamed(
-                              AppRoutes.player,
-                              parameters: {'videoId': short.videoId},
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: sizes.textBtnSpacing),
-                        Expanded(
-                          child: ShortsPlayerTextButton(
-                            sizes: sizes,
-                            icon: Icons.share_rounded,
-                            label: 'Paylaş',
-                            onTap: () => ShareHelper.shareVideo(
-                              videoId: short.videoId,
-                              title: short.title,
-                              universityName: short.universityName,
-                              thumbnailUrl: short.bestThumbnail,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+        onToggleMute: controller.toggleMute,
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(ShortsPlayerSizes sizes, ShortsModel short) {
+    return ShortsPlayerInfoCard(
+      sizes: sizes,
+      universityName: short.universityName,
+      logoUrl: short.logoUrl,
+      description: short.description,
+      isFollowing: _followedUniversityIds.contains(short.universityId),
+      onToggleFollow: () => _toggleFollow(short.universityId),
+      onWatchFull: () => Get.toNamed(
+        AppRoutes.player,
+        parameters: {'videoId': short.videoId},
+      ),
     );
   }
 }

@@ -23,7 +23,14 @@ class UniversityDetailShortsTab extends StatelessWidget {
   void _openShorts(List<VideoModel> shorts, int index) {
     Get.toNamed(
       AppRoutes.simpleShortsPlayer,
-      arguments: {'shorts': shorts, 'initialIndex': index},
+      arguments: {
+        'shorts': shorts,
+        'initialIndex': index,
+        // Redesign edilen "Saf Video" oynatıcısındaki kanal kartı bu logoyu
+        // kullanıyor — VideoModel'de logoUrl alanı olmadığı için üniversite
+        // detay controller'ından ayrıca iletiyoruz.
+        'logoUrl': controller.university.value?.logoUrl,
+      },
     );
   }
 

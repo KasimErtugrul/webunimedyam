@@ -47,16 +47,22 @@ abstract class SimpleShortsPlayerSizes {
   double get progressBarHeight;
   double get progressBarRadius;
 
-  // Text buttons
-  double get textBtnPaddingVertical;
-  double get textBtnBorderRadius;
-  double get textBtnBorderWidth;
-  double get textBtnIconSize;
-  double get textBtnLabelFontSize;
-  double get textBtnSpacing;
-  double get textBtnSpacingHorizontal;
+  // "Tam İzle" CTA (bottom-left, tek buton)
+  double get ctaHeight;
+  double get ctaFontSize;
+  double get ctaIconSize;
+  double get ctaRadius;
+  double get ctaMaxWidth;
 
-  // Play icon (pause overlay)
+  // Sağ aksiyon rayı (beğen / kaydet / paylaş / ses)
+  double get railButtonSize;
+  double get railIconSize;
+  double get railLabelFontSize;
+  double get railSpacing;
+  double get railBottomOffset;
+  double get railRightPadding;
+
+  // Play/pause ortası
   double get playIconSize;
 }
 
@@ -139,19 +145,28 @@ class SimpleShortsPlayerPhoneSizes extends SimpleShortsPlayerSizes {
   double get progressBarRadius => 2;
 
   @override
-  double get textBtnPaddingVertical => 8;
+  double get ctaHeight => 40;
   @override
-  double get textBtnBorderRadius => 8;
+  double get ctaFontSize => 13;
   @override
-  double get textBtnBorderWidth => 1;
+  double get ctaIconSize => 17;
   @override
-  double get textBtnIconSize => 16;
+  double get ctaRadius => 10;
   @override
-  double get textBtnLabelFontSize => 12;
+  double get ctaMaxWidth => 190;
+
   @override
-  double get textBtnSpacing => 5;
+  double get railButtonSize => 44;
   @override
-  double get textBtnSpacingHorizontal => 10;
+  double get railIconSize => 24;
+  @override
+  double get railLabelFontSize => 10.5;
+  @override
+  double get railSpacing => 16;
+  @override
+  double get railBottomOffset => 132;
+  @override
+  double get railRightPadding => 10;
 
   @override
   double get playIconSize => 64;
@@ -236,19 +251,28 @@ class SimpleShortsPlayerTabletSizes extends SimpleShortsPlayerSizes {
   double get progressBarRadius => 3;
 
   @override
-  double get textBtnPaddingVertical => 10;
+  double get ctaHeight => 46;
   @override
-  double get textBtnBorderRadius => 10;
+  double get ctaFontSize => 14;
   @override
-  double get textBtnBorderWidth => 1.2;
+  double get ctaIconSize => 19;
   @override
-  double get textBtnIconSize => 20;
+  double get ctaRadius => 12;
   @override
-  double get textBtnLabelFontSize => 14;
+  double get ctaMaxWidth => 220;
+
   @override
-  double get textBtnSpacing => 6;
+  double get railButtonSize => 52;
   @override
-  double get textBtnSpacingHorizontal => 12;
+  double get railIconSize => 27;
+  @override
+  double get railLabelFontSize => 12;
+  @override
+  double get railSpacing => 20;
+  @override
+  double get railBottomOffset => 150;
+  @override
+  double get railRightPadding => 16;
 
   @override
   double get playIconSize => 76;

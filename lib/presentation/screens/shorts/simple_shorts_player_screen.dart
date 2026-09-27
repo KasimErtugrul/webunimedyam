@@ -1,8 +1,20 @@
 // lib/presentation/screens/shorts/simple_shorts_player_screen.dart
+//
+// Tek üniversitenin shorts akışı (üniversite detay > Shorts sekmesinden
+// açılır). Artık ShortsPlayerScreen (üniversiteler arası "wheel" ekranı) ile
+// BİREBİR AYNI "Shorts Oynatıcı — Saf Video" tasarımını paylaşıyor: video
+// üzerinde hiçbir buton/metin yok, ilerleme/aksiyonlar/kanal kartı videonun
+// ALTINDA. Tek fark: burada üniversiteler arası geçiş için bir "wheel"
+// gerekmiyor (zaten tek üniversitedeyiz) — bunun yerine üstte sade bir
+// appbar var, açıklamanın hemen altında "Bu Üniversitenin Diğer Shorts
+// Videoları" rafı geliyor; bu raf, üniversite detay sayfasının Shorts
+// sekmesinden gelen TÜM video listesini (mevcut hariç) kullanıyor.
 
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,12 +23,12 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../core/utils/share_helper.dart';
 import '../../../data/models/video_model.dart';
-import 'utils/simple_shorts_player_sizes.dart';
-
-// ═══════════════════════════════════════════════════════════
-// ANA WIDGET (Stateful)
-// ═══════════════════════════════════════════════════════════
+import 'shorts_player_screen_widgets/action_bar.dart';
+import 'shorts_player_screen_widgets/info_card.dart';
+import 'shorts_player_screen_widgets/related_shelf.dart';
+import 'utils/shorts_player_sizes.dart';
 
 class SimpleShortsPlayerScreen extends StatefulWidget {
   const SimpleShortsPlayerScreen({super.key});
@@ -28,8 +40,7 @@ class SimpleShortsPlayerScreen extends StatefulWidget {
 
 class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
   late final List<VideoModel> _shorts;
-  late final ScrollController _chipScrollController;
-  late final PageController _pageController;
+  late final String? _universityLogoUrl;
   int _currentIndex = 0;
 
   YoutubePlayerController? _ytController;
@@ -38,32 +49,35 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
   bool _isPaused = false;
 
   final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
-
   int _playerKey = 0;
+
+  // Sosyal aksiyonlar için — henüz bir engagement repository bağlı değil,
+  // bu yüzden yalnızca UI-only, videoId'ye göre saklanan yerel durum.
+  final Set<String> _likedIds = {};
+  final Set<String> _savedIds = {};
+  bool _isFollowing = false;
+
+  VideoModel get _current => _shorts[_currentIndex];
 
   @override
   void initState() {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>;
     _shorts = List<VideoModel>.from(args['shorts'] as List);
-    _currentIndex = (args['initialIndex'] as int?) ?? 0;
-    _chipScrollController = ScrollController();
-    _pageController = PageController(initialPage: _currentIndex);
-    _initYtController(_currentIndex);
+    _currentIndex = ((args['initialIndex'] as int?) ?? 0).clamp(0, _shorts.length - 1);
+    // University detay ekranından geçilirse logo burada iletilebilir
+    // (bkz. UniversityDetailShortsTab._openShorts). Yoksa info kartı
+    // otomatik olarak ikon fallback'ine düşer.
+    _universityLogoUrl = args['logoUrl'] as String?;
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollChipIntoView(_currentIndex);
-    });
+    _initYtController(_currentIndex);
   }
 
   @override
   void dispose() {
     _progressTimer?.cancel();
     _ytController?.close();
-    _chipScrollController.dispose();
-    _pageController.dispose();
     _progressNotifier.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
@@ -95,9 +109,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       ),
     );
 
-    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (
-      _,
-    ) async {
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (_) async {
       if (!mounted || _ytController == null) return;
       try {
         final dur = await _ytController!.duration;
@@ -117,30 +129,12 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
   void _goToIndex(int index) {
     if (index < 0 || index >= _shorts.length) return;
     if (index == _currentIndex) return;
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  void _onPageChanged(int index) {
-    if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
     _initYtController(index);
-    _scrollChipIntoView(index);
   }
 
-  void _scrollChipIntoView(int index) {
-    const chipWidth = 90.0;
-    final offset = (index * chipWidth) - chipWidth;
-    if (_chipScrollController.hasClients) {
-      _chipScrollController.animateTo(
-        offset.clamp(0.0, _chipScrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    }
+  void _goToVideo(VideoModel video) {
+    _goToIndex(_shorts.indexWhere((v) => v.videoId == video.videoId));
   }
 
   Future<void> _togglePlayPause() async {
@@ -163,218 +157,128 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     if (mounted) setState(() => _isMuted = !_isMuted);
   }
 
+  void _toggleLike(String videoId) => setState(() {
+    if (!_likedIds.remove(videoId)) _likedIds.add(videoId);
+  });
+
+  void _toggleSave(String videoId) => setState(() {
+    if (!_savedIds.remove(videoId)) _savedIds.add(videoId);
+  });
+
+  void _toggleFollow() => setState(() => _isFollowing = !_isFollowing);
+
   // ═══════════════════════════════════════════════════════════════════════
   // KURAL 5 — TEK DALLANMA NOKTASI
   // ═══════════════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
-    final SimpleShortsPlayerSizes sizes = Responsive.isTablet(context)
-        ? const SimpleShortsPlayerTabletSizes()
-        : const SimpleShortsPlayerPhoneSizes();
+    if (_shorts.isEmpty) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'Gösterilecek shorts bulunamadı.',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+      );
+    }
+
+    final ShortsPlayerSizes sizes = Responsive.isTablet(context)
+        ? const ShortsPlayerTabletSizes()
+        : const ShortsPlayerPhoneSizes();
+
+    final short = _current;
+    final related = _shorts.where((v) => v.videoId != short.videoId).toList();
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: _shorts.length,
-            onPageChanged: _onPageChanged,
-            itemBuilder: (context, index) =>
-                _buildPage(sizes, _shorts[index], index),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTopBar(sizes),
-                  SimpleShortsPlayerVideoChipRow(
-                    sizes: sizes,
-                    shorts: _shorts,
-                    currentIndex: _currentIndex,
-                    scrollController: _chipScrollController,
-                    onSelect: _goToIndex,
-                  ),
-                ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(sizes),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  sizes.pageHorizontalPadding,
+                  sizes.sectionSpacing,
+                  sizes.pageHorizontalPadding,
+                  sizes.sectionSpacing * 2,
+                ),
+                child: sizes.isTablet
+                    ? _buildTabletBody(sizes, short, related)
+                    : _buildPhoneBody(sizes, short, related),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPage(
-    SimpleShortsPlayerSizes sizes,
+  // ─── Düzenler ─────────────────────────────────────────────────────────
+
+  Widget _buildPhoneBody(
+    ShortsPlayerSizes sizes,
     VideoModel short,
-    int index,
+    List<VideoModel> related,
   ) {
-    final isActive = index == _currentIndex;
-    return Stack(
-      fit: StackFit.expand,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
-        if (isActive && _ytController != null)
-          IgnorePointer(
-            child: YoutubePlayer(
-              key: ValueKey(_playerKey),
-              controller: _ytController!,
-            ),
-          ),
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: isActive ? _togglePlayPause : () => _goToIndex(index),
+        _buildVideoCard(sizes, short),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildProgressBar(sizes),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildActionBar(sizes, short),
+        SizedBox(height: sizes.sectionSpacing),
+        _buildInfoCard(sizes, short),
+        SizedBox(height: sizes.sectionSpacing * 1.5),
+        _buildRelatedShelf(sizes, short, related),
+      ],
+    );
+  }
+
+  Widget _buildTabletBody(
+    ShortsPlayerSizes sizes,
+    VideoModel short,
+    List<VideoModel> related,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: sizes.videoMaxWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildVideoCard(sizes, short),
+              SizedBox(height: sizes.sectionSpacing),
+              _buildProgressBar(sizes),
+              SizedBox(height: sizes.sectionSpacing),
+              _buildActionBar(sizes, short),
+            ],
           ),
         ),
-        if (isActive && _isPaused)
-          Center(
-            child: Icon(
-              Icons.play_arrow_rounded,
-              color: Colors.white.withValues(alpha: 0.85),
-              size: sizes.playIconSize,
-            ),
-          ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-              sizes.bottomPaddingHorizontal,
-              60,
-              sizes.bottomPaddingHorizontal,
-              0,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.88),
-                ],
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: sizes.bottomPaddingVertical),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      short.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: sizes.titleFontSize,
-                        height: sizes.titleLineHeight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: sizes.viewCountSpacing),
-                    Text(
-                      short.formattedViewCount,
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: sizes.viewCountFontSize,
-                      ),
-                    ),
-                    SizedBox(height: sizes.topBarPaddingVertical),
-                    isActive
-                        ? ValueListenableBuilder<double>(
-                            valueListenable: _progressNotifier,
-                            builder: (context, progress, _) => ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                sizes.progressBarRadius,
-                              ),
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                backgroundColor: Colors.white24,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.primaryColor,
-                                ),
-                                minHeight: sizes.progressBarHeight,
-                              ),
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              sizes.progressBarRadius,
-                            ),
-                            child: LinearProgressIndicator(
-                              value: 0,
-                              backgroundColor: Colors.white24,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.primaryColor,
-                              ),
-                              minHeight: sizes.progressBarHeight,
-                            ),
-                          ),
-                    SizedBox(height: sizes.topBarPaddingVertical),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SimpleShortsPlayerTextButton(
-                            sizes: sizes,
-                            icon: Icons.play_circle_outline_rounded,
-                            label: 'Tam İzle',
-                            onTap: () => Get.toNamed(
-                              AppRoutes.player,
-                              parameters: {'videoId': short.videoId},
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: sizes.textBtnSpacingHorizontal),
-                        Expanded(
-                          child: SimpleShortsPlayerTextButton(
-                            sizes: sizes,
-                            icon: Icons.share_rounded,
-                            label: 'Paylaş',
-                            onTap: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      'https://www.youtube.com/shorts/${short.videoId}',
-                                ),
-                              );
-                              Get.snackbar(
-                                'Kopyalandı',
-                                short.title,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.black87,
-                                colorText: Colors.white,
-                                duration: const Duration(seconds: 2),
-                                margin: EdgeInsets.all(
-                                  sizes.bottomPaddingHorizontal,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        SizedBox(width: sizes.sectionSpacing * 1.5),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoCard(sizes, short),
+              SizedBox(height: sizes.sectionSpacing * 1.5),
+              _buildRelatedShelf(sizes, short, related),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTopBar(SimpleShortsPlayerSizes sizes) {
+  // ─── Parçalar ─────────────────────────────────────────────────────────
+
+  Widget _buildTopBar(ShortsPlayerSizes sizes) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: sizes.topBarPaddingHorizontal,
@@ -397,14 +301,12 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             ),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(
-                sizes.shortsBadgeBorderRadius,
-              ),
+              borderRadius: BorderRadius.circular(sizes.shortsBadgeBorderRadius),
             ),
             child: Text(
               'SHORTS',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: sizes.shortsBadgeFontSize,
                 fontWeight: FontWeight.w800,
                 letterSpacing: sizes.shortsBadgeLetterSpacing,
@@ -414,10 +316,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
           const Spacer(),
           Text(
             '${_currentIndex + 1} / ${_shorts.length}',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: sizes.counterFontSize,
-            ),
+            style: TextStyle(color: Colors.white60, fontSize: sizes.counterFontSize),
           ),
           SizedBox(width: sizes.counterSpacing),
           GestureDetector(
@@ -425,10 +324,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             child: Container(
               width: sizes.muteButtonSize,
               height: sizes.muteButtonSize,
-              decoration: const BoxDecoration(
-                color: Colors.white12,
-                shape: BoxShape.circle,
-              ),
+              decoration: const BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
               child: Icon(
                 _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
                 color: Colors.white,
@@ -441,160 +337,126 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       ),
     );
   }
-}
 
-// ═══════════════════════════════════════════════════════════
-// ALT WIDGET'LAR (TEK SINIF, sizes İLE)
-// ═══════════════════════════════════════════════════════════
-
-// ─── Video Chip Row ─────────────────────────────────────────────────────────
-
-class SimpleShortsPlayerVideoChipRow extends StatelessWidget {
-  final SimpleShortsPlayerSizes sizes;
-  final List<VideoModel> shorts;
-  final int currentIndex;
-  final ScrollController scrollController;
-  final ValueChanged<int> onSelect;
-
-  const SimpleShortsPlayerVideoChipRow({
-    super.key,
-    required this.sizes,
-    required this.shorts,
-    required this.currentIndex,
-    required this.scrollController,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: sizes.chipRowHeight,
-      child: ListView.builder(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: sizes.chipPaddingHorizontal),
-        itemCount: shorts.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == currentIndex;
-          final video = shorts[index];
-          return GestureDetector(
-            onTap: () => onSelect(index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: EdgeInsets.only(right: sizes.chipMarginRight),
-              padding: EdgeInsets.symmetric(
-                horizontal: sizes.chipPaddingHorizontalInner,
-                vertical: sizes.chipPaddingVertical,
-              ),
+  Widget _buildVideoCard(ShortsPlayerSizes sizes, VideoModel short) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: sizes.videoMaxWidth),
+        child: AspectRatio(
+          aspectRatio: sizes.videoAspectRatio,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(sizes.videoBorderRadius),
+            child: Container(
               decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(sizes.chipBorderRadius),
-                border: isSelected
-                    ? null
-                    : Border.all(
-                        color: Colors.white24,
-                        width: sizes.chipBorderWidth,
-                      ),
+                color: Colors.black,
+                border: Border.all(color: Colors.white12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      sizes.chipThumbnailBorderRadius,
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl,
-                      width: sizes.chipThumbnailSize,
-                      height: sizes.chipThumbnailSize,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => Icon(
-                        Icons.play_circle_outline,
-                        size: sizes.chipThumbnailSize * 0.6,
-                        color: Colors.white,
+                  CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
+                  if (_ytController != null)
+                    IgnorePointer(
+                      child: YoutubePlayer(
+                        key: ValueKey(_playerKey),
+                        controller: _ytController!,
+                        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
                       ),
+                    ),
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _togglePlayPause,
                     ),
                   ),
-                  SizedBox(width: sizes.chipThumbnailSpacing),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: sizes.chipTitleMaxWidth,
-                    ),
-                    child: Text(
-                      video.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: sizes.chipFontSize,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w400,
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: _isPaused ? 1 : 0,
+                    child: Center(
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        size: sizes.playIconSize,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
-}
 
-// ─── Text Button ────────────────────────────────────────────────────────────
-
-class SimpleShortsPlayerTextButton extends StatelessWidget {
-  final SimpleShortsPlayerSizes sizes;
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const SimpleShortsPlayerTextButton({
-    super.key,
-    required this.sizes,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: sizes.textBtnPaddingVertical),
-        decoration: BoxDecoration(
-          color: Colors.white10,
-          borderRadius: BorderRadius.circular(sizes.textBtnBorderRadius),
-          border: Border.all(
-            color: Colors.white12,
-            width: sizes.textBtnBorderWidth,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white70, size: sizes.textBtnIconSize),
-            SizedBox(width: sizes.textBtnSpacing),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: sizes.textBtnLabelFontSize,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
+  Widget _buildProgressBar(ShortsPlayerSizes sizes) {
+    return ValueListenableBuilder<double>(
+      valueListenable: _progressNotifier,
+      builder: (context, progress, _) => ClipRRect(
+        borderRadius: BorderRadius.circular(sizes.progressBarRadius),
+        child: LinearProgressIndicator(
+          value: progress,
+          backgroundColor: Colors.white12,
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          minHeight: sizes.progressBarHeight,
         ),
       ),
+    );
+  }
+
+  Widget _buildActionBar(ShortsPlayerSizes sizes, VideoModel short) {
+    return ShortsPlayerActionBar(
+      sizes: sizes,
+      isLiked: _likedIds.contains(short.videoId),
+      isSaved: _savedIds.contains(short.videoId),
+      isMuted: _isMuted,
+      onLike: () => _toggleLike(short.videoId),
+      onSave: () => _toggleSave(short.videoId),
+      onShare: () => ShareHelper.shareVideo(
+        videoId: short.videoId,
+        title: short.title,
+        universityName: short.universityName,
+        thumbnailUrl: short.bestThumbnail,
+      ),
+      onToggleMute: _toggleMute,
+    );
+  }
+
+  Widget _buildInfoCard(ShortsPlayerSizes sizes, VideoModel short) {
+    return ShortsPlayerInfoCard(
+      sizes: sizes,
+      universityName: short.universityName ?? short.channelTitle,
+      logoUrl: _universityLogoUrl,
+      description: short.description,
+      isFollowing: _isFollowing,
+      onToggleFollow: _toggleFollow,
+      onWatchFull: () => Get.toNamed(
+        AppRoutes.player,
+        parameters: {'videoId': short.videoId},
+      ),
+    );
+  }
+
+  Widget _buildRelatedShelf(
+    ShortsPlayerSizes sizes,
+    VideoModel short,
+    List<VideoModel> related,
+  ) {
+    return ShortsPlayerRelatedShelf<VideoModel>(
+      sizes: sizes,
+      universityName: short.universityName ?? short.channelTitle,
+      items: related,
+      thumbnailOf: (v) => v.bestThumbnail,
+      titleOf: (v) => v.title,
+      durationOf: (v) => v.formattedDuration,
+      onSelect: _goToVideo,
     );
   }
 }
