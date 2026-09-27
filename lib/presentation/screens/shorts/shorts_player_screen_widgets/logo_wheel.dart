@@ -99,48 +99,54 @@ class _ShortsPlayerUniversityLogoWheelState
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
                 opacity: isActive ? 1 : 0.45,
-                child: Center(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF2A2A2A),
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: AppTheme.primaryColor.withValues(
-                                  alpha: 0.4,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final maxSize = constraints.biggest.shortestSide;
+                    final actualSize = size > maxSize ? maxSize : size;
+                    return Center(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        width: actualSize,
+                        height: actualSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF2A2A2A),
+                          boxShadow: isActive
+                              ? [
+                                  BoxShadow(
+                                    color: AppTheme.primaryColor.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    blurRadius: sizes.isTablet ? 10 : 10,
+                                    spreadRadius: sizes.isTablet ? 1 : 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        padding: EdgeInsets.all(sizes.wheelLogoPadding),
+                        child: ClipOval(
+                          child: hasLogo
+                              ? CachedNetworkImage(
+                                  imageUrl: short.logoUrl!,
+                                  fit: BoxFit.contain,
+                                  fadeInDuration: Duration.zero,
+                                  fadeOutDuration: Duration.zero,
+                                  errorWidget: (_, _, _) => const Icon(
+                                    Icons.school_rounded,
+                                    color: Colors.white54,
+                                  ),
+                                  placeholder: (_, _) =>
+                                      const ColoredBox(color: Color(0xFF2A2A2A)),
+                                )
+                              : const Icon(
+                                  Icons.school_rounded,
+                                  color: Colors.white54,
                                 ),
-                                blurRadius: sizes.isTablet ? 10 : 10,
-                                spreadRadius: sizes.isTablet ? 1 : 1,
-                              ),
-                            ]
-                          : null,
-                    ),
-                    padding: EdgeInsets.all(sizes.wheelLogoPadding),
-                    child: ClipOval(
-                      child: hasLogo
-                          ? CachedNetworkImage(
-                              imageUrl: short.logoUrl!,
-                              fit: BoxFit.contain,
-                              fadeInDuration: Duration.zero,
-                              fadeOutDuration: Duration.zero,
-                              errorWidget: (_, _, _) => const Icon(
-                                Icons.school_rounded,
-                                color: Colors.white54,
-                              ),
-                              placeholder: (_, _) =>
-                                  const ColoredBox(color: Color(0xFF2A2A2A)),
-                            )
-                          : const Icon(
-                              Icons.school_rounded,
-                              color: Colors.white54,
-                            ),
-                    ),
-                  ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             );

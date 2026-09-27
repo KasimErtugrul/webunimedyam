@@ -554,6 +554,13 @@ class WheelVideoCardWidget extends StatelessWidget {
   }
 
   // ── Phone Stats Row ──
+  // FIX: 5 istatistik (görüntülenme/beğeni/yorum/paylaş/kaydet) + sabit
+  // padding'ler, küçük telefon genişliklerinde veya erişilebilirlik
+  // textScaler > ~1.4 değerlerinde yatayda taşabiliyordu. Sol istatistik
+  // grubu `Expanded + FittedBox(scaleDown)` içine alındı; alan yetmezse
+  // yalnızca bu grup oransal olarak küçülür, sağdaki kaydet ikonu sağ
+  // kenardaki konumunu korur. Sayılar ellipsis ile anlamsızca
+  // kırpılmak yerine küçültüldüğü için okunabilirlik korunur.
   Widget _buildStatsRowPhone(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -586,54 +593,68 @@ class WheelVideoCardWidget extends StatelessWidget {
 
         return Row(
           children: [
-            _statItemPhone(
-              context,
-              icon: Icons.visibility_outlined,
-              count: views,
-            ),
-            _statItemPhone(
-              context,
-              icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-              count: likes,
-              isActive: liked,
-              onTap: () => controller.toggleLike(video.videoId),
-            ),
-            _statItemPhone(
-              context,
-              icon: hasCommented
-                  ? Icons.mode_comment_rounded
-                  : Icons.mode_comment_outlined,
-              count: comments,
-              isActive: hasCommented,
-              onTap: () => Get.toNamed(
-                AppRoutes.player,
-                arguments: video,
-                parameters: {'videoId': video.videoId},
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _statItemPhone(
+                      context,
+                      icon: Icons.visibility_outlined,
+                      count: views,
+                    ),
+                    _statItemPhone(
+                      context,
+                      icon: liked
+                          ? Icons.thumb_up_rounded
+                          : Icons.thumb_up_outlined,
+                      count: likes,
+                      isActive: liked,
+                      onTap: () => controller.toggleLike(video.videoId),
+                    ),
+                    _statItemPhone(
+                      context,
+                      icon: hasCommented
+                          ? Icons.mode_comment_rounded
+                          : Icons.mode_comment_outlined,
+                      count: comments,
+                      isActive: hasCommented,
+                      onTap: () => Get.toNamed(
+                        AppRoutes.player,
+                        arguments: video,
+                        parameters: {'videoId': video.videoId},
+                      ),
+                    ),
+                    if (isShareLoading)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _PhoneSizes.statPaddingHorizontal,
+                        ),
+                        child: SizedBox(
+                          width: _PhoneSizes.statLoadingSize,
+                          height: _PhoneSizes.statLoadingSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: _PhoneSizes.statLoadingStrokeWidth,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      )
+                    else
+                      _statItemPhone(
+                        context,
+                        icon: hasShared
+                            ? Icons.send_rounded
+                            : Icons.send_outlined,
+                        count: shares,
+                        isActive: hasShared,
+                        onTap: () => controller.shareVideo(video),
+                      ),
+                  ],
+                ),
               ),
             ),
-            if (isShareLoading)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: _PhoneSizes.statPaddingHorizontal,
-                ),
-                child: SizedBox(
-                  width: _PhoneSizes.statLoadingSize,
-                  height: _PhoneSizes.statLoadingSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: _PhoneSizes.statLoadingStrokeWidth,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-              )
-            else
-              _statItemPhone(
-                context,
-                icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
-                count: shares,
-                isActive: hasShared,
-                onTap: () => controller.shareVideo(video),
-              ),
-            const Spacer(),
             _statItemPhone(
               context,
               icon: isFav

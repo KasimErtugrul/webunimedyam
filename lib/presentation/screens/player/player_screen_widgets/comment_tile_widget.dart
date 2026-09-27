@@ -203,6 +203,7 @@ class CommentTileWidget extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           fontSize: s.usernameFontSize,
                         ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -215,11 +216,15 @@ class CommentTileWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: s.dotSpacing),
-                    Text(
-                      _timeAgo(comment.createdAt),
-                      style: TextStyle(
-                        color: AppTheme.textSec(context),
-                        fontSize: s.timeFontSize,
+                    Flexible(
+                      child: Text(
+                        _timeAgo(comment.createdAt),
+                        style: TextStyle(
+                          color: AppTheme.textSec(context),
+                          fontSize: s.timeFontSize,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

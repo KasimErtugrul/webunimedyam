@@ -62,6 +62,8 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
             fontSize: sizes.appBarTitleSize,
             fontWeight: FontWeight.w600,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         surfaceTintColor: Colors.transparent,
         actions: [

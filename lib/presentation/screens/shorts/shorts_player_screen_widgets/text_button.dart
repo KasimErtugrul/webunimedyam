@@ -1,4 +1,3 @@
-
 // ─── Text Button (TEK WIDGET) ─────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -43,12 +42,16 @@ class ShortsPlayerTextButton extends StatelessWidget {
               size: sizes.textBtnIconSize,
             ),
             SizedBox(width: sizes.textBtnSpacing),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: sizes.textBtnLabelFontSize,
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: sizes.textBtnLabelFontSize,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

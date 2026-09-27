@@ -196,23 +196,29 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.bolt_rounded,
-                size: _PhoneSizes.sectionIconSize,
-                color: AppTheme.primaryColor,
-              ),
-              SizedBox(width: _PhoneSizes.sectionIconSpacing),
-              Text(
-                'Üniversite Shorts',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _PhoneSizes.sectionTitleFontSize,
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.bolt_rounded,
+                  size: _PhoneSizes.sectionIconSize,
+                  color: AppTheme.primaryColor,
                 ),
-              ),
-            ],
+                SizedBox(width: _PhoneSizes.sectionIconSpacing),
+                Flexible(
+                  child: Text(
+                    'Üniversite Shorts',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: _PhoneSizes.sectionTitleFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           // TODO(kasım): "Tümü" — tüm shorts'ları gösteren ayrı bir ekrana
           // yönlendirme henüz bağlanmadı; onTap boş bırakıldı.
@@ -258,23 +264,29 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.bolt_rounded,
-                size: _TabletSizes.sectionIconSize,
-                color: AppTheme.primaryColor,
-              ),
-              SizedBox(width: _TabletSizes.sectionIconSpacing),
-              Text(
-                'Üniversite Shorts',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: _TabletSizes.sectionTitleFontSize,
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.bolt_rounded,
+                  size: _TabletSizes.sectionIconSize,
+                  color: AppTheme.primaryColor,
                 ),
-              ),
-            ],
+                SizedBox(width: _TabletSizes.sectionIconSpacing),
+                Flexible(
+                  child: Text(
+                    'Üniversite Shorts',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: _TabletSizes.sectionTitleFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           // TODO(kasım): "Tümü" — onTap boş bırakıldı, bkz. phone versiyonu.
           InkWell(

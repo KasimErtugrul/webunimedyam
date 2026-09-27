@@ -204,62 +204,68 @@ class HomeUtilityBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Canlı Kampüs Radyosu Düğmesi
-          InkWell(
-            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-            onTap: () => Get.toNamed(AppRoutes.radio),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: sizes.radioPadH,
-                vertical: sizes.radioPadV,
-              ),
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: sizes.radioDotSize,
-                    height: sizes.radioDotSize,
-                    decoration: BoxDecoration(
+          Flexible(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+              onTap: () => Get.toNamed(AppRoutes.radio),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: sizes.radioPadH,
+                  vertical: sizes.radioPadV,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: sizes.radioDotSize,
+                      height: sizes.radioDotSize,
+                      decoration: BoxDecoration(
+                        color: scheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: sizes.radioGapSmall),
+                    Icon(
+                      Icons.radio_rounded,
                       color: scheme.primary,
-                      shape: BoxShape.circle,
+                      size: sizes.radioIconSize,
                     ),
-                  ),
-                  SizedBox(width: sizes.radioGapSmall),
-                  Icon(
-                    Icons.radio_rounded,
-                    color: scheme.primary,
-                    size: sizes.radioIconSize,
-                  ),
-                  SizedBox(width: sizes.radioGapSmall),
-                  Text(
-                    'Kampüs FM Canlı',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(color: scheme.onSurface),
-                  ),
-                  SizedBox(width: sizes.radioGapTiny),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sizes.radioBadgePadH,
-                      vertical: sizes.radioBadgePadV,
+                    SizedBox(width: sizes.radioGapSmall),
+                    Flexible(
+                      child: Text(
+                        'Kampüs FM Canlı',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: scheme.onSurface),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(sizes.radioBadgeRadius),
+                    SizedBox(width: sizes.radioGapTiny),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: sizes.radioBadgePadH,
+                        vertical: sizes.radioBadgePadV,
+                      ),
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(sizes.radioBadgeRadius),
+                      ),
+                      child: Text(
+                        'YAYINDA',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
                     ),
-                    child: Text(
-                      'YAYINDA',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

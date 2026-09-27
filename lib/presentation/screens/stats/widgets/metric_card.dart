@@ -1,9 +1,3 @@
-
-
-
-
-
-
 // ─── Metric Card ──────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -48,11 +42,15 @@ class MetricCard extends StatelessWidget {
                 size: sizes.metricIconSize,
               ),
               SizedBox(width: sizes.metricIconSpacing),
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: sizes.metricLabelFontSize,
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: sizes.metricLabelFontSize,
+                  ),
                 ),
               ),
             ],

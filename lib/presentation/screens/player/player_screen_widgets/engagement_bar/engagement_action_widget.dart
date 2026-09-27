@@ -125,18 +125,22 @@ class EngagementActionWidget extends StatelessWidget {
               ),
             if (countText.isNotEmpty) ...[
               SizedBox(width: s.textSpacing),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, anim) =>
-                    FadeTransition(opacity: anim, child: child),
-                child: Text(
-                  countText,
-                  key: ValueKey(count),
-                  style: TextStyle(
-                    color: color,
-                    fontSize: s.textFontSize,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                    height: 1.0,
+              Flexible(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, anim) =>
+                      FadeTransition(opacity: anim, child: child),
+                  child: Text(
+                    countText,
+                    key: ValueKey(count),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: s.textFontSize,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                      height: 1.0,
+                    ),
                   ),
                 ),
               ),

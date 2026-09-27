@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/splash_screen.dart
+/* // lib/presentation/screens/splash/splash_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -198,4 +198,4 @@ class _PulsingGlowState extends State<_PulsingGlow>
       ),
     );
   }
-}
+} */

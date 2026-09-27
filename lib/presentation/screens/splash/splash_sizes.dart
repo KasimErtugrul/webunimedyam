@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/splash_sizes.dart
+/* // lib/presentation/screens/splash/splash_sizes.dart
 
 // ═══════════════════════════════════════════════════════════
 // ABSTRACT SIZES CONTRACT — Stitch "Splash Screen - ÜniTV"
@@ -343,3 +343,4 @@ class SplashTabletSizes extends SplashSizes {
   @override
   double get versionFontSize => 12;
 }
+ */

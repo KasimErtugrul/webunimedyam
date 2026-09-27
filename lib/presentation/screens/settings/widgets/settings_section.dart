@@ -37,10 +37,14 @@ class SettingsSection extends StatelessWidget {
     if (padding != null) {
       cardBody = Padding(
         padding: padding!,
-        child: Column(children: children),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        ),
       );
     } else {
       cardBody = Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < children.length; i++) ...[
             if (i > 0) _divider(scheme),
@@ -51,6 +55,7 @@ class SettingsSection extends StatelessWidget {
     }
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(

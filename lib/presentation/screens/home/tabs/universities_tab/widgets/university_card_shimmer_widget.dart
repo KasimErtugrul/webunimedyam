@@ -48,32 +48,41 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   SizedBox(height: 8),
-                  Container(
-                    height: 10,
-                    width: 140,
-                    color: Colors.grey,
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Container(
+                        height: 10,
+                        width: constraints.maxWidth * 0.6,
+                        color: Colors.grey,
+                      );
+                    },
                   ),
                   SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Container(
-                        height: 18,
-                        width: 55,
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      SizedBox(width: 6),
-                      Container(
-                        height: 18,
-                        width: 55,
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final itemWidth = constraints.maxWidth * 0.25;
+                      return Row(
+                        children: [
+                          Container(
+                            height: 18,
+                            width: itemWidth,
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Container(
+                            height: 18,
+                            width: itemWidth,
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),

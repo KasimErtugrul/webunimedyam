@@ -54,4 +54,3 @@ class ProfileActivityListNoResultsView extends StatelessWidget {
     );
   }
 }
-

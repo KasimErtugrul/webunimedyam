@@ -101,22 +101,28 @@ class HeroCard extends StatelessWidget {
           SizedBox(height: sizes.heroDividerSpacing),
           Row(
             children: [
-              HeroStat(
-                sizes: sizes,
-                value: stats.totalWatched.toString(),
-                label: 'İzlenen',
+              Expanded(
+                child: HeroStat(
+                  sizes: sizes,
+                  value: stats.totalWatched.toString(),
+                  label: 'İzlenen',
+                ),
               ),
               VertDivider(sizes: sizes),
-              HeroStat(
-                sizes: sizes,
-                value: stats.totalLiked.toString(),
-                label: 'Beğenilen',
+              Expanded(
+                child: HeroStat(
+                  sizes: sizes,
+                  value: stats.totalLiked.toString(),
+                  label: 'Beğenilen',
+                ),
               ),
               VertDivider(sizes: sizes),
-              HeroStat(
-                sizes: sizes,
-                value: stats.totalFavorited.toString(),
-                label: 'Favori',
+              Expanded(
+                child: HeroStat(
+                  sizes: sizes,
+                  value: stats.totalFavorited.toString(),
+                  label: 'Favori',
+                ),
               ),
             ],
           ),

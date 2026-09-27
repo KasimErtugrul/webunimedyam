@@ -83,9 +83,6 @@ class UniversityDetailLiveTab extends StatelessWidget {
     List<dynamic> liveList, {
     bool skeleton = false,
   }) {
-    final landscape =
-        MediaQuery.orientationOf(context) == Orientation.landscape;
-    final cols = landscape ? 3 : 2;
     final count = skeleton ? 4 : liveList.length;
 
     return GridView.builder(
@@ -93,8 +90,8 @@ class UniversityDetailLiveTab extends StatelessWidget {
         horizontal: spec.gridPaddingH,
         vertical: spec.gridPaddingV,
       ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 450,
         childAspectRatio: spec.gridAspectRatio,
         crossAxisSpacing: spec.gridSpacing,
         mainAxisSpacing: spec.gridSpacing,

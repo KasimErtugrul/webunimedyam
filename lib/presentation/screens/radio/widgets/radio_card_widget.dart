@@ -317,17 +317,19 @@ class RadioCardWidget extends StatelessWidget {
                   ),
                 ),
               if (state == PlaybackState.playing) SizedBox(width: 8),
-              Text(
-                text,
-                style: TextStyle(
-                  color: state == PlaybackState.playing
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : Colors.white.withValues(alpha: 0.5),
-                  fontSize: _PhoneSizes.metaFontSize,
-                  fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+              Flexible(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: state == PlaybackState.playing
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Colors.white.withValues(alpha: 0.5),
+                    fontSize: _PhoneSizes.metaFontSize,
+                    fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -579,17 +581,19 @@ class RadioCardWidget extends StatelessWidget {
                   ),
                 ),
               if (state == PlaybackState.playing) SizedBox(width: 10),
-              Text(
-                text,
-                style: TextStyle(
-                  color: state == PlaybackState.playing
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : Colors.white.withValues(alpha: 0.5),
-                  fontSize: _TabletSizes.metaFontSize,
-                  fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+              Flexible(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: state == PlaybackState.playing
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Colors.white.withValues(alpha: 0.5),
+                    fontSize: _TabletSizes.metaFontSize,
+                    fontStyle: text == 'Dinliyorsunuz' ? FontStyle.italic : FontStyle.normal,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

@@ -35,12 +35,16 @@ class SearchHistoryView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Son Aramalar',
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: spec.sectionTitleFontSize,
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  'Son Aramalar',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: spec.sectionTitleFontSize,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               TextButton(
@@ -114,12 +118,16 @@ class _HistoryChip extends StatelessWidget {
                 color: AppTheme.textSec(context),
               ),
               SizedBox(width: 6),
-              Text(
-                text,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: spec.chipFontSize,
-                  fontWeight: FontWeight.w500,
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textPri(context),
+                    fontSize: spec.chipFontSize,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               SizedBox(width: 6),
@@ -149,40 +157,42 @@ class _EmptyHistory extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(spec.sectionH * 2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.travel_explore_rounded,
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.4),
-              size: spec.emptyIconSize,
-            )
-                .animate()
-                .fadeIn(duration: 400.ms)
-                .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: spec.emptySpacing),
-            Text(
-              'Aramaya başla',
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: spec.emptyTitleFontSize,
-                fontWeight: FontWeight.w700,
-              ),
-            ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-            SizedBox(height: (spec.emptySpacing / 2)),
-            Text(
-              'İzlemek istediğin videoyu, üniversiteyi veya kanalı ara.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.textSec(context),
-                fontSize: spec.emptySubtitleFontSize,
-                height: 1.4,
-              ),
-            ).animate().fadeIn(delay: 180.ms, duration: 300.ms),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.travel_explore_rounded,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.4),
+                size: spec.emptyIconSize,
+              )
+                  .animate()
+                  .fadeIn(duration: 400.ms)
+                  .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),
+              SizedBox(height: spec.emptySpacing),
+              Text(
+                'Aramaya başla',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: spec.emptyTitleFontSize,
+                  fontWeight: FontWeight.w700,
+                ),
+              ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
+              SizedBox(height: (spec.emptySpacing / 2)),
+              Text(
+                'İzlemek istediğin videoyu, üniversiteyi veya kanalı ara.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: spec.emptySubtitleFontSize,
+                  height: 1.4,
+                ),
+              ).animate().fadeIn(delay: 180.ms, duration: 300.ms),
+            ],
+          ),
         ),
       ),
     );

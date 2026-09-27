@@ -1,5 +1,3 @@
-
-
 // ─── İstatistik Satırı – Izgara ────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -69,29 +67,34 @@ class ProfileActivityListStatRowGrid extends StatelessWidget {
   Widget _buildGridStatLine(BuildContext context, List<_StatItem> items) {
     return Row(
       children: [
-        for (int i = 0; i < items.length; i++) ...[
-          if (i > 0) SizedBox(width: sizes.gridStatSpacing),
-          Row(
-            mainAxisSize: MainAxisSize.min,
+        Expanded(
+          child: Wrap(
+            spacing: sizes.gridStatSpacing,
+            runSpacing: sizes.gridStatLineSpacing,
             children: [
-              Icon(
-                items[i].icon,
-                size: sizes.gridStatIconSize,
-                color: AppTheme.textSec(context),
-              ),
-              SizedBox(width: sizes.durationBadgePaddingHorizontal),
-              Text(
-                _compactNumber(items[i].value),
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: sizes.gridStatFontSize,
-                  fontWeight: FontWeight.w500,
+              for (final item in items)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      item.icon,
+                      size: sizes.gridStatIconSize,
+                      color: AppTheme.textSec(context),
+                    ),
+                    SizedBox(width: sizes.durationBadgePaddingHorizontal),
+                    Text(
+                      _compactNumber(item.value),
+                      style: TextStyle(
+                        color: AppTheme.textSec(context),
+                        fontSize: sizes.gridStatFontSize,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
             ],
           ),
-        ],
-        const Spacer(),
+        ),
       ],
     );
   }

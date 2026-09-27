@@ -100,4 +100,3 @@ class InterestSelectionScreen extends StatelessWidget {
     );
   }
 }
-

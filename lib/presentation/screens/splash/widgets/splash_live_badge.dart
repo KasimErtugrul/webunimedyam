@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/widgets/splash_live_badge.dart
+/* // lib/presentation/screens/splash/widgets/splash_live_badge.dart
 
 import 'package:flutter/material.dart';
 
@@ -114,4 +114,4 @@ class _PingDotState extends State<_PingDot> with SingleTickerProviderStateMixin 
       ),
     );
   }
-}
+} */

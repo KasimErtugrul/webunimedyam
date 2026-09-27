@@ -78,9 +78,6 @@ class UniversityDetailVideosTab extends StatelessWidget {
     bool skeleton = false,
   }) {
     final count = skeleton ? 6 : videoList.length;
-    final landscape =
-        MediaQuery.orientationOf(context) == Orientation.landscape;
-    final cols = landscape ? 3 : 2;
 
     return CustomScrollView(
       slivers: [
@@ -92,8 +89,8 @@ class UniversityDetailVideosTab extends StatelessWidget {
             hasMore ? 0 : 40,
           ),
           sliver: SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cols,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 450,
               childAspectRatio: spec.gridAspectRatio,
               crossAxisSpacing: spec.gridSpacing,
               mainAxisSpacing: spec.gridSpacing,

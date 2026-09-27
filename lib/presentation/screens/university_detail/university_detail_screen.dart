@@ -32,6 +32,10 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   final ValueNotifier<double> _titleOpacity = ValueNotifier(0.0);
   final ValueNotifier<bool> _isPinned = ValueNotifier(false);
 
+  /// Aktif layout spec'i; fade hesabında gerçek AppBar yüksekliğini kullanmak
+  /// için `_onScroll` içinden erişilir. `build` tarafından güncellenir.
+  UniversityDetailLayoutSpec? _spec;
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +68,13 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final offset = _scrollController.offset;
-    final maxScroll = 240 - kToolbarHeight;
+
+    // Fade mesafesi, AppBar'ın gerçek expandedHeight'ından türetilir; sabit
+    // bir varsayım kullanılmaz. Build henüz çalışmadıysa hesap yapılmaz.
+    final spec = _spec;
+    if (spec == null) return;
+    final maxScroll = spec.appBarExpandedHeight - kToolbarHeight;
+    if (maxScroll <= 0) return;
     final fadeStart = maxScroll * 0.9;
     final fadeEnd = maxScroll;
 
@@ -85,6 +95,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final spec = UniversityDetailLayoutSpec.of(context);
+    _spec = spec;
 
     return DefaultTabController(
       length: 4,

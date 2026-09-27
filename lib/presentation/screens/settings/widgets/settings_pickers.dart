@@ -26,45 +26,47 @@ void _showSheet({
       ),
     ),
     builder: (_) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: spec.sheetHandleSpacing),
-          Container(
-            width: spec.sheetHandleWidth,
-            height: spec.sheetHandleHeight,
-            decoration: BoxDecoration(
-              color: AppTheme.textSec(context).withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(spec.sheetHandleHeight),
-            ),
-          ),
-          SizedBox(height: spec.sheetHandleSpacing),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: spec.sheetTitleFontSize,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPri(context),
-            ),
-          ),
-          if (subtitle != null) ...[
-            SizedBox(height: 4),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: spec.sheetSubtitleFontSize,
-                  color: AppTheme.textSec(context),
-                ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: spec.sheetHandleSpacing),
+            Container(
+              width: spec.sheetHandleWidth,
+              height: spec.sheetHandleHeight,
+              decoration: BoxDecoration(
+                color: AppTheme.textSec(context).withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(spec.sheetHandleHeight),
               ),
             ),
+            SizedBox(height: spec.sheetHandleSpacing),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: spec.sheetTitleFontSize,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPri(context),
+              ),
+            ),
+            if (subtitle != null) ...[
+              SizedBox(height: 4),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: spec.sheetSubtitleFontSize,
+                    color: AppTheme.textSec(context),
+                  ),
+                ),
+              ),
+            ],
+            SizedBox(height: spec.sheetOptionSpacing),
+            child,
+            SizedBox(height: spec.sheetPaddingBottom),
           ],
-          SizedBox(height: spec.sheetOptionSpacing),
-          child,
-          SizedBox(height: spec.sheetPaddingBottom),
-        ],
+        ),
       ),
     ),
   );

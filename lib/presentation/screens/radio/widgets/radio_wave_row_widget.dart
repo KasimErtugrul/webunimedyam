@@ -20,6 +20,7 @@ class _PhoneSizes {
   static const double heightScale = 1.2;
   static const double opacityActive = 0.9;
   static const double opacityInactive = 0.15;
+  static const double containerHeight = 32;
 }
 
 class _TabletSizes {
@@ -29,6 +30,7 @@ class _TabletSizes {
   static const double heightScale = 1.5;
   static const double opacityActive = 0.9;
   static const double opacityInactive = 0.15;
+  static const double containerHeight = 36;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -136,6 +138,7 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
       heightScale: _PhoneSizes.heightScale,
       opacityActive: _PhoneSizes.opacityActive,
       opacityInactive: _PhoneSizes.opacityInactive,
+      containerHeight: _PhoneSizes.containerHeight,
     );
   }
 
@@ -151,6 +154,7 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
       heightScale: _TabletSizes.heightScale,
       opacityActive: _TabletSizes.opacityActive,
       opacityInactive: _TabletSizes.opacityInactive,
+      containerHeight: _TabletSizes.containerHeight,
     );
   }
 
@@ -163,9 +167,10 @@ class _RadioWaveRowWidgetState extends State<RadioWaveRowWidget>
     required double heightScale,
     required double opacityActive,
     required double opacityInactive,
+    required double containerHeight,
   }) {
     return SizedBox(
-      height: 32,
+      height: containerHeight,
       child: AnimatedBuilder(
         animation: _glowAnimation,
         builder: (context, child) {

@@ -64,30 +64,36 @@ class StatChipWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: spec.iconSize,
-              color: AppTheme.textSec(context).withValues(alpha: 0.7),
-            ),
-            SizedBox(width: w(spec.innerSpacing)),
-            Text(
-              '$count',
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: spec.countFontSize,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                height: 1,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: spec.iconSize,
+                color: AppTheme.textSec(context).withValues(alpha: 0.7),
               ),
-            ),
-          ],
+              SizedBox(width: w(spec.innerSpacing)),
+              Text(
+                '$count',
+                maxLines: 1,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: spec.countFontSize,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  height: 1,
+                ),
+              ),
+            ],
+          ),
         ),
         SizedBox(height: h(spec.spacing)),
         Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppTheme.textSec(context).withValues(alpha: 0.8),
             fontSize: spec.labelFontSize,

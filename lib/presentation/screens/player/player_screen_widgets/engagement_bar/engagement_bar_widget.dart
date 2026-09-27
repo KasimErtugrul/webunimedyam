@@ -76,40 +76,49 @@ class EngagementBarWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Obx(
-            () => EngagementActionWidget(
-              icon: controller.isLiked.value
-                  ? Icons.thumb_up_rounded
-                  : Icons.thumb_up_alt_outlined,
-              count: controller.appLikeCount.value,
-              active: controller.isLiked.value,
-              loading: controller.isLikeLoading.value,
-              onTap: controller.toggleLike,
+          Flexible(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(
+                    () => EngagementActionWidget(
+                      icon: controller.isLiked.value
+                          ? Icons.thumb_up_rounded
+                          : Icons.thumb_up_alt_outlined,
+                      count: controller.appLikeCount.value,
+                      active: controller.isLiked.value,
+                      loading: controller.isLikeLoading.value,
+                      onTap: controller.toggleLike,
+                    ),
+                  ),
+                  SizedBox(width: s.actionSpacing),
+                  Obx(
+                    () => EngagementActionWidget(
+                      icon: Icons.share_outlined,
+                      count: controller.appShareCount.value,
+                      active: false,
+                      loading: controller.isShareLoading.value,
+                      onTap: controller.shareVideo,
+                    ),
+                  ),
+                  SizedBox(width: s.actionSpacing),
+                  Obx(
+                    () => EngagementActionWidget(
+                      icon: controller.isFavorite.value
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_outline_rounded,
+                      count: controller.appFavoriteCount.value,
+                      active: controller.isFavorite.value,
+                      loading: controller.isFavoriteLoading.value,
+                      onTap: controller.toggleFavorite,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(width: s.actionSpacing),
-          Obx(
-            () => EngagementActionWidget(
-              icon: Icons.share_outlined,
-              count: controller.appShareCount.value,
-              active: false,
-              loading: controller.isShareLoading.value,
-              onTap: controller.shareVideo,
-            ),
-          ),
-          SizedBox(width: s.actionSpacing),
-          Obx(
-            () => EngagementActionWidget(
-              icon: controller.isFavorite.value
-                  ? Icons.bookmark_rounded
-                  : Icons.bookmark_outline_rounded,
-              count: controller.appFavoriteCount.value,
-              active: controller.isFavorite.value,
-              loading: controller.isFavoriteLoading.value,
-              onTap: controller.toggleFavorite,
-            ),
-          ),
-          const Spacer(),
           Container(
             width: s.dividerWidth,
             height: s.dividerHeight,

@@ -228,4 +228,4 @@ class _ExpandableDescriptionWidgetState
       },
     );
   }
-}
+} 

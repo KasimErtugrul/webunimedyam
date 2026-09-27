@@ -41,11 +41,16 @@ class InterestSelectionBottomBar extends StatelessWidget {
                       strokeWidth: sizes.bottomBarLoaderStrokeWidth,
                     ),
                   )
-                : Text(
-                    controller.selectedCount > 0
-                        ? 'Devam Et (${controller.selectedCount})'
-                        : 'Devam Et',
-                    style: TextStyle(fontSize: sizes.bottomBarButtonFontSize),
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      controller.selectedCount > 0
+                          ? 'Devam Et (${controller.selectedCount})'
+                          : 'Devam Et',
+                      style: TextStyle(
+                        fontSize: sizes.bottomBarButtonFontSize,
+                      ),
+                    ),
                   ),
           ),
         ),

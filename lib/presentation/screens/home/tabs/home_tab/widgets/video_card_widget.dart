@@ -571,6 +571,11 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     );
   }
 
+  // FIX: Aksiyon satırı (4 buton + görüntülenme metni) dar ekranlarda
+  // veya büyük textScaler ile dikey/yatay taşabiliyordu. Butonlar
+  // `Expanded` + `FittedBox(fit: BoxFit.scaleDown)` ile sarıldı; alan
+  // yetersizse yalnızca buton grubu oransal olarak küçülür, sağdaki
+  // "izlenme" metni tam boyutta kalır.
   Widget _buildPhoneActionRow(BuildContext context, HomeController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -579,104 +584,123 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       ),
       child: Row(
         children: [
-          // ── SOL: Beğen ──
-          Obx(() {
-            final liked = controller.likedVideoIds.contains(video.videoId);
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final likeCount = liveVideo?.appLikeCount ?? video.appLikeCount;
-            return _IgActionBtnPhone(
-              themeContext: context,
-              icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-              color: liked
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: likeCount,
-              isActive: liked,
-              onTap: () => controller.toggleLike(video.videoId),
-            );
-          }),
-          // ── SOL: Yorum ──
-          Obx(() {
-            final hasCommented = controller.commentedVideoIds.contains(
-              video.videoId,
-            );
-            final extra = controller.extraCommentCountFor(video.videoId);
-            return _IgActionBtnPhone(
-              themeContext: context,
-              icon: hasCommented
-                  ? Icons.mode_comment_rounded
-                  : Icons.mode_comment_outlined,
-              color: hasCommented
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: video.appCommentCount + extra,
-              isActive: hasCommented,
-              onTap: () => Get.toNamed(
-                AppRoutes.player,
-                arguments: video,
-                parameters: {'videoId': video.videoId},
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── SOL: Beğen ──
+                  Obx(() {
+                    final liked = controller.likedVideoIds.contains(
+                      video.videoId,
+                    );
+                    final liveVideo = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final likeCount =
+                        liveVideo?.appLikeCount ?? video.appLikeCount;
+                    return _IgActionBtnPhone(
+                      themeContext: context,
+                      icon: liked
+                          ? Icons.thumb_up_rounded
+                          : Icons.thumb_up_outlined,
+                      color: liked
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: likeCount,
+                      isActive: liked,
+                      onTap: () => controller.toggleLike(video.videoId),
+                    );
+                  }),
+                  // ── SOL: Yorum ──
+                  Obx(() {
+                    final hasCommented = controller.commentedVideoIds.contains(
+                      video.videoId,
+                    );
+                    final extra = controller.extraCommentCountFor(
+                      video.videoId,
+                    );
+                    return _IgActionBtnPhone(
+                      themeContext: context,
+                      icon: hasCommented
+                          ? Icons.mode_comment_rounded
+                          : Icons.mode_comment_outlined,
+                      color: hasCommented
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: video.appCommentCount + extra,
+                      isActive: hasCommented,
+                      onTap: () => Get.toNamed(
+                        AppRoutes.player,
+                        arguments: video,
+                        parameters: {'videoId': video.videoId},
+                      ),
+                    );
+                  }),
+                  // ── SOL: Paylaş ──
+                  Obx(() {
+                    final isLoading = controller.shareLoadingVideoIds.contains(
+                      video.videoId,
+                    );
+                    final hasShared = controller.sharedVideoIds.contains(
+                      video.videoId,
+                    );
+                    if (isLoading) {
+                      return Padding(
+                        padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
+                        child: SizedBox(
+                          width: _PhoneSizes.shareLoadingSize,
+                          height: _PhoneSizes.shareLoadingSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: _PhoneSizes.shareLoadingStrokeWidth,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      );
+                    }
+                    final liveVideoShare = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final shareCount =
+                        liveVideoShare?.appShareCount ?? video.appShareCount;
+                    return _IgActionBtnPhone(
+                      themeContext: context,
+                      icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
+                      color: hasShared
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: shareCount,
+                      isActive: hasShared,
+                      onTap: () => controller.shareVideo(video),
+                    );
+                  }),
+                  // ── SOL: Kaydet ──
+                  Obx(() {
+                    final isFav = controller.favoriteIds.contains(video.videoId);
+                    final liveVideo = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final favCount =
+                        liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
+                    return _IgActionBtnPhone(
+                      themeContext: context,
+                      icon: isFav
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_outline_rounded,
+                      color: isFav
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: favCount,
+                      isActive: isFav,
+                      onTap: () => controller.toggleFavorite(video.videoId),
+                    );
+                  }),
+                ],
               ),
-            );
-          }),
-          // ── SOL: Paylaş ──
-          Obx(() {
-            final isLoading = controller.shareLoadingVideoIds.contains(
-              video.videoId,
-            );
-            final hasShared = controller.sharedVideoIds.contains(video.videoId);
-            if (isLoading) {
-              return Padding(
-                padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
-                child: SizedBox(
-                  width: _PhoneSizes.shareLoadingSize,
-                  height: _PhoneSizes.shareLoadingSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: _PhoneSizes.shareLoadingStrokeWidth,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-              );
-            }
-            final liveVideoShare = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final shareCount =
-                liveVideoShare?.appShareCount ?? video.appShareCount;
-            return _IgActionBtnPhone(
-              themeContext: context,
-              icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
-              color: hasShared
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: shareCount,
-              isActive: hasShared,
-              onTap: () => controller.shareVideo(video),
-            );
-          }),
-          // ── SOL: Kaydet ──
-          Obx(() {
-            final isFav = controller.favoriteIds.contains(video.videoId);
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final favCount =
-                liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
-            return _IgActionBtnPhone(
-              themeContext: context,
-              icon: isFav
-                  ? Icons.bookmark_rounded
-                  : Icons.bookmark_outline_rounded,
-              color: isFav
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: favCount,
-              isActive: isFav,
-              onTap: () => controller.toggleFavorite(video.videoId),
-            );
-          }),
-          const Spacer(),
+            ),
+          ),
           // ── SAĞ: Görüntülenme ──
           Obx(() {
             final override = controller.viewCountOverrides[video.videoId];
@@ -1061,6 +1085,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     );
   }
 
+  // FIX: Tablet kartları (özellikle grid içinde dar sütunlarda) 4 aksiyon
+  // butonu + görüntülenme metnini yatayda taşırabiliyordu. Phone ile aynı
+  // teknik uygulandı: aksiyon grubu `Expanded` + `FittedBox(scaleDown)`
+  // içine alındı.
   Widget _buildTabletActionRow(
     BuildContext context,
     HomeController controller,
@@ -1072,104 +1100,123 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       ),
       child: Row(
         children: [
-          // ── SOL: Beğen ──
-          Obx(() {
-            final liked = controller.likedVideoIds.contains(video.videoId);
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final likeCount = liveVideo?.appLikeCount ?? video.appLikeCount;
-            return _IgActionBtnTablet(
-              themeContext: context,
-              icon: liked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-              color: liked
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: likeCount,
-              isActive: liked,
-              onTap: () => controller.toggleLike(video.videoId),
-            );
-          }),
-          // ── SOL: Yorum ──
-          Obx(() {
-            final hasCommented = controller.commentedVideoIds.contains(
-              video.videoId,
-            );
-            final extra = controller.extraCommentCountFor(video.videoId);
-            return _IgActionBtnTablet(
-              themeContext: context,
-              icon: hasCommented
-                  ? Icons.mode_comment_rounded
-                  : Icons.mode_comment_outlined,
-              color: hasCommented
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: video.appCommentCount + extra,
-              isActive: hasCommented,
-              onTap: () => Get.toNamed(
-                AppRoutes.player,
-                arguments: video,
-                parameters: {'videoId': video.videoId},
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── SOL: Beğen ──
+                  Obx(() {
+                    final liked = controller.likedVideoIds.contains(
+                      video.videoId,
+                    );
+                    final liveVideo = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final likeCount =
+                        liveVideo?.appLikeCount ?? video.appLikeCount;
+                    return _IgActionBtnTablet(
+                      themeContext: context,
+                      icon: liked
+                          ? Icons.thumb_up_rounded
+                          : Icons.thumb_up_outlined,
+                      color: liked
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: likeCount,
+                      isActive: liked,
+                      onTap: () => controller.toggleLike(video.videoId),
+                    );
+                  }),
+                  // ── SOL: Yorum ──
+                  Obx(() {
+                    final hasCommented = controller.commentedVideoIds.contains(
+                      video.videoId,
+                    );
+                    final extra = controller.extraCommentCountFor(
+                      video.videoId,
+                    );
+                    return _IgActionBtnTablet(
+                      themeContext: context,
+                      icon: hasCommented
+                          ? Icons.mode_comment_rounded
+                          : Icons.mode_comment_outlined,
+                      color: hasCommented
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: video.appCommentCount + extra,
+                      isActive: hasCommented,
+                      onTap: () => Get.toNamed(
+                        AppRoutes.player,
+                        arguments: video,
+                        parameters: {'videoId': video.videoId},
+                      ),
+                    );
+                  }),
+                  // ── SOL: Paylaş ──
+                  Obx(() {
+                    final isLoading = controller.shareLoadingVideoIds.contains(
+                      video.videoId,
+                    );
+                    final hasShared = controller.sharedVideoIds.contains(
+                      video.videoId,
+                    );
+                    if (isLoading) {
+                      return Padding(
+                        padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
+                        child: SizedBox(
+                          width: _TabletSizes.shareLoadingSize,
+                          height: _TabletSizes.shareLoadingSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: _TabletSizes.shareLoadingStrokeWidth,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      );
+                    }
+                    final liveVideoShare = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final shareCount =
+                        liveVideoShare?.appShareCount ?? video.appShareCount;
+                    return _IgActionBtnTablet(
+                      themeContext: context,
+                      icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
+                      color: hasShared
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: shareCount,
+                      isActive: hasShared,
+                      onTap: () => controller.shareVideo(video),
+                    );
+                  }),
+                  // ── SOL: Kaydet ──
+                  Obx(() {
+                    final isFav = controller.favoriteIds.contains(video.videoId);
+                    final liveVideo = controller.videos.firstWhereOrNull(
+                      (v) => v.videoId == video.videoId,
+                    );
+                    final favCount =
+                        liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
+                    return _IgActionBtnTablet(
+                      themeContext: context,
+                      icon: isFav
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_outline_rounded,
+                      color: isFav
+                          ? Theme.of(context).colorScheme.primary
+                          : AppTheme.textPri(context),
+                      count: favCount,
+                      isActive: isFav,
+                      onTap: () => controller.toggleFavorite(video.videoId),
+                    );
+                  }),
+                ],
               ),
-            );
-          }),
-          // ── SOL: Paylaş ──
-          Obx(() {
-            final isLoading = controller.shareLoadingVideoIds.contains(
-              video.videoId,
-            );
-            final hasShared = controller.sharedVideoIds.contains(video.videoId);
-            if (isLoading) {
-              return Padding(
-                padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
-                child: SizedBox(
-                  width: _TabletSizes.shareLoadingSize,
-                  height: _TabletSizes.shareLoadingSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: _TabletSizes.shareLoadingStrokeWidth,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-              );
-            }
-            final liveVideoShare = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final shareCount =
-                liveVideoShare?.appShareCount ?? video.appShareCount;
-            return _IgActionBtnTablet(
-              themeContext: context,
-              icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
-              color: hasShared
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: shareCount,
-              isActive: hasShared,
-              onTap: () => controller.shareVideo(video),
-            );
-          }),
-          // ── SOL: Kaydet ──
-          Obx(() {
-            final isFav = controller.favoriteIds.contains(video.videoId);
-            final liveVideo = controller.videos.firstWhereOrNull(
-              (v) => v.videoId == video.videoId,
-            );
-            final favCount =
-                liveVideo?.appFavoriteCount ?? video.appFavoriteCount;
-            return _IgActionBtnTablet(
-              themeContext: context,
-              icon: isFav
-                  ? Icons.bookmark_rounded
-                  : Icons.bookmark_outline_rounded,
-              color: isFav
-                  ? Theme.of(context).colorScheme.primary
-                  : AppTheme.textPri(context),
-              count: favCount,
-              isActive: isFav,
-              onTap: () => controller.toggleFavorite(video.videoId),
-            );
-          }),
-          const Spacer(),
+            ),
+          ),
           // ── SAĞ: Görüntülenme ──
           Obx(() {
             final override = controller.viewCountOverrides[video.videoId];

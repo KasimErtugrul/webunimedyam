@@ -26,12 +26,7 @@ class _Sizes {
         opacity: 0.12,
       );
     }
-    return const _Sizes._(
-      isTablet: false,
-      width: 1,
-      height: 24,
-      opacity: 0.12,
-    );
+    return const _Sizes._(isTablet: false, width: 1, height: 24, opacity: 0.12);
   }
 }
 

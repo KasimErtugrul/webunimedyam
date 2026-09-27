@@ -35,12 +35,16 @@ class VideoSectionDetailScreenStatChip extends StatelessWidget {
       children: [
         Icon(icon, size: sizes.statIconSize, color: color),
         SizedBox(width: sizes.statSpacingSmall),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: sizes.statFontSize,
-            fontWeight: highlight ? FontWeight.w700 : FontWeight.normal,
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontSize: sizes.statFontSize,
+              fontWeight: highlight ? FontWeight.w700 : FontWeight.normal,
+            ),
           ),
         ),
       ],

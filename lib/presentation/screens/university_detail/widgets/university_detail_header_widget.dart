@@ -130,61 +130,72 @@ class UniversityDetailHeader extends StatelessWidget {
             // ── Şehir · Tip (yan yana) ──
             if (hasCity || hasType) ...[
               SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Şehir
-                  if (hasCity) ...[
-                    Icon(
-                      Icons.location_on_rounded,
-                      size: (spec.headerCityFontSize + 1),
-                      color: AppTheme.textSec(context),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      uni.city!,
-                      style: TextStyle(
-                        fontSize: spec.headerCityFontSize,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Şehir
+                    if (hasCity) ...[
+                      Icon(
+                        Icons.location_on_rounded,
+                        size: (spec.headerCityFontSize + 1),
                         color: AppTheme.textSec(context),
                       ),
-                    ),
-                  ],
-
-                  // Ayraç
-                  if (hasCity && hasType) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        '•',
-                        style: TextStyle(
-                          fontSize: spec.headerCityFontSize,
-                          color: AppTheme.textSec(
-                            context,
-                          ).withValues(alpha: 0.5),
-                          fontWeight: FontWeight.bold,
+                      SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          uni.city!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: spec.headerCityFontSize,
+                            color: AppTheme.textSec(context),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
 
-                  // Tip
-                  if (hasType) ...[
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: (spec.headerCityFontSize + 1),
-                      color: AppTheme.textSec(context),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      typeText,
-                      style: TextStyle(
-                        fontSize: spec.headerCityFontSize,
+                    // Ayraç
+                    if (hasCity && hasType) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: spec.headerCityFontSize,
+                            color: AppTheme.textSec(
+                              context,
+                            ).withValues(alpha: 0.5),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    // Tip
+                    if (hasType) ...[
+                      Icon(
+                        Icons.account_balance_rounded,
+                        size: (spec.headerCityFontSize + 1),
                         color: AppTheme.textSec(context),
                       ),
-                    ),
+                      SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          typeText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: spec.headerCityFontSize,
+                            color: AppTheme.textSec(context),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
             ],
 

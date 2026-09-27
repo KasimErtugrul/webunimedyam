@@ -379,24 +379,31 @@ class _SearchScreenState extends State<SearchScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.history_rounded,
-                    color: Color(0xFF4EDEA3),
-                    size: 20,
-                  ),
-                  SizedBox(width: 6),
-                  Text(
-                    'Son Aramalar',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPri(context),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.history_rounded,
+                      color: Color(0xFF4EDEA3),
+                      size: 20,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Son Aramalar',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPri(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               if (history.isNotEmpty)
                 TextButton(
@@ -555,12 +562,14 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Row(
                 children: List.generate(
                   3,
-                  (i) => Container(
-                    margin: EdgeInsets.only(right: 8),
-                    width: 90,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF18202F),
-                      borderRadius: BorderRadius.circular(9999),
+                  (i) => Flexible(
+                    child: Container(
+                      margin: EdgeInsets.only(right: 8),
+                      width: 90,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF18202F),
+                        borderRadius: BorderRadius.circular(9999),
+                      ),
                     ),
                   ),
                 ),

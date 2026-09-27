@@ -43,98 +43,102 @@ class _SortSheetState extends State<_SortSheet> {
     final sortController = widget.sortController;
 
     return Container(
-      constraints: BoxConstraints(maxHeight: 0.85),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(spec.sheetRadius),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 12),
-          // Handle
-          Container(
-            width: spec.sheetHandleW,
-            height: spec.sheetHandleH,
-            decoration: BoxDecoration(
-              color: AppTheme.textSec(context).withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(spec.sheetHandleH),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 12),
+            // Handle
+            Container(
+              width: spec.sheetHandleW,
+              height: spec.sheetHandleH,
+              decoration: BoxDecoration(
+                color: AppTheme.textSec(context).withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(spec.sheetHandleH),
+              ),
             ),
-          ),
-          SizedBox(height: 14),
+            SizedBox(height: 14),
 
-          // Başlık + Sıfırla
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
-            child: Row(
-              children: [
-                Text(
-                  'Filtrele & Sırala',
-                  style: TextStyle(
-                    fontSize: spec.sheetTitleFontSize,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPri(context),
+            // Başlık + Sıfırla
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
+              child: Row(
+                children: [
+                  Text(
+                    'Filtrele & Sırala',
+                    style: TextStyle(
+                      fontSize: spec.sheetTitleFontSize,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPri(context),
+                    ),
                   ),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: sortController.resetSortsAndFilters,
-                  icon: Icon(Icons.refresh_rounded, size: 18),
-                  label: Text(
-                    'Sıfırla',
-                    style: TextStyle(fontSize: 13),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: sortController.resetSortsAndFilters,
+                    icon: Icon(Icons.refresh_rounded, size: 18),
+                    label: Text(
+                      'Sıfırla',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.primaryColor,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
                   ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppTheme.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          SizedBox(height: 8),
+            SizedBox(height: 8),
 
-          // ─── FİLTRELER ────────────────────────────────────────────────
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
-            child: const _SectionHeader(title: 'FİLTRELER'),
-          ),
-          SizedBox(height: 10),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
-            child: _TypeFilterTile(
-              spec: spec,
-              sortController: sortController,
-              expanded: _typeExpanded,
-              onToggle: () => setState(() => _typeExpanded = !_typeExpanded),
+            // ─── FİLTRELER ────────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
+              child: const _SectionHeader(title: 'FİLTRELER'),
             ),
-          ),
+            SizedBox(height: 10),
 
-          SizedBox(height: 8),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
-            child: _RadioFilterTile(
-              spec: spec,
-              sortController: sortController,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
+              child: _TypeFilterTile(
+                spec: spec,
+                sortController: sortController,
+                expanded: _typeExpanded,
+                onToggle: () => setState(() => _typeExpanded = !_typeExpanded),
+              ),
             ),
-          ),
 
-          SizedBox(height: 18),
+            SizedBox(height: 8),
 
-          // ─── SIRALAMA ─────────────────────────────────────────────────
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
-            child: const _SectionHeader(title: 'SIRALAMA'),
-          ),
-          SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
+              child: _RadioFilterTile(
+                spec: spec,
+                sortController: sortController,
+              ),
+            ),
 
-          Expanded(
-            child: ListView.builder(
+            SizedBox(height: 18),
+
+            // ─── SIRALAMA ─────────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
+              child: const _SectionHeader(title: 'SIRALAMA'),
+            ),
+            SizedBox(height: 10),
+
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
                 spec.sheetHPadding,
                 0,
@@ -154,8 +158,8 @@ class _SortSheetState extends State<_SortSheet> {
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

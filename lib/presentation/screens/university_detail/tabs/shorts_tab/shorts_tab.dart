@@ -75,13 +75,10 @@ class UniversityDetailShortsTab extends StatelessWidget {
   }
 
   Widget _buildSkeletonGrid(BuildContext context) {
-    final cols = MediaQuery.orientationOf(context) == Orientation.landscape
-        ? 3
-        : 2;
     return GridView.builder(
       padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 450,
         mainAxisExtent: spec.shortsGridExtent,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
@@ -101,17 +98,13 @@ class UniversityDetailShortsTab extends StatelessWidget {
     List<VideoModel> shortsList,
     bool hasMore,
   ) {
-    final landscape =
-        MediaQuery.orientationOf(context) == Orientation.landscape;
-    final cols = spec.isTablet ? (landscape ? 3 : 2) : 2;
-
     return CustomScrollView(
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(12, 10, 12, hasMore ? 0 : 32),
           sliver: SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cols,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 450,
               mainAxisExtent: spec.shortsGridExtent,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,

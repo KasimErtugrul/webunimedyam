@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/widgets/splash_network_grid.dart
+/* // lib/presentation/screens/splash/widgets/splash_network_grid.dart
 
 import 'package:flutter/material.dart';
 
@@ -106,4 +106,4 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GridPainter oldDelegate) => oldDelegate.color != color;
-}
+} */

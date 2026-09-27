@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/widgets/splash_progress_section.dart
+/* // lib/presentation/screens/splash/widgets/splash_progress_section.dart
 
 import 'dart:async';
 
@@ -70,7 +70,9 @@ class _SplashProgressSectionState extends State<SplashProgressSection> {
           children: [
             // Etiket satırı — sol: "Yükleniyor...", sağ: aşama metni
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: s.progressLabelHPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: s.progressLabelHPadding,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -78,7 +80,9 @@ class _SplashProgressSectionState extends State<SplashProgressSection> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _PulsingDot(
-                          size: s.progressDotSize, color: scheme.primary),
+                        size: s.progressDotSize,
+                        color: scheme.primary,
+                      ),
                       SizedBox(width: s.progressLabelGap),
                       Text(
                         'Yükleniyor...',
@@ -113,8 +117,7 @@ class _SplashProgressSectionState extends State<SplashProgressSection> {
             LayoutBuilder(
               builder: (context, constraints) {
                 return ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(s.progressTrackHeight),
+                  borderRadius: BorderRadius.circular(s.progressTrackHeight),
                   child: Container(
                     height: s.progressTrackHeight,
                     color: scheme.surfaceContainerHighest,
@@ -133,8 +136,9 @@ class _SplashProgressSectionState extends State<SplashProgressSection> {
                               scheme.primary,
                             ],
                           ),
-                          borderRadius:
-                              BorderRadius.circular(s.progressTrackHeight),
+                          borderRadius: BorderRadius.circular(
+                            s.progressTrackHeight,
+                          ),
                         ),
                       ),
                     ),
@@ -163,8 +167,11 @@ class _SplashProgressSectionState extends State<SplashProgressSection> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.verified_user_rounded,
-                    size: s.credentialsIconSize, color: scheme.outline),
+                Icon(
+                  Icons.verified_user_rounded,
+                  size: s.credentialsIconSize,
+                  color: scheme.outline,
+                ),
                 SizedBox(width: s.progressLabelGap),
                 Text(
                   'YÖK Medya Standartları Uyumlu',
@@ -211,9 +218,10 @@ class _PulsingDotState extends State<_PulsingDot>
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
-      opacity: Tween<double>(begin: 1, end: 0.35).animate(
-        CurvedAnimation(parent: _c, curve: Curves.easeInOut),
-      ),
+      opacity: Tween<double>(
+        begin: 1,
+        end: 0.35,
+      ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)),
       child: Container(
         width: widget.size,
         height: widget.size,
@@ -222,3 +230,4 @@ class _PulsingDotState extends State<_PulsingDot>
     );
   }
 }
+ */

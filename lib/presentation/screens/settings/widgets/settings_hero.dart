@@ -77,66 +77,69 @@ class SettingsHero extends StatelessWidget {
           // Center content
           Positioned.fill(
             top: topInset,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                      width: spec.heroIconBoxSize,
-                      height: spec.heroIconBoxSize,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(
-                          spec.heroIconRadius,
-                        ),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primary.withValues(alpha: 0.45),
-                            blurRadius: 24,
-                            spreadRadius: 2,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                        width: spec.heroIconBoxSize,
+                        height: spec.heroIconBoxSize,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(
+                            spec.heroIconRadius,
                           ),
-                        ],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primary.withValues(alpha: 0.45),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: spec.heroIconSize,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .scaleXY(
+                        begin: 0.7,
+                        end: 1,
+                        duration: 550.ms,
+                        curve: Curves.easeOutBack,
                       ),
-                      child: Icon(
-                        Icons.tune_rounded,
-                        color: Colors.white,
-                        size: spec.heroIconSize,
-                      ),
-                    )
-                    .animate()
-                    .fadeIn(duration: 400.ms)
-                    .scaleXY(
-                      begin: 0.7,
-                      end: 1,
-                      duration: 550.ms,
-                      curve: Curves.easeOutBack,
+
+                  SizedBox(height: spec.heroTitleSpacing),
+
+                  Text(
+                    'Ayarlar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: spec.heroTitleFontSize,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.4,
                     ),
+                  ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
 
-                SizedBox(height: spec.heroTitleSpacing),
+                  SizedBox(height: 4),
 
-                Text(
-                  'Ayarlar',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: spec.heroTitleFontSize,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.4,
-                  ),
-                ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
-
-                SizedBox(height: 4),
-
-                Text(
-                  'Uygulama tercihlerinizi yönetin',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: spec.heroSubtitleFontSize,
-                  ),
-                ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
-              ],
+                  Text(
+                    'Uygulama tercihlerinizi yönetin',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: spec.heroSubtitleFontSize,
+                    ),
+                  ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
+                ],
+              ),
             ),
           ),
         ],

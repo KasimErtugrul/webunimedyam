@@ -38,6 +38,8 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
         ),
         title: Text(
           controller.sectionTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppTheme.textPri(context),
             fontSize: sizes.appBarTitleSize,

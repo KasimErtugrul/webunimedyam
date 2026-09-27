@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../app/themes/app_theme.dart';
@@ -16,27 +15,25 @@ class HeroStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: AppTheme.primaryColor,
-              fontSize: sizes.heroStatValueFontSize,
-              fontWeight: FontWeight.w700,
-            ),
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: AppTheme.primaryColor,
+            fontSize: sizes.heroStatValueFontSize,
+            fontWeight: FontWeight.w700,
           ),
-          SizedBox(height: sizes.metricSpacingMedium),
-          Text(
-            label,
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: sizes.heroStatLabelFontSize,
-            ),
+        ),
+        SizedBox(height: sizes.metricSpacingMedium),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppTheme.textSec(context),
+            fontSize: sizes.heroStatLabelFontSize,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

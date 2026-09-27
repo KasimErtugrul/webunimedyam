@@ -164,4 +164,4 @@ class StatBadgeWidget extends StatelessWidget {
       ),
     );
   }
-}
+} 

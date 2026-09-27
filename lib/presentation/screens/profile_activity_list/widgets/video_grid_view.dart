@@ -1,5 +1,3 @@
-
-
 // ─── Video Kartı (Izgara) ───────────────────────────────────────────────────
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -121,9 +119,18 @@ class ProfileActivityListVideoGridCard extends StatelessWidget {
                         ),
                       ),
                     const Spacer(),
-                    ProfileActivityListStatRowGrid(
-                      sizes: sizes,
-                      video: video,
+                    Flexible(
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.bottomLeft,
+                          child: ProfileActivityListStatRowGrid(
+                            sizes: sizes,
+                            video: video,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

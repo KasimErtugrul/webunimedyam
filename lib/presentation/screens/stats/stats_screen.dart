@@ -83,5 +83,3 @@ class StatsScreen extends StatelessWidget {
     );
   }
 }
-
-

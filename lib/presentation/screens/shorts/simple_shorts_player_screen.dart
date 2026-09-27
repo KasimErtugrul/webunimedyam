@@ -580,12 +580,16 @@ class SimpleShortsPlayerTextButton extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.white70, size: sizes.textBtnIconSize),
             SizedBox(width: sizes.textBtnSpacing),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: sizes.textBtnLabelFontSize,
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: sizes.textBtnLabelFontSize,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

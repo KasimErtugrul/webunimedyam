@@ -262,20 +262,28 @@ class DiscoverSectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: iconColor, size: spec.secHeaderIconSize),
-            SizedBox(width: spec.secHeaderGap),
-            Text(
-              title,
-              style: TextStyle(
-                color: scheme.onSurface,
-                fontSize: spec.secHeaderTitleSize,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.2,
+        // Left side flexes so a long section title truncates gracefully
+        // instead of pushing the trailing badge / "Tümü" action off-screen.
+        Expanded(
+          child: Row(
+            children: [
+              Icon(icon, color: iconColor, size: spec.secHeaderIconSize),
+              SizedBox(width: spec.secHeaderGap),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: scheme.onSurface,
+                    fontSize: spec.secHeaderTitleSize,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (trailingBadge != null)
           Container(
@@ -733,33 +741,42 @@ class DiscoverTopChannelRow extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: spec.channelNameDotGap),
-                  Row(
-                    children: [
-                      Text(
-                        '${stats.totalYtViews.compact} İzlenme',
-                        style: TextStyle(
-                          color: scheme.primary,
-                          fontSize: spec.channelStatsFontSize,
-                          fontWeight: FontWeight.w600,
+                  // Stats line (views • videos). Wrapped in FittedBox so that
+                  // on narrow phones / large system font scale the row scales
+                  // down instead of overflowing — truncating mid-number would
+                  // break the meaning, so ellipsis is not an option here.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${stats.totalYtViews.compact} İzlenme',
+                          style: TextStyle(
+                            color: scheme.primary,
+                            fontSize: spec.channelStatsFontSize,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: spec.channelStatsGap),
-                      Text(
-                        '•',
-                        style: TextStyle(
-                          color: scheme.outline,
-                          fontSize: spec.channelStatsDotFontSize,
+                        SizedBox(width: spec.channelStatsGap),
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            color: scheme.outline,
+                            fontSize: spec.channelStatsDotFontSize,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: spec.channelStatsGap),
-                      Text(
-                        '${stats.totalVideos} Video',
-                        style: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: spec.channelStatsFontSize,
+                        SizedBox(width: spec.channelStatsGap),
+                        Text(
+                          '${stats.totalVideos} Video',
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            fontSize: spec.channelStatsFontSize,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

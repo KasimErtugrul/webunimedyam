@@ -203,49 +203,55 @@ class _AuraProfileCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Kulüp rozeti
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerHigh.withValues(
-                              alpha: 0.80,
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusFull,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: cs.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scaleXY(
-                                    begin: 0.6,
-                                    end: 1.5,
-                                    duration: 1000.ms,
-                                    curve: Curves.easeInOut,
-                                  ),
-                              SizedBox(width: 6),
-                              Text(
-                                'İTÜ Bilişim Kulübü',
-                                style: TextStyle(
-                                  color: cs.primary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                            decoration: BoxDecoration(
+                              color: cs.surfaceContainerHigh.withValues(
+                                alpha: 0.80,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusFull,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: cs.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    )
+                                    .animate(
+                                      onPlay: (c) => c.repeat(reverse: true),
+                                    )
+                                    .scaleXY(
+                                      begin: 0.6,
+                                      end: 1.5,
+                                      duration: 1000.ms,
+                                      curve: Curves.easeInOut,
+                                    ),
+                                SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    'İTÜ Bilişim Kulübü',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: cs.primary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         // Hızlı aksiyonlar
@@ -390,25 +396,29 @@ class _AuraProfileCard extends StatelessWidget {
                                     child: InkWell(
                                       onTap: _navEdit,
                                       borderRadius: BorderRadius.circular(12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.edit_note_rounded,
-                                            color: cs.onSurface,
-                                            size: 18,
+                                      child: Center(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.edit_note_rounded,
+                                                color: cs.onSurface,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'Profili Düzenle',
+                                                style: TextStyle(
+                                                  color: cs.onSurface,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(width: 6),
-                                          Text(
-                                            'Profili Düzenle',
-                                            style: TextStyle(
-                                              color: cs.onSurface,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -781,19 +791,24 @@ class _MetricCell extends StatelessWidget {
               children: [
                 Icon(icon, color: iconColor, size: 16),
                 SizedBox(height: 2),
-                Text(
-                  '$count',
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    height: 1.2,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                    ),
                   ),
                 ),
                 SizedBox(height: 2),
                 Text(
                   label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 10,
@@ -964,13 +979,17 @@ class _ActivitySection extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'KÜTÜPHANEM & HAREKETLER',
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+                  Flexible(
+                    child: Text(
+                      'KÜTÜPHANEM & HAREKETLER',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -1025,6 +1044,8 @@ class _ActivitySection extends StatelessWidget {
               subtitle: '$watchedCount video izlendi',
               trailing: Text(
                 'Son: İTÜ Güneş Arabası',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10),
               ),
               onTap: () => onNav(ProfileActivityType.viewed),
@@ -1173,7 +1194,11 @@ class _NavTile extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8),
-                ?trailing,
+                if (trailing != null)
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: trailing!,
+                  ),
                 SizedBox(width: 2),
                 Icon(
                   Icons.chevron_right_rounded,
@@ -1207,6 +1232,8 @@ class _CountBadge extends StatelessWidget {
       ),
       child: Text(
         text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: textColor,
           fontSize: 10,

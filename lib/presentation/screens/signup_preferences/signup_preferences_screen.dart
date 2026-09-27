@@ -257,13 +257,18 @@ class _StepFooter extends StatelessWidget {
               Icon(meta.buttonIcon, size: s.rocketIconSize),
               SizedBox(width: s.headerGap),
             ],
-            Text(
-              meta.buttonLabel,
-              style: TextStyle(
-                fontSize: s.buttonFontSize,
-                fontWeight: FontWeight.w700,
-                height: 24 / 18,
-                letterSpacing: -0.01 * s.buttonFontSize,
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  meta.buttonLabel,
+                  style: TextStyle(
+                    fontSize: s.buttonFontSize,
+                    fontWeight: FontWeight.w700,
+                    height: 24 / 18,
+                    letterSpacing: -0.01 * s.buttonFontSize,
+                  ),
+                ),
               ),
             ),
             if (!isLast) ...[

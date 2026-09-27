@@ -42,31 +42,43 @@ class SignupProgressTracker extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (showPulse) ...[
-                    _PingDot(size: s.progressDotSize, color: scheme.primary),
-                    SizedBox(width: s.progressLabelGap),
-                  ],
-                  Text(
-                    leftLabel.toUpperCase(),
-                    style: TextStyle(
-                      color: scheme.primary,
-                      fontSize: s.progressLabelFontSize,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.05 * s.progressLabelFontSize,
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (showPulse) ...[
+                      _PingDot(size: s.progressDotSize, color: scheme.primary),
+                      SizedBox(width: s.progressLabelGap),
+                    ],
+                    Flexible(
+                      child: Text(
+                        leftLabel.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.primary,
+                          fontSize: s.progressLabelFontSize,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.05 * s.progressLabelFontSize,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Text(
-                rightLabel,
-                style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: s.progressLabelFontSize,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.04 * s.progressLabelFontSize,
+              SizedBox(width: s.progressLabelGap),
+              Flexible(
+                child: Text(
+                  rightLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: s.progressLabelFontSize,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.04 * s.progressLabelFontSize,
+                  ),
                 ),
               ),
             ],

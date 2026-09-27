@@ -386,8 +386,8 @@ class _UniversityStepState extends State<UniversityStep> {
                       s.headerHPadding,
                       8,
                     ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
                       crossAxisSpacing: s.gridGap,
                       mainAxisSpacing: s.gridGap,
                       mainAxisExtent: cardExtent,
@@ -582,10 +582,12 @@ class UniversityCard extends StatelessWidget {
 
                 Row(
                   children: [
-                    _Tag(
-                      sizes: s,
-                      label: university.city,
-                      color: scheme.onSurfaceVariant,
+                    Flexible(
+                      child: _Tag(
+                        sizes: s,
+                        label: university.city,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(width: s.uniTagGap),
                     _Tag(
@@ -744,6 +746,8 @@ class _Tag extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: color,
           fontSize: s.uniTagFontSize,

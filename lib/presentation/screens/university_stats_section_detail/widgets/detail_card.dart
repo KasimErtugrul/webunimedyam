@@ -85,11 +85,15 @@ class UniversityStatsSectionDetailCard extends StatelessWidget {
                           color: AppTheme.textSec(context),
                         ),
                         SizedBox(width: sizes.citySpacing),
-                        Text(
-                          item.city!,
-                          style: TextStyle(
-                            color: AppTheme.textSec(context),
-                            fontSize: sizes.cityFontSize,
+                        Flexible(
+                          child: Text(
+                            item.city!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppTheme.textSec(context),
+                              fontSize: sizes.cityFontSize,
+                            ),
                           ),
                         ),
                       ],
@@ -104,12 +108,16 @@ class UniversityStatsSectionDetailCard extends StatelessWidget {
                         color: AppTheme.primaryColor,
                       ),
                       SizedBox(width: sizes.statSpacing),
-                      Text(
-                        cfg.statLabelBuilder(item),
-                        style: TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontSize: sizes.statFontSize,
-                          fontWeight: FontWeight.w700,
+                      Flexible(
+                        child: Text(
+                          cfg.statLabelBuilder(item),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontSize: sizes.statFontSize,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],

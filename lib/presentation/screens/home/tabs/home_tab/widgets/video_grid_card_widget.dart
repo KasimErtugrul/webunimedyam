@@ -315,68 +315,94 @@ class VideoGridCardWidget extends StatelessWidget {
 
                 // İstatistik satırı: görüntülenme, beğeni, yorum ve
                 // en sağda kaydet — eşit boşluklarla, sabit sıralı.
+                //
+                // FIX: Bu satır, dar grid sütunlarında veya büyük
+                // textScaler + büyük sayaçlarda ("999.9B" gibi) yatayda
+                // taşabiliyordu (dört ikon+metin + Spacer + kaydet ikonu
+                // sabit genişlikli bir kartta sığmıyordu). Sol gruptaki
+                // üç istatistik Expanded + FittedBox(fit: scaleDown) içine
+                // alındı — alan yetmezse yalnızca bu grup oransal olarak
+                // küçülür, sağdaki kaydet ikonu sağ kenardaki konumunu
+                // korur. Sayılar ellipsis ile anlamsız kırpılmak yerine
+                // küçültüldüğü için anlam bozulmaz.
                 Row(
                   children: [
-                    Obx(() {
-                      final override =
-                          controller.viewCountOverrides[video.videoId];
-                      final liveVideo = controller.videos.firstWhereOrNull(
-                        (v) => v.videoId == video.videoId,
-                      );
-                      final viewCount =
-                          override ??
-                          liveVideo?.appViewCount ??
-                          video.appViewCount;
-                      return _MiniStat(
-                        icon: Icons.visibility_outlined,
-                        color: AppTheme.textSec(context),
-                        text: _formatCount(viewCount),
-                      );
-                    }),
-                    SizedBox(width: _Sizes.actionRowSpacing),
-                    Obx(() {
-                      final liked = controller.likedVideoIds.contains(
-                        video.videoId,
-                      );
-                      final liveVideo = controller.videos.firstWhereOrNull(
-                        (v) => v.videoId == video.videoId,
-                      );
-                      final likeCount =
-                          liveVideo?.appLikeCount ?? video.appLikeCount;
-                      return GestureDetector(
-                        onTap: () => controller.toggleLike(video.videoId),
-                        child: _MiniStat(
-                          icon: liked
-                              ? Icons.thumb_up_rounded
-                              : Icons.thumb_up_outlined,
-                          color: liked
-                              ? Theme.of(context).colorScheme.primary
-                              : AppTheme.textSec(context),
-                          text: _formatCount(likeCount),
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Obx(() {
+                              final override =
+                                  controller.viewCountOverrides[video.videoId];
+                              final liveVideo = controller.videos
+                                  .firstWhereOrNull(
+                                    (v) => v.videoId == video.videoId,
+                                  );
+                              final viewCount =
+                                  override ??
+                                  liveVideo?.appViewCount ??
+                                  video.appViewCount;
+                              return _MiniStat(
+                                icon: Icons.visibility_outlined,
+                                color: AppTheme.textSec(context),
+                                text: _formatCount(viewCount),
+                              );
+                            }),
+                            SizedBox(width: _Sizes.actionRowSpacing),
+                            Obx(() {
+                              final liked = controller.likedVideoIds.contains(
+                                video.videoId,
+                              );
+                              final liveVideo = controller.videos
+                                  .firstWhereOrNull(
+                                    (v) => v.videoId == video.videoId,
+                                  );
+                              final likeCount =
+                                  liveVideo?.appLikeCount ?? video.appLikeCount;
+                              return GestureDetector(
+                                onTap: () =>
+                                    controller.toggleLike(video.videoId),
+                                child: _MiniStat(
+                                  icon: liked
+                                      ? Icons.thumb_up_rounded
+                                      : Icons.thumb_up_outlined,
+                                  color: liked
+                                      ? Theme.of(context).colorScheme.primary
+                                      : AppTheme.textSec(context),
+                                  text: _formatCount(likeCount),
+                                ),
+                              );
+                            }),
+                            SizedBox(width: _Sizes.actionRowSpacing),
+                            GestureDetector(
+                              onTap: _openPlayer,
+                              child: Obx(() {
+                                final hasCommented = controller
+                                    .commentedVideoIds
+                                    .contains(video.videoId);
+                                final extra = controller.extraCommentCountFor(
+                                  video.videoId,
+                                );
+                                return _MiniStat(
+                                  icon: hasCommented
+                                      ? Icons.mode_comment_rounded
+                                      : Icons.mode_comment_outlined,
+                                  color: hasCommented
+                                      ? Theme.of(context).colorScheme.primary
+                                      : AppTheme.textSec(context),
+                                  text: _formatCount(
+                                    video.appCommentCount + extra,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
                         ),
-                      );
-                    }),
-                    SizedBox(width: _Sizes.actionRowSpacing),
-                    GestureDetector(
-                      onTap: _openPlayer,
-                      child: Obx(() {
-                        final hasCommented = controller.commentedVideoIds
-                            .contains(video.videoId);
-                        final extra = controller.extraCommentCountFor(
-                          video.videoId,
-                        );
-                        return _MiniStat(
-                          icon: hasCommented
-                              ? Icons.mode_comment_rounded
-                              : Icons.mode_comment_outlined,
-                          color: hasCommented
-                              ? Theme.of(context).colorScheme.primary
-                              : AppTheme.textSec(context),
-                          text: _formatCount(video.appCommentCount + extra),
-                        );
-                      }),
+                      ),
                     ),
-                    const Spacer(),
                     Obx(() {
                       final isFav = controller.favoriteIds.contains(
                         video.videoId,

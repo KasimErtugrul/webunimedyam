@@ -96,15 +96,23 @@ class UniversitiesHeroHeader extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'Üniversiteler',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: spec.heroTitleFontSize,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.2,
-                              ),
-                            ).animate().fadeIn(delay: 100.ms, duration: 350.ms),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child:
+                                  Text(
+                                    'Üniversiteler',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: spec.heroTitleFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ).animate().fadeIn(
+                                    delay: 100.ms,
+                                    duration: 350.ms,
+                                  ),
+                            ),
                             SizedBox(height: 2),
                             Text(
                               'Keşfet, sırala, takip et',

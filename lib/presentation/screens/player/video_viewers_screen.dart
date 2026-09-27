@@ -383,11 +383,13 @@ class _HiddenViewersRowPhone extends StatelessWidget {
             size: _PhoneSizes.hiddenRowIconSize,
           ),
           SizedBox(width: _PhoneSizes.hiddenRowSpacing),
-          Text(
-            '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: _PhoneSizes.hiddenRowFontSize,
+          Expanded(
+            child: Text(
+              '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: _PhoneSizes.hiddenRowFontSize,
+              ),
             ),
           ),
         ],
@@ -502,11 +504,13 @@ class _HiddenViewersRowTablet extends StatelessWidget {
             size: _TabletSizes.hiddenRowIconSize,
           ),
           SizedBox(width: _TabletSizes.hiddenRowSpacing),
-          Text(
-            '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: _TabletSizes.hiddenRowFontSize,
+          Expanded(
+            child: Text(
+              '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: _TabletSizes.hiddenRowFontSize,
+              ),
             ),
           ),
         ],

@@ -1,4 +1,4 @@
-// lib/presentation/screens/splash/widgets/splash_brand_hero.dart
+/* // lib/presentation/screens/splash/widgets/splash_brand_hero.dart
 
 import 'package:flutter/material.dart';
 
@@ -366,4 +366,4 @@ class _StatItem extends StatelessWidget {
       ),
     );
   }
-}
+} */

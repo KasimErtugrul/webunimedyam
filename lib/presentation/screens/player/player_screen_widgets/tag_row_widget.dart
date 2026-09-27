@@ -67,6 +67,8 @@ class TagsRowWidget extends StatelessWidget {
               ),
               child: Text(
                 '#$tag',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: AppTheme.textSec(context),
                   fontSize: s.fontSize,

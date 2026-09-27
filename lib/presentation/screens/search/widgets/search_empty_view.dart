@@ -22,43 +22,45 @@ class SearchEmptyView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(spec.sectionH * 2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off_rounded,
-              color: AppTheme.textSec(context).withValues(alpha: 0.5),
-              size: spec.emptyIconSize,
-            )
-                .animate()
-                .fadeIn(duration: 350.ms)
-                .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: spec.emptySpacing),
-            Text(
-              'Sonuç bulunamadı',
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: spec.emptyTitleFontSize,
-                fontWeight: FontWeight.w700,
-              ),
-            ).animate().fadeIn(delay: 80.ms, duration: 300.ms),
-            SizedBox(height: (spec.emptySpacing / 2)),
-            Text(
-              '"$query" için eşleşen bir video yok.\nFarklı bir kelime dene.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.textSec(context),
-                fontSize: spec.emptySubtitleFontSize,
-                height: 1.5,
-              ),
-            ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
-            SizedBox(height: spec.emptySpacing * 1.5),
-            TextButton.icon(
-              onPressed: onClear,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Aramayı temizle'),
-            ).animate().fadeIn(delay: 220.ms, duration: 300.ms),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off_rounded,
+                color: AppTheme.textSec(context).withValues(alpha: 0.5),
+                size: spec.emptyIconSize,
+              )
+                  .animate()
+                  .fadeIn(duration: 350.ms)
+                  .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),
+              SizedBox(height: spec.emptySpacing),
+              Text(
+                'Sonuç bulunamadı',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: spec.emptyTitleFontSize,
+                  fontWeight: FontWeight.w700,
+                ),
+              ).animate().fadeIn(delay: 80.ms, duration: 300.ms),
+              SizedBox(height: (spec.emptySpacing / 2)),
+              Text(
+                '"$query" için eşleşen bir video yok.\nFarklı bir kelime dene.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.textSec(context),
+                  fontSize: spec.emptySubtitleFontSize,
+                  height: 1.5,
+                ),
+              ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
+              SizedBox(height: spec.emptySpacing * 1.5),
+              TextButton.icon(
+                onPressed: onClear,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Aramayı temizle'),
+              ).animate().fadeIn(delay: 220.ms, duration: 300.ms),
+            ],
+          ),
         ),
       ),
     );

@@ -225,43 +225,62 @@ class ProfileHeaderWidget extends StatelessWidget {
             ),
             SizedBox(height: h(spec.avatarTopSpacing)),
 
-            Text(
-              (profile?.fullName?.isNotEmpty ?? false)
-                  ? profile!.fullName!
-                  : (profile?.username ?? 'Kullanıcı'),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.textPri(context),
-                fontSize: spec.usernameFontSize,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.3,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 200.ms, duration: 350.ms)
-                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
+              child: Text(
+                (profile?.fullName?.isNotEmpty ?? false)
+                    ? profile!.fullName!
+                    : (profile?.username ?? 'Kullanıcı'),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: spec.usernameFontSize,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.3,
+                ),
+              )
+                  .animate()
+                  .fadeIn(delay: 200.ms, duration: 350.ms)
+                  .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+            ),
 
             if ((profile?.fullName?.isNotEmpty ?? false) &&
                 (profile?.username?.isNotEmpty ?? false)) ...[
               SizedBox(height: h(spec.usernameSpacing)),
-              Text(
-                '@${profile!.username}',
-                style: TextStyle(
-                  color: AppTheme.textSec(context),
-                  fontSize: spec.atUsernameFontSize,
-                ),
-              ).animate().fadeIn(delay: 280.ms, duration: 300.ms),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
+                child: Text(
+                  '@${profile!.username}',
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: spec.atUsernameFontSize,
+                  ),
+                ).animate().fadeIn(delay: 280.ms, duration: 300.ms),
+              ),
             ],
 
             if (profile != null) ...[
               SizedBox(height: h(spec.memberSinceSpacing)),
-              Text(
-                _memberSinceLabel(profile.createdAt),
-                style: TextStyle(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.7),
-                  fontSize: spec.memberSinceFontSize,
-                ),
-              ).animate().fadeIn(delay: 340.ms, duration: 300.ms),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
+                child: Text(
+                  _memberSinceLabel(profile.createdAt),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.7),
+                    fontSize: spec.memberSinceFontSize,
+                  ),
+                ).animate().fadeIn(delay: 340.ms, duration: 300.ms),
+              ),
             ],
 
             if (isOwn) ...[

@@ -431,19 +431,27 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Icon(Icons.school_rounded, color: scheme.primary, size: 16),
-                SizedBox(width: 5),
-                Text(
-                  '${filtered.length} Üniversite',
-                  style: TextStyle(
-                    color: scheme.onSurface,
-                    fontSize: isTablet ? 13.5 : 12.5,
-                    fontWeight: FontWeight.w700,
+            // Left side flexes so a long count label doesn't push the sort
+            // dropdown off-screen at large system font scales.
+            Expanded(
+              child: Row(
+                children: [
+                  Icon(Icons.school_rounded, color: scheme.primary, size: 16),
+                  SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      '${filtered.length} Üniversite',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: isTablet ? 13.5 : 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             _buildSortDropdown(context, scheme, isTablet: isTablet),
           ],
@@ -773,11 +781,20 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildMetricItem(
-                          scheme,
-                          icon: Icons.group_rounded,
-                          value: (uni.subscriberCount ?? 0).compact,
-                          label: 'Takipçi',
+                        // Metrics can't be truncated (numbers lose meaning),
+                        // so each one scales down via FittedBox if the card
+                        // is too narrow for all three + separators.
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: _buildMetricItem(
+                              scheme,
+                              icon: Icons.group_rounded,
+                              value: (uni.subscriberCount ?? 0).compact,
+                              label: 'Takipçi',
+                            ),
+                          ),
                         ),
                         Text(
                           '•',
@@ -786,11 +803,17 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                             fontSize: 10,
                           ),
                         ),
-                        _buildMetricItem(
-                          scheme,
-                          icon: Icons.visibility_rounded,
-                          value: (uni.viewCount ?? 0).compact,
-                          label: 'İzlenme',
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: _buildMetricItem(
+                              scheme,
+                              icon: Icons.visibility_rounded,
+                              value: (uni.viewCount ?? 0).compact,
+                              label: 'İzlenme',
+                            ),
+                          ),
                         ),
                         Text(
                           '•',
@@ -799,11 +822,17 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                             fontSize: 10,
                           ),
                         ),
-                        _buildMetricItem(
-                          scheme,
-                          icon: Icons.movie_rounded,
-                          value: '${uni.videoCount ?? 0}',
-                          label: 'Video',
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: _buildMetricItem(
+                              scheme,
+                              icon: Icons.movie_rounded,
+                              value: '${uni.videoCount ?? 0}',
+                              label: 'Video',
+                            ),
+                          ),
                         ),
                       ],
                     ),

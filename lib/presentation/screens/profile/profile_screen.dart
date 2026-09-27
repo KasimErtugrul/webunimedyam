@@ -136,89 +136,106 @@ class _NotLoggedInView extends StatelessWidget {
     // artık HomeScreen'in Scaffold.appBar'ında sabit; bu iç içe Scaffold
     // onun altında ikinci bir AppBar göstermemeli.
     return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
-          child: Padding(
-            padding: EdgeInsets.all(spec.mainPadding),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: spec.avatarSize,
-                  height: spec.avatarSize,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primaryColor.withValues(alpha: 0.15),
-                        AppTheme.primaryColor.withValues(alpha: 0.05),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(spec.mainPadding),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: spec.avatarSize,
+                          height: spec.avatarSize,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.primaryColor.withValues(alpha: 0.15),
+                                AppTheme.primaryColor.withValues(alpha: 0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color:
+                                  AppTheme.primaryColor.withValues(alpha: 0.3),
+                              width: spec.avatarBorderWidth,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.person_outline_rounded,
+                            color: AppTheme.primaryColor,
+                            size: spec.avatarIconSize,
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms)
+                            .scaleXY(
+                              begin: 0.8,
+                              end: 1,
+                              curve: Curves.easeOutBack,
+                            ),
+                        SizedBox(height: spec.titleSpacing),
+                        Text(
+                          'Hesabına Giriş Yap',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppTheme.textPri(context),
+                            fontSize: spec.titleFontSize,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.3,
+                          ),
+                        ).animate().fadeIn(delay: 150.ms, duration: 350.ms),
+                        SizedBox(height: spec.subtitleSpacing),
+                        Text(
+                          'Favorilerini, izleme geçmişini ve tüm aktivitelerini\ngörmek için giriş yap.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppTheme.textSec(context),
+                            fontSize: spec.subtitleFontSize,
+                            height: spec.subtitleLineHeight,
+                          ),
+                        ).animate().fadeIn(delay: 250.ms, duration: 350.ms),
+                        SizedBox(height: spec.buttonSpacing),
+                        SizedBox(
+                          width: double.infinity,
+                          height: spec.buttonHeight,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  spec.buttonRadius,
+                                ),
+                              ),
+                            ),
+                            onPressed: () => Get.toNamed(AppRoutes.login),
+                            child: Text(
+                              'Giriş Yap',
+                              style: TextStyle(
+                                fontSize: spec.buttonFontSize,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ).animate().fadeIn(delay: 350.ms, duration: 350.ms),
                       ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                      width: spec.avatarBorderWidth,
                     ),
                   ),
-                  child: Icon(
-                    Icons.person_outline_rounded,
-                    color: AppTheme.primaryColor,
-                    size: spec.avatarIconSize,
-                  ),
-                )
-                    .animate()
-                    .fadeIn(duration: 400.ms)
-                    .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
-                SizedBox(height: spec.titleSpacing),
-                Text(
-                  'Hesabına Giriş Yap',
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontSize: spec.titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.3,
-                  ),
-                ).animate().fadeIn(delay: 150.ms, duration: 350.ms),
-                SizedBox(height: spec.subtitleSpacing),
-                Text(
-                  'Favorilerini, izleme geçmişini ve tüm aktivitelerini\ngörmek için giriş yap.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTheme.textSec(context),
-                    fontSize: spec.subtitleFontSize,
-                    height: spec.subtitleLineHeight,
-                  ),
-                ).animate().fadeIn(delay: 250.ms, duration: 350.ms),
-                SizedBox(height: spec.buttonSpacing),
-                SizedBox(
-                  width: double.infinity,
-                  height: spec.buttonHeight,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          spec.buttonRadius,
-                        ),
-                      ),
-                    ),
-                    onPressed: () => Get.toNamed(AppRoutes.login),
-                    child: Text(
-                      'Giriş Yap',
-                      style: TextStyle(
-                        fontSize: spec.buttonFontSize,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ).animate().fadeIn(delay: 350.ms, duration: 350.ms),
-              ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

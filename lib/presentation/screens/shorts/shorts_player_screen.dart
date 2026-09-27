@@ -101,49 +101,60 @@ class ShortsPlayerScreen extends GetView<ShortsPlayerController> {
               ),
             ),
           ),
-          const Spacer(),
-          Obx(
-            () => Text(
-              '${controller.currentIndex.value + 1} / ${controller.shorts.length}',
-              style: TextStyle(
-                color: Colors.white60,
-                fontSize: sizes.counterFontSize,
-              ),
-            ),
-          ),
-          SizedBox(width: sizes.counterSpacing),
-          GestureDetector(
-            onTap: controller.toggleMute,
-            child: Container(
-              width: sizes.muteButtonSize,
-              height: sizes.muteButtonSize,
-              decoration: const BoxDecoration(
-                color: Colors.white12,
-                shape: BoxShape.circle,
-              ),
-              child: Obx(
-                () => Icon(
-                  controller.isMuted.value
-                      ? Icons.volume_off_rounded
-                      : Icons.volume_up_rounded,
-                  color: Colors.white,
-                  size: sizes.muteIconSize,
+          // Right-hand cluster: takes all remaining width after the back
+          // button + SHORTS badge. The Paylaş button is allowed to shrink
+          // (its internal label ellipsizes) so the row can never overflow.
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Obx(
+                  () => Text(
+                    '${controller.currentIndex.value + 1} / ${controller.shorts.length}',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: sizes.counterFontSize,
+                    ),
+                  ),
                 ),
-              ),
+                SizedBox(width: sizes.counterSpacing),
+                GestureDetector(
+                  onTap: controller.toggleMute,
+                  child: Container(
+                    width: sizes.muteButtonSize,
+                    height: sizes.muteButtonSize,
+                    decoration: const BoxDecoration(
+                      color: Colors.white12,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Obx(
+                      () => Icon(
+                        controller.isMuted.value
+                            ? Icons.volume_off_rounded
+                            : Icons.volume_up_rounded,
+                        color: Colors.white,
+                        size: sizes.muteIconSize,
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: ShortsPlayerTextButton(
+                    sizes: sizes,
+                    icon: Icons.share_rounded,
+                    label: 'Paylaş',
+                    onTap: () => ShareHelper.shareVideo(
+                      videoId: short.videoId,
+                      title: short.title,
+                      universityName: short.universityName,
+                      thumbnailUrl: short.bestThumbnail,
+                    ),
+                  ),
+                ),
+                SizedBox(width: sizes.topBarPaddingHorizontal),
+              ],
             ),
           ),
-          ShortsPlayerTextButton(
-            sizes: sizes,
-            icon: Icons.share_rounded,
-            label: 'Paylaş',
-            onTap: () => ShareHelper.shareVideo(
-              videoId: short.videoId,
-              title: short.title,
-              universityName: short.universityName,
-              thumbnailUrl: short.bestThumbnail,
-            ),
-          ),
-          SizedBox(width: sizes.topBarPaddingHorizontal),
         ],
       ),
     );
