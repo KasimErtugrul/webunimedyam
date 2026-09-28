@@ -9,6 +9,7 @@ import '../../controllers/university_stats_section_detail_controller.dart';
 import 'utils/university_stats_section_detail_sizes.dart';
 import 'widgets/detail_card.dart';
 import 'widgets/error_view.dart';
+import 'widgets/tablet_grid.dart';
 
 
 // ═══════════════════════════════════════════════════════════
@@ -26,6 +27,7 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
         : const UniversityStatsSectionDetailPhoneSizes();
 
     final controller = Get.find<UniversityStatsSectionDetailController>();
+    final isTablet = Responsive.isTablet(context);
 
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
@@ -49,6 +51,10 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
+          // TABLET: iskelet grid; TELEFON: mevcut spinner.
+          if (isTablet) {
+            return const UniversityStatsSectionDetailTabletSkeleton();
+          }
           return const Center(
             child: CircularProgressIndicator(color: AppTheme.primaryColor),
           );
@@ -74,7 +80,21 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
         return RefreshIndicator(
           color: AppTheme.primaryColor,
           onRefresh: controller.loadFirstPage,
-          child: NotificationListener<ScrollNotification>(
+          // TABLET: Keşfet tasarım diliyle uyumlu ortalı grid gövdesi;
+          // TELEFON: mevcut liste aynen korunur.
+          child: isTablet
+              ? NotificationListener<ScrollNotification>(
+                  onNotification: (scroll) {
+                    if (scroll.metrics.pixels >=
+                        scroll.metrics.maxScrollExtent -
+                            sizes.scrollLoadThreshold) {
+                      controller.loadNextPage();
+                    }
+                    return false;
+                  },
+                  child: UniversityStatsSectionDetailTabletGrid(sizes: sizes),
+                )
+              : NotificationListener<ScrollNotification>(
             onNotification: (scroll) {
               if (scroll.metrics.pixels >=
                   scroll.metrics.maxScrollExtent - sizes.scrollLoadThreshold) {

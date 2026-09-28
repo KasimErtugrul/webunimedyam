@@ -4,12 +4,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../core/responsive.dart';
 import '../../discovery_tab/discover_layout_spec.dart';
 
 /// Tüm "horizontal section" yapıları için ortak renderer.
 /// Video ve üniversite section'ları birebir aynı görsel dili kullandığı
 /// için tek generic widget'a indirildi.
-class HorizontalSection<T> extends StatelessWidget {
+///
+/// TABLET EKLERİ ("Discover — Tablet" tasarımından): bölüm başlığının
+/// sağında şeridi kaydıran dairesel geri/ileri ok butonları. Telefon
+/// düzeninde bu butonlar çizilmez (görünüm aynen korunur).
+class HorizontalSection<T> extends StatefulWidget {
   final String title;
   final String description;
   final List<T> items;
@@ -32,37 +37,71 @@ class HorizontalSection<T> extends StatelessWidget {
   });
 
   @override
+  State<HorizontalSection<T>> createState() => _HorizontalSectionState<T>();
+}
+
+class _HorizontalSectionState<T> extends State<HorizontalSection<T>> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Şeridi bir "görünür alan dolusu" sola/sağa kaydırır (tasarım: oklar).
+  void _scrollBy(int direction) {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    final double step = position.viewportDimension * 0.8;
+    _scrollController.animateTo(
+      (_scrollController.offset + direction * step)
+          .clamp(0.0, position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final spec = DiscoverLayoutSpec.of(context);
+    // Ok butonları yalnızca tablette (tasarım öğesi).
+    final bool showArrows = Responsive.isTablet(context);
 
-    if (!isLoading && items.isEmpty) return const SizedBox.shrink();
+    if (!widget.isLoading && widget.items.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
           spec: spec,
-          title: title,
-          description: description,
-          onSeeAll: onSeeAll,
-          animationIndex: animationIndex,
+          title: widget.title,
+          description: widget.description,
+          onSeeAll: widget.onSeeAll,
+          animationIndex: widget.animationIndex,
+          showArrows: showArrows,
+          onPrev: () => _scrollBy(-1),
+          onNext: () => _scrollBy(1),
         ),
         SizedBox(
           height: spec.sectionListViewHeight,
-          child: isLoading
+          child: widget.isLoading
               ? _SkeletonList(spec: spec)
               : ListView.separated(
+                  controller: showArrows ? _scrollController : null,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                     horizontal: spec.sectionListPaddingH,
                   ),
-                  itemCount: items.length,
+                  itemCount: widget.items.length,
                   separatorBuilder: (_, _) => SizedBox(
                     width: spec.sectionCardSpacing,
                   ),
                   itemBuilder: (ctx, i) {
-                    return itemBuilder(ctx, items[i])
+                    return widget.itemBuilder(ctx, widget.items[i])
                         .animate(delay: (i * 40).ms)
                         .fadeIn(duration: 300.ms)
                         .slideX(
@@ -85,6 +124,9 @@ class _SectionHeader extends StatelessWidget {
   final String description;
   final VoidCallback? onSeeAll;
   final int animationIndex;
+  final bool showArrows;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
 
   const _SectionHeader({
     required this.spec,
@@ -92,10 +134,15 @@ class _SectionHeader extends StatelessWidget {
     required this.description,
     required this.onSeeAll,
     required this.animationIndex,
+    required this.showArrows,
+    required this.onPrev,
+    required this.onNext,
   });
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
         spec.sectionTitlePaddingLeft,
@@ -130,6 +177,21 @@ class _SectionHeader extends StatelessWidget {
             splashRadius: spec.sectionInfoIconSplash,
             tooltip: 'Bu liste hakkında',
           ),
+          // Tasarımdaki dairesel ok butonları (yalnızca tablet).
+          if (showArrows) ...[
+            const SizedBox(width: 6),
+            _ArrowButton(
+              icon: Icons.west_rounded,
+              onTap: onPrev,
+              color: scheme,
+            ),
+            const SizedBox(width: 6),
+            _ArrowButton(
+              icon: Icons.east_rounded,
+              onTap: onNext,
+              color: scheme,
+            ),
+          ],
           if (onSeeAll != null)
             TextButton(
               onPressed: onSeeAll,
@@ -207,6 +269,41 @@ class _SectionHeader extends StatelessWidget {
             child: const Text('Anladım'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Tasarımdaki dairesel kaydırma oku (w-8 h-8, bg-surface-container).
+class _ArrowButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final ColorScheme color;
+
+  const _ArrowButton({
+    required this.icon,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.surfaceContainer,
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: 17,
+          color: color.onSurfaceVariant,
+        ),
       ),
     );
   }

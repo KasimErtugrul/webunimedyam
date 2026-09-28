@@ -64,27 +64,29 @@ class _Sizes {
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
-        cardWidth: 180,
-        cardHeight: 220,
+        // Tasarım ("Discover — Tablet"): yatay şeritte ~4 kart görünür;
+        // sol üstte istatistik rozeti için pay bırakıldı.
+        cardWidth: 250,
+        cardHeight: 240,
         cardRadius: 16,
-        gradientHeight: 40,
+        gradientHeight: 48,
         durationBottom: 8,
         durationRight: 8,
-        durationPaddingH: 6,
+        durationPaddingH: 7,
         durationPaddingV: 3,
         durationRadius: 6,
-        durationFontSize: 10,
+        durationFontSize: 10.5,
         contentPaddingH: 10,
         contentPaddingV: 8,
-        titleFontSize: 12.5,
+        titleFontSize: 13.5,
         titleLineHeight: 1.3,
-        channelFontSize: 10.5,
+        channelFontSize: 11,
         statSpacing: 4,
-        statPaddingH: 6,
+        statPaddingH: 7,
         statPaddingV: 3,
         statRadius: 7,
-        statIconSize: 10,
-        statFontSize: 9.5,
+        statIconSize: 11,
+        statFontSize: 10.5,
         placeholderIconSize: 36,
       );
     }
@@ -184,6 +186,43 @@ class VideoHorizontalCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Tasarım: sol üstte istatistik rozeti (yalnızca tablet;
+                    // telefon kartında bu rozet yoktur, alt satır yeterli).
+                    if (spec.isTablet)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: spec.statPaddingH,
+                            vertical: spec.statPaddingV,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.75),
+                            borderRadius:
+                                BorderRadius.circular(spec.statRadius),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                statIcon,
+                                size: spec.statIconSize,
+                                color: AppTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                statLabelBuilder(video),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: spec.statFontSize,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     if (video.duration.isNotEmpty)
                       Positioned(
                         bottom: spec.durationBottom,

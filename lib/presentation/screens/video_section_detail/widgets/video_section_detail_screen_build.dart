@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/responsive.dart';
 import '../../../controllers/video_section_detail_controller.dart';
 import '../util/video_section_detail_screen_sizes.dart';
 import 'video_section_detail_screen_card.dart';
+import 'video_section_detail_tablet.dart';
 
 /// Ekranın Scaffold + liste + pagination gövdesi. Eskiden phone/tablet için
 /// birebir aynı ağacı tekrar eden iki dosya vardı (tek fark: boyutlar ve
 /// scroll eşiği); artık tek widget + `sizes` parametresi.
+///
+/// TABLET: liste, Keşfet tasarım diliyle uyumlu ortalı grid gövdesine
+/// yönlendirilir (bkz. video_section_detail_tablet.dart). Telefon yolu
+/// aynen korunur.
 class VideoSectionDetailScreenBuild extends StatelessWidget {
   const VideoSectionDetailScreenBuild({
     super.key,
@@ -20,6 +26,7 @@ class VideoSectionDetailScreenBuild extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<VideoSectionDetailController>();
+    final isTablet = Responsive.isTablet(context);
 
     return Scaffold(
       backgroundColor: AppTheme.bg(context),
@@ -46,6 +53,10 @@ class VideoSectionDetailScreenBuild extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
+          // TABLET: iskelet grid; TELEFON: mevcut spinner.
+          if (isTablet) {
+            return const VideoSectionDetailTabletSkeleton();
+          }
           return const Center(
             child: CircularProgressIndicator(
               color: AppTheme.primaryColor,
@@ -56,7 +67,19 @@ class VideoSectionDetailScreenBuild extends StatelessWidget {
         return RefreshIndicator(
           color: AppTheme.primaryColor,
           onRefresh: controller.loadFirstPage,
-          child: NotificationListener<ScrollNotification>(
+          child: isTablet
+              ? NotificationListener<ScrollNotification>(
+                  onNotification: (scroll) {
+                    if (scroll.metrics.pixels >=
+                        scroll.metrics.maxScrollExtent -
+                            sizes.scrollLoadThreshold) {
+                      controller.loadNextPage();
+                    }
+                    return false;
+                  },
+                  child: VideoSectionDetailTabletGrid(sizes: sizes),
+                )
+              : NotificationListener<ScrollNotification>(
             onNotification: (scroll) {
               if (scroll.metrics.pixels >=
                   scroll.metrics.maxScrollExtent - sizes.scrollLoadThreshold) {

@@ -9,9 +9,12 @@ import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/utils/formatters.dart';
+import '../../../../../data/models/university_stats_model.dart';
 import '../../../../controllers/home/home_controller.dart';
 import '../home_tab/universities/university_sections_config.dart';
 import '../home_tab/videos/video_sections_config.dart';
+import '../home_tab/widgets/horizontal_section.dart';
 import 'discover_layout_spec.dart';
 import 'widgets/discover_widgets.dart';
 
@@ -140,6 +143,32 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   const DiscoverVideoCardShimmer()
                 else if (trendingList.isEmpty)
                   const SizedBox.shrink()
+                // TABLET (tasarım): iki büyük trend kartı yan yana.
+                else if (spec.isTablet && trendingList.length > 1)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: DiscoverLargeVideoCard(
+                          spec: spec,
+                          video: trendingList[0],
+                          badgeText:
+                              '${trendingList[0].engagementScore} Etkileşim Puanı',
+                          badgeIcon: Icons.bolt_rounded,
+                        ),
+                      ),
+                      SizedBox(width: spec.largeCardGap),
+                      Expanded(
+                        child: DiscoverLargeVideoCard(
+                          spec: spec,
+                          video: trendingList[1],
+                          badgeText:
+                              '${trendingList[1].engagementScore} Etkileşim Puanı',
+                          badgeIcon: Icons.bolt_rounded,
+                        ),
+                      ),
+                    ],
+                  )
                 else
                   for (var i = 0; i < trendingList.take(2).length; i++) ...[
                     DiscoverLargeVideoCard(
@@ -188,13 +217,20 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                 if (isLoading)
                   const DiscoverVideoCardShimmer()
                 else if (mostWatched.isNotEmpty)
-                  DiscoverLargeVideoCard(
-                    spec: spec,
-                    video: mostWatched.first,
-                    badgeText: 'Öne Çıkan',
-                    badgeIcon: Icons.star_rounded,
-                    isFeatured: true,
-                  ),
+                  // TABLET (tasarım): geniş sinematik vitrin kartı
+                  // (thumbnail + içerik paneli). Telefon: mevcut büyük kart.
+                  spec.isTablet
+                      ? DiscoverShowcaseCard(
+                          spec: spec,
+                          video: mostWatched.first,
+                        )
+                      : DiscoverLargeVideoCard(
+                          spec: spec,
+                          video: mostWatched.first,
+                          badgeText: 'Öne Çıkan',
+                          badgeIcon: Icons.star_rounded,
+                          isFeatured: true,
+                        ),
               ],
             );
           }),
@@ -226,6 +262,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
       sliver: SliverList(
         delegate: SliverChildListDelegate([
           // ── En Çok İzlenen Kanallar (Top 3) ──
+          // Tablet (tasarım): satırlar sıra madalyonu (1/2/3) ile.
           Obx(() {
             final topChannels = controller.statsMostWatched.toList();
             final isLoading = controller.isStatsLoading.value;
@@ -262,6 +299,7 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                       spec: spec,
                       stats: topChannels[i],
                       isFollowed: i == 1,
+                      rank: spec.isTablet ? i + 1 : null,
                     ),
                     SizedBox(height: spec.channelRowVGap),
                   ],
@@ -271,77 +309,252 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
 
           SizedBox(height: spec.sectionGapLarge),
 
-          // ── En Çok Beğenilen Kanallar (#1 / #2) ──
-          Obx(() {
-            final mostLiked = controller.statsMostLiked.toList();
-            final isLoading = controller.isStatsLoading.value;
-
-            if (mostLiked.isEmpty && !isLoading) {
-              return const SizedBox.shrink();
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DiscoverSectionHeader(
-                  spec: spec,
-                  title: 'En Çok Beğenilen Kanallar',
-                  icon: Icons.thumb_up_rounded,
-                  iconColor: AppTheme.darkTertiaryContainer,
-                  trailingText: 'TOP SIRALAMA',
-                  onSeeAll: () => Get.toNamed(
-                    AppRoutes.universityStatsSectionDetail,
-                    arguments: {
-                      'type': UniversityStatsSectionType.mostLiked,
-                      'title': uniSectionConfigs[1].title,
-                      'initialItems': mostLiked,
-                    },
-                  ),
-                ),
-                SizedBox(height: spec.headerContentGap),
-                if (isLoading)
-                  const DiscoverChannelCardShimmer()
-                else
-                  Row(
-                    children: [
-                      if (mostLiked.isNotEmpty)
-                        Expanded(
-                          child: DiscoverLeaderboardCard(
-                            spec: spec,
-                            stats: mostLiked[0],
-                            rank: '#1',
-                          ),
-                        ),
-                      SizedBox(width: spec.leaderboardColumnGap),
-                      if (mostLiked.length > 1)
-                        Expanded(
-                          child: DiscoverLeaderboardCard(
-                            spec: spec,
-                            stats: mostLiked[1],
-                            rank: '#2',
-                          ),
-                        ),
-                    ],
-                  ),
-              ],
-            );
-          }),
-
-          SizedBox(height: spec.sectionGapLarge),
-
-          // ── Diğer üniversite istatistikleri (yatay slider'lar) ──
-          for (var i = 2; i < uniSectionConfigs.length; i++)
+          // TABLET: tasarımın kanal gövdesi — istatistik kartlı
+          // carousel'lar + bento duo + yeni keşfedilen 2 kolonlu grid.
+          if (spec.isTablet)
+            ..._tabletChannelBody(context, spec)
+          else ...[
+            // ── TELEFON (dokunulmadı): En Çok Beğenilen Kanallar (#1 / #2)
             Obx(() {
-              final items = _uniItemsFor(i);
-              return buildUniversitySections(
-                configs: [uniSectionConfigs[i]],
-                allItems: [items],
-                isLoading: controller.isStatsLoading.value,
-              ).first;
+              final mostLiked = controller.statsMostLiked.toList();
+              final isLoading = controller.isStatsLoading.value;
+
+              if (mostLiked.isEmpty && !isLoading) {
+                return const SizedBox.shrink();
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DiscoverSectionHeader(
+                    spec: spec,
+                    title: 'En Çok Beğenilen Kanallar',
+                    icon: Icons.thumb_up_rounded,
+                    iconColor: AppTheme.darkTertiaryContainer,
+                    trailingText: 'TOP SIRALAMA',
+                    onSeeAll: () => Get.toNamed(
+                      AppRoutes.universityStatsSectionDetail,
+                      arguments: {
+                        'type': UniversityStatsSectionType.mostLiked,
+                        'title': uniSectionConfigs[1].title,
+                        'initialItems': mostLiked,
+                      },
+                    ),
+                  ),
+                  SizedBox(height: spec.headerContentGap),
+                  if (isLoading)
+                    const DiscoverChannelCardShimmer()
+                  else
+                    Row(
+                      children: [
+                        if (mostLiked.isNotEmpty)
+                          Expanded(
+                            child: DiscoverLeaderboardCard(
+                              spec: spec,
+                              stats: mostLiked[0],
+                              rank: '#1',
+                            ),
+                          ),
+                        SizedBox(width: spec.leaderboardColumnGap),
+                        if (mostLiked.length > 1)
+                          Expanded(
+                            child: DiscoverLeaderboardCard(
+                              spec: spec,
+                              stats: mostLiked[1],
+                              rank: '#2',
+                            ),
+                          ),
+                      ],
+                    ),
+                ],
+              );
             }),
+
+            SizedBox(height: spec.sectionGapLarge),
+
+            // ── Diğer üniversite istatistikleri (yatay slider'lar) ──
+            for (var i = 2; i < uniSectionConfigs.length; i++)
+              Obx(() {
+                final items = _uniItemsFor(i);
+                return buildUniversitySections(
+                  configs: [uniSectionConfigs[i]],
+                  allItems: [items],
+                  isLoading: controller.isStatsLoading.value,
+                ).first;
+              }),
+          ],
         ]),
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // TABLET KANAL GÖVDESİ ("Discover — Tablet" tasarımı)
+  // ───────────────────────────────────────────────────────────
+  // Sıra: En Çok İzlenen → En Çok Beğenilen → Uygulamada Popüler →
+  // En Çok Favorilenen → Son 30 Günde Aktif (hepsi kanal kartlı
+  // carousel) → En Büyük Kanallar | En Zengin Arşiv (bento duo) →
+  // Yeni Keşfedilen Kanallar (2 kolonlu grid).
+  // Telefon gövdesindeki leaderboard + slider yapısı aynen korundu.
+  // ═══════════════════════════════════════════════════════════
+
+  List<Widget> _tabletChannelBody(
+    BuildContext context,
+    DiscoverLayoutSpec spec,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return [
+      _tabletUniCarousel(
+        context,
+        spec,
+        uniSectionConfigs[0],
+        items: () => controller.statsMostWatched.toList(),
+        statColor: scheme.secondary,
+      ),
+      _tabletUniCarousel(
+        context,
+        spec,
+        uniSectionConfigs[1],
+        items: () => controller.statsMostLiked.toList(),
+        statColor: scheme.secondary,
+      ),
+      _tabletUniCarousel(
+        context,
+        spec,
+        uniSectionConfigs[2],
+        items: () => controller.statsPopularInApp.toList(),
+        statColor: AppTheme.darkTertiaryContainer,
+      ),
+      _tabletUniCarousel(
+        context,
+        spec,
+        uniSectionConfigs[3],
+        items: () => controller.statsMostFavorited.toList(),
+        statColor: const Color(0xFFFBBF24),
+      ),
+      _tabletUniCarousel(
+        context,
+        spec,
+        uniSectionConfigs[4],
+        items: () => controller.statsActiveLast30.toList(),
+        statColor: scheme.secondary,
+      ),
+
+      // ── Bento duo: En Büyük Kanallar | En Zengin Arşiv ───────────────
+      Obx(() {
+        final isLoading = controller.isStatsLoading.value;
+        final biggest = controller.statsBiggestChannels.toList();
+        final richest = controller.statsRichestArchive.toList();
+        if (isLoading && biggest.isEmpty && richest.isEmpty) {
+          return const DiscoverChannelCardShimmer();
+        }
+        if (biggest.isEmpty && richest.isEmpty) return const SizedBox.shrink();
+        return DiscoverBentoDuo(
+          leftTitle: 'En Büyük Kanallar',
+          leftIcon: Icons.emoji_events_rounded,
+          leftItems: biggest,
+          rightTitle: 'En Zengin Arşiv',
+          rightIcon: Icons.inventory_2_rounded,
+          rightItems: richest,
+          statLabelBuilder: (s) =>
+              '${s.subscriberCount.compact} Abone • ${s.totalVideos} Video',
+        );
+      }),
+
+      SizedBox(height: spec.sectionGapLarge),
+
+      // ── Yeni Keşfedilen Kanallar (2 kolonlu grid) ────────────────────
+      Obx(() {
+        final items = controller.statsNewlyDiscovered.toList();
+        final isLoading = controller.isStatsLoading.value;
+        if (items.isEmpty && !isLoading) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DiscoverSectionHeader(
+              spec: spec,
+              title: 'Yeni Keşfedilen Kanallar',
+              icon: Icons.explore_outlined,
+              iconColor: scheme.primary,
+              trailingBadge: 'Yeni Katılanlar',
+              onSeeAll: () => Get.toNamed(
+                AppRoutes.universityStatsSectionDetail,
+                arguments: {
+                  'type': UniversityStatsSectionType.newlyDiscovered,
+                  'title': uniSectionConfigs[7].title,
+                  'initialItems': items,
+                },
+              ),
+            ),
+            SizedBox(height: spec.headerContentGap),
+            if (isLoading)
+              const DiscoverChannelCardShimmer()
+            else
+              for (var i = 0; i < items.length; i += 2) ...[
+                if (i > 0) SizedBox(height: spec.channelRowVGap),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DiscoverChannelListRow(
+                        stats: items[i],
+                        subtitle:
+                            '${items[i].totalVideos} Video • ${items[i].appTotalViewers.compact} İzleyici',
+                      ),
+                    ),
+                    SizedBox(width: spec.channelRowVGap),
+                    if (i + 1 < items.length)
+                      Expanded(
+                        child: DiscoverChannelListRow(
+                          stats: items[i + 1],
+                          subtitle:
+                              '${items[i + 1].totalVideos} Video • ${items[i + 1].appTotalViewers.compact} İzleyici',
+                        ),
+                      )
+                    else
+                      const Spacer(),
+                  ],
+                ),
+              ],
+          ],
+        );
+      }),
+    ];
+  }
+
+  // Tablet kanal carousel'i: ortak HorizontalSection + tasarımın
+  // kanal istatistik kartı (logo + ad + istatistik + Takip Et).
+  Widget _tabletUniCarousel(
+    BuildContext context,
+    DiscoverLayoutSpec spec,
+    UniSectionConfig config, {
+    required List<UniversityStatsModel> Function() items,
+    required Color statColor,
+  }) {
+    return Obx(() {
+      final currentItems = items();
+      return HorizontalSection<UniversityStatsModel>(
+        title: config.title,
+        description: config.description,
+        items: currentItems,
+        isLoading: controller.isStatsLoading.value,
+        onSeeAll: () => Get.toNamed(
+          AppRoutes.universityStatsSectionDetail,
+          arguments: {
+            'type': config.type,
+            'title': config.title,
+            'initialItems': currentItems,
+          },
+        ),
+        itemBuilder: (ctx, s) => DiscoverChannelStatCard(
+          stats: s,
+          statLabel: config.statLabelBuilder(s),
+          statIcon: config.statIcon,
+          statColor: statColor,
+        ),
+      );
+    });
   }
 
   // ═══════════════════════════════════════════════════════════
