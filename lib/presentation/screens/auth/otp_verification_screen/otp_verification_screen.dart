@@ -59,9 +59,9 @@ class OtpVerificationScreen extends GetView<OtpVerificationController> {
                         // ── Server hatası (koddaki öğe — korundu) ──
                         Obx(() {
                           final msg = _auth.errorMessage.value;
-                          if (msg.isEmpty) return SizedBox(height: 16);
+                          if (msg.isEmpty) return const SizedBox(height: 16);
                           return Padding(
-                            padding: EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.only(bottom: 16),
                             child: AuthErrorBanner(
                               message: msg,
                               fontSize: spec.errorFontSize,
@@ -153,7 +153,7 @@ class _Header extends StatelessWidget {
         children: [
           // Ortada başlık (headline-sm, max 200px, truncate)
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 200),
+            constraints: const BoxConstraints(maxWidth: 200),
             child: Text(
               'Email Onayı',
               maxLines: 1,
@@ -305,7 +305,7 @@ class _Hero extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.25),
                         blurRadius: 6,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -393,8 +393,8 @@ class _Hero extends StatelessWidget {
           onPressed: Get.back, // önceki ekrandan e-posta değiştirilir
           style: TextButton.styleFrom(
             foregroundColor: scheme.primary,
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            minimumSize: Size(0, 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            minimumSize: const Size(0, 32),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Row(
@@ -549,7 +549,7 @@ class _TimerChip extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               _auth.formattedCodeExpiry,
               style: TextStyle(
@@ -665,7 +665,7 @@ class _OtpBoxes extends StatelessWidget {
         return Row(
           children: [
             for (var i = 0; i < OtpVerificationController.codeLength; i++) ...[
-              if (i > 0) SizedBox(width: 8),
+              if (i > 0) const SizedBox(width: 8),
               Expanded(child: _box(context, i)),
             ],
           ],
@@ -778,7 +778,7 @@ class _ResendCard extends StatelessWidget {
               color: scheme.primary,
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,7 +791,7 @@ class _ResendCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'Spam klasörünü kontrol edin',
                   style: TextStyle(
@@ -802,7 +802,7 @@ class _ResendCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           // ── Sağ: Tekrar Gönder (48s) / Kodu Şimdi Gönder ──
           const _ResendAction(),
         ],
@@ -840,7 +840,7 @@ class _ResendAction extends StatelessWidget {
           borderRadius: BorderRadius.circular(spec.keyRadius),
           onTap: canResend ? () => _auth.resendOtp(email: _email) : null,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -850,7 +850,7 @@ class _ResendAction extends StatelessWidget {
                     size: spec.resendActionIconSize,
                     color: canResend ? scheme.primary : scheme.onSurfaceVariant,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                 ] else ...[
                   SizedBox(
                     width: spec.loaderSize,
@@ -860,10 +860,10 @@ class _ResendAction extends StatelessWidget {
                       color: scheme.primary,
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                 ],
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 110),
+                  constraints: const BoxConstraints(maxWidth: 110),
                   child: Text(
                     label,
                     textAlign: TextAlign.right,
@@ -906,7 +906,7 @@ class _SubmitButton extends StatelessWidget {
                   BoxShadow(
                     color: AppTheme.primaryColor.withValues(alpha: 0.35),
                     blurRadius: 20,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
         ),
@@ -936,7 +936,7 @@ class _SubmitButton extends StatelessWidget {
                         color: scheme.onPrimary,
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
                       'Doğrulanıyor...',
                       style: TextStyle(
@@ -961,7 +961,7 @@ class _SubmitButton extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: spec.buttonIconSize,
@@ -1106,7 +1106,7 @@ class _SupportFooter extends StatelessWidget {
           // TODO: destek masası bağlantısı (URL/route)
           onTap: () {},
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Text(
               'Öğrenci Destek Masası',
               style: TextStyle(

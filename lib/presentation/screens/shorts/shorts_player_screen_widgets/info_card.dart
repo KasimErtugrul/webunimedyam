@@ -51,7 +51,7 @@ class ShortsPlayerInfoCard extends StatelessWidget {
                 width: sizes.avatarSize,
                 height: sizes.avatarSize,
                 padding: EdgeInsets.all(sizes.avatarBorderWidth),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [AppTheme.primaryColor, AppTheme.secondaryColor],

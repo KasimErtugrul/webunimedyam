@@ -49,9 +49,9 @@ void _showSheet({
               ),
             ),
             if (subtitle != null) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   subtitle,
                   textAlign: TextAlign.center,
@@ -110,7 +110,7 @@ void showSettingsQualityPicker({
               onChanged(value);
             },
           ),
-          if (value != options.last.$1) SizedBox(height: 8),
+          if (value != options.last.$1) const SizedBox(height: 8),
         ],
       ],
     ),
@@ -151,7 +151,7 @@ class _SheetOption extends StatelessWidget {
     final isDark = AppTheme.isDark(context);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Opacity(
         opacity: isEnabled ? 1.0 : 0.4,
         child: Material(
@@ -163,7 +163,7 @@ class _SheetOption extends StatelessWidget {
             onTap: isEnabled ? onTap : null,
             borderRadius: BorderRadius.circular(16),
             child: Padding(
-              padding: EdgeInsets.all(14),
+              padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
                   Container(
@@ -181,7 +181,7 @@ class _SheetOption extends StatelessWidget {
                       size: spec.sheetOptionIconSize,
                     ),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +197,7 @@ class _SheetOption extends StatelessWidget {
                                 : FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           isEnabled ? subtitle : (disabledReason ?? subtitle),
                           style: TextStyle(
@@ -210,7 +210,7 @@ class _SheetOption extends StatelessWidget {
                     ),
                   ),
                   if (preview != null) ...[
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     preview!,
                   ] else if (isCurrent) ...[
                     Icon(Icons.check_circle_rounded, color: color, size: 22),
@@ -249,9 +249,9 @@ void showSettingsThemePicker({
     child: Column(
       children: [
         _themeOption(context, spec, 'system', 'Sistem', current, onChanged),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _themeOption(context, spec, 'light', 'Açık', current, onChanged),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _themeOption(context, spec, 'dark', 'Koyu', current, onChanged),
       ],
     ),
@@ -308,8 +308,8 @@ class _ThemePreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.vertical(
-          top: top ? Radius.circular(4) : Radius.zero,
-          bottom: top ? Radius.zero : Radius.circular(4),
+          top: top ? const Radius.circular(4) : Radius.zero,
+          bottom: top ? Radius.zero : const Radius.circular(4),
         ),
         border: Border.all(
           color: Colors.black.withValues(alpha: 0.08),
@@ -366,7 +366,7 @@ void showSettingsHomeLayoutPicker({
           current,
           onChanged,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _layoutOption(
           context,
           spec,
@@ -424,7 +424,7 @@ class _LayoutPreview extends StatelessWidget {
     return Container(
       width: 34,
       height: 28,
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: AppTheme.surface(context),
         borderRadius: BorderRadius.circular(6),
@@ -442,7 +442,7 @@ class _LayoutPreview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (int i = 0; i < 3; i++) ...[
-          if (i > 0) SizedBox(height: 2),
+          if (i > 0) const SizedBox(height: 2),
           Container(
             height: 4,
             decoration: BoxDecoration(
@@ -535,7 +535,7 @@ Future<void> showSettingsVisibilitySheet({
               await onChanged(option);
             },
           ),
-          if (option != VisibilityOption.values.last) SizedBox(height: 8),
+          if (option != VisibilityOption.values.last) const SizedBox(height: 8),
         ],
       ],
     ),

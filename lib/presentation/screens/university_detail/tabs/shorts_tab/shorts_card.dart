@@ -74,7 +74,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 7,
                         vertical: 3,
                       ),
@@ -82,7 +82,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                         color: const Color(0xFFE53935),
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -110,7 +110,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                       bottom: 8,
                       right: 8,
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 6,
                           vertical: 3,
                         ),
@@ -120,7 +120,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                         ),
                         child: Text(
                           video.formattedDuration,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -149,7 +149,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
             ),
             // Meta
             Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -165,7 +165,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                       height: 1.3,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(
@@ -173,7 +173,7 @@ class UniversityDetailShortsCard extends StatelessWidget {
                         size: spec.shortsMetaFontSize + 1,
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Flexible(
                         child: Text(
                           video.formattedViewCount,
@@ -185,13 +185,13 @@ class UniversityDetailShortsCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Icon(
                         Icons.schedule_rounded,
                         size: spec.shortsMetaFontSize,
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Flexible(
                         child: Text(
                           _timeAgo(video.publishedAt),

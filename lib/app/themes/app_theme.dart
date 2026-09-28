@@ -435,8 +435,8 @@ abstract class AppTheme {
           disabledBackgroundColor: scheme.onSurface.withValues(alpha: 0.12),
           disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.38),
           elevation: 0,
-          minimumSize: Size(double.infinity, 48),
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          minimumSize: const Size(double.infinity, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
@@ -452,7 +452,7 @@ abstract class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
-          minimumSize: Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
@@ -477,7 +477,7 @@ abstract class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: scheme.primary,
           side: BorderSide(color: scheme.outline),
-          minimumSize: Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusMd),
           ),
@@ -498,7 +498,7 @@ abstract class AppTheme {
         fillColor: isDarkTheme
             ? darkSurfaceContainerHigh
             : scheme.surfaceContainerHigh,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide.none,
@@ -541,7 +541,7 @@ abstract class AppTheme {
           fontWeight: FontWeight.w700,
           color: scheme.primary,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusFull),
         ),
@@ -616,7 +616,7 @@ abstract class AppTheme {
         backgroundColor:
             isDarkTheme ? darkSurfaceContainerLow : scheme.surfaceContainerLow,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(radiusLg)),
         ),
       ),

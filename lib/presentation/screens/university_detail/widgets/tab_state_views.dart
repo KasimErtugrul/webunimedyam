@@ -45,7 +45,7 @@ class UniversityTabEmptyView extends StatelessWidget {
                 .animate()
                 .fadeIn(duration: 350.ms)
                 .scaleXY(begin: 0.8, end: 1, curve: Curves.easeOutBack),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -55,7 +55,7 @@ class UniversityTabEmptyView extends StatelessWidget {
                 color: AppTheme.textPri(context),
               ),
             ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               subtitle,
               textAlign: TextAlign.center,
@@ -106,7 +106,7 @@ class UniversityTabErrorView extends StatelessWidget {
                 color: Colors.red.shade400,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
@@ -116,7 +116,7 @@ class UniversityTabErrorView extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded, size: 18),
@@ -127,7 +127,7 @@ class UniversityTabErrorView extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ],

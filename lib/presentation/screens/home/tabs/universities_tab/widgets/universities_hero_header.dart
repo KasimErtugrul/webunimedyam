@@ -38,12 +38,12 @@ class UniversitiesHeroHeader extends StatelessWidget {
         child: Stack(
           children: [
             // ── Ambient blobs (arka plan) ──
-            Positioned(
+            const Positioned(
               right: -50,
               top: -40,
               child: _Blob(size: 160, opacity: 0.10),
             ),
-            Positioned(
+            const Positioned(
               left: -40,
               bottom: -60,
               child: _Blob(size: 130, opacity: 0.08),
@@ -90,7 +90,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                             end: 1,
                             curve: Curves.easeOutBack,
                           ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +113,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                                     duration: 350.ms,
                                   ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               'Keşfet, sırala, takip et',
                               style: TextStyle(
@@ -131,7 +131,7 @@ class UniversitiesHeroHeader extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Arama çubuğu — hero'nun İÇİNDE, alt kısımda
                   _SearchBar(
@@ -171,24 +171,24 @@ class _HeroSortButton extends StatelessWidget {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(Icons.tune_rounded, color: Colors.white, size: 22),
+              const Icon(Icons.tune_rounded, color: Colors.white, size: 22),
               if (activeCount > 0)
                 Positioned(
                   right: -4,
                   top: -4,
                   child: Container(
-                    padding: EdgeInsets.all(3),
+                    padding: const EdgeInsets.all(3),
                     decoration: const BoxDecoration(
                       color: Color(0xFFF59E0B),
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '$activeCount',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,

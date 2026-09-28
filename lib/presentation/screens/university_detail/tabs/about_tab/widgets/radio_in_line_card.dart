@@ -143,7 +143,7 @@ class UniversityDetailAboutTabRadioInlineCard extends StatelessWidget {
                       ? SizedBox(
                           width: sizes.radioPlayButtonSize * 0.45,
                           height: sizes.radioPlayButtonSize * 0.45,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2.5,
                           ),

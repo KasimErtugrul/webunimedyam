@@ -404,7 +404,7 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
         child: LinearProgressIndicator(
           value: progress,
           backgroundColor: Colors.white12,
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
           minHeight: sizes.progressBarHeight,
         ),
       ),

@@ -44,7 +44,7 @@ class AuthHeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
-    final primary = AppTheme.primaryColor;
+    const primary = AppTheme.primaryColor;
 
     return SizedBox(
       height: height + topInset,
@@ -66,9 +66,9 @@ class AuthHeroSection extends StatelessWidget {
                   Positioned(
                     right: -40,
                     top: topInset - 30,
-                    child: _Blob(size: 180, opacity: 0.10),
+                    child: const _Blob(size: 180, opacity: 0.10),
                   ),
-                  Positioned(
+                  const Positioned(
                     left: -30,
                     bottom: -40,
                     child: _Blob(size: 140, opacity: 0.08),
@@ -76,7 +76,7 @@ class AuthHeroSection extends StatelessWidget {
                   Positioned(
                     left: 80,
                     top: topInset + 40,
-                    child: _Blob(size: 60, opacity: 0.06),
+                    child: const _Blob(size: 60, opacity: 0.06),
                   ),
                 ],
               ),
@@ -151,7 +151,7 @@ class AuthHeroSection extends StatelessWidget {
 
                 // Başlık
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
@@ -176,7 +176,7 @@ class AuthHeroSection extends StatelessWidget {
 
                 // Alt başlık
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Text(
                     subtitle,
                     textAlign: TextAlign.center,

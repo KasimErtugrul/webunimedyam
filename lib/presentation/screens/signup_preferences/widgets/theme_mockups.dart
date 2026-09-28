@@ -185,13 +185,13 @@ class ThemeLightMockup extends StatelessWidget {
                   _Bar(
                       width: s.mBarW,
                       height: s.mBarH,
-                      color: scheme.surfaceVariant),
+                      color: scheme.surfaceContainerHighest),
                 ],
               ),
               _Bar(
                   width: s.mCircle,
                   height: s.mCircle,
-                  color: scheme.surfaceVariant),
+                  color: scheme.surfaceContainerHighest),
             ],
           ),
           Row(
@@ -200,7 +200,7 @@ class ThemeLightMockup extends StatelessWidget {
                 width: s.mThumbW,
                 height: s.mThumbH,
                 decoration: BoxDecoration(
-                  color: scheme.surfaceVariant,
+                  color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(s.mThumbRadius),
                 ),
                 child: Icon(Icons.play_arrow_rounded,
@@ -214,7 +214,7 @@ class ThemeLightMockup extends StatelessWidget {
                     _Bar(
                         width: double.infinity,
                         height: s.mLineH,
-                        color: scheme.surfaceVariant),
+                        color: scheme.surfaceContainerHighest),
                     SizedBox(height: s.mMiniGap - 2),
                     FractionallySizedBox(
                       widthFactor: 0.75,
@@ -366,7 +366,7 @@ class ThemeSystemMockup extends StatelessWidget {
                       _Bar(
                           width: s.mBarWShort,
                           height: s.mBarH,
-                          color: scheme.surfaceVariant),
+                          color: scheme.surfaceContainerHighest),
                       Row(
                         children: [
                           Expanded(
@@ -376,7 +376,7 @@ class ThemeSystemMockup extends StatelessWidget {
                                 _Bar(
                                     width: double.infinity,
                                     height: s.mLineHSm,
-                                    color: scheme.surfaceVariant),
+                                    color: scheme.surfaceContainerHighest),
                                 SizedBox(height: s.mMiniGap - 2),
                                 FractionallySizedBox(
                                   widthFactor: 0.66,
@@ -393,7 +393,7 @@ class ThemeSystemMockup extends StatelessWidget {
                             width: s.mIconBox,
                             height: s.mIconBox,
                             decoration: BoxDecoration(
-                              color: scheme.surfaceVariant,
+                              color: scheme.surfaceContainerHighest,
                               borderRadius:
                                   BorderRadius.circular(s.mThumbRadius),
                             ),

@@ -29,7 +29,7 @@ class EndSessionsToggle extends GetView<ChangePassController> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Tüm diğer mobil ve web oturumları kapatılır',
                   style: TextStyle(
@@ -40,7 +40,7 @@ class EndSessionsToggle extends GetView<ChangePassController> {
               ],
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Switch(
             value: controller.endOtherSessions.value,
             onChanged: controller.setEndOtherSessions,

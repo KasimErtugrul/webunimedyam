@@ -34,7 +34,7 @@ class AuthHeaderIcon extends StatelessWidget {
             BoxShadow(
               color: AppTheme.primaryColor.withValues(alpha: 0.3),
               blurRadius: 16,
-              offset: Offset(0, 6),
+              offset: const Offset(0, 6),
             ),
           ],
         ),

@@ -196,21 +196,21 @@ class VideoGridCardWidget extends StatelessWidget {
                     ),
                   ),
                   if (isLive)
-                    Positioned(
+                    const Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
                       child: _Badge(
                         label: 'CANLI',
-                        color: const Color(0xFFE53935),
+                        color: Color(0xFFE53935),
                       ),
                     ),
                   if (isUpcoming)
-                    Positioned(
+                    const Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
                       child: _Badge(
                         label: 'YAKINDA',
-                        color: const Color(0xFF5C6BC0),
+                        color: Color(0xFF5C6BC0),
                       ),
                     ),
                   if (!isLive)
@@ -218,7 +218,7 @@ class VideoGridCardWidget extends StatelessWidget {
                       bottom: _Sizes.durationBottom,
                       right: _Sizes.durationRight,
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: _Sizes.durationPadH,
                           vertical: _Sizes.durationPadV,
                         ),
@@ -262,7 +262,7 @@ class VideoGridCardWidget extends StatelessWidget {
                     height: _Sizes.titleLineHeight,
                   ),
                 ),
-                SizedBox(height: _Sizes.titleToChannelSpacing),
+                const SizedBox(height: _Sizes.titleToChannelSpacing),
 
                 // Kanal satırı: avatar + üniversite adı/zaman + üç nokta menü.
                 Row(
@@ -278,7 +278,7 @@ class VideoGridCardWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: _Sizes.avatarSpacing),
+                    const SizedBox(width: _Sizes.avatarSpacing),
                     Expanded(
                       child: GestureDetector(
                         onTap: () => _navigateToUniversityDetail(controller),
@@ -294,7 +294,7 @@ class VideoGridCardWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: _Sizes.avatarSpacing / 2),
+                    const SizedBox(width: _Sizes.avatarSpacing / 2),
                     GestureDetector(
                       onTap: () => _showVideoOptionsSheet(context, controller),
                       child: Icon(
@@ -306,12 +306,12 @@ class VideoGridCardWidget extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: _Sizes.channelRowSpacing),
+                const SizedBox(height: _Sizes.channelRowSpacing),
                 Container(
                   height: _Sizes.dividerHeight,
                   color: AppTheme.textSec(context).withValues(alpha: 0.12),
                 ),
-                SizedBox(height: _Sizes.channelRowSpacing),
+                const SizedBox(height: _Sizes.channelRowSpacing),
 
                 // İstatistik satırı: görüntülenme, beğeni, yorum ve
                 // en sağda kaydet — eşit boşluklarla, sabit sıralı.
@@ -351,7 +351,7 @@ class VideoGridCardWidget extends StatelessWidget {
                                 text: _formatCount(viewCount),
                               );
                             }),
-                            SizedBox(width: _Sizes.actionRowSpacing),
+                            const SizedBox(width: _Sizes.actionRowSpacing),
                             Obx(() {
                               final liked = controller.likedVideoIds.contains(
                                 video.videoId,
@@ -376,7 +376,7 @@ class VideoGridCardWidget extends StatelessWidget {
                                 ),
                               );
                             }),
-                            SizedBox(width: _Sizes.actionRowSpacing),
+                            const SizedBox(width: _Sizes.actionRowSpacing),
                             GestureDetector(
                               onTap: _openPlayer,
                               child: Obx(() {
@@ -527,7 +527,7 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _Sizes.badgePadH,
         vertical: _Sizes.badgePadV,
       ),
@@ -538,8 +538,8 @@ class _Badge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, color: Colors.white, size: _Sizes.badgeDotSize),
-          SizedBox(width: _Sizes.badgeDotSpacing),
+          const Icon(Icons.circle, color: Colors.white, size: _Sizes.badgeDotSize),
+          const SizedBox(width: _Sizes.badgeDotSpacing),
           Text(
             label,
             style: const TextStyle(
@@ -572,7 +572,7 @@ class _MiniStat extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: _Sizes.actionIconSize, color: color),
-        SizedBox(width: _Sizes.actionIconTextSpacing),
+        const SizedBox(width: _Sizes.actionIconTextSpacing),
         Text(
           text,
           style: TextStyle(

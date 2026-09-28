@@ -23,7 +23,7 @@ class UniversitiesEmptyView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -88,7 +88,7 @@ class UniversitiesEmptyView extends StatelessWidget {
                     borderRadius:
                         BorderRadius.circular(spec.emptyButtonRadius),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                 ),
               ),
             ).animate().fadeIn(delay: 260.ms, duration: 300.ms),

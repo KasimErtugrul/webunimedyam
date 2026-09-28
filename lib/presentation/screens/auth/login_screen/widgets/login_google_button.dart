@@ -51,7 +51,7 @@ class LoginGoogleButton extends GetView<LoginController> {
                       'assets/icons/google_logo.png',
                       width: s.googleIconSize,
                       height: s.googleIconSize,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         Icons.g_mobiledata_rounded,
                         size: s.googleIconSize + 6,
                         color: scheme.onSurface,

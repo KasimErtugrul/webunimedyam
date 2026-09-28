@@ -63,7 +63,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -234,7 +234,7 @@ class _HeroSection extends StatelessWidget {
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 20,
-                      offset: Offset(0, 8),
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
@@ -268,7 +268,7 @@ class _HeroSection extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.20),
                         blurRadius: 6,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -374,7 +374,7 @@ class _FormSection extends StatelessWidget {
           _SubmitButton(form: form, spec: spec),
 
           // ── Koddaki bilgi notu (tasarımda yok → butonun altında korundu) ──
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Center(
             child: Text(
               'Kod, kayıtlı email adresinize gönderilir.',
@@ -474,7 +474,7 @@ class _EmailField extends StatelessWidget {
                     color: scheme.onSurfaceVariant,
                     size: spec.fieldIconSize,
                   ),
-                  prefixIconConstraints: BoxConstraints(
+                  prefixIconConstraints: const BoxConstraints(
                     minWidth: 44,
                     minHeight: 24,
                   ),
@@ -482,7 +482,7 @@ class _EmailField extends StatelessWidget {
                   suffixIcon: Obx(() {
                     if (!form.showClear.value) return const SizedBox.shrink();
                     return Padding(
-                      padding: EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.only(right: 10),
                       child: GestureDetector(
                         onTap: form.clearEmail,
                         child: Container(
@@ -583,7 +583,7 @@ class _SecurityNote extends StatelessWidget {
                     letterSpacing: 0.8, // tracking-wider
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
                   'Doğrulama kodu e-posta adresinizin spam/gereksiz '
                   'klasörüne de düşebilir. Lütfen kontrol ediniz.',
@@ -625,7 +625,7 @@ class _SubmitButton extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 14,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                 ],
         ),
@@ -656,7 +656,7 @@ class _SubmitButton extends StatelessWidget {
                         color: scheme.onPrimary,
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
                       'Gönderiliyor...',
                       style: _labelStyle(scheme),
@@ -707,7 +707,7 @@ class _SuccessAlert extends StatelessWidget {
     return Obx(() {
       if (!form.otpSent.value) return const SizedBox.shrink();
       return Container(
-        margin: EdgeInsets.only(top: 16), // mt-space-md
+        margin: const EdgeInsets.only(top: 16), // mt-space-md
         padding: EdgeInsets.all(spec.alertPadding),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh, // bg-surface-container-high

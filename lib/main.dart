@@ -234,10 +234,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   ? const SizedBox.shrink()
                   : Material(
                       color: Colors.red.shade700,
-                      child: SafeArea(
+                      child: const SafeArea(
                         bottom: false,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          padding: EdgeInsets.symmetric(vertical: 6),
                           child: Center(
                             child: Text(
                               'İnternet bağlantısı yok',

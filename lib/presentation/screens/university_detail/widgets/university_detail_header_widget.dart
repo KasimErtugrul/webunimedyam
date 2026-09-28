@@ -31,7 +31,7 @@ class UniversityDetailHeader extends StatelessWidget {
       final hasCity = uni.city?.isNotEmpty == true;
       final typeText = uni.displayUniversityType;
       final hasType = typeText != null && typeText.isNotEmpty;
-      final primary = AppTheme.primaryColor;
+      const primary = AppTheme.primaryColor;
 
       return Container(
         decoration: BoxDecoration(
@@ -108,11 +108,11 @@ class UniversityDetailHeader extends StatelessWidget {
                 .fadeIn(duration: 400.ms)
                 .scaleXY(begin: 0.85, end: 1, curve: Curves.easeOutBack),
 
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
 
             // ── Ad ──
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 uni.name ?? '',
                 textAlign: TextAlign.center,
@@ -129,9 +129,9 @@ class UniversityDetailHeader extends StatelessWidget {
 
             // ── Şehir · Tip (yan yana) ──
             if (hasCity || hasType) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -143,7 +143,7 @@ class UniversityDetailHeader extends StatelessWidget {
                         size: (spec.headerCityFontSize + 1),
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Flexible(
                         child: Text(
                           uni.city!,
@@ -160,7 +160,7 @@ class UniversityDetailHeader extends StatelessWidget {
                     // Ayraç
                     if (hasCity && hasType) ...[
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '•',
                           style: TextStyle(
@@ -181,7 +181,7 @@ class UniversityDetailHeader extends StatelessWidget {
                         size: (spec.headerCityFontSize + 1),
                         color: AppTheme.textSec(context),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Flexible(
                         child: Text(
                           typeText,
@@ -199,7 +199,7 @@ class UniversityDetailHeader extends StatelessWidget {
               ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
             ],
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // ── Favori badge ──
             Obx(() {
@@ -222,7 +222,7 @@ class UniversityDetailHeader extends StatelessWidget {
                           size: spec.headerBadgeFontSize + 2,
                           color: primary,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           'Favorilerimde',
                           style: TextStyle(

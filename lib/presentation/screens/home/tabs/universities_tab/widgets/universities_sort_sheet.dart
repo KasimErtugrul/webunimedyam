@@ -56,7 +56,7 @@ class _SortSheetState extends State<_SortSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             // Handle
             Container(
               width: spec.sheetHandleW,
@@ -66,7 +66,7 @@ class _SortSheetState extends State<_SortSheet> {
                 borderRadius: BorderRadius.circular(spec.sheetHandleH),
               ),
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
 
             // Başlık + Sıfırla
             Padding(
@@ -88,28 +88,28 @@ class _SortSheetState extends State<_SortSheet> {
                   const Spacer(),
                   TextButton.icon(
                     onPressed: sortController.resetSortsAndFilters,
-                    icon: Icon(Icons.refresh_rounded, size: 18),
-                    label: Text(
+                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                    label: const Text(
                       'Sıfırla',
                       style: TextStyle(fontSize: 13),
                     ),
                     style: TextButton.styleFrom(
                       foregroundColor: AppTheme.primaryColor,
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                     ),
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // ─── FİLTRELER ────────────────────────────────────────────────
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
               child: const _SectionHeader(title: 'FİLTRELER'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
@@ -121,7 +121,7 @@ class _SortSheetState extends State<_SortSheet> {
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
@@ -131,14 +131,14 @@ class _SortSheetState extends State<_SortSheet> {
               ),
             ),
 
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
 
             // ─── SIRALAMA ─────────────────────────────────────────────────
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spec.sheetHPadding),
               child: const _SectionHeader(title: 'SIRALAMA'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             ListView.builder(
               shrinkWrap: true,
@@ -189,7 +189,7 @@ class _SectionHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Flexible(
           child: Text(
             title,
@@ -246,7 +246,7 @@ class _TypeFilterTile extends StatelessWidget {
               onTap: onToggle,
               borderRadius: BorderRadius.circular(14),
               child: Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 10,
                 ),
@@ -267,7 +267,7 @@ class _TypeFilterTile extends StatelessWidget {
                         color: _typeColor,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +281,7 @@ class _TypeFilterTile extends StatelessWidget {
                               color: AppTheme.textPri(context),
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             selected.label,
                             style: TextStyle(
@@ -318,7 +318,7 @@ class _TypeFilterTile extends StatelessWidget {
             curve: Curves.easeOut,
             child: expanded
                 ? Padding(
-                    padding: EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.only(top: 8),
                     child: Column(
                       children: UniversityTypeFilter.values
                           .map((f) => _TypeRadioRow(
@@ -357,7 +357,7 @@ class _TypeRadioRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Material(
         color: selected
             ? color.withValues(alpha: 0.10)
@@ -367,7 +367,7 @@ class _TypeRadioRow extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 10,
               vertical: 8,
             ),
@@ -389,14 +389,14 @@ class _TypeRadioRow extends StatelessWidget {
                     ),
                   ),
                   child: selected
-                      ? Icon(
+                      ? const Icon(
                           Icons.check_rounded,
                           size: 13,
                           color: Colors.white,
                         )
                       : null,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Icon(
                   filter.icon,
                   size: 16,
@@ -404,7 +404,7 @@ class _TypeRadioRow extends StatelessWidget {
                       ? color
                       : AppTheme.textSec(context),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     filter.label,
@@ -456,7 +456,7 @@ class _RadioFilterTile extends StatelessWidget {
           onTap: () => sortController.setOnlyWithRadio(!value),
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 10,
             ),
@@ -477,7 +477,7 @@ class _RadioFilterTile extends StatelessWidget {
                     color: _radioColor,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,7 +491,7 @@ class _RadioFilterTile extends StatelessWidget {
                           color: AppTheme.textPri(context),
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         value
                             ? 'Sadece radyosu olanlar'
@@ -593,7 +593,7 @@ class _SortOptionTile extends StatelessWidget {
           onTap: () => sortController.addOrRemoveSort(criteria),
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 10,
             ),
@@ -614,7 +614,7 @@ class _SortOptionTile extends StatelessWidget {
                     color: _color,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     _title,
@@ -663,7 +663,7 @@ class _SortOptionTile extends StatelessWidget {
                     ),
                   ),
                   child: isActive
-                      ? Icon(
+                      ? const Icon(
                           Icons.check_rounded,
                           size: 14,
                           color: Colors.white,

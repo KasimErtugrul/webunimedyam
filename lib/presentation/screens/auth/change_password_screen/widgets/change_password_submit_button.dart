@@ -43,7 +43,7 @@ class ChangePasswordSubmitButton extends GetView<ChangePassController> {
                 children: [
                   Icon(Icons.check_rounded,
                       size: spec.iconSize, color: scheme.onPrimary),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Şifreyi Güncelle',
                     style: TextStyle(

@@ -247,7 +247,7 @@ class NotificationService {
           id: message.hashCode,
           title: title,
           body: body,
-          notificationDetails: NotificationDetails(
+          notificationDetails: const NotificationDetails(
             android: AndroidNotificationDetails(
               _channelId,
               _channelName,
@@ -255,7 +255,7 @@ class NotificationService {
               importance: Importance.high,
               priority: Priority.high,
               playSound: true,
-              sound: const RawResourceAndroidNotificationSound(_soundResourceName),
+              sound: RawResourceAndroidNotificationSound(_soundResourceName),
             ),
           ),
           payload: jsonEncode(message.data),

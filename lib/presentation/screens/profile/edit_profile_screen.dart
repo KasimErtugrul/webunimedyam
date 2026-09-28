@@ -315,7 +315,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         size: spec.hintFontSize + 2,
                         color: AppTheme.textSec(context).withValues(alpha: 0.6),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           'Boş bırakılırsa profilinde kullanıcı adın öne çıkar.',
@@ -435,7 +435,7 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.only(left: 4),
       child: Text(
         text,
         style: TextStyle(

@@ -40,7 +40,7 @@ class SettingsPrivacyNotice extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Profiliniz gizli modda. Üniversite kulüpleri veya diğer '
                   'öğrenciler sadece izin verdiğiniz aktivitelerinizi '

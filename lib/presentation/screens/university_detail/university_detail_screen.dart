@@ -136,7 +136,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                               children: [
                                 if (hasLogo)
                                   Padding(
-                                    padding: EdgeInsets.only(right: 10),
+                                    padding: const EdgeInsets.only(right: 10),
                                     child: ClipOval(
                                       child: Container(
                                         width: spec.appBarLogoSize,
@@ -156,7 +156,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                   )
                                 else
                                   Padding(
-                                    padding: EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.only(right: 8),
                                     child: Icon(
                                       Icons.school_rounded,
                                       size: spec.appBarLogoIconSize,
@@ -186,7 +186,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                         final isFav = controller.isFavorite.value;
                         final isLoading = controller.isFavoriteLoading.value;
                         return Padding(
-                          padding: EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8),
                           child: isLoading
                               ? SizedBox(
                                   width: spec.appBarActionIconSize * 1.6,

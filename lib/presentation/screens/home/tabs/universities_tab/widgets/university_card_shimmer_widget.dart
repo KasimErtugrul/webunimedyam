@@ -35,7 +35,7 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             // Metin placeholder
             Expanded(
               child: Column(
@@ -47,7 +47,7 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                     width: double.infinity,
                     color: Colors.grey,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       return Container(
@@ -57,7 +57,7 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                       );
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final itemWidth = constraints.maxWidth * 0.25;
@@ -71,7 +71,7 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Container(
                             height: 18,
                             width: itemWidth,
@@ -87,7 +87,7 @@ class UniversityCardShimmerWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Container(
               height: spec.cardFollowHeight,
               width: 80,

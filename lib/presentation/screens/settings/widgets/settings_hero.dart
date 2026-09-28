@@ -13,7 +13,7 @@ class SettingsHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
-    final primary = AppTheme.primaryColor;
+    const primary = AppTheme.primaryColor;
 
     return SizedBox(
       height: spec.heroHeight + topInset,
@@ -35,9 +35,9 @@ class SettingsHero extends StatelessWidget {
                   Positioned(
                     right: -40,
                     top: topInset - 30,
-                    child: _Blob(size: 160, opacity: 0.10),
+                    child: const _Blob(size: 160, opacity: 0.10),
                   ),
-                  Positioned(
+                  const Positioned(
                     left: -30,
                     bottom: -40,
                     child: _Blob(size: 120, opacity: 0.08),
@@ -45,7 +45,7 @@ class SettingsHero extends StatelessWidget {
                   Positioned(
                     left: 100,
                     top: topInset + 30,
-                    child: _Blob(size: 50, opacity: 0.06),
+                    child: const _Blob(size: 50, opacity: 0.06),
                   ),
                 ],
               ),
@@ -129,7 +129,7 @@ class SettingsHero extends StatelessWidget {
                     ),
                   ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
 
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   Text(
                     'Uygulama tercihlerinizi yönetin',

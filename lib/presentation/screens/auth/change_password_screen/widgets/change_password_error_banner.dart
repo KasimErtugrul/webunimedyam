@@ -18,8 +18,8 @@ class ChangePasswordErrorBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(14),
-      margin: EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         color: scheme.error.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(spec.radius),
@@ -28,7 +28,7 @@ class ChangePasswordErrorBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,

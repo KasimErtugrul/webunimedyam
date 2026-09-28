@@ -82,9 +82,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
                   child: (isLoading && s == null)
-                      ? Padding(
+                      ? const Padding(
                           padding: EdgeInsets.only(top: 120),
-                          child: const CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             color: AppTheme.primaryColor,
                           ),
                         )
@@ -168,7 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               SettingsFeedModeToggle(
                 spec: spec,
                 current: c.homeLayout.value,
@@ -265,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: isPrivate ? _ProtectionBadge(spec: spec) : null,
         aboveCard: isPrivate
             ? Padding(
-                padding: EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 12),
                 child: SettingsPrivacyNotice(spec: spec),
               )
             : null,
@@ -571,7 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Sürüm 2.4.1 (Build 8904) · Lisanslı Üniversite Ağı',
             style: TextStyle(

@@ -73,13 +73,13 @@ class ProfileViewWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _AuraProfileCard(controller: controller, sz: sz),
-              SizedBox(height: 0),
+              const SizedBox(height: 0),
               _MetricsStrip(controller: controller, sz: sz, onNav: _nav),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _WeeklyPulse(sz: sz),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _ActivitySection(controller: controller, sz: sz, onNav: _nav),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -98,7 +98,7 @@ class ProfileViewWidget extends StatelessWidget {
       centerTitle: false,
       titleSpacing: 0,
       leading: Padding(
-        padding: EdgeInsets.only(left: 8),
+        padding: const EdgeInsets.only(left: 8),
         child: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -198,14 +198,14 @@ class _AuraProfileCard extends StatelessWidget {
                 children: [
                   // ── Sub-bar ──
                   Padding(
-                    padding: EdgeInsets.only(top: 4, bottom: 12),
+                    padding: const EdgeInsets.only(top: 4, bottom: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Kulüp rozeti
                         Flexible(
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 4,
                             ),
@@ -237,7 +237,7 @@ class _AuraProfileCard extends StatelessWidget {
                                       duration: 1000.ms,
                                       curve: Curves.easeInOut,
                                     ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
                                     'İTÜ Bilişim Kulübü',
@@ -263,7 +263,7 @@ class _AuraProfileCard extends StatelessWidget {
                                 tooltip: 'İstatistiklerim',
                                 onTap: () => Get.toNamed(AppRoutes.stats),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               _QuickBtn(
                                 icon: Icons.settings_outlined,
                                 tooltip: 'Ayarlar',
@@ -277,7 +277,7 @@ class _AuraProfileCard extends StatelessWidget {
 
                   // ── Profil kartı ──
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerHigh.withValues(alpha: 0.60),
                       borderRadius: BorderRadius.circular(
@@ -305,10 +305,10 @@ class _AuraProfileCard extends StatelessWidget {
                               avatarSize: sz.avatarSize,
                               controller: controller,
                             ),
-                            SizedBox(width: 14),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Padding(
-                                padding: EdgeInsets.only(top: 2),
+                                padding: const EdgeInsets.only(top: 2),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -328,7 +328,7 @@ class _AuraProfileCard extends StatelessWidget {
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Icon(
                                           Icons.verified_rounded,
                                           color: cs.primary,
@@ -336,7 +336,7 @@ class _AuraProfileCard extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     // Handle
                                     Text(
                                       '@$handle',
@@ -348,7 +348,7 @@ class _AuraProfileCard extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     // Üyelik tarihi
                                     Row(
                                       children: [
@@ -357,7 +357,7 @@ class _AuraProfileCard extends StatelessWidget {
                                           color: cs.primary,
                                           size: 13,
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
                                             since,
@@ -382,7 +382,7 @@ class _AuraProfileCard extends StatelessWidget {
 
                         // Edit / Share row (yalnızca kendi profil)
                         if (isOwn) ...[
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Row(
                             children: [
                               // Profili Düzenle (4/5 genişlik)
@@ -407,7 +407,7 @@ class _AuraProfileCard extends StatelessWidget {
                                                 color: cs.onSurface,
                                                 size: 18,
                                               ),
-                                              SizedBox(width: 6),
+                                              const SizedBox(width: 6),
                                               Text(
                                                 'Profili Düzenle',
                                                 style: TextStyle(
@@ -424,7 +424,7 @@ class _AuraProfileCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               // Paylaş (1/5 genişlik)
                               SizedBox(
                                 width: 44,
@@ -501,7 +501,7 @@ class _AvatarBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
-    final badgeOff = 6;
+    const badgeOff = 6;
 
     return GestureDetector(
       onTap: isOwn ? () => showAvatarSourceSheet(context, controller) : null,
@@ -727,7 +727,7 @@ class _MetricsStrip extends StatelessWidget {
                 label: 'İzlenen',
                 onTap: () => onNav(ProfileActivityType.viewed),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               _MetricCell(
                 icon: Icons.thumb_up_rounded,
                 iconColor: cs.secondary,
@@ -735,7 +735,7 @@ class _MetricsStrip extends StatelessWidget {
                 label: 'Beğeni',
                 onTap: () => onNav(ProfileActivityType.liked),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               _MetricCell(
                 icon: Icons.star_rounded,
                 iconColor: cs.primaryFixed,
@@ -743,7 +743,7 @@ class _MetricsStrip extends StatelessWidget {
                 label: 'Favori',
                 onTap: () => onNav(ProfileActivityType.favorites),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               _MetricCell(
                 icon: Icons.forum_rounded,
                 iconColor: cs.onSurfaceVariant,
@@ -785,12 +785,12 @@ class _MetricCell extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(icon, color: iconColor, size: 16),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -804,7 +804,7 @@ class _MetricCell extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   label,
                   maxLines: 1,
@@ -840,7 +840,7 @@ class _WeeklyPulse extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sz.paddingH),
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [cs.surfaceContainerHigh, cs.surfaceContainer],
@@ -872,7 +872,7 @@ class _WeeklyPulse extends StatelessWidget {
                 size: 22,
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             // Metin
             Expanded(
               child: Column(
@@ -893,9 +893,9 @@ class _WeeklyPulse extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 6,
                           vertical: 2,
                         ),
@@ -916,7 +916,7 @@ class _WeeklyPulse extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     'Bu hafta 6 saat 40 dk kampüs yayını izledin',
                     style: TextStyle(
@@ -929,10 +929,10 @@ class _WeeklyPulse extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             // Sparkline (HTML SVG path ile aynı)
             CustomPaint(
-              size: Size(64, 32),
+              size: const Size(64, 32),
               painter: _SparklinePainter(color: cs.primary),
             ),
           ],
@@ -975,7 +975,7 @@ class _ActivitySection extends StatelessWidget {
           children: [
             // Başlık
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1006,7 +1006,7 @@ class _ActivitySection extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // 1. Favorilerim
             _NavTile(
@@ -1018,7 +1018,7 @@ class _ActivitySection extends StatelessWidget {
               trailing: _CountBadge(text: '$favCount', textColor: cs.primary),
               onTap: () => onNav(ProfileActivityType.favorites),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
 
             // 2. Beğendiklerim
             _NavTile(
@@ -1033,7 +1033,7 @@ class _ActivitySection extends StatelessWidget {
               ),
               onTap: () => onNav(ProfileActivityType.liked),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
 
             // 3. İzleme Geçmişi
             _NavTile(
@@ -1050,7 +1050,7 @@ class _ActivitySection extends StatelessWidget {
               ),
               onTap: () => onNav(ProfileActivityType.viewed),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
 
             // 4. Yorumlarım
             _NavTile(
@@ -1065,7 +1065,7 @@ class _ActivitySection extends StatelessWidget {
               ),
               onTap: () => onNav(ProfileActivityType.commented),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
 
             // 5. Detaylı İstatistiklerim
             _NavTile(
@@ -1119,9 +1119,9 @@ class _NavTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: 64),
+          constraints: const BoxConstraints(minHeight: 64),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
                 // İkon kutu
@@ -1134,7 +1134,7 @@ class _NavTile extends StatelessWidget {
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 // Metin
                 Expanded(
                   child: Column(
@@ -1156,9 +1156,9 @@ class _NavTile extends StatelessWidget {
                             ),
                           ),
                           if (titleTag != null) ...[
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 5,
                                 vertical: 1,
                               ),
@@ -1180,7 +1180,7 @@ class _NavTile extends StatelessWidget {
                           ],
                         ],
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle,
                         style: TextStyle(
@@ -1193,13 +1193,13 @@ class _NavTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 if (trailing != null)
                   Flexible(
                     fit: FlexFit.loose,
                     child: trailing!,
                   ),
-                SizedBox(width: 2),
+                const SizedBox(width: 2),
                 Icon(
                   Icons.chevron_right_rounded,
                   color: cs.onSurfaceVariant.withValues(alpha: 0.5),
@@ -1225,7 +1225,7 @@ class _CountBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppTheme.radiusFull),

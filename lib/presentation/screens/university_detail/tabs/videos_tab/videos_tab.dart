@@ -131,20 +131,20 @@ class UniversityDetailVideosTab extends StatelessWidget {
   }) {
     if (skeleton) {
       return ListView.builder(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: 6,
         itemBuilder: (_, _) => UniversityVideoSkeletonCard(spec: spec),
       );
     }
 
     return ListView.builder(
-      padding: EdgeInsets.only(top: 8, bottom: 32),
+      padding: const EdgeInsets.only(top: 8, bottom: 32),
       itemCount: videoList.length + (hasMore ? 1 : 0),
       itemBuilder: (_, i) {
         if (i >= videoList.length) {
-          return Padding(
+          return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: const Center(
+            child: Center(
               child: SizedBox(
                 width: 22,
                 height: 22,

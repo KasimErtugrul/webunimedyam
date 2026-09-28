@@ -282,8 +282,8 @@ class _AlphabetRailState extends State<_AlphabetRail> {
     double farFont = isTablet
         ? _TabletSizes.railFarFont
         : _PhoneSizes.railFarFont;
-    final activeScale = _PhoneSizes.railActiveScale;
-    final nearScale = _PhoneSizes.railNearScale;
+    const activeScale = _PhoneSizes.railActiveScale;
+    const nearScale = _PhoneSizes.railNearScale;
 
     final bubbleSize = isTablet
         ? _TabletSizes.railBubbleSize

@@ -48,7 +48,7 @@ class SettingsRow extends StatelessWidget {
                   size: spec.rowIconSize,
                   color: scheme.onSurfaceVariant,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
               ],
               Expanded(
                 child: Column(
@@ -68,7 +68,7 @@ class SettingsRow extends StatelessWidget {
                           ),
                         ),
                         if (titleIcon != null) ...[
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           titleIcon!,
                         ],
                       ],
@@ -87,7 +87,7 @@ class SettingsRow extends StatelessWidget {
                   ],
                 ),
               ),
-              if (trailing != null) ...[SizedBox(width: 12), trailing!],
+              if (trailing != null) ...[const SizedBox(width: 12), trailing!],
             ],
           ),
         ),
@@ -194,7 +194,7 @@ class SettingsStateButton extends StatelessWidget {
                 size: spec.stateButtonIconSize,
                 color: fg,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 isPrivate ? 'Gizli' : 'Herkese Açık',
                 style: TextStyle(

@@ -284,7 +284,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 fit: BoxFit.cover,
                 placeholder: (_, _) => Container(
                   color: AppTheme.surface(context),
-                  child: Center(
+                  child: const Center(
                     child: CircularProgressIndicator(
                       color: AppTheme.primaryColor,
                       strokeWidth: _PhoneSizes.progressIndicatorStrokeWidth,
@@ -350,17 +350,17 @@ class WheelVideoCardWidget extends StatelessWidget {
                       video.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: _PhoneSizes.titleFontSize,
                         fontWeight: FontWeight.w700,
                         height: _PhoneSizes.titleLineHeight,
-                        shadows: const [
+                        shadows: [
                           Shadow(color: Colors.black45, blurRadius: 4),
                         ],
                       ),
                     ),
-                    SizedBox(height: _PhoneSizes.titleSpacing),
+                    const SizedBox(height: _PhoneSizes.titleSpacing),
                     Text(
                       timeago.format(video.publishedAt, locale: 'tr'),
                       style: TextStyle(
@@ -390,12 +390,12 @@ class WheelVideoCardWidget extends StatelessWidget {
               if (isLive) _badgePhone('CANLI', const Color(0xFFE53935)),
               if (isUpcoming) _badgePhone('YAKINDA', const Color(0xFF5C6BC0)),
               if (isLive || isUpcoming)
-                SizedBox(height: _PhoneSizes.badgeSpacingBetween),
+                const SizedBox(height: _PhoneSizes.badgeSpacingBetween),
               Row(
                 children: [
                   if (video.isHd) ...[
                     _pillLabelPhone('HD', small: true),
-                    SizedBox(width: _PhoneSizes.pillSpacing),
+                    const SizedBox(width: _PhoneSizes.pillSpacing),
                   ],
                   if (!isLive) _pillLabelPhone(video.formattedDuration),
                 ],
@@ -427,15 +427,15 @@ class WheelVideoCardWidget extends StatelessWidget {
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _PhoneSizes.uniNameFontSize,
               fontWeight: FontWeight.w700,
-              shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
+              shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
             ),
           ),
         ),
-        SizedBox(height: _PhoneSizes.uniButtonSpacing),
+        const SizedBox(height: _PhoneSizes.uniButtonSpacing),
         Obx(() {
           final uniId = uni?.id ?? video.universityId;
           final isFav = controller.favoriteUniversityIds.contains(uniId);
@@ -445,7 +445,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 : () => controller.toggleUniversityFavorite(uni),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _PhoneSizes.followButtonPaddingHorizontal,
                 vertical: _PhoneSizes.followButtonPaddingVertical,
               ),
@@ -468,10 +468,10 @@ class WheelVideoCardWidget extends StatelessWidget {
                     size: _PhoneSizes.followIconSize,
                     color: Colors.white,
                   ),
-                  SizedBox(width: _PhoneSizes.followSpacing),
+                  const SizedBox(width: _PhoneSizes.followSpacing),
                   Text(
                     isFav ? 'Takipte' : 'Takip Et',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: _PhoneSizes.followTextSize,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -488,7 +488,7 @@ class WheelVideoCardWidget extends StatelessWidget {
 
   Widget _badgePhone(String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.badgePaddingHorizontal,
         vertical: _PhoneSizes.badgePaddingVertical,
       ),
@@ -506,15 +506,15 @@ class WheelVideoCardWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.circle,
             color: Colors.white,
             size: _PhoneSizes.badgeIconSize,
           ),
-          SizedBox(width: _PhoneSizes.badgeSpacing),
+          const SizedBox(width: _PhoneSizes.badgeSpacing),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _PhoneSizes.badgeFontSize,
               fontWeight: FontWeight.w800,
@@ -563,7 +563,7 @@ class WheelVideoCardWidget extends StatelessWidget {
   // kırpılmak yerine küçültüldüğü için okunabilirlik korunur.
   Widget _buildStatsRowPhone(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _PhoneSizes.statsPaddingLeft,
         _PhoneSizes.statsPaddingTop,
         _PhoneSizes.statsPaddingRight,
@@ -629,7 +629,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                     ),
                     if (isShareLoading)
                       Padding(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: _PhoneSizes.statPaddingHorizontal,
                         ),
                         child: SizedBox(
@@ -683,7 +683,7 @@ class WheelVideoCardWidget extends StatelessWidget {
       children: [
         Icon(icon, size: _PhoneSizes.statIconSize, color: color),
         if (count > 0) ...[
-          SizedBox(width: _PhoneSizes.statSpacing),
+          const SizedBox(width: _PhoneSizes.statSpacing),
           Text(
             _formatCount(count),
             style: TextStyle(
@@ -698,7 +698,7 @@ class WheelVideoCardWidget extends StatelessWidget {
 
     if (onTap == null) {
       return Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _PhoneSizes.statPaddingHorizontal,
         ),
         child: content,
@@ -711,7 +711,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_PhoneSizes.statRadius),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: _PhoneSizes.statPaddingHorizontal,
             vertical: _PhoneSizes.statPaddingVertical,
           ),
@@ -729,7 +729,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         : 'Bu video için açıklama bulunmuyor.';
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _PhoneSizes.descPaddingLeft,
         _PhoneSizes.descPaddingTop,
         _PhoneSizes.descPaddingRight,
@@ -816,7 +816,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 fit: BoxFit.cover,
                 placeholder: (_, _) => Container(
                   color: AppTheme.surface(context),
-                  child: Center(
+                  child: const Center(
                     child: CircularProgressIndicator(
                       color: AppTheme.primaryColor,
                       strokeWidth: _TabletSizes.progressIndicatorStrokeWidth,
@@ -882,17 +882,17 @@ class WheelVideoCardWidget extends StatelessWidget {
                       video.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: _TabletSizes.titleFontSize,
                         fontWeight: FontWeight.w700,
                         height: _TabletSizes.titleLineHeight,
-                        shadows: const [
+                        shadows: [
                           Shadow(color: Colors.black45, blurRadius: 4),
                         ],
                       ),
                     ),
-                    SizedBox(height: _TabletSizes.titleSpacing),
+                    const SizedBox(height: _TabletSizes.titleSpacing),
                     Text(
                       timeago.format(video.publishedAt, locale: 'tr'),
                       style: TextStyle(
@@ -922,12 +922,12 @@ class WheelVideoCardWidget extends StatelessWidget {
               if (isLive) _badgeTablet('CANLI', const Color(0xFFE53935)),
               if (isUpcoming) _badgeTablet('YAKINDA', const Color(0xFF5C6BC0)),
               if (isLive || isUpcoming)
-                SizedBox(height: _TabletSizes.badgeSpacingBetween),
+                const SizedBox(height: _TabletSizes.badgeSpacingBetween),
               Row(
                 children: [
                   if (video.isHd) ...[
                     _pillLabelTablet('HD', small: true),
-                    SizedBox(width: _TabletSizes.pillSpacing),
+                    const SizedBox(width: _TabletSizes.pillSpacing),
                   ],
                   if (!isLive) _pillLabelTablet(video.formattedDuration),
                 ],
@@ -959,15 +959,15 @@ class WheelVideoCardWidget extends StatelessWidget {
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _TabletSizes.uniNameFontSize,
               fontWeight: FontWeight.w700,
-              shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
+              shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
             ),
           ),
         ),
-        SizedBox(height: _TabletSizes.uniButtonSpacing),
+        const SizedBox(height: _TabletSizes.uniButtonSpacing),
         Obx(() {
           final uniId = uni?.id ?? video.universityId;
           final isFav = controller.favoriteUniversityIds.contains(uniId);
@@ -977,7 +977,7 @@ class WheelVideoCardWidget extends StatelessWidget {
                 : () => controller.toggleUniversityFavorite(uni),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _TabletSizes.followButtonPaddingHorizontal,
                 vertical: _TabletSizes.followButtonPaddingVertical,
               ),
@@ -1000,10 +1000,10 @@ class WheelVideoCardWidget extends StatelessWidget {
                     size: _TabletSizes.followIconSize,
                     color: Colors.white,
                   ),
-                  SizedBox(width: _TabletSizes.followSpacing),
+                  const SizedBox(width: _TabletSizes.followSpacing),
                   Text(
                     isFav ? 'Takipte' : 'Takip Et',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: _TabletSizes.followTextSize,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -1020,7 +1020,7 @@ class WheelVideoCardWidget extends StatelessWidget {
 
   Widget _badgeTablet(String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.badgePaddingHorizontal,
         vertical: _TabletSizes.badgePaddingVertical,
       ),
@@ -1038,15 +1038,15 @@ class WheelVideoCardWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.circle,
             color: Colors.white,
             size: _TabletSizes.badgeIconSize,
           ),
-          SizedBox(width: _TabletSizes.badgeSpacing),
+          const SizedBox(width: _TabletSizes.badgeSpacing),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _TabletSizes.badgeFontSize,
               fontWeight: FontWeight.w800,
@@ -1088,7 +1088,7 @@ class WheelVideoCardWidget extends StatelessWidget {
   // ── Tablet Stats Row ──
   Widget _buildStatsRowTablet(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _TabletSizes.statsPaddingLeft,
         _TabletSizes.statsPaddingTop,
         _TabletSizes.statsPaddingRight,
@@ -1145,7 +1145,7 @@ class WheelVideoCardWidget extends StatelessWidget {
             ),
             if (isShareLoading)
               Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: _TabletSizes.statPaddingHorizontal,
                 ),
                 child: SizedBox(
@@ -1194,7 +1194,7 @@ class WheelVideoCardWidget extends StatelessWidget {
       children: [
         Icon(icon, size: _TabletSizes.statIconSize, color: color),
         if (count > 0) ...[
-          SizedBox(width: _TabletSizes.statSpacing),
+          const SizedBox(width: _TabletSizes.statSpacing),
           Text(
             _formatCount(count),
             style: TextStyle(
@@ -1209,7 +1209,7 @@ class WheelVideoCardWidget extends StatelessWidget {
 
     if (onTap == null) {
       return Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _TabletSizes.statPaddingHorizontal,
         ),
         child: content,
@@ -1222,7 +1222,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(_TabletSizes.statRadius),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: _TabletSizes.statPaddingHorizontal,
             vertical: _TabletSizes.statPaddingVertical,
           ),
@@ -1240,7 +1240,7 @@ class WheelVideoCardWidget extends StatelessWidget {
         : 'Bu video için açıklama bulunmuyor.';
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _TabletSizes.descPaddingLeft,
         _TabletSizes.descPaddingTop,
         _TabletSizes.descPaddingRight,

@@ -187,7 +187,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   // Tasarım: sol → ⚡ ikon + "Üniversite Shorts" başlığı; sağ → "Tümü >" linki
   Widget _buildSectionTitlePhone(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _PhoneSizes.sectionPadLeft,
         _PhoneSizes.sectionPadTop,
         _PhoneSizes.sectionPadRight,
@@ -199,12 +199,12 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
           Expanded(
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.bolt_rounded,
                   size: _PhoneSizes.sectionIconSize,
                   color: AppTheme.primaryColor,
                 ),
-                SizedBox(width: _PhoneSizes.sectionIconSpacing),
+                const SizedBox(width: _PhoneSizes.sectionIconSpacing),
                 Flexible(
                   child: Text(
                     'Üniversite Shorts',
@@ -225,7 +225,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
           InkWell(
             borderRadius: BorderRadius.circular(6),
             onTap: () {},
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -255,7 +255,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   // ── "Üniversite Shorts" Bölüm Başlığı — Tablet ─────────────────────────
   Widget _buildSectionTitleTablet(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _TabletSizes.sectionPadLeft,
         _TabletSizes.sectionPadTop,
         _TabletSizes.sectionPadRight,
@@ -267,12 +267,12 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
           Expanded(
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.bolt_rounded,
                   size: _TabletSizes.sectionIconSize,
                   color: AppTheme.primaryColor,
                 ),
-                SizedBox(width: _TabletSizes.sectionIconSpacing),
+                const SizedBox(width: _TabletSizes.sectionIconSpacing),
                 Flexible(
                   child: Text(
                     'Üniversite Shorts',
@@ -329,7 +329,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _PhoneSizes.listPaddingHorizontal,
         ),
         itemCount:
@@ -358,14 +358,14 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         height: _PhoneSizes.rowHeight,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: _PhoneSizes.listPaddingHorizontal,
           ),
           itemCount: 6,
           itemBuilder: (_, _) => Container(
             width: _PhoneSizes.cardWidth,
             height: _PhoneSizes.cardHeight,
-            margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
+            margin: const EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
             decoration: BoxDecoration(
               color: AppTheme.surface(context),
               borderRadius: BorderRadius.circular(
@@ -452,7 +452,7 @@ class _PhoneLoadMoreIndicator extends StatelessWidget {
       width: 56,
       child: Center(
         child: isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
@@ -518,7 +518,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
       child: Container(
         width: _PhoneSizes.cardWidth,
         height: _PhoneSizes.cardHeight,
-        margin: EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
+        margin: const EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
           borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
@@ -560,7 +560,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                 top: _PhoneSizes.durationTop,
                 right: _PhoneSizes.durationRight,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: _PhoneSizes.durationPaddingHorizontal,
                     vertical: _PhoneSizes.durationPaddingVertical,
                   ),
@@ -572,7 +572,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                   ),
                   child: Text(
                     _formatDuration(shorts.duration),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: _PhoneSizes.durationFontSize,
                       fontWeight: FontWeight.w600,
@@ -616,7 +616,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                               : const Icon(Icons.school, size: 10),
                         ),
                       ),
-                      SizedBox(width: _PhoneSizes.logoTitleSpacing),
+                      const SizedBox(width: _PhoneSizes.logoTitleSpacing),
                       Expanded(
                         child: Text(
                           shorts.universityName,
@@ -631,19 +631,19 @@ class _ShortsThumbItemPhone extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.rowToTitleSpacing),
+                  const SizedBox(height: _PhoneSizes.rowToTitleSpacing),
                   Text(
                     shorts.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: _PhoneSizes.titleFontSize,
                       fontWeight: FontWeight.w700,
                       height: _PhoneSizes.titleLineHeight,
                     ),
                   ),
-                  SizedBox(height: _PhoneSizes.titleToTimeSpacing),
+                  const SizedBox(height: _PhoneSizes.titleToTimeSpacing),
                   Text(
                     timeAgo,
                     maxLines: 1,
@@ -795,7 +795,7 @@ class _ShortsThumbItemTablet extends StatelessWidget {
                               : const Icon(Icons.school, size: 12),
                         ),
                       ),
-                      SizedBox(width: _TabletSizes.logoTitleSpacing),
+                      const SizedBox(width: _TabletSizes.logoTitleSpacing),
                       Expanded(
                         child: Text(
                           shorts.universityName,
@@ -810,19 +810,19 @@ class _ShortsThumbItemTablet extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: _TabletSizes.rowToTitleSpacing),
+                  const SizedBox(height: _TabletSizes.rowToTitleSpacing),
                   Text(
                     shorts.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: _TabletSizes.titleFontSize,
                       fontWeight: FontWeight.w700,
                       height: _TabletSizes.titleLineHeight,
                     ),
                   ),
-                  SizedBox(height: _TabletSizes.titleToTimeSpacing),
+                  const SizedBox(height: _TabletSizes.titleToTimeSpacing),
                   Text(
                     timeAgo,
                     maxLines: 1,

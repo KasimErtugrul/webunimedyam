@@ -23,7 +23,7 @@ class UniversityDetailAboutTabFavoriteButton extends StatelessWidget {
               ? SizedBox(
                   width: sizes.favButtonLoadingSize,
                   height: sizes.favButtonLoadingSize,
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     strokeWidth: 2.5,
                     color: Colors.white,
                   ),

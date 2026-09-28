@@ -113,7 +113,7 @@ class RadioCardWidget extends StatelessWidget {
 
   Widget _buildPhone(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.cardPaddingHorizontal,
         vertical: _PhoneSizes.cardPaddingVertical,
       ),
@@ -122,19 +122,19 @@ class RadioCardWidget extends StatelessWidget {
         children: [
           // ✨ Logo + Görselleştirici
           _buildLogoSectionPhone(context),
-          SizedBox(height: _PhoneSizes.logoTextSpacing),
+          const SizedBox(height: _PhoneSizes.logoTextSpacing),
 
           // ✨ İsim
           _buildNameSectionPhone(context),
-          SizedBox(height: _PhoneSizes.textMetaSpacing),
+          const SizedBox(height: _PhoneSizes.textMetaSpacing),
 
           // ✨ Metadata
           _buildMetaSectionPhone(context),
-          SizedBox(height: _PhoneSizes.metaControlsSpacing),
+          const SizedBox(height: _PhoneSizes.metaControlsSpacing),
 
           // ✨ Kontroller
           _buildControlsSectionPhone(context),
-          SizedBox(height: _PhoneSizes.waveSpacing),
+          const SizedBox(height: _PhoneSizes.waveSpacing),
 
           // ✨ Dalga
           _buildWaveSectionPhone(context),
@@ -252,12 +252,12 @@ class RadioCardWidget extends StatelessWidget {
 
   Widget _buildNameSectionPhone(BuildContext context) {
     return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
+      shaderCallback: (bounds) => const LinearGradient(
         colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
       ).createShader(bounds),
       child: Text(
         uni.name!,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: _PhoneSizes.uniNameFontSize,
           fontWeight: FontWeight.w700,
@@ -292,7 +292,7 @@ class RadioCardWidget extends StatelessWidget {
         duration: _PhoneSizes.animDurationShort,
         child: Container(
           key: ValueKey(text),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
@@ -316,7 +316,7 @@ class RadioCardWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (state == PlaybackState.playing) SizedBox(width: 8),
+              if (state == PlaybackState.playing) const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   text,
@@ -349,7 +349,7 @@ class RadioCardWidget extends StatelessWidget {
           },
           enabled: isActive,
         ),
-        SizedBox(width: _PhoneSizes.controlSpacing),
+        const SizedBox(width: _PhoneSizes.controlSpacing),
         Obx(() {
           final state = ctrl.playbackState.value;
           final buffering = state == PlaybackState.buffering;
@@ -363,7 +363,7 @@ class RadioCardWidget extends StatelessWidget {
             );
           }
           if (buffering) {
-            return SizedBox(
+            return const SizedBox(
               width: _PhoneSizes.playButtonSize,
               height: _PhoneSizes.playButtonSize,
               child: CircularProgressIndicator(
@@ -384,7 +384,7 @@ class RadioCardWidget extends StatelessWidget {
             active: true,
           );
         }),
-        SizedBox(width: _PhoneSizes.controlSpacing),
+        const SizedBox(width: _PhoneSizes.controlSpacing),
         RadioControlButtonWidget(
           icon: Icons.skip_next_rounded,
           onTap: () {
@@ -409,7 +409,7 @@ class RadioCardWidget extends StatelessWidget {
 
   Widget _buildTablet(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.cardPaddingHorizontal,
         vertical: _TabletSizes.cardPaddingVertical,
       ),
@@ -417,13 +417,13 @@ class RadioCardWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildLogoSectionTablet(context),
-          SizedBox(height: _TabletSizes.logoTextSpacing),
+          const SizedBox(height: _TabletSizes.logoTextSpacing),
           _buildNameSectionTablet(context),
-          SizedBox(height: _TabletSizes.textMetaSpacing),
+          const SizedBox(height: _TabletSizes.textMetaSpacing),
           _buildMetaSectionTablet(context),
-          SizedBox(height: _TabletSizes.metaControlsSpacing),
+          const SizedBox(height: _TabletSizes.metaControlsSpacing),
           _buildControlsSectionTablet(context),
-          SizedBox(height: _TabletSizes.waveSpacing),
+          const SizedBox(height: _TabletSizes.waveSpacing),
           _buildWaveSectionTablet(context),
         ],
       ),
@@ -516,12 +516,12 @@ class RadioCardWidget extends StatelessWidget {
 
   Widget _buildNameSectionTablet(BuildContext context) {
     return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
+      shaderCallback: (bounds) => const LinearGradient(
         colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
       ).createShader(bounds),
       child: Text(
         uni.name!,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: _TabletSizes.uniNameFontSize,
           fontWeight: FontWeight.w700,
@@ -556,7 +556,7 @@ class RadioCardWidget extends StatelessWidget {
         duration: _TabletSizes.animDurationShort,
         child: Container(
           key: ValueKey(text),
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(24),
@@ -580,7 +580,7 @@ class RadioCardWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (state == PlaybackState.playing) SizedBox(width: 10),
+              if (state == PlaybackState.playing) const SizedBox(width: 10),
               Flexible(
                 child: Text(
                   text,
@@ -613,7 +613,7 @@ class RadioCardWidget extends StatelessWidget {
           },
           enabled: isActive,
         ),
-        SizedBox(width: _TabletSizes.controlSpacing),
+        const SizedBox(width: _TabletSizes.controlSpacing),
         Obx(() {
           final state = ctrl.playbackState.value;
           final buffering = state == PlaybackState.buffering;
@@ -627,7 +627,7 @@ class RadioCardWidget extends StatelessWidget {
             );
           }
           if (buffering) {
-            return SizedBox(
+            return const SizedBox(
               width: _TabletSizes.playButtonSize,
               height: _TabletSizes.playButtonSize,
               child: CircularProgressIndicator(
@@ -648,7 +648,7 @@ class RadioCardWidget extends StatelessWidget {
             active: true,
           );
         }),
-        SizedBox(width: _TabletSizes.controlSpacing),
+        const SizedBox(width: _TabletSizes.controlSpacing),
         RadioControlButtonWidget(
           icon: Icons.skip_next_rounded,
           onTap: () {

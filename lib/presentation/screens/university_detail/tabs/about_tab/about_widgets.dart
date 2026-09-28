@@ -35,7 +35,7 @@ class UniversityAboutSectionTitle extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Flexible(
           child: Text(
             title,
@@ -76,10 +76,10 @@ class UniversityAboutFavoriteButton extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: isLoading ? null : controller.toggleFavorite,
           icon: isLoading
-              ? SizedBox(
+              ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2.4,
                     color: Colors.white,
                   ),
@@ -468,7 +468,7 @@ class UniversityAboutRadioCard extends StatelessWidget {
                       color: AppTheme.textPri(context),
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     isThisPlaying
                         ? (playing
@@ -560,7 +560,7 @@ class _RadioWave extends StatelessWidget {
             duration: Duration(milliseconds: 400 + i * 120),
             width: 3,
             height: h,
-            margin: EdgeInsets.symmetric(horizontal: 1.5),
+            margin: const EdgeInsets.symmetric(horizontal: 1.5),
             decoration: BoxDecoration(
               color: _kRadioColor.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),

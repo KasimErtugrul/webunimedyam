@@ -204,7 +204,7 @@ class _SourceOption extends StatelessWidget {
     double h(double v) => spec.isTablet ? v : v;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Material(
         color: AppTheme.surface(context),
         borderRadius: BorderRadius.circular(w(spec.optionRadius)),

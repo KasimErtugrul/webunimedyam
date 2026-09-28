@@ -174,7 +174,7 @@ class _SearchScreenState extends State<SearchScreen> {
   /// Sticky Search Input Bar
   Widget _buildSearchInputBar(BuildContext context, ColorScheme scheme) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Container(
         height: 48,
         decoration: BoxDecoration(
@@ -188,7 +188,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ],
         ),
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           children: [
             IconButton(
@@ -197,15 +197,15 @@ class _SearchScreenState extends State<SearchScreen> {
                   _onSubmit(_textController.text.trim());
                 }
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.search_rounded,
-                color: const Color(0xFF86948A),
+                color: Color(0xFF86948A),
                 size: 22,
               ),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Expanded(
               child: TextField(
                 controller: _textController,
@@ -213,17 +213,17 @@ class _SearchScreenState extends State<SearchScreen> {
                 onChanged: _onChanged,
                 onSubmitted: _onSubmit,
                 textInputAction: TextInputAction.search,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 14,
-                  color: const Color(0xFFDBE2F7),
+                  color: Color(0xFFDBE2F7),
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Video, üniversite veya kanal ara...',
                   hintStyle: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 13.5,
-                    color: const Color(0xFF86948A),
+                    color: Color(0xFF86948A),
                   ),
                   isDense: true,
                   border: InputBorder.none,
@@ -235,9 +235,9 @@ class _SearchScreenState extends State<SearchScreen> {
               if (controller.query.value.isNotEmpty ||
                   _textController.text.isNotEmpty) {
                 return IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.close_rounded,
-                    color: const Color(0xFF86948A),
+                    color: Color(0xFF86948A),
                     size: 18,
                   ),
                   onPressed: _clearQuery,
@@ -261,9 +261,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 onPressed: () {
                   _showFilterBottomSheet(context);
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.tune_rounded,
-                  color: const Color(0xFF86948A),
+                  color: Color(0xFF86948A),
                   size: 18,
                 ),
                 padding: EdgeInsets.zero,
@@ -283,19 +283,19 @@ class _SearchScreenState extends State<SearchScreen> {
     SearchLayoutSpec spec,
   ) {
     return ListView(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
         // 1. Live Pulse Search Ticker / Mini Banner
         _buildLivePulseTicker(context),
-        SizedBox(height: 18),
+        const SizedBox(height: 18),
 
         // 2. Section 1: Son Aramalar (Recent Searches)
         _buildRecentSearchesSection(context),
-        SizedBox(height: 22),
+        const SizedBox(height: 22),
 
         // 3. Section 2: Trend Başlıklar (gerçek arama verisinden — bkz. VideoSearchController.trendingSearches)
         _buildTrendingSection(context),
-        SizedBox(height: 22),
+        const SizedBox(height: 22),
 
         // 4. Section 3: Popüler Üniversiteler (gerçek favori/izlenme verisinden)
         // NOT: Eskiden burada içerik kategorisi (Mühendislik, Tıp, Sanat...)
@@ -305,7 +305,7 @@ class _SearchScreenState extends State<SearchScreen> {
         // koyduk ve eski sabit "Öne Çıkan Üniversiteler" chip'leriyle
         // birleştirdik.
         _buildPopularUniversitiesSection(context),
-        SizedBox(height: 32),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -313,7 +313,7 @@ class _SearchScreenState extends State<SearchScreen> {
   /// Live Pulse Search Ticker / Mini Banner
   Widget _buildLivePulseTicker(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFF141C2B),
         borderRadius: BorderRadius.circular(10),
@@ -327,7 +327,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Container(
             width: 9,
             height: 9,
-            margin: EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 8),
             decoration: const BoxDecoration(
               color: Color(0xFF4EDEA3),
               shape: BoxShape.circle,
@@ -343,13 +343,13 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: RichText(
               overflow: TextOverflow.ellipsis,
-              text: TextSpan(
+              text: const TextSpan(
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 12,
-                  color: const Color(0xFF86948A),
+                  color: Color(0xFF86948A),
                 ),
-                children: const [
+                children: [
                   TextSpan(text: 'Şu an canlı: '),
                   TextSpan(
                     text: '14 Üniversiteden 32 Canlı Yayın',
@@ -388,7 +388,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: Color(0xFF4EDEA3),
                       size: 20,
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Flexible(
                       child: Text(
                         'Son Aramalar',
@@ -409,37 +409,37 @@ class _SearchScreenState extends State<SearchScreen> {
                 TextButton(
                   onPressed: controller.clearHistory,
                   style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 4,
                     ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: Text(
+                  child: const Text(
                     'Tümünü Temizle',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFF7A73),
+                      color: Color(0xFFFF7A73),
                     ),
                   ),
                 ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           if (history.isEmpty)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: const Color(0xFF141C2B),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
+              child: const Column(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.manage_search_rounded,
                     color: Color(0xFF86948A),
                     size: 32,
@@ -450,7 +450,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 12,
-                      color: const Color(0xFF86948A),
+                      color: Color(0xFF86948A),
                     ),
                   ),
                 ],
@@ -461,7 +461,7 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 for (final item in history.take(6))
                   Container(
-                    margin: EdgeInsets.only(bottom: 4),
+                    margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -471,7 +471,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         onTap: () => _onSelectQuery(item),
                         borderRadius: BorderRadius.circular(8),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 6,
                             vertical: 8,
                           ),
@@ -482,14 +482,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                 color: Color(0xFF86948A),
                                 size: 18,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   item,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: 'Plus Jakarta Sans',
                                     fontSize: 14,
-                                    color: const Color(0xFFDBE2F7),
+                                    color: Color(0xFFDBE2F7),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -543,7 +543,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: Color(0xFF45DFA4),
                 size: 20,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 'Trend Başlıklar',
                 style: TextStyle(
@@ -555,7 +555,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           if (loading)
             SizedBox(
               height: 32,
@@ -564,7 +564,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   3,
                   (i) => Flexible(
                     child: Container(
-                      margin: EdgeInsets.only(right: 8),
+                      margin: const EdgeInsets.only(right: 8),
                       width: 90,
                       decoration: BoxDecoration(
                         color: const Color(0xFF18202F),
@@ -577,17 +577,17 @@ class _SearchScreenState extends State<SearchScreen> {
             )
           else if (trends.isEmpty)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFF141C2B),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
+              child: const Text(
                 'Henüz yeterli arama verisi yok. Aramalar arttıkça burada gerçek trendler görünecek.',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 12.5,
-                  color: const Color(0xFF86948A),
+                  color: Color(0xFF86948A),
                 ),
               ),
             )
@@ -606,7 +606,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onTap: () => _onSelectQuery(term),
                     borderRadius: BorderRadius.circular(9999),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
@@ -618,23 +618,23 @@ class _SearchScreenState extends State<SearchScreen> {
                             color: Color(0xFF45DFA4),
                             size: 14,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             term,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFFDBE2F7),
+                              color: Color(0xFFDBE2F7),
                             ),
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             '$count',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 11,
-                              color: const Color(0xFF86948A),
+                              color: Color(0xFF86948A),
                             ),
                           ),
                         ],
@@ -675,7 +675,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: Color(0xFF4EDEA3),
                 size: 20,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 'Popüler Üniversiteler',
                 style: TextStyle(
@@ -687,31 +687,31 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           if (loading)
-            SizedBox(
+            const SizedBox(
               height: 48,
               child: Center(
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: const CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
             )
           else if (universities.isEmpty)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFF141C2B),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
+              child: const Text(
                 'Üniversiteler yüklenemedi.',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 12.5,
-                  color: const Color(0xFF86948A),
+                  color: Color(0xFF86948A),
                 ),
               ),
             )
@@ -729,7 +729,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       .map((w) => w[0].toUpperCase())
                       .join();
                   return Padding(
-                    padding: EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.only(right: 10),
                     child: Material(
                       color: const Color(0xFF222A3A),
                       borderRadius: BorderRadius.circular(9999),
@@ -740,7 +740,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         borderRadius: BorderRadius.circular(9999),
                         child: Container(
-                          padding: EdgeInsets.fromLTRB(6, 4, 12, 4),
+                          padding: const EdgeInsets.fromLTRB(6, 4, 12, 4),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -762,38 +762,38 @@ class _SearchScreenState extends State<SearchScreen> {
                                           width: 28,
                                           height: 28,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => Text(
+                                          errorBuilder: (_, _, _) => Text(
                                             initials,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontFamily: 'Plus Jakarta Sans',
                                               fontSize: 9,
                                               fontWeight: FontWeight.w800,
-                                              color: const Color(0xFF4EDEA3),
+                                              color: Color(0xFF4EDEA3),
                                             ),
                                           ),
                                         ),
                                       )
                                     : Text(
                                         initials,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontFamily: 'Plus Jakarta Sans',
                                           fontSize: 9,
                                           fontWeight: FontWeight.w800,
-                                          color: const Color(0xFF4EDEA3),
+                                          color: Color(0xFF4EDEA3),
                                         ),
                                       ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 uni.name ?? 'Üniversite',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: 'Plus Jakarta Sans',
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFDBE2F7),
+                                  color: Color(0xFFDBE2F7),
                                 ),
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               const Icon(
                                 Icons.verified_rounded,
                                 color: Color(0xFF4EDEA3),
@@ -823,12 +823,12 @@ class _SearchScreenState extends State<SearchScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF141C2B),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
         return Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -836,13 +836,13 @@ class _SearchScreenState extends State<SearchScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Arama Filtreleri',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFFDBE2F7),
+                      color: Color(0xFFDBE2F7),
                     ),
                   ),
                   IconButton(
@@ -854,17 +854,17 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
-              Text(
+              const SizedBox(height: 12),
+              const Text(
                 'Sıralama',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF86948A),
+                  color: Color(0xFF86948A),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Obx(
                 () => Wrap(
                   spacing: 8,
@@ -912,7 +912,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         );

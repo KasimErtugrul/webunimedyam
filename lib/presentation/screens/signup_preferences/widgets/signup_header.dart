@@ -68,7 +68,7 @@ class SignupHeader extends StatelessWidget {
                 'assets/images/unitv_logo.png', // TODO: kendi asset'iniz
                 height: s.logoHeight,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Icon(
+                errorBuilder: (_, _, _) => Icon(
                   Icons.play_arrow_rounded,
                   size: s.logoHeight,
                   color: scheme.primary,

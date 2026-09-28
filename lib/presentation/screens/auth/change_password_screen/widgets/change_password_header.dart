@@ -34,20 +34,20 @@ class ChangePasswordHeader extends StatelessWidget {
             children: [
               Icon(Icons.shield_outlined, size: 46, color: scheme.primary),
               Padding(
-                padding: EdgeInsets.only(top: 3),
+                padding: const EdgeInsets.only(top: 3),
                 child:
                     Icon(Icons.lock_rounded, size: 15, color: scheme.primary),
               ),
             ],
           ),
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         Text(
           'Hesap Güvenliği',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineLarge,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Şifreniz en az 8 karakterden oluşmalı, harf ve rakam içermelidir.',
           textAlign: TextAlign.center,

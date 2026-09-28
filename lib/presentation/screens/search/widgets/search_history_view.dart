@@ -117,7 +117,7 @@ class _HistoryChip extends StatelessWidget {
                 size: (spec.chipFontSize + 1),
                 color: AppTheme.textSec(context),
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   text,
@@ -130,7 +130,7 @@ class _HistoryChip extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               GestureDetector(
                 onTap: onRemove,
                 behavior: HitTestBehavior.opaque,

@@ -178,7 +178,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 _PhoneSizes.sectionPadLeft,
                 _PhoneSizes.sectionPadTop,
                 _PhoneSizes.sectionPadRight,
@@ -193,7 +193,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                     color: scheme.primary,
                   ), */
                   Container(
-                    padding: EdgeInsets.only(right: 10, left: 5),
+                    padding: const EdgeInsets.only(right: 10, left: 5),
                     color: Colors.yellow.withValues(
                       alpha: 0.7,
                     ), // Expanded child için boş Container
@@ -219,7 +219,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _PhoneSizes.listPadHorizontal,
               ),
               child: Row(
@@ -228,7 +228,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                   // Kartlar 2'li gruplara ayrılır: her yatay adım bir sütun,
                   // sütunun içinde 2 kart üst üste durur.
                   for (int i = 0; i < items.length; i += 2) ...[
-                    if (i > 0) SizedBox(width: _PhoneSizes.columnGap),
+                    if (i > 0) const SizedBox(width: _PhoneSizes.columnGap),
                     SizedBox(
                       width: columnWidth,
                       child: Column(
@@ -239,7 +239,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                             onRemove: () => onRemove(items[i].video.videoId),
                           ),
                           if (i + 1 < items.length) ...[
-                            SizedBox(height: _PhoneSizes.listGap),
+                            const SizedBox(height: _PhoneSizes.listGap),
                             _CardPhone(
                               key: ValueKey(items[i + 1].video.videoId),
                               item: items[i + 1],
@@ -254,7 +254,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: _PhoneSizes.listBottomSpacing),
+            const SizedBox(height: _PhoneSizes.listBottomSpacing),
           ],
         );
       },
@@ -281,7 +281,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 _TabletSizes.sectionPadLeft,
                 _TabletSizes.sectionPadTop,
                 _TabletSizes.sectionPadRight,
@@ -294,7 +294,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                     size: _TabletSizes.sectionIconSize,
                     color: scheme.primary,
                   ),
-                  SizedBox(width: _TabletSizes.sectionIconSpacing),
+                  const SizedBox(width: _TabletSizes.sectionIconSpacing),
                   Expanded(
                     child: Text(
                       'İzlemeye Devam Et',
@@ -318,14 +318,14 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
             // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _TabletSizes.listPadHorizontal,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (int i = 0; i < items.length; i += 2) ...[
-                    if (i > 0) SizedBox(width: _TabletSizes.columnGap),
+                    if (i > 0) const SizedBox(width: _TabletSizes.columnGap),
                     SizedBox(
                       width: columnWidth,
                       child: Column(
@@ -336,7 +336,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                             onRemove: () => onRemove(items[i].video.videoId),
                           ),
                           if (i + 1 < items.length) ...[
-                            SizedBox(height: _TabletSizes.listGap),
+                            const SizedBox(height: _TabletSizes.listGap),
                             _CardTablet(
                               key: ValueKey(items[i + 1].video.videoId),
                               item: items[i + 1],
@@ -351,7 +351,7 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: _TabletSizes.listBottomSpacing),
+            const SizedBox(height: _TabletSizes.listBottomSpacing),
           ],
         );
       },
@@ -392,7 +392,7 @@ class _CardPhone extends StatelessWidget {
             Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(_PhoneSizes.cardInnerPadding),
+                  padding: const EdgeInsets.all(_PhoneSizes.cardInnerPadding),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -446,11 +446,11 @@ class _CardPhone extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: _PhoneSizes.cardGap),
+                      const SizedBox(width: _PhoneSizes.cardGap),
                       // ── İçerik: kanal + başlık + süre ─────────────────
                       Expanded(
                         child: Padding(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             right: _PhoneSizes.contentPaddingRight,
                           ),
                           child: Column(
@@ -476,7 +476,7 @@ class _CardPhone extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: _PhoneSizes.channelIconSpacing,
                                       ),
                                       Icon(
@@ -486,7 +486,7 @@ class _CardPhone extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: _PhoneSizes.titleTopSpacing,
                                   ),
                                   Text(
@@ -503,7 +503,7 @@ class _CardPhone extends StatelessWidget {
                                 ],
                               ),
                               Padding(
-                                padding: EdgeInsets.only(
+                                padding: const EdgeInsets.only(
                                   top: _PhoneSizes.metaTopSpacing,
                                 ),
                                 child: Row(
@@ -613,7 +613,7 @@ class _CardTablet extends StatelessWidget {
             Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(_TabletSizes.cardInnerPadding),
+                  padding: const EdgeInsets.all(_TabletSizes.cardInnerPadding),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -666,10 +666,10 @@ class _CardTablet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: _TabletSizes.cardGap),
+                      const SizedBox(width: _TabletSizes.cardGap),
                       Expanded(
                         child: Padding(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             right: _TabletSizes.contentPaddingRight,
                           ),
                           child: Column(
@@ -695,7 +695,7 @@ class _CardTablet extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: _TabletSizes.channelIconSpacing,
                                       ),
                                       Icon(
@@ -705,7 +705,7 @@ class _CardTablet extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: _TabletSizes.titleTopSpacing,
                                   ),
                                   Text(
@@ -722,7 +722,7 @@ class _CardTablet extends StatelessWidget {
                                 ],
                               ),
                               Padding(
-                                padding: EdgeInsets.only(
+                                padding: const EdgeInsets.only(
                                   top: _TabletSizes.metaTopSpacing,
                                 ),
                                 child: Row(

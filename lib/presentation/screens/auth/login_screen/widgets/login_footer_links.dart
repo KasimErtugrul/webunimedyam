@@ -34,7 +34,7 @@ class LoginFooterLinks extends StatelessWidget {
           onTap: () => Get.toNamed(AppRoutes.register),
           behavior: HitTestBehavior.opaque,
           child: Padding(
-            padding: EdgeInsets.only(left: 4),
+            padding: const EdgeInsets.only(left: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

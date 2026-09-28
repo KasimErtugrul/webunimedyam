@@ -335,7 +335,7 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.white12,
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
               minHeight: sizes.progressBarHeight,
             ),
           ),

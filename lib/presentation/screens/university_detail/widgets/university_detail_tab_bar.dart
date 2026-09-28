@@ -12,7 +12,7 @@ class UniversityDetailTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = AppTheme.primaryColor;
+    const primary = AppTheme.primaryColor;
 
     return SizedBox.expand(
       child: Padding(
@@ -35,7 +35,7 @@ class UniversityDetailTabBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(spec.tabBarRadius - 4),
             ),
             indicatorSize: TabBarIndicatorSize.tab,
-            indicatorPadding: EdgeInsets.all(4),
+            indicatorPadding: const EdgeInsets.all(4),
             labelColor: primary,
             unselectedLabelColor: AppTheme.textSec(context),
             labelStyle: TextStyle(

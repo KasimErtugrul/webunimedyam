@@ -123,7 +123,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: 6,
         itemBuilder: (_, _) => _buildCardShimmer(context, scheme),
       );
@@ -135,9 +135,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
-          SizedBox(height: 60),
+          const SizedBox(height: 60),
           _buildEmptyState(context, scheme, isTablet: isTablet),
         ],
       );
@@ -148,7 +148,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     // aktif harf güncellenir, şeride dokununca/sürükleyince liste kayar.
     if (_currentSort == 'alpha') {
       return Padding(
-        padding: EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 24),
         child: UniversitiesAlphabetList(
           //spec: _buildAlphabetSpec(isTablet),
           universities: filtered,
@@ -168,7 +168,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       itemCount: filtered.length,
       itemBuilder: (_, i) => Padding(
         padding: EdgeInsets.only(
@@ -193,7 +193,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     required bool isTablet,
   }) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -261,7 +261,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
           SizedBox(height: 12), */
           Container(
             height: isTablet ? 46 : 42,
-            padding: EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
@@ -269,7 +269,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
             child: Row(
               children: [
                 Icon(Icons.search_rounded, color: scheme.outline, size: 20),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _searchController,
@@ -351,9 +351,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: pills.length,
-          separatorBuilder: (_, _) => SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final p = pills[index];
             final isSelected = _selectedTypeFilter == p['key'];
@@ -396,7 +396,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                       ),
                     ),
                     if (count > 0 && p['key'] != 'all') ...[
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Text(
                         '($count)',
                         style: TextStyle(
@@ -430,7 +430,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     return Obx(() {
       final filtered = _getFilteredUniversities();
       return Padding(
-        padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -440,7 +440,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               child: Row(
                 children: [
                   Icon(Icons.school_rounded, color: scheme.primary, size: 16),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   Flexible(
                     child: Text(
                       '${filtered.length} Üniversite',
@@ -542,7 +542,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
         ),
       ],
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(8),
@@ -565,7 +565,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 2),
+            const SizedBox(width: 2),
             Icon(
               Icons.expand_more_rounded,
               color: scheme.onSurfaceVariant,
@@ -607,10 +607,10 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 top: 0,
                 right: 0,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(14),
                       bottomLeft: Radius.circular(8),
                     ),
@@ -627,7 +627,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 ),
               ),
             Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 children: [
                   Row(
@@ -682,7 +682,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           ),
                         ],
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -702,7 +702,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                   ),
                                 ),
                                 if ((uni.subscriberCount ?? 0) > 30000) ...[
-                                  SizedBox(width: 3),
+                                  const SizedBox(width: 3),
                                   Icon(
                                     Icons.verified_rounded,
                                     color: scheme.primary,
@@ -711,7 +711,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                 ],
                               ],
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               _buildMetaText(uni),
                               maxLines: 1,
@@ -724,7 +724,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Obx(() {
                         final isFav = controller.favoriteUniversityIds.contains(
                           uni.id,
@@ -733,7 +733,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                         return GestureDetector(
                           onTap: () => controller.toggleUniversityFavorite(uni),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 9,
                               vertical: 5.5,
                             ),
@@ -753,7 +753,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                                       ? scheme.onPrimary
                                       : scheme.primary,
                                 ),
-                                SizedBox(width: 3),
+                                const SizedBox(width: 3),
                                 Text(
                                   isFav ? 'Takipte' : 'Takip Et',
                                   style: TextStyle(
@@ -771,9 +771,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                       }),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 5,
                     ),
@@ -859,7 +859,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 12, color: scheme.outline),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         RichText(
           text: TextSpan(
             text: '$value ',
@@ -920,7 +920,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   }) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -937,7 +937,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 size: 28,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Sonuç Bulunamadı',
               style: TextStyle(
@@ -946,7 +946,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Arama kriterine uygun üniversite veya kampüs kanalı bulunamadı.',
               textAlign: TextAlign.center,
@@ -955,14 +955,14 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 fontSize: isTablet ? 13 : 11.5,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
                 _searchController.clear();
                 setState(() => _selectedTypeFilter = 'all');
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
@@ -986,7 +986,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   Widget _buildCardShimmer(BuildContext context, ColorScheme scheme) {
     return Container(
       height: 96,
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14),

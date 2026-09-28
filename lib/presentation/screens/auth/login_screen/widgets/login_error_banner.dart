@@ -33,7 +33,7 @@ class LoginErrorBanner extends GetView<LoginController> {
         child: Row(
           children: [
             Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 msg,

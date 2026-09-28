@@ -77,7 +77,7 @@ class ChangePasswordField extends StatelessWidget {
             if (labelTrailing != null) labelTrailing!,
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         field,
       ],
     );

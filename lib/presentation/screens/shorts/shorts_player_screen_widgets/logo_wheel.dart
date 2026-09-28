@@ -172,7 +172,7 @@ class _WheelLogo extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: isActive
-                        ? SweepGradient(
+                        ? const SweepGradient(
                             colors: [
                               AppTheme.primaryColor,
                               AppTheme.secondaryColor,

@@ -83,7 +83,7 @@ class UniversityDetailShortsTab extends StatelessWidget {
 
   Widget _buildSkeletonGrid(BuildContext context) {
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 450,
         mainAxisExtent: spec.shortsGridExtent,

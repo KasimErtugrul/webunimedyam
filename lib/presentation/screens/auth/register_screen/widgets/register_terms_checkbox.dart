@@ -42,7 +42,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
             onTap: () => onChanged(!value),
             child: Padding(
               // mt-0.5 → metinle hizalı
-              padding: EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: 2),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 width: s.termsBoxSize,

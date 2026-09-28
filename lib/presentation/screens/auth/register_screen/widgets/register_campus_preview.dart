@@ -47,7 +47,7 @@ class RegisterCampusPreview extends StatelessWidget {
                 width: s.previewImageSize,
                 height: s.previewImageSize,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => DecoratedBox(
+                errorBuilder: (_, _, _) => DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,

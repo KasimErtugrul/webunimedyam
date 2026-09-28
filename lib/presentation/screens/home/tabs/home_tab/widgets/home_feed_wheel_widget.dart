@@ -152,7 +152,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
       final tail = _ctrl.hasMoreVideos.value || _ctrl.isLoadingMore.value;
 
       return Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _PhoneSizes.horizontalPadding,
         ),
         child: Column(
@@ -166,7 +166,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
                 university: activeUni,
               ),
             ),
-            SizedBox(height: _PhoneSizes.cardBottomSpacing),
+            const SizedBox(height: _PhoneSizes.cardBottomSpacing),
             SizedBox(
               height: _PhoneSizes.logoWheelHeight,
               child: _LogoWheelPhone(
@@ -179,7 +179,7 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
                 onChanged: _onChanged,
               ),
             ),
-            SizedBox(height: _PhoneSizes.wheelBottomSpacing),
+            const SizedBox(height: _PhoneSizes.wheelBottomSpacing),
           ],
         ),
       );
@@ -368,7 +368,7 @@ class _LogoWheelPhoneState extends State<_LogoWheelPhone> {
                             ]
                           : null,
                     ),
-                    padding: EdgeInsets.all(_PhoneSizes.logoPadding),
+                    padding: const EdgeInsets.all(_PhoneSizes.logoPadding),
                     child: ClipOval(
                       child: hasLogo
                           ? CachedNetworkImage(

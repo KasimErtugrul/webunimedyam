@@ -78,7 +78,7 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                           size: spec.miniLogoSize * 0.55,
                         ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 // Başlık
                 Expanded(
                   child: Column(
@@ -95,7 +95,7 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                           color: AppTheme.textPri(context),
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Container(
@@ -106,7 +106,7 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           Flexible(
                             child: Text(
                               artist,
@@ -124,12 +124,12 @@ class UniversityRadioMiniPlayer extends StatelessWidget {
                   ),
                 ),
                 if (radioController.isBuffering)
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
                     child: SizedBox(
                       width: 22,
                       height: 22,
-                      child: const CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2.4,
                         color: AppTheme.primaryColor,
                       ),

@@ -83,7 +83,7 @@ class SettingsHeader extends StatelessWidget {
               color: scheme.onSurfaceVariant,
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Container(
             width: spec.headerAvatarSize,
             height: spec.headerAvatarSize,

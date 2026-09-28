@@ -27,7 +27,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
                   spec: spec,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: _Requirement(
                   met: controller.hasUppercase.value,
@@ -37,7 +37,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -47,7 +47,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
                   spec: spec,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: _Requirement(
                   met: controller.hasSpecial.value,
@@ -84,7 +84,7 @@ class _Requirement extends StatelessWidget {
               ? Theme.of(context).colorScheme.primary
               : AppTheme.textSec(context),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             label,

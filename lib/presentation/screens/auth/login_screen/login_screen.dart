@@ -297,7 +297,7 @@ class _LoginFormCardState extends State<_LoginFormCard> {
                     foregroundColor: scheme.primary,
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 4,
                     ),

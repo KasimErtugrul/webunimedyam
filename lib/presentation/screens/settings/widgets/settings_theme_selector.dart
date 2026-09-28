@@ -69,7 +69,7 @@ class SettingsThemeSelector extends StatelessWidget {
                 size: spec.segmentTabIconSize,
                 color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   label,
@@ -152,7 +152,7 @@ class SettingsFeedModeToggle extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 6,
-                    offset: Offset(0, 1),
+                    offset: const Offset(0, 1),
                   ),
                 ]
               : const [],
@@ -165,7 +165,7 @@ class SettingsFeedModeToggle extends StatelessWidget {
               size: spec.feedItemIconSize,
               color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(

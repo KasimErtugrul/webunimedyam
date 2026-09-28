@@ -288,7 +288,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
 
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 0,
         vertical: _PhoneSizes.cardOuterPadV,
       ),
@@ -302,7 +302,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             _buildPhoneContent(context),
             _buildPhoneActionRow(context, controller),
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _PhoneSizes.dividerPadH,
               ),
               child: Divider(
@@ -321,14 +321,14 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildPhoneHeader(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.headerPadH,
         vertical: _PhoneSizes.headerPadV,
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(_PhoneSizes.logoPadding),
+            padding: const EdgeInsets.all(_PhoneSizes.logoPadding),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -338,7 +338,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ),
             ),
             child: Container(
-              padding: EdgeInsets.all(_PhoneSizes.logoInnerPadding),
+              padding: const EdgeInsets.all(_PhoneSizes.logoInnerPadding),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.card(context),
@@ -346,7 +346,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               child: _buildPhoneAvatarInner(context, controller),
             ),
           ),
-          SizedBox(width: _PhoneSizes.logoSpacing),
+          const SizedBox(width: _PhoneSizes.logoSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,7 +370,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                SizedBox(height: _PhoneSizes.timeSpacing),
+                const SizedBox(height: _PhoneSizes.timeSpacing),
                 Text(
                   timeago.format(video.publishedAt, locale: 'tr'),
                   style: TextStyle(
@@ -393,7 +393,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 if (uni != null) controller.toggleUniversityFavorite(uni);
               },
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: _PhoneSizes.followPadH,
                   vertical: _PhoneSizes.followPadV,
                 ),
@@ -407,7 +407,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       size: _PhoneSizes.followCheckIconSize,
                       color: Theme.of(context).colorScheme.primary,
                     )
-                  : Text(
+                  : const Text(
                       'Takip Et',
                       style: TextStyle(
                         fontSize: _PhoneSizes.followTextFontSize,
@@ -419,7 +419,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           GestureDetector(
             onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
-              padding: EdgeInsets.only(left: _PhoneSizes.menuPaddingLeft),
+              padding: const EdgeInsets.only(left: _PhoneSizes.menuPaddingLeft),
               child: Icon(
                 Icons.more_horiz_rounded,
                 color: AppTheme.textPri(context),
@@ -489,7 +489,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               parameters: {'videoId': video.videoId},
             ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.thumbPadH),
+        padding: const EdgeInsets.symmetric(horizontal: _PhoneSizes.thumbPadH),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(_PhoneSizes.thumbBorderRadius),
           child: AspectRatio(
@@ -519,21 +519,21 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 ),
                 if (isLive)
-                  Positioned(
+                  const Positioned(
                     top: _PhoneSizes.badgeTop,
                     left: _PhoneSizes.badgeLeft,
                     child: _LiveBadgePhone(
                       label: 'CANLI',
-                      color: const Color(0xFFE53935),
+                      color: Color(0xFFE53935),
                     ),
                   ),
                 if (isUpcoming)
-                  Positioned(
+                  const Positioned(
                     top: _PhoneSizes.badgeTop,
                     left: _PhoneSizes.badgeLeft,
                     child: _LiveBadgePhone(
                       label: 'YAKINDA',
-                      color: const Color(0xFF5C6BC0),
+                      color: Color(0xFF5C6BC0),
                     ),
                   ),
                 if (!isLive)
@@ -541,7 +541,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     bottom: _PhoneSizes.durationBottom,
                     right: _PhoneSizes.durationRight,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: _PhoneSizes.durationPadH,
                         vertical: _PhoneSizes.durationPadV,
                       ),
@@ -555,7 +555,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                       child: Text(
                         video.formattedDuration,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: _PhoneSizes.durationFontSize,
                           fontWeight: FontWeight.w700,
@@ -578,7 +578,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   // "izlenme" metni tam boyutta kalır.
   Widget _buildPhoneActionRow(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.actionRowPadH,
         vertical: _PhoneSizes.actionRowPadV,
       ),
@@ -649,7 +649,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     );
                     if (isLoading) {
                       return Padding(
-                        padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
+                        padding: const EdgeInsets.all(_PhoneSizes.actionBtnPadding),
                         child: SizedBox(
                           width: _PhoneSizes.shareLoadingSize,
                           height: _PhoneSizes.shareLoadingSize,
@@ -710,7 +710,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final viewCount =
                 override ?? liveVideo?.appViewCount ?? video.appViewCount;
             return Padding(
-              padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
+              padding: const EdgeInsets.all(_PhoneSizes.actionBtnPadding),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -719,7 +719,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     size: _PhoneSizes.viewIconSize,
                     color: AppTheme.textSec(context),
                   ),
-                  SizedBox(width: _PhoneSizes.actionIconTextSpacing),
+                  const SizedBox(width: _PhoneSizes.actionIconTextSpacing),
                   Text(
                     _formatViewCount(
                       viewCount,
@@ -740,7 +740,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildPhoneContent(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _PhoneSizes.contentPadL,
         _PhoneSizes.contentPadT,
         _PhoneSizes.contentPadR,
@@ -761,7 +761,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             overflow: TextOverflow.ellipsis,
           ),
           if (video.description.isNotEmpty) ...[
-            SizedBox(height: _PhoneSizes.descSpacing),
+            const SizedBox(height: _PhoneSizes.descSpacing),
             RichText(
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -802,7 +802,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     final isUpcoming = video.isUpcoming;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 0,
         vertical: _TabletSizes.cardOuterPadV,
       ),
@@ -816,7 +816,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             _buildTabletContent(context),
             _buildTabletActionRow(context, controller),
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: _TabletSizes.dividerPadH,
               ),
               child: Divider(
@@ -835,14 +835,14 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildTabletHeader(BuildContext context, HomeController controller) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.headerPadH,
         vertical: _TabletSizes.headerPadV,
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(_TabletSizes.logoPadding),
+            padding: const EdgeInsets.all(_TabletSizes.logoPadding),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -852,7 +852,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               ),
             ),
             child: Container(
-              padding: EdgeInsets.all(_TabletSizes.logoInnerPadding),
+              padding: const EdgeInsets.all(_TabletSizes.logoInnerPadding),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.card(context),
@@ -860,7 +860,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               child: _buildTabletAvatarInner(context, controller),
             ),
           ),
-          SizedBox(width: _TabletSizes.logoSpacing),
+          const SizedBox(width: _TabletSizes.logoSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,7 +884,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                SizedBox(height: _TabletSizes.timeSpacing),
+                const SizedBox(height: _TabletSizes.timeSpacing),
                 Text(
                   timeago.format(video.publishedAt, locale: 'tr'),
                   style: TextStyle(
@@ -907,7 +907,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                 if (uni != null) controller.toggleUniversityFavorite(uni);
               },
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: _TabletSizes.followPadH,
                   vertical: _TabletSizes.followPadV,
                 ),
@@ -921,7 +921,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       size: _TabletSizes.followCheckIconSize,
                       color: Theme.of(context).colorScheme.primary,
                     )
-                  : Text(
+                  : const Text(
                       'Takip Et',
                       style: TextStyle(
                         fontSize: _TabletSizes.followTextFontSize,
@@ -933,7 +933,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           GestureDetector(
             onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
-              padding: EdgeInsets.only(left: _TabletSizes.menuPaddingLeft),
+              padding: const EdgeInsets.only(left: _TabletSizes.menuPaddingLeft),
               child: Icon(
                 Icons.more_horiz_rounded,
                 color: AppTheme.textPri(context),
@@ -1003,7 +1003,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               parameters: {'videoId': video.videoId},
             ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _TabletSizes.thumbPadH),
+        padding: const EdgeInsets.symmetric(horizontal: _TabletSizes.thumbPadH),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(_TabletSizes.thumbBorderRadius),
           child: AspectRatio(
@@ -1033,21 +1033,21 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 ),
                 if (isLive)
-                  Positioned(
+                  const Positioned(
                     top: _TabletSizes.badgeTop,
                     left: _TabletSizes.badgeLeft,
                     child: _LiveBadgeTablet(
                       label: 'CANLI',
-                      color: const Color(0xFFE53935),
+                      color: Color(0xFFE53935),
                     ),
                   ),
                 if (isUpcoming)
-                  Positioned(
+                  const Positioned(
                     top: _TabletSizes.badgeTop,
                     left: _TabletSizes.badgeLeft,
                     child: _LiveBadgeTablet(
                       label: 'YAKINDA',
-                      color: const Color(0xFF5C6BC0),
+                      color: Color(0xFF5C6BC0),
                     ),
                   ),
                 if (!isLive)
@@ -1055,7 +1055,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     bottom: _TabletSizes.durationBottom,
                     right: _TabletSizes.durationRight,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: _TabletSizes.durationPadH,
                         vertical: _TabletSizes.durationPadV,
                       ),
@@ -1069,7 +1069,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                       child: Text(
                         video.formattedDuration,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: _TabletSizes.durationFontSize,
                           fontWeight: FontWeight.w700,
@@ -1094,7 +1094,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     HomeController controller,
   ) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.actionRowPadH,
         vertical: _TabletSizes.actionRowPadV,
       ),
@@ -1165,7 +1165,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     );
                     if (isLoading) {
                       return Padding(
-                        padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
+                        padding: const EdgeInsets.all(_TabletSizes.actionBtnPadding),
                         child: SizedBox(
                           width: _TabletSizes.shareLoadingSize,
                           height: _TabletSizes.shareLoadingSize,
@@ -1226,7 +1226,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             final viewCount =
                 override ?? liveVideo?.appViewCount ?? video.appViewCount;
             return Padding(
-              padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
+              padding: const EdgeInsets.all(_TabletSizes.actionBtnPadding),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1235,7 +1235,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     size: _TabletSizes.viewIconSize,
                     color: AppTheme.textSec(context),
                   ),
-                  SizedBox(width: _TabletSizes.actionIconTextSpacing),
+                  const SizedBox(width: _TabletSizes.actionIconTextSpacing),
                   Text(
                     _formatViewCount(
                       viewCount,
@@ -1256,7 +1256,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildTabletContent(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         _TabletSizes.contentPadL,
         _TabletSizes.contentPadT,
         _TabletSizes.contentPadR,
@@ -1277,7 +1277,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
             overflow: TextOverflow.ellipsis,
           ),
           if (video.description.isNotEmpty) ...[
-            SizedBox(height: _TabletSizes.descSpacing),
+            const SizedBox(height: _TabletSizes.descSpacing),
             RichText(
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -1349,7 +1349,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.card(context),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(_PhoneSizes.sheetBorderRadius),
         ),
@@ -1359,7 +1359,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: _PhoneSizes.handleTopSpacing),
+              const SizedBox(height: _PhoneSizes.handleTopSpacing),
               Container(
                 width: _PhoneSizes.handleWidth,
                 height: _PhoneSizes.handleHeight,
@@ -1372,7 +1372,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 ),
               ),
-              SizedBox(height: _PhoneSizes.handleBottomSpacing),
+              const SizedBox(height: _PhoneSizes.handleBottomSpacing),
               _OptionTilePhone(
                 themeContext: context,
                 icon: Icons.bolt_rounded,
@@ -1420,7 +1420,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   controller.shareVideo(video);
                 },
               ),
-              SizedBox(height: _PhoneSizes.optBottomSpacing),
+              const SizedBox(height: _PhoneSizes.optBottomSpacing),
             ],
           ),
         );
@@ -1436,7 +1436,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppTheme.card(context),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(_PhoneSizes.sheetBorderRadius),
         ),
@@ -1448,7 +1448,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 _PhoneSizes.qcPadL,
                 _PhoneSizes.qcPadT,
                 _PhoneSizes.qcPadR,
@@ -1465,7 +1465,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                         size: _PhoneSizes.qcHeaderIconSize,
                         color: Theme.of(context).colorScheme.primary,
                       ),
-                      SizedBox(width: _PhoneSizes.qcHeaderIconSpacing),
+                      const SizedBox(width: _PhoneSizes.qcHeaderIconSpacing),
                       Expanded(
                         child: Text(
                           video.universityName ?? video.channelTitle,
@@ -1488,7 +1488,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                     ],
                   ),
-                  SizedBox(height: _PhoneSizes.qcTitleSpacing),
+                  const SizedBox(height: _PhoneSizes.qcTitleSpacing),
                   Text(
                     video.title,
                     maxLines: 1,
@@ -1498,7 +1498,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       fontSize: _PhoneSizes.qcTitleFontSize,
                     ),
                   ),
-                  SizedBox(height: _PhoneSizes.qcInputSpacing),
+                  const SizedBox(height: _PhoneSizes.qcInputSpacing),
                   Obx(() {
                     final isSending = controller.quickCommentSendingIds
                         .contains(video.videoId);
@@ -1545,7 +1545,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.card(context),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(_TabletSizes.sheetBorderRadius),
         ),
@@ -1555,7 +1555,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: _TabletSizes.handleTopSpacing),
+              const SizedBox(height: _TabletSizes.handleTopSpacing),
               Container(
                 width: _TabletSizes.handleWidth,
                 height: _TabletSizes.handleHeight,
@@ -1568,7 +1568,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   ),
                 ),
               ),
-              SizedBox(height: _TabletSizes.handleBottomSpacing),
+              const SizedBox(height: _TabletSizes.handleBottomSpacing),
               _OptionTileTablet(
                 themeContext: context,
                 icon: Icons.bolt_rounded,
@@ -1616,7 +1616,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   controller.shareVideo(video);
                 },
               ),
-              SizedBox(height: _TabletSizes.optBottomSpacing),
+              const SizedBox(height: _TabletSizes.optBottomSpacing),
             ],
           ),
         );
@@ -1632,7 +1632,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppTheme.card(context),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(_TabletSizes.sheetBorderRadius),
         ),
@@ -1644,7 +1644,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 _TabletSizes.qcPadL,
                 _TabletSizes.qcPadT,
                 _TabletSizes.qcPadR,
@@ -1661,7 +1661,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                         size: _TabletSizes.qcHeaderIconSize,
                         color: Theme.of(context).colorScheme.primary,
                       ),
-                      SizedBox(width: _TabletSizes.qcHeaderIconSpacing),
+                      const SizedBox(width: _TabletSizes.qcHeaderIconSpacing),
                       Expanded(
                         child: Text(
                           video.universityName ?? video.channelTitle,
@@ -1684,7 +1684,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       ),
                     ],
                   ),
-                  SizedBox(height: _TabletSizes.qcTitleSpacing),
+                  const SizedBox(height: _TabletSizes.qcTitleSpacing),
                   Text(
                     video.title,
                     maxLines: 1,
@@ -1694,7 +1694,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                       fontSize: _TabletSizes.qcTitleFontSize,
                     ),
                   ),
-                  SizedBox(height: _TabletSizes.qcInputSpacing),
+                  const SizedBox(height: _TabletSizes.qcInputSpacing),
                   Obx(() {
                     final isSending = controller.quickCommentSendingIds
                         .contains(video.videoId);
@@ -1759,7 +1759,7 @@ class _OptionTilePhone extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _PhoneSizes.optTilePadH,
           vertical: _PhoneSizes.optTilePadV,
         ),
@@ -1770,7 +1770,7 @@ class _OptionTilePhone extends StatelessWidget {
               size: _PhoneSizes.optIconSize,
               color: iconColor ?? AppTheme.textPri(themeContext),
             ),
-            SizedBox(width: _PhoneSizes.optIconSpacing),
+            const SizedBox(width: _PhoneSizes.optIconSpacing),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1784,7 +1784,7 @@ class _OptionTilePhone extends StatelessWidget {
                     ),
                   ),
                   if (subtitle != null) ...[
-                    SizedBox(height: _PhoneSizes.optSubtitleSpacing),
+                    const SizedBox(height: _PhoneSizes.optSubtitleSpacing),
                     Text(
                       subtitle!,
                       style: TextStyle(
@@ -1830,13 +1830,13 @@ class _IgActionBtnPhone extends StatelessWidget {
         ),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(_PhoneSizes.actionBtnPadding),
+          padding: const EdgeInsets.all(_PhoneSizes.actionBtnPadding),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, color: color, size: _PhoneSizes.actionIconSize),
               if (count > 0) ...[
-                SizedBox(width: _PhoneSizes.actionIconTextSpacing),
+                const SizedBox(width: _PhoneSizes.actionIconTextSpacing),
                 Text(
                   _formatCount(count),
                   style: TextStyle(
@@ -1863,7 +1863,7 @@ class _LiveBadgePhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.badgePadH,
         vertical: _PhoneSizes.badgePadV,
       ),
@@ -1874,15 +1874,15 @@ class _LiveBadgePhone extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.circle,
             color: Colors.white,
             size: _PhoneSizes.badgeDotSize,
           ),
-          SizedBox(width: _PhoneSizes.badgeDotSpacing),
+          const SizedBox(width: _PhoneSizes.badgeDotSpacing),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _PhoneSizes.badgeFontSize,
               fontWeight: FontWeight.w800,
@@ -1938,7 +1938,7 @@ class _OptionTileTablet extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: _TabletSizes.optTilePadH,
           vertical: _TabletSizes.optTilePadV,
         ),
@@ -1949,7 +1949,7 @@ class _OptionTileTablet extends StatelessWidget {
               size: _TabletSizes.optIconSize,
               color: iconColor ?? AppTheme.textPri(themeContext),
             ),
-            SizedBox(width: _TabletSizes.optIconSpacing),
+            const SizedBox(width: _TabletSizes.optIconSpacing),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1963,7 +1963,7 @@ class _OptionTileTablet extends StatelessWidget {
                     ),
                   ),
                   if (subtitle != null) ...[
-                    SizedBox(height: _TabletSizes.optSubtitleSpacing),
+                    const SizedBox(height: _TabletSizes.optSubtitleSpacing),
                     Text(
                       subtitle!,
                       style: TextStyle(
@@ -2007,13 +2007,13 @@ class _IgActionBtnTablet extends StatelessWidget {
         borderRadius: BorderRadius.circular(_TabletSizes.actionBtnBorderRadius),
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(_TabletSizes.actionBtnPadding),
+          padding: const EdgeInsets.all(_TabletSizes.actionBtnPadding),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, color: color, size: _TabletSizes.actionIconSize),
               if (count > 0) ...[
-                SizedBox(width: _TabletSizes.actionIconTextSpacing),
+                const SizedBox(width: _TabletSizes.actionIconTextSpacing),
                 Text(
                   _formatCount(count),
                   style: TextStyle(
@@ -2040,7 +2040,7 @@ class _LiveBadgeTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.badgePadH,
         vertical: _TabletSizes.badgePadV,
       ),
@@ -2051,15 +2051,15 @@ class _LiveBadgeTablet extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.circle,
             color: Colors.white,
             size: _TabletSizes.badgeDotSize,
           ),
-          SizedBox(width: _TabletSizes.badgeDotSpacing),
+          const SizedBox(width: _TabletSizes.badgeDotSpacing),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: _TabletSizes.badgeFontSize,
               fontWeight: FontWeight.w800,

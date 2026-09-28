@@ -312,7 +312,7 @@ class _DashedCirclePainter extends CustomPainter {
 
     final arcRect = (Offset.zero & size).deflate(strokeWidth / 2);
     const dashCount = 14;
-    final sweep = 2 * math.pi / dashCount;
+    const sweep = 2 * math.pi / dashCount;
 
     for (var i = 0; i < dashCount; i++) {
       canvas.drawArc(arcRect, i * sweep, sweep * 0.55, false, paint);

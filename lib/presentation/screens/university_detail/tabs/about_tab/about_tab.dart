@@ -50,7 +50,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
           children: [
             // ── Açıklama ──
             UniversityAboutSectionTitle(spec: spec, title: 'Açıklama'),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             UniversityAboutDescriptionCard(
               spec: spec,
               uni: uni,
@@ -60,7 +60,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
 
             // ── Genel Bilgiler ──
             UniversityAboutSectionTitle(spec: spec, title: 'Genel Bilgiler'),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             UniversityAboutInfoCard(
                   spec: spec,
                   uni: uni,
@@ -74,7 +74,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
             if (hasLinks) ...[
               SizedBox(height: spec.sectionSpacing),
               UniversityAboutSectionTitle(spec: spec, title: 'Bağlantılar'),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               if (uni.websiteUrl?.isNotEmpty ?? false)
                 UniversityAboutLinkButton(
@@ -85,7 +85,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
                   color: const Color(0xFF3B82F6),
                 ),
               if (uni.customUrl?.isNotEmpty ?? false) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 UniversityAboutLinkButton(
                   spec: spec,
                   icon: Icons.play_circle_fill_rounded,
@@ -95,7 +95,7 @@ class UniversityDetailAboutTab extends StatelessWidget {
                 ),
               ],
               if (uni.radioLink?.isNotEmpty ?? false) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 UniversityAboutRadioCard(
                   spec: spec,
                   university: uni,

@@ -68,7 +68,7 @@ class RadioDotIndicatorWidget extends StatelessWidget {
         final idx = start + i;
         final isActive = idx == current;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: _PhoneSizes.horizontalMargin),
+          padding: const EdgeInsets.symmetric(horizontal: _PhoneSizes.horizontalMargin),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: isActive ? _PhoneSizes.activeWidth : _PhoneSizes.inactiveWidth,
@@ -116,7 +116,7 @@ class RadioDotIndicatorWidget extends StatelessWidget {
         final idx = start + i;
         final isActive = idx == current;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: _TabletSizes.horizontalMargin),
+          padding: const EdgeInsets.symmetric(horizontal: _TabletSizes.horizontalMargin),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: isActive ? _TabletSizes.activeWidth : _TabletSizes.inactiveWidth,

@@ -188,7 +188,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
         return ListView.builder(
           controller: _scrollController,
-          padding: EdgeInsets.symmetric(vertical: _PhoneSizes.listVerticalPadding),
+          padding: const EdgeInsets.symmetric(vertical: _PhoneSizes.listVerticalPadding),
           itemCount:
               _ctrl.viewers.length +
               (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
@@ -202,7 +202,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
             if (_ctrl.isLoadingMore.value &&
                 index == _ctrl.viewers.length + (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
-              return Padding(
+              return const Padding(
                 padding: EdgeInsets.all(_PhoneSizes.loadingPadding),
                 child: Center(
                   child: CircularProgressIndicator(
@@ -270,7 +270,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
         return ListView.builder(
           controller: _scrollController,
-          padding: EdgeInsets.symmetric(vertical: _TabletSizes.listVerticalPadding),
+          padding: const EdgeInsets.symmetric(vertical: _TabletSizes.listVerticalPadding),
           itemCount:
               _ctrl.viewers.length +
               (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
@@ -284,7 +284,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
             if (_ctrl.isLoadingMore.value &&
                 index == _ctrl.viewers.length + (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
-              return Padding(
+              return const Padding(
                 padding: EdgeInsets.all(_TabletSizes.loadingPadding),
                 child: Center(
                   child: CircularProgressIndicator(
@@ -318,7 +318,7 @@ class _ViewerTilePhone extends StatelessWidget {
         AppRoutes.profile,
         arguments: {'userId': viewer.userId},
       ),
-      contentPadding: EdgeInsets.symmetric(
+      contentPadding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.tileContentPaddingHorizontal,
         vertical: _PhoneSizes.tileContentPaddingVertical,
       ),
@@ -371,7 +371,7 @@ class _HiddenViewersRowPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.hiddenRowPaddingHorizontal,
         vertical: _PhoneSizes.hiddenRowPaddingVertical,
       ),
@@ -382,7 +382,7 @@ class _HiddenViewersRowPhone extends StatelessWidget {
             color: AppTheme.textSec(context),
             size: _PhoneSizes.hiddenRowIconSize,
           ),
-          SizedBox(width: _PhoneSizes.hiddenRowSpacing),
+          const SizedBox(width: _PhoneSizes.hiddenRowSpacing),
           Expanded(
             child: Text(
               '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
@@ -410,7 +410,7 @@ class _EmptyStatePhone extends StatelessWidget {
             size: _PhoneSizes.emptyIconSize,
             color: AppTheme.textSec(context),
           ),
-          SizedBox(height: _PhoneSizes.emptySpacing),
+          const SizedBox(height: _PhoneSizes.emptySpacing),
           Text(
             'Henüz kimse izlemedi',
             style: TextStyle(
@@ -439,7 +439,7 @@ class _ViewerTileTablet extends StatelessWidget {
         AppRoutes.profile,
         arguments: {'userId': viewer.userId},
       ),
-      contentPadding: EdgeInsets.symmetric(
+      contentPadding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.tileContentPaddingHorizontal,
         vertical: _TabletSizes.tileContentPaddingVertical,
       ),
@@ -492,7 +492,7 @@ class _HiddenViewersRowTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.hiddenRowPaddingHorizontal,
         vertical: _TabletSizes.hiddenRowPaddingVertical,
       ),
@@ -503,7 +503,7 @@ class _HiddenViewersRowTablet extends StatelessWidget {
             color: AppTheme.textSec(context),
             size: _TabletSizes.hiddenRowIconSize,
           ),
-          SizedBox(width: _TabletSizes.hiddenRowSpacing),
+          const SizedBox(width: _TabletSizes.hiddenRowSpacing),
           Expanded(
             child: Text(
               '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
@@ -531,7 +531,7 @@ class _EmptyStateTablet extends StatelessWidget {
             size: _TabletSizes.emptyIconSize,
             color: AppTheme.textSec(context),
           ),
-          SizedBox(height: _TabletSizes.emptySpacing),
+          const SizedBox(height: _TabletSizes.emptySpacing),
           Text(
             'Henüz kimse izlemedi',
             style: TextStyle(

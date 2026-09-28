@@ -96,7 +96,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   Widget _buildRadioPanel(BuildContext context) {
     return Container(
       width: 50,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -108,7 +108,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
           ],
           stops: const [0.0, 0.55, 1.0],
         ),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topRight: Radius.circular(20),
           bottomRight: Radius.circular(20),
         ),
@@ -126,7 +126,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
               height: 1.2,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Sizlerle',
             style: TextStyle(
@@ -136,7 +136,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
               height: 1.2,
             ),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Container(
             width: 40,
             height: 40,
@@ -243,7 +243,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                       duration: const Duration(milliseconds: 200),
                       width: active ? 18 : 6,
                       height: 6,
-                      margin: EdgeInsets.symmetric(horizontal: 3, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
                       decoration: BoxDecoration(
                         color: active
                             ? AppTheme.primaryColor
@@ -343,7 +343,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     bottom: 10,
                     right: 10,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerLowest.withValues(
                           alpha: 0.85,
@@ -366,7 +366,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
             // Kart Alt Bilgileri
             Padding(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -380,7 +380,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -421,7 +421,7 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
           height: isTablet ? 280 : 240,
           decoration: BoxDecoration(

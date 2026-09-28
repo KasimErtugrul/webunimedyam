@@ -37,14 +37,14 @@ class LoginBrandHeader extends StatelessWidget {
             'assets/images/unitv_logo.png',
             height: s.logoHeight,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => Icon(
+            errorBuilder: (_, _, _) => Icon(
               Icons.play_arrow_rounded,
               size: s.logoHeight,
               color: scheme.primary,
             ),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         // Rozet — bg-surface-container-high, pulse dot + label-sm
         Container(
           padding: EdgeInsets.symmetric(

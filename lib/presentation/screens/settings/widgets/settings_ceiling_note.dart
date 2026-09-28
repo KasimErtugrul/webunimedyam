@@ -43,7 +43,7 @@ class SettingsCeilingNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: spec.noteIconSize, color: color),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               msg,

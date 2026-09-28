@@ -58,7 +58,7 @@ class LoginSubmitButton extends GetView<LoginController> {
                         letterSpacing: 0.01 * s.buttonFontSize, // label-lg
                       ),
                     ),
-                    SizedBox(width: 8), // gap-2
+                    const SizedBox(width: 8), // gap-2
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: s.buttonIconSize,

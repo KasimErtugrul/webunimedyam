@@ -87,7 +87,7 @@ class LoginLiveTeaser extends StatelessWidget {
 
           // İzleyici sayacı — pill, bg-surface-container-high
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -103,7 +103,7 @@ class LoginLiveTeaser extends StatelessWidget {
                     color: scheme.error,
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   '1.4k',
                   style: TextStyle(

@@ -125,7 +125,7 @@ class _SectionHeader extends StatelessWidget {
               size: spec.sectionInfoIconSize,
               color: AppTheme.textSec(context).withValues(alpha: 0.7),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             constraints: const BoxConstraints(),
             splashRadius: spec.sectionInfoIconSplash,
             tooltip: 'Bu liste hakkında',
@@ -134,7 +134,7 @@ class _SectionHeader extends StatelessWidget {
             TextButton(
               onPressed: onSeeAll,
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 foregroundColor: AppTheme.primaryColor,
@@ -170,7 +170,7 @@ class _SectionHeader extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(spec.dialogRadius),
         ),
-        icon: Icon(
+        icon: const Icon(
           Icons.info_outline_rounded,
           color: AppTheme.primaryColor,
           size: 28,
@@ -199,7 +199,7 @@ class _SectionHeader extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
               foregroundColor: Colors.white,
-              minimumSize: Size(120, 44),
+              minimumSize: const Size(120, 44),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

@@ -66,13 +66,13 @@ class UniversityDetailLiveTab extends StatelessWidget {
   }) {
     if (skeleton) {
       return ListView.builder(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: 3,
         itemBuilder: (_, _) => UniversityVideoSkeletonCard(spec: spec),
       );
     }
     return ListView.builder(
-      padding: EdgeInsets.only(top: 8, bottom: 32),
+      padding: const EdgeInsets.only(top: 8, bottom: 32),
       itemCount: liveList.length,
       itemBuilder: (_, i) => VideoCardWidget(video: liveList[i]),
     );

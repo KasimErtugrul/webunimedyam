@@ -90,7 +90,7 @@ class UniversityRowWidget extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: logoUrl!,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
+                      errorWidget: (_, _, _) => Icon(
                         Icons.school_rounded,
                         color: AppTheme.textSec(context),
                         size: s.avatarIconSize,

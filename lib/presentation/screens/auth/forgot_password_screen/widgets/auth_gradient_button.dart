@@ -32,7 +32,7 @@ class AuthGradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final surface = AppTheme.surface(context);
     final textSec = AppTheme.textSec(context);
-    final primary = AppTheme.primaryColor;
+    const primary = AppTheme.primaryColor;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -92,7 +92,7 @@ class AuthGradientButton extends StatelessWidget {
                     ),
                   ),
                   if (trailingIcon != null) ...[
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Icon(
                       trailingIcon,
                       color: Colors.white,

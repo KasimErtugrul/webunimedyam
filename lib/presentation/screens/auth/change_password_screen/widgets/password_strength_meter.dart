@@ -40,7 +40,7 @@ class PasswordStrengthMeter extends GetView<ChangePassController> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: List.generate(4, (i) {
               final active = i < s;
