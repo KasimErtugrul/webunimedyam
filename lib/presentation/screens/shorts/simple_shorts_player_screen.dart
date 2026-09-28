@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'shorts_player_screen_widgets/shorts_fullscreen.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
@@ -368,6 +369,11 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
                         key: ValueKey(_playerKey),
                         controller: _ytController!,
                         gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                        // Shorts dikey: tam ekranda da 9:16 oranıyla ekranı kaplar.
+                        aspectRatio: 9 / 16,
+                        autoFullScreen: false,
+                        controlsBuilder: (context, isFullscreen) =>
+                            ShortsFullscreen.controls(_ytController!, isFullscreen),
                       ),
                     ),
                   Positioned.fill(
