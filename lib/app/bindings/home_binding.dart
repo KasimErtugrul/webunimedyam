@@ -32,10 +32,10 @@ class HomeBinding extends Bindings {
   void dependencies() {
     // ── Core Datasources ──────────────────────────────────────────────────
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+      Get.lazyPut(SupabaseDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<LocalDataSource>()) {
-      Get.lazyPut(() => LocalDataSource(), fenix: true);
+      Get.lazyPut(LocalDataSource.new, fenix: true);
     }
 
     // ── Repositories ──────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ class HomeBinding extends Bindings {
 
     // ── Diğer controller'lar ──────────────────────────────────────────────
     if (!Get.isRegistered<UniversitySortController>()) {
-      Get.lazyPut(() => UniversitySortController(), fenix: true);
+      Get.lazyPut(UniversitySortController.new, fenix: true);
     }
 
     if (!Get.isRegistered<ProfileController>()) {
@@ -207,7 +207,7 @@ class HomeBinding extends Bindings {
 
     // ── Search ─────────────────────────────────────────────────────────────
     if (!Get.isRegistered<SearchHistoryDataSource>()) {
-      Get.lazyPut(() => SearchHistoryDataSource(), fenix: true);
+      Get.lazyPut(SearchHistoryDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<SearchRepository>()) {
       Get.lazyPut(() => SearchRepository(supabase: Get.find()), fenix: true);

@@ -36,7 +36,7 @@ class UniversityStatsSectionDetailErrorView extends StatelessWidget {
             ),
             SizedBox(height: sizes.errorButtonSpacing),
             TextButton(
-              onPressed: () => onRetry(),
+              onPressed: onRetry,
               child: const Text('Yeniden Dene'),
             ),
           ],

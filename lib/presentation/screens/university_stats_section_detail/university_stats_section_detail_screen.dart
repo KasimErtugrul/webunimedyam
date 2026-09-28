@@ -34,7 +34,7 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, size: sizes.appBarIconSize),
-          onPressed: () => Get.back(),
+          onPressed: Get.back,
         ),
         title: Text(
           controller.sectionTitle,

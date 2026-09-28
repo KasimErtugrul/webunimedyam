@@ -45,7 +45,7 @@ class StatsScreen extends StatelessWidget {
             color: AppTheme.textPri(context),
             size: sizes.backIconSize,
           ),
-          onPressed: () => Get.back(),
+          onPressed: Get.back,
         ),
         actions: [
           Obx(

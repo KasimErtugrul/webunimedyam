@@ -31,7 +31,7 @@ class VideoSectionDetailScreenBuild extends StatelessWidget {
             Icons.arrow_back_rounded,
             size: sizes.appBarIconSize,
           ),
-          onPressed: () => Get.back(),
+          onPressed: Get.back,
         ),
         title: Text(
           controller.sectionTitle,

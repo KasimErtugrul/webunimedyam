@@ -8,9 +8,9 @@ class SearchBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+      Get.lazyPut(SupabaseDataSource.new, fenix: true);
     }
-    Get.lazyPut(() => SearchHistoryDataSource(), fenix: true);
+    Get.lazyPut(SearchHistoryDataSource.new, fenix: true);
     Get.lazyPut(() => SearchRepository(supabase: Get.find()), fenix: true);
     Get.lazyPut(
       () => VideoSearchController(

@@ -16,10 +16,10 @@ class AuthBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+      Get.lazyPut(SupabaseDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<LocalDataSource>()) {
-      Get.lazyPut(() => LocalDataSource(), fenix: true);
+      Get.lazyPut(LocalDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<AuthRepository>()) {
       Get.lazyPut(
@@ -28,7 +28,7 @@ class AuthBinding extends Bindings {
       );
     }
     if (!Get.isRegistered<SessionService>()) {
-      Get.lazyPut(() => SessionService(), fenix: true);
+      Get.lazyPut(SessionService.new, fenix: true);
     }
 
     Get.lazyPut(

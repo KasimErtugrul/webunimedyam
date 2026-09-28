@@ -10,10 +10,10 @@ class FollowedUniversitiesListBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+      Get.lazyPut(SupabaseDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<LocalDataSource>()) {
-      Get.lazyPut(() => LocalDataSource(), fenix: true);
+      Get.lazyPut(LocalDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<UniversityFavoritesRepository>()) {
       Get.lazyPut(

@@ -61,7 +61,7 @@ class UniversitiesController extends GetxController {
       playlistsError.value = '';
       final rows = await videoRepository.getUniversitiesAndPlaylists();
       universities.value =
-          rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+          rows.map(UniversityModel.fromSupabase).toList();
       playlists.value = rows
           .map((r) => PlaylistModel.fromUniversity(
                 r,

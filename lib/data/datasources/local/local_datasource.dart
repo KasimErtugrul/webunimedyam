@@ -763,7 +763,7 @@ class LocalDataSource {
     try {
       final raw = _box.get(_universityKey) as List?;
       if (raw == null) return [];
-      return raw.map((e) => _asMap(e)).toList();
+      return raw.map(_asMap).toList();
     } catch (e) {
       return [];
     }

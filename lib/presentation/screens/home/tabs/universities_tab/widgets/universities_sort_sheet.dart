@@ -512,7 +512,7 @@ class _RadioFilterTile extends StatelessWidget {
                   scale: 0.9,
                   child: Switch(
                     value: value,
-                    onChanged: (v) => sortController.setOnlyWithRadio(v),
+                    onChanged: sortController.setOnlyWithRadio,
                     activeThumbColor: Colors.white,
                     activeTrackColor: _radioColor,
                     inactiveThumbColor: Colors.white,

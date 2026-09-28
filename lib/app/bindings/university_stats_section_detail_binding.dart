@@ -9,7 +9,7 @@ class UniversityStatsSectionDetailBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<SupabaseDataSource>()) {
-      Get.lazyPut(() => SupabaseDataSource(), fenix: true);
+      Get.lazyPut(SupabaseDataSource.new, fenix: true);
     }
     if (!Get.isRegistered<UniversityStatsRepository>()) {
       Get.lazyPut(

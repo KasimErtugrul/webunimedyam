@@ -206,7 +206,7 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => Get.back(),
+            onPressed: Get.back,
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: Colors.white,

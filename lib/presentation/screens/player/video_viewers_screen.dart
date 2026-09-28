@@ -174,7 +174,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppTheme.textPri(context)),
-          onPressed: () => Get.back(),
+          onPressed: Get.back,
         ),
       ),
       body: Obx(() {
@@ -256,7 +256,7 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppTheme.textPri(context)),
-          onPressed: () => Get.back(),
+          onPressed: Get.back,
         ),
       ),
       body: Obx(() {

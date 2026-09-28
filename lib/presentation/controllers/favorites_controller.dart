@@ -18,11 +18,7 @@ class FavoritesController extends GetxController {
   void onInit() {
     super.onInit();
     // Favori değişimlerini dinle
-    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen((
-      event,
-    ) {
-      _onFavoriteChanged(event);
-    });
+    _favoriteSubscription = favoritesRepository.onFavoriteChanged.listen(_onFavoriteChanged);
   }
 
   @override

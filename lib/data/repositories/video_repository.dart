@@ -72,7 +72,7 @@ class VideoRepository {
   Future<List<UniversityModel>> getUniversities() async {
     try {
       final rows = await getUniversitiesAndPlaylists();
-      return rows.map((r) => UniversityModel.fromSupabase(r)).toList();
+      return rows.map(UniversityModel.fromSupabase).toList();
     } catch (e, stacktrace) {
       log(
         'Üniversiteler getirilirken hata oluştu: $e',

@@ -51,7 +51,7 @@ class ChangePasswordController extends GetxController {
           content: const Text('Şifreniz başarıyla güncellendi.'),
           actions: [
             TextButton(
-              onPressed: () => Get.back(),
+              onPressed: Get.back,
               child: const Text('Tamam'),
             ),
           ],

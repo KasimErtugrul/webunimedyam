@@ -161,7 +161,7 @@ void showHomeAuthDialog(HomeTabSizes sizes) {
         'Bu özelliği kullanmak için giriş yapman gerekiyor.',
       ),
       actions: [
-        TextButton(onPressed: () => Get.back(), child: const Text('Vazgeç')),
+        TextButton(onPressed: Get.back, child: const Text('Vazgeç')),
         ElevatedButton(
           onPressed: () {
             Get.back();

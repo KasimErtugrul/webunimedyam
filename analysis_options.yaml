@@ -1,20 +1,26 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  # Supabase ve dinamik veri akışlarında hata vermemesi için katı tip zorlamalarını kaldırdık
   errors:
     unused_import: warning
     unused_local_variable: warning
     dead_code: warning
-    # Dinamik tip uyarılarını esnettik
     invalid_assignment: warning
-    argument_type_not_assignable: error
 
 linter:
   rules:
-    # Sadece kod kalitesini artıran temel kurallar (aşırı kısıtlayıcılar çıkarıldı)
+    # --- Kod Temizliği ve Performans ---
     - unnecessary_const
     - unnecessary_new
     - unnecessary_string_interpolations
+    - unnecessary_lambdas
+
+    # --- Sabitler ve Optimizasyon ---
     - prefer_const_constructors
     - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+
+    # --- Okunabilirlik ve Standartlar ---
+    - prefer_single_quotes
+    - avoid_empty_else
+    - empty_catches

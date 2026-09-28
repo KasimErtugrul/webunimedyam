@@ -56,7 +56,7 @@ class UniversityWheelController extends GetxController {
       if (universities.isEmpty) {
         final rows = await videoRepository.getUniversitiesAndPlaylists();
         universities.assignAll(
-          rows.map((r) => UniversityModel.fromSupabase(r)),
+          rows.map(UniversityModel.fromSupabase),
         );
       }
 

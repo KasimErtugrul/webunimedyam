@@ -51,7 +51,7 @@ class PasswordRequirementsChecklist extends GetView<ChangePassController> {
               Expanded(
                 child: _Requirement(
                   met: controller.hasSpecial.value,
-                  label: "Özel sembol (!@#\$%^&*)",
+                  label: 'Özel sembol (!@#\$%^&*)',
                   spec: spec,
                 ),
               ),

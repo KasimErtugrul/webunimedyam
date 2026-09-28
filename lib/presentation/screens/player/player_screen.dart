@@ -495,7 +495,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: Get.back,
             child: const Text(
               'Vazgeç',
               style: TextStyle(color: Color(0xFF9E9EB8)),
