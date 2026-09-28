@@ -9,18 +9,27 @@ analyzer:
 
 linter:
   rules:
-    # --- Kod Temizliği ve Performans ---
+    # --- Performans ve Bellek Optimizasyonu ---
     - unnecessary_const
     - unnecessary_new
     - unnecessary_string_interpolations
     - unnecessary_lambdas
+    - avoid_unnecessary_containers      # Gereksiz Container widget'larını uyarır (Padding/SizedBox yeterliyken)
+    - sized_box_for_whitespace          # Boşluk için Container yerine SizedBox kullanmanı zorlar
 
-    # --- Sabitler ve Optimizasyon ---
+    # --- Sabitler ve Değişken Disiplini ---
     - prefer_const_constructors
     - prefer_const_declarations
     - prefer_const_literals_to_create_immutables
+    - prefer_final_locals               # Değişmeyecek yerel değişkenleri otomatik 'final' yapmanı ister
 
-    # --- Okunabilirlik ve Standartlar ---
+    # --- Güvenlik ve Mimari Hatalarını Önleme ---
+    - use_build_context_synchronously   # Async işlem sonrasında BuildContext kullanırken dikkatli olmanı söyler (crash'leri önler)
+    - avoid_print                       # Kod içinde 'print()' kalmasını engeller (logger kullanımına yönlendirir)
+    - avoid_returning_null_for_void     # void fonksiyonlarda gereksiz 'return null;' ifadelerini yakalar
+
+    # --- Kod Düzeni ve Standartlar ---
     - prefer_single_quotes
     - avoid_empty_else
     - empty_catches
+    - prefer_relative_imports           # Aynı proje içindeki dosyalarda uzun 'package:...' yolları yerine göreceli (relative) import kullanmanı teşvik eder

@@ -1,4 +1,3 @@
-import 'package:comutv/presentation/controllers/profile_controller.dart' show ProfileController;
 import 'package:get/get.dart';
 
 import '../../data/datasources/local/local_datasource.dart';
@@ -22,6 +21,7 @@ import '../../presentation/controllers/home/engagement_controller.dart';
 import '../../presentation/controllers/home/feed_controller.dart';
 import '../../presentation/controllers/home/home_controller.dart';
 import '../../presentation/controllers/home/universities_controller.dart';
+import '../../presentation/controllers/profile_controller.dart';
 import '../../presentation/controllers/shorts_controller.dart';
 import '../../presentation/controllers/university_sort_controller.dart';
 import '../../presentation/controllers/video_search_controller.dart';
