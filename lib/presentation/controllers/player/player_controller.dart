@@ -72,6 +72,15 @@ class PlayerController extends GetxController {
   final isSuggestedLoading = false.obs;
 
   final currentVideo = Rxn<VideoModel>();
+
+  /// Yorumlar, en yeni en üstte. (Repo sırasına güvenmeden createdAt'e göre.)
+  /// Obx içinde çağrılırsa [comments] değişince otomatik yenilenir.
+  List<CommentModel> get commentsNewestFirst {
+    final list = List<CommentModel>.of(comments);
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
   String? get currentUserId => authRepository.currentUserId;
 
   /// İzlemeye Devam Et — kendi state'ini yöneten bağımsız helper.
@@ -112,8 +121,11 @@ class PlayerController extends GetxController {
       _startPlayerFlow();
     } catch (e, st) {
       hasPlayerError.value = true;
-      log('Deep link videosu yüklenirken hata ($videoId): $e',
-          error: e, stackTrace: st);
+      log(
+        'Deep link videosu yüklenirken hata ($videoId): $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -233,8 +245,11 @@ class PlayerController extends GetxController {
       }
       await _loadEngagementStats(showInitialLoader: true);
     } catch (e, st) {
-      log('Player başlangıç durumu yüklenirken hata: $e',
-          error: e, stackTrace: st);
+      log(
+        'Player başlangıç durumu yüklenirken hata: $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -242,12 +257,18 @@ class PlayerController extends GetxController {
     try {
       if (currentVideo.value == null) return;
       final videoId = currentVideo.value!.videoId;
-      favoritesRepository.getFavoriteVideos().then((locals) {
-        isFavorite.value = locals.any((v) => v.videoId == videoId);
-      }).catchError((e, st) {
-        log('Favori durumu cache\'den kontrol edilirken hata: $e',
-            error: e, stackTrace: st);
-      });
+      favoritesRepository
+          .getFavoriteVideos()
+          .then((locals) {
+            isFavorite.value = locals.any((v) => v.videoId == videoId);
+          })
+          .catchError((e, st) {
+            log(
+              'Favori durumu cache\'den kontrol edilirken hata: $e',
+              error: e,
+              stackTrace: st,
+            );
+          });
     } catch (e, st) {
       log('Favori durumu çözümlenirken hata: $e', error: e, stackTrace: st);
     }
@@ -268,8 +289,11 @@ class PlayerController extends GetxController {
       appShareCount.value = stats['app_share_count'] ?? 0;
       appCommentCount.value = stats['app_comment_count'] ?? 0;
     } catch (e, st) {
-      log('Etkileşim istatistikleri yüklenirken hata: $e',
-          error: e, stackTrace: st);
+      log(
+        'Etkileşim istatistikleri yüklenirken hata: $e',
+        error: e,
+        stackTrace: st,
+      );
     } finally {
       if (showInitialLoader) isInitialStatsLoading.value = false;
     }
@@ -321,8 +345,7 @@ class PlayerController extends GetxController {
         currentVideo.value!.videoId,
       );
     } catch (e, st) {
-      log('Beğeni durumu kontrol edilirken hata: $e',
-          error: e, stackTrace: st);
+      log('Beğeni durumu kontrol edilirken hata: $e', error: e, stackTrace: st);
     }
   }
 
@@ -331,8 +354,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'like'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'like'},
+      );
       return;
     }
     if (isLikeLoading.value) return;
@@ -376,8 +401,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'favorite'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'favorite'},
+      );
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -446,8 +473,11 @@ class PlayerController extends GetxController {
         method: 'share_sheet',
       );
     } catch (e, st) {
-      log('Paylaşım başarısız, panoya kopyalanıyor: $e',
-          error: e, stackTrace: st);
+      log(
+        'Paylaşım başarısız, panoya kopyalanıyor: $e',
+        error: e,
+        stackTrace: st,
+      );
       await Clipboard.setData(ClipboardData(text: videoUrl));
       snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
       AnalyticsService.instance.logShare(
@@ -480,8 +510,10 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'comment'});
+      AnalyticsService.instance.logEvent(
+        'auth_wall_hit',
+        parameters: {'action': 'comment'},
+      );
       return;
     }
     if (content.trim().isEmpty) return;
@@ -494,8 +526,10 @@ class PlayerController extends GetxController {
       await loadComments();
       appCommentCount.value += 1;
       _commentCountDeltaThisSession += 1;
-      AnalyticsService.instance.logEvent('comment_add',
-          parameters: {'video_id': currentVideo.value!.videoId});
+      AnalyticsService.instance.logEvent(
+        'comment_add',
+        parameters: {'video_id': currentVideo.value!.videoId},
+      );
     } catch (e, st) {
       log('Yorum eklenirken hata: $e', error: e, stackTrace: st);
     }

@@ -10,7 +10,9 @@ import 'player_layout_spec.dart';
 import 'player_screen_widgets/comment_header_widget.dart';
 import 'player_screen_widgets/comment_input_widget.dart';
 import 'player_screen_widgets/comment_tile_widget.dart';
+import 'player_screen_widgets/comments_sheet_widget.dart';
 import 'player_screen_widgets/engagement_bar/engagement_bar_widget.dart';
+import 'player_screen_widgets/engagement_bar/view_count_meta_widget.dart';
 import 'player_screen_widgets/expandable_description_widget.dart';
 import 'player_screen_widgets/suggested_videos_section_widget.dart';
 import 'player_screen_widgets/tag_row_widget.dart';
@@ -356,6 +358,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   ),
                 ),
               ],
+              // İzlenme sayısı: tarih • süre • 👁 N  (dokununca görüntüleyenler)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: spec.dateDurationDotSpacing,
+                ),
+                child: Text(
+                  '•',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.6),
+                    fontSize: spec.dateFontSize,
+                  ),
+                ),
+              ),
+              ViewCountMetaWidget(controller: _controller),
             ],
           ),
         );
@@ -435,9 +451,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         }
         if (_controller.comments.isEmpty) {
           return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: spec.commentsEmptySpacing,
-            ),
+            padding: EdgeInsets.symmetric(vertical: spec.commentsEmptySpacing),
             child: Center(
               child: Text(
                 'Henüz yorum yok. İlk yorumu sen yap!',
@@ -449,19 +463,37 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
           );
         }
-        return ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _controller.comments.length,
-          separatorBuilder: (_, _) =>
-              Divider(color: AppTheme.surface(context), height: 1),
-          itemBuilder: (ctx, i) => CommentTileWidget(
-            comment: _controller.comments[i],
-            canDelete:
-                _controller.comments[i].userId == _controller.currentUserId,
-            onDelete: () =>
-                _controller.deleteComment(_controller.comments[i].id),
-          ),
+        // Sadece en son yüklenen 3 yorum; devamı alt pencerede.
+        final latest = _controller.commentsNewestFirst.take(3).toList();
+        final total = _controller.comments.length;
+        final shownCount = total > _controller.appCommentCount.value
+            ? total
+            : _controller.appCommentCount.value;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ListView.separated(
+              shrinkWrap: true,
+              // ListView, padding verilmezse MediaQuery'den status bar kadar
+              // otomatik üst/alt boşluk ekler; sıfırlıyoruz.
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: latest.length,
+              // Kartlar arasında boşluk (önceden 1px'lik Divider ile bitişik duruyordu).
+              separatorBuilder: (_, _) =>
+                  SizedBox(height: spec.isTablet ? 10 : 8),
+              itemBuilder: (ctx, i) => CommentTileWidget(
+                comment: latest[i],
+                canDelete: latest[i].userId == _controller.currentUserId,
+                onDelete: () => _controller.deleteComment(latest[i].id),
+              ),
+            ),
+            if (total > latest.length)
+              CommentsSeeAllButton(
+                count: shownCount,
+                onTap: () => showCommentsSheet(context, _controller),
+              ),
+          ],
         );
       }),
       SizedBox(height: spec.suggestedSpacing),

@@ -285,6 +285,8 @@ class DiscoverSectionHeader extends StatelessWidget {
             ],
           ),
         ),
+        // BUG FIX: Önceden rozet / trailing yazı varsa "Tümü" butonu hiç
+        // çizilmiyordu (if / else-if zinciri). Artık ikisi yan yana gösteriliyor.
         if (trailingBadge != null)
           Container(
             padding: EdgeInsets.symmetric(
@@ -313,9 +315,12 @@ class DiscoverSectionHeader extends StatelessWidget {
               fontWeight: FontWeight.w700,
               letterSpacing: spec.secTrailingLetterSpacing,
             ),
-          )
-        else if (onSeeAll != null)
+          ),
+        if (onSeeAll != null) ...[
+          if (trailingBadge != null || trailingText != null)
+            SizedBox(width: spec.secHeaderGap),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: onSeeAll,
             child: Row(
               children: [
@@ -335,6 +340,7 @@ class DiscoverSectionHeader extends StatelessWidget {
               ],
             ),
           ),
+        ],
       ],
     );
   }

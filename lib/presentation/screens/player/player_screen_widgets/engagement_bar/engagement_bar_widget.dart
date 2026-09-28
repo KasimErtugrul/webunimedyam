@@ -2,34 +2,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../app/routes/app_routes.dart';
-import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 import '../../../../controllers/player/player_controller.dart';
+import '../comments_sheet_widget.dart';
 import 'engagement_action_widget.dart';
-import 'stat_badge_widget.dart';
 
 class _Sizes {
   final double containerPaddingH;
   final double containerPaddingV;
   final double actionSpacing;
-  final double dividerHorizontalMargin;
-  final double rightSpacing;
-  final double dividerWidth;
-  final double dividerHeight;
-  final double dividerOpacity;
-  final double tappableRadius;
+  final double maxWidth;
 
   const _Sizes._({
     required this.containerPaddingH,
     required this.containerPaddingV,
     required this.actionSpacing,
-    required this.dividerHorizontalMargin,
-    required this.rightSpacing,
-    required this.dividerWidth,
-    required this.dividerHeight,
-    required this.dividerOpacity,
-    required this.tappableRadius,
+    required this.maxWidth,
   });
 
   factory _Sizes.of(BuildContext context) {
@@ -37,29 +25,21 @@ class _Sizes {
       return const _Sizes._(
         containerPaddingH: 12,
         containerPaddingV: 8,
-        actionSpacing: 10,
-        dividerHorizontalMargin: 12,
-        rightSpacing: 6,
-        dividerWidth: 1.5,
-        dividerHeight: 20,
-        dividerOpacity: 0.15,
-        tappableRadius: 20,
+        actionSpacing: 12,
+        maxWidth: 560,
       );
     }
     return const _Sizes._(
       containerPaddingH: 8,
       containerPaddingV: 6,
-      actionSpacing: 6,
-      dividerHorizontalMargin: 8,
-      rightSpacing: 4,
-      dividerWidth: 1,
-      dividerHeight: 16,
-      dividerOpacity: 0.15,
-      tappableRadius: 16,
+      actionSpacing: 8,
+      maxWidth: double.infinity,
     );
   }
 }
 
+/// Beğen · Yorum · Paylaş · Kaydet — tek satırda, eşit genişlikte 4 buton.
+/// (İzlenme sayısı artık tarih satırında; bkz. ViewCountMetaWidget.)
 class EngagementBarWidget extends StatelessWidget {
   final PlayerController controller;
   const EngagementBarWidget({super.key, required this.controller});
@@ -73,95 +53,70 @@ class EngagementBarWidget extends StatelessWidget {
         horizontal: s.containerPaddingH,
         vertical: s.containerPaddingV,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Flexible(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Obx(
-                    () => EngagementActionWidget(
-                      icon: controller.isLiked.value
-                          ? Icons.thumb_up_rounded
-                          : Icons.thumb_up_alt_outlined,
-                      count: controller.appLikeCount.value,
-                      active: controller.isLiked.value,
-                      loading: controller.isLikeLoading.value,
-                      onTap: controller.toggleLike,
-                    ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: s.maxWidth),
+          child: Row(
+            children: [
+              Expanded(
+                child: Obx(
+                  () => EngagementActionWidget(
+                    icon: controller.isLiked.value
+                        ? Icons.thumb_up_rounded
+                        : Icons.thumb_up_alt_outlined,
+                    count: controller.appLikeCount.value,
+                    active: controller.isLiked.value,
+                    loading: controller.isLikeLoading.value,
+                    onTap: controller.toggleLike,
+                    semanticLabel: 'Beğen',
                   ),
-                  SizedBox(width: s.actionSpacing),
-                  Obx(
-                    () => EngagementActionWidget(
-                      icon: Icons.share_outlined,
-                      count: controller.appShareCount.value,
-                      active: false,
-                      loading: controller.isShareLoading.value,
-                      onTap: controller.shareVideo,
-                    ),
-                  ),
-                  SizedBox(width: s.actionSpacing),
-                  Obx(
-                    () => EngagementActionWidget(
-                      icon: controller.isFavorite.value
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_outline_rounded,
-                      count: controller.appFavoriteCount.value,
-                      active: controller.isFavorite.value,
-                      loading: controller.isFavoriteLoading.value,
-                      onTap: controller.toggleFavorite,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            width: s.dividerWidth,
-            height: s.dividerHeight,
-            margin: EdgeInsets.symmetric(
-              horizontal: s.dividerHorizontalMargin,
-            ),
-            color:
-                AppTheme.textSec(context).withValues(alpha: s.dividerOpacity),
-          ),
-          Obx(
-            () => Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: controller.isInitialStatsLoading.value
-                    ? null
-                    : () => Get.toNamed(
-                          AppRoutes.videoViewers,
-                          arguments: {
-                            'videoId':
-                                controller.currentVideo.value?.videoId ?? '',
-                            'totalViewCount': controller.appViewCount.value,
-                          },
-                        ),
-                borderRadius: BorderRadius.circular(s.tappableRadius),
-                child: StatBadgeWidget(
-                  icon: Icons.visibility_outlined,
-                  count: controller.appViewCount.value,
-                  loading: controller.isInitialStatsLoading.value,
-                  tappable: true,
                 ),
               ),
-            ),
+              SizedBox(width: s.actionSpacing),
+              Expanded(
+                child: Obx(
+                  () => EngagementActionWidget(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    count: controller.appCommentCount.value,
+                    active: false,
+                    loading: false,
+                    onTap: () => showCommentsSheet(context, controller),
+                    semanticLabel: 'Yorumlar',
+                  ),
+                ),
+              ),
+              SizedBox(width: s.actionSpacing),
+              Expanded(
+                child: Obx(
+                  () => EngagementActionWidget(
+                    icon: Icons.share_outlined,
+                    count: controller.appShareCount.value,
+                    active: false,
+                    loading: controller.isShareLoading.value,
+                    onTap: controller.shareVideo,
+                    semanticLabel: 'Paylaş',
+                  ),
+                ),
+              ),
+              SizedBox(width: s.actionSpacing),
+              Expanded(
+                child: Obx(
+                  () => EngagementActionWidget(
+                    icon: controller.isFavorite.value
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_outline_rounded,
+                    count: controller.appFavoriteCount.value,
+                    active: controller.isFavorite.value,
+                    loading: controller.isFavoriteLoading.value,
+                    onTap: controller.toggleFavorite,
+                    semanticLabel: 'Favorilere ekle',
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: s.rightSpacing),
-          Obx(
-            () => StatBadgeWidget(
-              icon: Icons.chat_bubble_outline_rounded,
-              count: controller.appCommentCount.value,
-              loading: controller.isInitialStatsLoading.value,
-            ),
-          ),
-          SizedBox(width: s.rightSpacing),
-        ],
+        ),
       ),
     );
   }

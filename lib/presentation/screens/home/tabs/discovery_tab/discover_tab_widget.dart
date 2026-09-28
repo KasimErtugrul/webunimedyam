@@ -128,7 +128,11 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   iconColor: AppTheme.darkTertiaryContainer,
                   onSeeAll: () => Get.toNamed(
                     AppRoutes.videoSectionDetail,
-                    arguments: VideoSectionType.trending,
+                    arguments: {
+                      'type': VideoSectionType.trending,
+                      'title': videoSectionConfigs[0].title,
+                      'initialItems': trendingList,
+                    },
                   ),
                 ),
                 SizedBox(height: spec.headerContentGap),
@@ -173,7 +177,11 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   trailingText: 'BU AY',
                   onSeeAll: () => Get.toNamed(
                     AppRoutes.videoSectionDetail,
-                    arguments: VideoSectionType.mostWatched,
+                    arguments: {
+                      'type': VideoSectionType.mostWatched,
+                      'title': videoSectionConfigs[1].title,
+                      'initialItems': mostWatched,
+                    },
                   ),
                 ),
                 SizedBox(height: spec.headerContentGap),
@@ -233,7 +241,11 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   trailingBadge: 'Top 3',
                   onSeeAll: () => Get.toNamed(
                     AppRoutes.universityStatsSectionDetail,
-                    arguments: UniversityStatsSectionType.mostWatched,
+                    arguments: {
+                      'type': UniversityStatsSectionType.mostWatched,
+                      'title': uniSectionConfigs[0].title,
+                      'initialItems': topChannels,
+                    },
                   ),
                 ),
                 SizedBox(height: spec.headerContentGap),
@@ -279,7 +291,11 @@ class _DiscoverTabWidgetState extends State<DiscoverTabWidget> {
                   trailingText: 'TOP SIRALAMA',
                   onSeeAll: () => Get.toNamed(
                     AppRoutes.universityStatsSectionDetail,
-                    arguments: UniversityStatsSectionType.mostLiked,
+                    arguments: {
+                      'type': UniversityStatsSectionType.mostLiked,
+                      'title': uniSectionConfigs[1].title,
+                      'initialItems': mostLiked,
+                    },
                   ),
                 ),
                 SizedBox(height: spec.headerContentGap),

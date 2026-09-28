@@ -5,7 +5,8 @@ import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
 
 class _Sizes {
-  final double verticalPadding;
+  final double minHeight;
+  final double borderRadius;
   final double horizontalPadding;
   final double iconSize;
   final double loadingSize;
@@ -16,12 +17,10 @@ class _Sizes {
   final double skeletonRadius;
   final double skeletonOpacity;
   final double textFontSize;
-  final double textLineHeight;
-  final double textDecorationThickness;
-  final double textDecorationOpacity;
 
   const _Sizes._({
-    required this.verticalPadding,
+    required this.minHeight,
+    required this.borderRadius,
     required this.horizontalPadding,
     required this.iconSize,
     required this.loadingSize,
@@ -32,63 +31,62 @@ class _Sizes {
     required this.skeletonRadius,
     required this.skeletonOpacity,
     required this.textFontSize,
-    required this.textLineHeight,
-    required this.textDecorationThickness,
-    required this.textDecorationOpacity,
   });
 
   factory _Sizes.of(BuildContext context) {
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
-        verticalPadding: 6,
-        horizontalPadding: 3,
-        iconSize: 18,
-        loadingSize: 18,
+        minHeight: 46,
+        borderRadius: 16,
+        horizontalPadding: 14,
+        iconSize: 19,
+        loadingSize: 16,
         loadingStrokeWidth: 2,
-        iconTextSpacing: 5,
-        skeletonWidth: 30,
+        iconTextSpacing: 6,
+        skeletonWidth: 28,
         skeletonHeight: 10,
         skeletonRadius: 5,
         skeletonOpacity: 0.15,
         textFontSize: 14,
-        textLineHeight: 1.2,
-        textDecorationThickness: 1.5,
-        textDecorationOpacity: 0.3,
       );
     }
     return const _Sizes._(
-      verticalPadding: 4,
-      horizontalPadding: 2,
-      iconSize: 15,
-      loadingSize: 15,
+      minHeight: 40,
+      borderRadius: 14,
+      horizontalPadding: 10,
+      iconSize: 17,
+      loadingSize: 14,
       loadingStrokeWidth: 1.5,
-      iconTextSpacing: 4,
-      skeletonWidth: 24,
+      iconTextSpacing: 5,
+      skeletonWidth: 22,
       skeletonHeight: 8,
       skeletonRadius: 4,
       skeletonOpacity: 0.15,
-      textFontSize: 12,
-      textLineHeight: 1.2,
-      textDecorationThickness: 1.2,
-      textDecorationOpacity: 0.3,
+      textFontSize: 13,
     );
   }
 }
 
 const Duration _kAnimDuration = Duration(milliseconds: 200);
 
+/// İzlenme / yorum sayısı gibi istatistik butonu.
+///
+/// Aksiyon butonlarının (beğen/paylaş/kaydet) "ikincil" hali: şeffaf zemin +
+/// ince kenarlık. [onTap] verilirse dokunulabilir (ripple'lı) bir butondur.
 class StatBadgeWidget extends StatelessWidget {
   final IconData icon;
   final int count;
   final bool loading;
-  final bool tappable;
+  final VoidCallback? onTap;
+  final String? semanticLabel;
 
   const StatBadgeWidget({
     super.key,
     required this.icon,
     required this.count,
     required this.loading,
-    this.tappable = false,
+    this.onTap,
+    this.semanticLabel,
   });
 
   String _fmt(int n) {
@@ -100,68 +98,82 @@ class StatBadgeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = _Sizes.of(context);
-    final primary = Theme.of(context).colorScheme.primary;
+    final scheme = Theme.of(context).colorScheme;
+    final primary = scheme.primary;
+    final radius = BorderRadius.circular(s.borderRadius);
 
-    final iconColor = tappable
-        ? primary.withValues(alpha: 0.7)
-        : AppTheme.textSec(context);
-    final textColor = tappable ? primary : AppTheme.textSec(context);
+    final iconColor = AppTheme.textSec(context);
+    final textColor = AppTheme.textPri(context).withValues(alpha: 0.85);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: s.verticalPadding,
-        horizontal: s.horizontalPadding,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (loading)
-            SizedBox(
-              width: s.loadingSize,
-              height: s.loadingSize,
-              child: CircularProgressIndicator(
-                strokeWidth: s.loadingStrokeWidth,
-                color: AppTheme.textSec(context).withValues(alpha: 0.5),
-              ),
-            )
-          else
-            Icon(icon, color: iconColor, size: s.iconSize),
-          SizedBox(width: s.iconTextSpacing),
-          if (loading)
-            Container(
-              width: s.skeletonWidth,
-              height: s.skeletonHeight,
-              decoration: BoxDecoration(
-                color: AppTheme.textSec(context)
-                    .withValues(alpha: s.skeletonOpacity),
-                borderRadius: BorderRadius.circular(s.skeletonRadius),
-              ),
-            )
-          else
-            AnimatedSwitcher(
-              duration: _kAnimDuration,
-              transitionBuilder: (child, anim) =>
-                  FadeTransition(opacity: anim, child: child),
-              child: Text(
-                _fmt(count),
-                key: ValueKey(count),
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: s.textFontSize,
-                  fontWeight: tappable ? FontWeight.w600 : FontWeight.normal,
-                  height: s.textLineHeight,
-                  decoration: tappable
-                      ? TextDecoration.underline
-                      : TextDecoration.none,
-                  decorationColor: primary
-                      .withValues(alpha: s.textDecorationOpacity),
-                  decorationThickness: s.textDecorationThickness,
-                ),
+    return Semantics(
+      button: onTap != null,
+      label: semanticLabel,
+      child: Container(
+        constraints: BoxConstraints(minHeight: s.minHeight),
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: radius,
+          child: InkWell(
+            onTap: loading ? null : onTap,
+            borderRadius: radius,
+            splashColor: primary.withValues(alpha: 0.12),
+            highlightColor: primary.withValues(alpha: 0.06),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: s.horizontalPadding),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (loading)
+                    SizedBox(
+                      width: s.loadingSize,
+                      height: s.loadingSize,
+                      child: CircularProgressIndicator(
+                        strokeWidth: s.loadingStrokeWidth,
+                        color: iconColor.withValues(alpha: 0.5),
+                      ),
+                    )
+                  else
+                    Icon(icon, color: iconColor, size: s.iconSize),
+                  SizedBox(width: s.iconTextSpacing),
+                  if (loading)
+                    Container(
+                      width: s.skeletonWidth,
+                      height: s.skeletonHeight,
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: s.skeletonOpacity),
+                        borderRadius: BorderRadius.circular(s.skeletonRadius),
+                      ),
+                    )
+                  else
+                    AnimatedSwitcher(
+                      duration: _kAnimDuration,
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: Text(
+                        _fmt(count),
+                        key: ValueKey(count),
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: s.textFontSize,
+                          fontWeight: FontWeight.w600,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
-} 
+}
