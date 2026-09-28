@@ -199,7 +199,7 @@ class UniversityDetailLayoutSpec {
     if (Responsive.isTablet(context)) {
       return const UniversityDetailLayoutSpec._(
         isTablet: true,
-        appBarExpandedHeight: 300,
+        appBarExpandedHeight: 350,
         appBarTitleFontSize: 20,
         appBarLogoSize: 36,
         appBarLogoIconSize: 22,
