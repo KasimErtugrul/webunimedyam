@@ -38,7 +38,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
   static const double _cardGap = 8;
 
   double _alphabetItemExtent(bool isTablet) =>
-      ((isTablet ? 110.0 : 96.0) + _cardGap);
+      (isTablet ? 110.0 : 96.0) + _cardGap;
 
   /// A-Z listesinin layout spec'i.
   /// ⚠️ GEÇİCİ DEĞERLER: UniversitiesTabLayoutSpec kurucusu farklıysa

@@ -140,7 +140,7 @@ class UniversityDetailHeader extends StatelessWidget {
                     if (hasCity) ...[
                       Icon(
                         Icons.location_on_rounded,
-                        size: (spec.headerCityFontSize + 1),
+                        size: spec.headerCityFontSize + 1,
                         color: AppTheme.textSec(context),
                       ),
                       const SizedBox(width: 4),
@@ -178,7 +178,7 @@ class UniversityDetailHeader extends StatelessWidget {
                     if (hasType) ...[
                       Icon(
                         Icons.account_balance_rounded,
-                        size: (spec.headerCityFontSize + 1),
+                        size: spec.headerCityFontSize + 1,
                         color: AppTheme.textSec(context),
                       ),
                       const SizedBox(width: 4),

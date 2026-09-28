@@ -181,7 +181,7 @@ class PlayerController extends GetxController {
         videoId: currentVideo.value!.videoId,
         autoPlay: autoplay,
         params: const YoutubePlayerParams(
-          showFullscreenButton: false,
+          showFullscreenButton: true,
           showControls: true,
           strictRelatedVideos: true,
           enableCaption: true,
@@ -191,6 +191,10 @@ class PlayerController extends GetxController {
           mute: false,
         ),
       );
+
+      // Paketin resmi API'si: tam ekran açılıp kapanınca haber verir.
+      // (iframe 6.x cihazı kendisi döndürmez; yönü buradan biz veriyoruz.)
+      youtubeController!.setFullScreenListener(_onFullScreenChanged);
     } catch (e, st) {
       log('Player başlatılırken hata: $e', error: e, stackTrace: st);
       AnalyticsService.instance.recordError(
@@ -199,6 +203,23 @@ class PlayerController extends GetxController {
         reason: 'player_init_failed',
       );
     }
+  }
+
+  void _onFullScreenChanged(bool isFullScreen) {
+    if (isFullScreen) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    } else {
+      _restoreSystemChrome();
+    }
+  }
+
+  void _restoreSystemChrome() {
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
   // ─── İlk durum ─────────────────────────────────────────────────────────
@@ -527,6 +548,7 @@ class PlayerController extends GetxController {
     } catch (_) {}
 
     _initWatchdog?.cancel();
+    _restoreSystemChrome();
     youtubeController?.close();
     super.onClose();
   }

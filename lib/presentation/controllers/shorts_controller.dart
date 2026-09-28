@@ -68,7 +68,11 @@ class ShortsController extends GetxController {
         stackTrace: stacktrace,
       );
       errorMessage.value = 'Shorts yüklenemedi.';
-      AnalyticsService.instance.recordError(e, stacktrace, reason: 'shorts_load_failed');
+      AnalyticsService.instance.recordError(
+        e,
+        stacktrace,
+        reason: 'shorts_load_failed',
+      );
     } finally {
       isLoading.value = false;
     }
@@ -106,6 +110,7 @@ class ShortsController extends GetxController {
   }
 
   /// Pull-to-refresh desteği.
+  @override
   Future<void> refresh() => loadShorts();
 
   void setCurrentIndex(int index) {
@@ -113,10 +118,7 @@ class ShortsController extends GetxController {
     if (index >= 0 && index < shorts.length) {
       AnalyticsService.instance.logEvent(
         'short_view',
-        parameters: {
-          'video_id': shorts[index].videoId,
-          'position': index,
-        },
+        parameters: {'video_id': shorts[index].videoId, 'position': index},
       );
     }
   }

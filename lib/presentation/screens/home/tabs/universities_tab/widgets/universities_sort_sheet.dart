@@ -285,7 +285,7 @@ class _TypeFilterTile extends StatelessWidget {
                           Text(
                             selected.label,
                             style: TextStyle(
-                              fontSize: (spec.sheetOptionFontSize - 2),
+                              fontSize: spec.sheetOptionFontSize - 2,
                               color: isFiltered
                                   ? _typeColor
                                   : AppTheme.textSec(context),
@@ -497,7 +497,7 @@ class _RadioFilterTile extends StatelessWidget {
                             ? 'Sadece radyosu olanlar'
                             : 'Tüm üniversiteler',
                         style: TextStyle(
-                          fontSize: (spec.sheetOptionFontSize - 2),
+                          fontSize: spec.sheetOptionFontSize - 2,
                           color: value
                               ? _radioColor
                               : AppTheme.textSec(context),

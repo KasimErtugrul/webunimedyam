@@ -114,7 +114,7 @@ class _HistoryChip extends StatelessWidget {
             children: [
               Icon(
                 Icons.history_rounded,
-                size: (spec.chipFontSize + 1),
+                size: spec.chipFontSize + 1,
                 color: AppTheme.textSec(context),
               ),
               const SizedBox(width: 6),
@@ -136,7 +136,7 @@ class _HistoryChip extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 child: Icon(
                   Icons.close_rounded,
-                  size: (spec.chipFontSize - 1),
+                  size: spec.chipFontSize - 1,
                   color: AppTheme.textSec(context).withValues(alpha: 0.6),
                 ),
               ),
@@ -181,7 +181,7 @@ class _EmptyHistory extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-              SizedBox(height: (spec.emptySpacing / 2)),
+              SizedBox(height: spec.emptySpacing / 2),
               Text(
                 'İzlemek istediğin videoyu, üniversiteyi veya kanalı ara.',
                 textAlign: TextAlign.center,

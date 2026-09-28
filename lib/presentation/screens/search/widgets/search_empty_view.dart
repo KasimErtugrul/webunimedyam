@@ -43,7 +43,7 @@ class SearchEmptyView extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ).animate().fadeIn(delay: 80.ms, duration: 300.ms),
-              SizedBox(height: (spec.emptySpacing / 2)),
+              SizedBox(height: spec.emptySpacing / 2),
               Text(
                 '"$query" için eşleşen bir video yok.\nFarklı bir kelime dene.',
                 textAlign: TextAlign.center,

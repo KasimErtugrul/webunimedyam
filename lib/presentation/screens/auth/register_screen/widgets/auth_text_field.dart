@@ -84,12 +84,12 @@ class AuthTextField extends StatelessWidget {
         labelText: label,
         labelStyle: TextStyle(
           color: AppTheme.textSec(context),
-          fontSize: (fontSize - 1),
+          fontSize: fontSize - 1,
           fontWeight: FontWeight.w500,
         ),
         floatingLabelStyle: TextStyle(
           color: AppTheme.primaryColor,
-          fontSize: (fontSize - 2),
+          fontSize: fontSize - 2,
           fontWeight: FontWeight.w600,
         ),
         prefixIcon: Icon(

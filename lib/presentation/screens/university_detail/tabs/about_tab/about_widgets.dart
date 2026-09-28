@@ -378,7 +378,7 @@ class UniversityAboutLinkButton extends StatelessWidget {
               ),
               Icon(
                 Icons.open_in_new_rounded,
-                size: (spec.rowValueFontSize + 2),
+                size: spec.rowValueFontSize + 2,
                 color: AppTheme.textSec(context),
               ),
             ],

@@ -96,7 +96,7 @@ class AuthGradientButton extends StatelessWidget {
                     Icon(
                       trailingIcon,
                       color: Colors.white,
-                      size: (fontSize + 2),
+                      size: fontSize + 2,
                     ),
                   ],
                 ],

@@ -590,8 +590,8 @@ class _RadioPageState extends State<RadioPage> {
                   top: 80 + (i * 60),
                   left: (i % 2 == 0 ? -20 : 40),
                   child: Container(
-                    width: (80 + i * 20),
-                    height: (80 + i * 20),
+                    width: 80 + i * 20,
+                    height: 80 + i * 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppTheme.primaryColor.withValues(alpha: 0.03 + i * 0.01),

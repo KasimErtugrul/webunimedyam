@@ -3,14 +3,15 @@ import 'dart:typed_data';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../core/errors/username_taken_exception.dart';
-import '../../models/shorts_model.dart';
-import '../../models/university_stats_model.dart';
-import '../../models/video_model.dart';
-import '../../models/university_model.dart';
-import '../../models/profile_model.dart';
-import '../../models/user_settings_model.dart';
 import '../../models/comment_model.dart';
+import '../../models/profile_model.dart';
+import '../../models/shorts_model.dart';
+import '../../models/university_model.dart';
+import '../../models/university_stats_model.dart';
+import '../../models/user_settings_model.dart';
+import '../../models/video_model.dart';
 import '../../models/video_viewer_model.dart';
 
 class SupabaseDataSource {
@@ -345,17 +346,14 @@ class SupabaseDataSource {
       // maybeSingle() kullanıldığına göre vardır.)
       await _client
           .from('user_settings')
-          .upsert(
-            settings.toSupabase(),
-            onConflict: 'user_id',
-          );
+          .upsert(settings.toSupabase(), onConflict: 'user_id');
     } catch (e, stackTrace) {
       log('Kullanıcı ayarları güncellenirken hata oluştu: $e\n$stackTrace');
       throw Exception('Ayarlar güncellenemedi. Lütfen tekrar deneyin.');
     }
   }
 
- /*  Future<List<UniversityModel>> getUniversities({int limit = 500}) async {
+  /*  Future<List<UniversityModel>> getUniversities({int limit = 500}) async {
     try {
       final data = await _client
           .from('universities')
@@ -378,7 +376,7 @@ class SupabaseDataSource {
           .select()
           .eq('id', id)
           .single();
-          log('University data: $data');
+      log('University data: $data');
       return UniversityModel.fromSupabase(data);
     } catch (e, stackTrace) {
       log('Üniversite getirilirken hata oluştu: $e\n$stackTrace');
@@ -434,7 +432,7 @@ class SupabaseDataSource {
           .order('published_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      return (data)
+      return data
           .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
           .toList();
     } catch (e, stackTrace) {
@@ -459,7 +457,7 @@ class SupabaseDataSource {
           .eq('is_live', true)
           .order('published_at', ascending: false);
 
-      return (data)
+      return data
           .map((e) => VideoModel.fromSupabase(Map<String, dynamic>.from(e)))
           .toList();
     } catch (e, stackTrace) {
@@ -882,7 +880,9 @@ class SupabaseDataSource {
           .order('favorite_count', ascending: false)
           .limit(limit);
       return (data as List)
-          .map((e) => UniversityModel.fromSupabase(Map<String, dynamic>.from(e)))
+          .map(
+            (e) => UniversityModel.fromSupabase(Map<String, dynamic>.from(e)),
+          )
           .toList();
     } catch (e, stackTrace) {
       log('Popüler üniversiteler getirilirken hata oluştu: $e\n$stackTrace');
@@ -1810,7 +1810,7 @@ class SupabaseDataSource {
 
   // ─── Profil Görünürlüğü ───────────────────────────────────────────────────
 
-    Future<void> updateProfileVisibility(String userId, String visibility) async {
+  Future<void> updateProfileVisibility(String userId, String visibility) async {
     try {
       await _client
           .from('profiles')
