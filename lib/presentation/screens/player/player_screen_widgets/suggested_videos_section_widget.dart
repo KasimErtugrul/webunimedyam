@@ -79,7 +79,11 @@ class _Sizes {
 }
 
 class SuggestedVideosSectionWidget extends StatelessWidget {
-  const SuggestedVideosSectionWidget({super.key});
+  /// true: başlık + dikey kayan liste (tablet sağ sütunu; sınırlı yükseklik
+  /// içinde kullanılmalı). false: eski yatay liste.
+  final bool vertical;
+
+  const SuggestedVideosSectionWidget({super.key, this.vertical = false});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +94,9 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
 
     return Obx(() {
       if (controller.isSuggestedLoading.value) {
-        return _buildShimmer(context, s);
+        return vertical
+            ? _buildVerticalShimmer(context, s)
+            : _buildShimmer(context, s);
       }
       if (controller.suggestedVideos.isEmpty) {
         return const SizedBox.shrink();
@@ -119,19 +125,64 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            height: s.listHeight,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: controller.suggestedVideos.length,
-              itemBuilder: (_, i) =>
-                  SuggestedVideoCard(video: controller.suggestedVideos[i]),
+          if (vertical)
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                physics: const BouncingScrollPhysics(),
+                itemCount: controller.suggestedVideos.length,
+                itemBuilder: (_, i) => SuggestedVideoCard(
+                  video: controller.suggestedVideos[i],
+                  fill: true,
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: s.listHeight,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: controller.suggestedVideos.length,
+                itemBuilder: (_, i) =>
+                    SuggestedVideoCard(video: controller.suggestedVideos[i]),
+              ),
             ),
-          ),
         ],
       );
     });
+  }
+
+  Widget _buildVerticalShimmer(BuildContext context, _Sizes s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: s.shimmerTitleWidth,
+          height: s.shimmerTitleHeight,
+          decoration: BoxDecoration(
+            color: AppTheme.surface(context),
+            borderRadius: BorderRadius.circular(s.shimmerTitleRadius),
+          ),
+        ),
+        SizedBox(height: s.shimmerTitleSpacing),
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: s.shimmerItemCount,
+            itemBuilder: (_, _) => Container(
+              height: s.shimmerListHeight,
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: AppTheme.surface(context),
+                borderRadius: BorderRadius.circular(s.shimmerCardRadius),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildShimmer(BuildContext context, _Sizes s) {
@@ -166,4 +217,4 @@ class SuggestedVideosSectionWidget extends StatelessWidget {
       ],
     );
   }
-} 
+}

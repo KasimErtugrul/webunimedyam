@@ -5,6 +5,7 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
+import '../../../core/responsive.dart';
 import '../../controllers/player/player_controller.dart';
 import 'player_layout_spec.dart';
 import 'player_screen_widgets/comment_header_widget.dart';
@@ -225,6 +226,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
   // ─────────────────────────────────────────────────────────────────────
 
   Widget _buildBody(BuildContext context, PlayerLayoutSpec spec) {
+    // Tablet: solda video + detaylar, sağda yorumlar (mini player yok).
+    if (spec.isTablet) return _buildTabletBody(context, spec);
+
     final mq = MediaQuery.of(context);
     final screenW = mq.size.width;
     final screenH = mq.size.height;
@@ -317,6 +321,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
   // ─────────────────────────────────────────────────────────────────────
 
   List<Widget> _buildContentItems(BuildContext context, PlayerLayoutSpec spec) {
+    return [
+      ..._buildMetaItems(context, spec),
+      ..._buildPhoneCommentItems(context, spec),
+      ..._buildSuggestedItems(context, spec),
+    ];
+  }
+
+  /// Tarih/süre/izlenme, başlık, üniversite, etkileşim, açıklama, etiketler.
+  List<Widget> _buildMetaItems(BuildContext context, PlayerLayoutSpec spec) {
     return [
       Obx(() {
         final v = _controller.currentVideo.value;
@@ -428,9 +441,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return const SizedBox.shrink();
       }),
       SizedBox(height: spec.tagsBottomSpacing),
-      // Tasarımdaki sıra: önce Yorumlar, en altta Önerilen Kampüs Yayınları.
-      // (Önceden bu iki bölüm ters sıradaydı — Önerilenler Yorumlar'ın
-      // üzerinde çıkıyordu, tasarımla eşleşmiyordu.)
+    ];
+  }
+
+  /// Telefon: yorum başlığı + input + son 3 yorum + "Tümünü Gör".
+  List<Widget> _buildPhoneCommentItems(
+    BuildContext context,
+    PlayerLayoutSpec spec,
+  ) {
+    return [
       Obx(() => CommentsHeaderWidget(count: _controller.appCommentCount.value)),
       SizedBox(height: spec.commentsHeaderSpacing),
       CommentInputWidget(onSend: (String text) => _controller.addComment(text)),
@@ -496,12 +515,118 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ],
         );
       }),
+    ];
+  }
+
+  List<Widget> _buildSuggestedItems(BuildContext context, PlayerLayoutSpec spec) {
+    return [
       SizedBox(height: spec.suggestedSpacing),
       Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
       SizedBox(height: spec.dividerSpacing),
       const SuggestedVideosSectionWidget(),
       SizedBox(height: spec.bottomSpacing),
     ];
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // TABLET  (sol: video + detaylar + yorumlar, sağ: önerilen videolar)
+  // ─────────────────────────────────────────────────────────────────────
+
+  Widget _buildTabletBody(BuildContext context, PlayerLayoutSpec spec) {
+    final mq = MediaQuery.of(context);
+    return Padding(
+      padding: EdgeInsets.only(top: mq.padding.top),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final commentsW = Responsive.clampedFraction(
+            c.maxWidth,
+            fraction: 0.34,
+            min: 300,
+            max: 400,
+          );
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildTabletLeft(context, spec, mq.size.height),
+              ),
+              SizedBox(
+                width: commentsW,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    0,
+                    12,
+                    spec.contentPaddingRight - 8,
+                    12 + mq.padding.bottom,
+                  ),
+                  child: const SuggestedVideosSectionWidget(vertical: true),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Video üstte sabit kalır (kaydırılırken çalmaya devam eder);
+  /// altındaki detaylar ve yorumlar kendi içinde kayar.
+  Widget _buildTabletLeft(
+    BuildContext context,
+    PlayerLayoutSpec spec,
+    double screenH,
+  ) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        final availW = c.maxWidth - spec.contentPaddingLeft - 16;
+        // Video ekran yüksekliğinin yarısını geçmesin, alttaki içeriğe yer kalsın.
+        final maxVideoW = screenH * 0.5 * 16 / 9;
+        final videoW = availW < maxVideoW ? availW : maxVideoW;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(spec.contentPaddingLeft, 12, 16, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  width: videoW,
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: YoutubePlayer(
+                        controller: _controller.youtubeController!,
+                        aspectRatio: 16 / 9,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  spec.contentPaddingLeft,
+                  spec.contentPaddingTop,
+                  16,
+                  spec.contentPaddingBottom,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ..._buildMetaItems(context, spec),
+                    ..._buildPhoneCommentItems(context, spec),
+                    SizedBox(height: spec.bottomSpacing),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────

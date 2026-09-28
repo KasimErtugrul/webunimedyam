@@ -205,7 +205,12 @@ class _Sizes {
 
 class SuggestedVideoCard extends StatelessWidget {
   final VideoModel video;
-  const SuggestedVideoCard({super.key, required this.video});
+
+  /// true: kart, bulunduğu sütunun genişliğini doldurur ve altına boşluk
+  /// bırakır (dikey liste için). false: sabit genişlik + sağ boşluk (yatay liste).
+  final bool fill;
+
+  const SuggestedVideoCard({super.key, required this.video, this.fill = false});
 
   @override
   Widget build(BuildContext context) {
@@ -219,8 +224,10 @@ class SuggestedVideoCard extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
-        width: s.cardWidth,
-        margin: EdgeInsets.only(right: s.cardMarginRight),
+        width: fill ? null : s.cardWidth,
+        margin: fill
+            ? const EdgeInsets.only(bottom: 14)
+            : EdgeInsets.only(right: s.cardMarginRight),
         decoration: BoxDecoration(
           color: AppTheme.card(context),
           borderRadius: BorderRadius.circular(s.cardRadius),
@@ -523,4 +530,4 @@ class _Stat extends StatelessWidget {
       ),
     );
   }
-} 
+}
