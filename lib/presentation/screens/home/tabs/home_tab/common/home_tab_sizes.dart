@@ -187,7 +187,10 @@ class PhoneHomeTabSizes implements HomeTabSizes {
 class TabletHomeTabSizes implements HomeTabSizes {
   const TabletHomeTabSizes();
 
-  @override double get titleSpacingLarge => 20;
+  // Tasarımdaki sayfa geneli yatay boşluk: Shorts ve İzlemeye Devam Et
+  // bölümleri 24 kullanıyor; utility bar + yaklaşan yayın şeridi + hero
+  // da aynı hizada dursun diye 20 → 24 yapıldı (tablet-only değer).
+  @override double get titleSpacingLarge => 24;
   // ORİJİNALDE 8.h idi — ScreenUtil sızıntısı aynen korundu.
   // Sabit dp istersen 8 yap (görsel fark: tablet ölçeğine bağlı ~0-2px).
   @override double get utilityBarPadV => 8;

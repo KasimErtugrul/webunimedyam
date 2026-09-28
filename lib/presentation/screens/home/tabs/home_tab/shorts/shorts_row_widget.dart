@@ -252,7 +252,9 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     );
   }
 
-  // ── "Üniversite Shorts" Bölüm Başlığı — Tablet ─────────────────────────
+  // ── "Kampüs Shorts & Reels" Bölüm Başlığı — Tablet ─────────────────────
+  // Tasarımdaki gibi: başlık + sağda "Tümünü Gör" linki ve şeridi kaydıran
+  // ok butonları (chevron_left / chevron_right).
   Widget _buildSectionTitleTablet(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -275,7 +277,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
                 const SizedBox(width: _TabletSizes.sectionIconSpacing),
                 Flexible(
                   child: Text(
-                    'Üniversite Shorts',
+                    'Kampüs Shorts & Reels',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -288,7 +290,9 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
               ],
             ),
           ),
-          // TODO(kasım): "Tümü" — onTap boş bırakıldı, bkz. phone versiyonu.
+          const SizedBox(width: 8),
+          // TODO(kasım): "Tümünü Gör" — tüm shorts'ları gösteren ayrı bir
+          // ekrana yönlendirme henüz bağlanmadı; onTap boş bırakıldı.
           InkWell(
             borderRadius: BorderRadius.circular(6),
             onTap: () {},
@@ -298,24 +302,43 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Tümü',
+                    'Tümünü Gör',
                     style: TextStyle(
                       color: AppTheme.primaryColor,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: AppTheme.primaryColor,
-                  ),
                 ],
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          // Tasarımdaki ok butonları — şeridi sola/sağa kaydırır.
+          _TabletScrollArrowButton(
+            icon: Icons.chevron_left_rounded,
+            onTap: () => _scrollShortsRow(-1),
+          ),
+          const SizedBox(width: 6),
+          _TabletScrollArrowButton(
+            icon: Icons.chevron_right_rounded,
+            onTap: () => _scrollShortsRow(1),
+          ),
         ],
       ),
+    );
+  }
+
+  // Şeridi bir "ekran dolusu" sola/sağa kaydırır (tasarımdaki davranış:
+  // scrollBy ±300px, smooth).
+  void _scrollShortsRow(int direction) {
+    if (!_scrollController.hasClients) return;
+    final double page = _scrollController.position.viewportDimension * 0.8;
+    _scrollController.animateTo(
+      (_scrollController.offset + direction * page)
+          .clamp(0.0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
     );
   }
 
@@ -433,6 +456,37 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TABLET BAŞLIK OK BUTONU — tasarım: w-8 h-8, rounded-lg,
+// bg-surface-container-high, chevron ikonu
+// ═══════════════════════════════════════════════════════════════════════
+
+class _TabletScrollArrowButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _TabletScrollArrowButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: 20, color: scheme.onSurface),
       ),
     );
   }

@@ -92,36 +92,19 @@ class _TabletSizes {
   static const double sectionTitleFontSize = 18;
   static const double sectionCountFontSize = 13;
 
-  // Yatay kaydırma — her sütunda üst üste 2 kart
+  // Yatay kaydırma — tasarım: tablette 4 kart görünür
   static const double listPadHorizontal = 24;
-  static const double columnGap = 16; // sütunlar arasındaki yatay boşluk
-  static const double listGap =
-      10; // aynı sütundaki 2 kart arasındaki dikey boşluk
-  static const double listPeek = 32; // sağdan görünen sonraki sütunun ucu
+  static const double columnGap = 16; // kartlar arasındaki yatay boşluk
   static const double listBottomSpacing = 8;
 
-  // Kart
+  // Kart (dikey tasarım: üstte thumbnail, altta başlık + meta)
   static const double cardBorderRadius = 14;
   static const double cardInnerPadding = 10;
-  static const double cardGap = 10;
-
-  // Küçük resim (thumbnail)
-  static const double thumbWidth = 132;
-  static const double thumbHeight = 94;
   static const double thumbBorderRadius = 10;
-  static const double playOverlaySize = 36;
-  static const double playIconSize = 22;
   static const double errorIconSize = 28;
 
-  // İçerik
-  static const double contentPaddingRight = 26;
-  static const double verifiedIconSize = 14;
-  static const double channelFontSize = 12;
-  static const double channelIconSpacing = 4;
+  // Kart alt içeriği
   static const double titleFontSize = 15;
-  static const double titleLineHeight = 1.25;
-  static const double titleTopSpacing = 2;
-  static const double metaTopSpacing = 6;
   static const double metaFontSize = 12;
 
   // Kaldır (X) butonu
@@ -130,8 +113,9 @@ class _TabletSizes {
   static const double removeTop = 8;
   static const double removeRight = 8;
 
-  // İlerleme çubuğu
+  // İlerleme çubuğu + süre rozeti
   static const double progressHeight = 4;
+  static const double durationBadgeRight = 8;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -262,20 +246,28 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   }
 
   // ── Tablet ─────────────────────────────────────────────
+  // "Desktop & Tablet homepage" tasarımına göre yeniden kuruldu:
+  // yatayda kaydırılan DİKEY kartlar (üstte 16:9 thumbnail + alt kenarında
+  // ilerleme çubuğu + "pozisyon / süre" rozeti, altta başlık + kanal &
+  // "kalan süre" satırı). Hedef: tablet genişliğinde 4 kart görünür.
+  // Kodun mevcut yetenekleri (X ile kaldırma, kalan süre, oynatıcıya
+  // gitme) aynen korundu — tasarımarmasında olmasa da X butonu duruyor.
   Widget _buildTablet(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    // FIX: `MediaQuery.sizeOf(context).width` tüm ekran genişliğini
-    // veriyordu; bu widget'a gerçekte ayrılan alan (sidebar/padding
-    // sonrası) farklı olabilir. LayoutBuilder ile doğrudan
-    // constraints.maxWidth kullanılıyor. Ölçüler sabit piksel olarak
-    // korunuyor.
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double columnWidth =
-            constraints.maxWidth -
-            2 * _TabletSizes.listPadHorizontal -
-            _TabletSizes.listPeek;
+        // Görünür alan 4 karta bölünür; kart çok daralırsa yatay kaydırma
+        // zaten var (SingleChildScrollView), çok genişse 320 ile sınırlanır.
+        final double usableWidth =
+            constraints.maxWidth - 2 * _TabletSizes.listPadHorizontal;
+        final double cardWidth =
+            ((usableWidth - 3 * _TabletSizes.columnGap) / 4)
+                .clamp(220.0, 320.0);
+        final double thumbHeight = cardWidth * 9 / 16;
+        // Kart toplam yüksekliği: pad(10) + thumb + boşluk(10) + başlık(19)
+        // + boşluk(4) + meta satırı(~16) + pad(10) + güvenlik payı(6).
+        final double cardHeight = thumbHeight + 75;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,40 +307,23 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                 ],
               ),
             ),
-            // ── Yatay kaydırılan 2'li (üst üste) kart sütunları ──────────
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                horizontal: _TabletSizes.listPadHorizontal,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (int i = 0; i < items.length; i += 2) ...[
-                    if (i > 0) const SizedBox(width: _TabletSizes.columnGap),
-                    SizedBox(
-                      width: columnWidth,
-                      child: Column(
-                        children: [
-                          _CardTablet(
-                            key: ValueKey(items[i].video.videoId),
-                            item: items[i],
-                            onRemove: () => onRemove(items[i].video.videoId),
-                          ),
-                          if (i + 1 < items.length) ...[
-                            const SizedBox(height: _TabletSizes.listGap),
-                            _CardTablet(
-                              key: ValueKey(items[i + 1].video.videoId),
-                              item: items[i + 1],
-                              onRemove: () =>
-                                  onRemove(items[i + 1].video.videoId),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
+            // ── Tasarım: yatay kaydırılan dikey kartlar (4 görünür) ──────
+            SizedBox(
+              height: cardHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _TabletSizes.listPadHorizontal,
+                ),
+                itemCount: items.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: _TabletSizes.columnGap),
+                itemBuilder: (context, index) => _CardTablet(
+                  key: ValueKey(items[index].video.videoId),
+                  item: items[index],
+                  width: cardWidth,
+                  onRemove: () => onRemove(items[index].video.videoId),
+                ),
               ),
             ),
             const SizedBox(height: _TabletSizes.listBottomSpacing),
@@ -582,14 +557,24 @@ class _CardPhone extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TABLET KARTI — DEĞİŞMEDİ (orijinal tasarım, sabit piksel ölçüler)
+// TABLET KARTI — "Desktop & Tablet homepage" tasarımarması:
+// dikey kart (üstte 16:9 thumbnail, alt kenarında ince ilerleme çubuğu ve
+// sağ altta "pozisyon / süre" rozeti; altta başlık + kanal & kalan süre).
+// Kodun mevcut özellikleri korundu: X ile listeden kaldırma ve oynatıcıya
+// gitme (X, tasarımda yok ama kaldırılmadı).
 // ═══════════════════════════════════════════════════════════════════════
 
 class _CardTablet extends StatelessWidget {
   final WatchProgressModel item;
   final VoidCallback onRemove;
+  final double width;
 
-  const _CardTablet({super.key, required this.item, required this.onRemove});
+  const _CardTablet({
+    super.key,
+    required this.item,
+    required this.width,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -603,193 +588,143 @@ class _CardTablet extends StatelessWidget {
         parameters: {'videoId': video.videoId},
       ),
       child: Container(
+        width: width,
+        padding: const EdgeInsets.all(_TabletSizes.cardInnerPadding),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
+          color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(_TabletSizes.cardInnerPadding),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: _TabletSizes.thumbWidth,
-                        height: _TabletSizes.thumbHeight,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            _TabletSizes.thumbBorderRadius,
-                          ),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: video.bestThumbnail,
-                                fit: BoxFit.cover,
-                                placeholder: (_, _) => Container(
-                                  color: scheme.surfaceContainerHigh,
-                                ),
-                                errorWidget: (_, _, _) => Container(
-                                  color: scheme.surfaceContainerHigh,
-                                  child: Icon(
-                                    Icons.play_circle_outline_rounded,
-                                    color: scheme.onSurfaceVariant,
-                                    size: _TabletSizes.errorIconSize,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.25),
-                              ),
-                              Center(
-                                child: Container(
-                                  width: _TabletSizes.playOverlaySize,
-                                  height: _TabletSizes.playOverlaySize,
-                                  decoration: BoxDecoration(
-                                    color: scheme.primary.withValues(
-                                      alpha: 0.9,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.play_arrow_rounded,
-                                    color: scheme.onPrimary,
-                                    size: _TabletSizes.playIconSize,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: _TabletSizes.cardGap),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            right: _TabletSizes.contentPaddingRight,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          video.universityName ??
-                                              video.channelTitle,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: scheme.primary,
-                                            fontSize:
-                                                _TabletSizes.channelFontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: _TabletSizes.channelIconSpacing,
-                                      ),
-                                      Icon(
-                                        Icons.verified_rounded,
-                                        size: _TabletSizes.verifiedIconSize,
-                                        color: scheme.primary,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: _TabletSizes.titleTopSpacing,
-                                  ),
-                                  Text(
-                                    video.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: scheme.onSurface,
-                                      fontSize: _TabletSizes.titleFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      height: _TabletSizes.titleLineHeight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: _TabletSizes.metaTopSpacing,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                      '${item.formattedPosition} / ${item.formattedDuration}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: scheme.onSurfaceVariant,
-                                        fontSize: _TabletSizes.metaFontSize,
-                                      ),
-                                      ),
-                                    ),
-                                    Text(
-                                      '${item.formattedRemaining} kaldı',
-                                      style: TextStyle(
-                                        color: scheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: _TabletSizes.metaFontSize,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  top: _TabletSizes.removeTop,
-                  right: _TabletSizes.removeRight,
-                  child: GestureDetector(
-                    onTap: onRemove,
-                    child: Container(
-                      width: _TabletSizes.removeSize,
-                      height: _TabletSizes.removeSize,
-                      decoration: BoxDecoration(
+            // ── Thumbnail + ilerleme çubuğu + süre rozeti + X ─────────
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      _TabletSizes.thumbBorderRadius,
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: video.bestThumbnail,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
                         color: scheme.surfaceContainerHigh,
-                        shape: BoxShape.circle,
                       ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.close_rounded,
-                        color: scheme.onSurfaceVariant,
-                        size: _TabletSizes.removeIconSize,
+                      errorWidget: (_, _, _) => Container(
+                        color: scheme.surfaceContainerHigh,
+                        child: Icon(
+                          Icons.play_circle_outline_rounded,
+                          color: scheme.onSurfaceVariant,
+                          size: _TabletSizes.errorIconSize,
+                        ),
                       ),
                     ),
                   ),
+                  // Alt kenardaki ince ilerleme çubuğu (tasarım).
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: LinearProgressIndicator(
+                      value: item.progressFraction,
+                      minHeight: _TabletSizes.progressHeight,
+                      backgroundColor:
+                          scheme.surfaceContainerLowest.withValues(alpha: 0.6),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(scheme.primary),
+                    ),
+                  ),
+                  // "18:40 / 45:00" rozeti (tasarım: sağ alt).
+                  Positioned(
+                    right: _TabletSizes.durationBadgeRight,
+                    bottom: _TabletSizes.progressHeight + 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            scheme.surfaceContainerLowest.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        '${item.formattedPosition} / ${item.formattedDuration}',
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: scheme.onSurface,
+                          fontSize: _TabletSizes.metaFontSize - 1,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Kaldır (X) butonu — kodda vardı, korundu.
+                  Positioned(
+                    top: _TabletSizes.removeTop,
+                    right: _TabletSizes.removeRight,
+                    child: GestureDetector(
+                      onTap: onRemove,
+                      child: Container(
+                        width: _TabletSizes.removeSize,
+                        height: _TabletSizes.removeSize,
+                        decoration: BoxDecoration(
+                          color:
+                              scheme.surfaceContainerLowest.withValues(alpha: 0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: scheme.onSurface,
+                          size: _TabletSizes.removeIconSize,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            // ── Başlık ────────────────────────────────────────────────
+            Text(
+              video.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontSize: _TabletSizes.titleFontSize,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // ── Kanal + kalan süre ────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    video.universityName ?? video.channelTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: _TabletSizes.metaFontSize,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${item.formattedRemaining} kaldı',
+                  style: TextStyle(
+                    color: scheme.primary,
+                    fontSize: _TabletSizes.metaFontSize,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: _TabletSizes.progressHeight,
-              child: LinearProgressIndicator(
-                value: item.progressFraction,
-                minHeight: _TabletSizes.progressHeight,
-                backgroundColor: scheme.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
-              ),
             ),
           ],
         ),
