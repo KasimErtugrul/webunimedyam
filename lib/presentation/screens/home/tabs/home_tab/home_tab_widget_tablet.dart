@@ -28,9 +28,9 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
-import '../../../../../core/responsive.dart';
 import '../../../../../core/utils/formatters.dart';
 import '../../../../../data/models/video_engagement_model.dart';
+import '../../../../../data/models/video_model.dart';
 import '../../../../../data/repositories/video_repository.dart'
     show HomeFeedFilter;
 import '../../../../../presentation/controllers/home/home_controller.dart';
@@ -115,6 +115,13 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   // HERO SATIRI — sol: canlı banner + carousel, sağ: radyo paneli
   // ═══════════════════════════════════════════════════════════
 
+  // Hero yüksekliği bileşenleri. Satırın yüksekliğini SOL kolon belirler;
+  // sağdaki radyo paneli bu yüksekliğe yayılır (stretch) — böylece panel
+  // asla carousel'den uzun kalmaz, carousel'in altında boşluk birikmez.
+  static const double _carouselFraction = 0.5;
+  static const double _liveBannerHeight = 400;
+  static const double _dotsBlockHeight = 22; // 6px nokta + 2x8px dikey margin
+
   Widget _buildHeroRow(BuildContext context) {
     // Tasarım: xl'de 8:4, 2xl'de 9:3 kolon oranı. Genişlik arttıkça
     // radyo panelin payı daralır.
@@ -123,17 +130,52 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
       child: LayoutBuilder(
         builder: (context, constraints) {
           final int leftFlex = constraints.maxWidth >= 1200 ? 3 : 2;
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: leftFlex, child: _buildHeroLeftColumn(context)),
-              SizedBox(width: _pagePad),
-              const Expanded(
-                flex: 1,
-                child: HomeCampusRadioPanelWidget(),
+          final double gap = _pagePad;
+          // İki kolon + aradaki tek boşluktan sol kolonun payı.
+          final double leftWidth =
+              (constraints.maxWidth - gap) * leftFlex / (leftFlex + 1);
+          final double itemWidth = leftWidth * _carouselFraction;
+          final double carouselHeight =
+              itemWidth * 9 / 16 + _cardTextBlockHeight(true);
+
+          return Obx(() {
+            final liveVideo = controller.videos
+                .firstWhereOrNull((v) => v.isLiveBroadcast);
+            // Yükleme bitmiş ama öne çıkan video da yoksa ve canlı yayın da
+            // yoksa hero'yu tamamen gizle (boş bir blok oluşturmasın).
+            final featuredEmpty = controller.videosMostWatched.isEmpty &&
+                !controller.isLoading.value;
+            if (liveVideo == null && featuredEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            final double heroHeight =
+                (liveVideo != null ? _liveBannerHeight + 24 : 0) +
+                    carouselHeight +
+                    _dotsBlockHeight;
+
+            return SizedBox(
+              height: heroHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: leftFlex,
+                    child: _buildHeroLeftColumn(
+                      context,
+                      liveVideo: liveVideo,
+                      carouselHeight: carouselHeight,
+                    ),
+                  ),
+                  SizedBox(width: gap),
+                  const Expanded(
+                    flex: 1,
+                    child: HomeCampusRadioPanelWidget(),
+                  ),
+                ],
               ),
-            ],
-          );
+            );
+          });
         },
       ),
     );
@@ -142,23 +184,26 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   // Hero'nun sol sütunu: canlı yayın banner'ı (varsa) + öne çıkanlar
   // carousel'i. Banner tasarımdan gelir; carousel kodda zaten vardı,
   // tasarımda olmadığı için kaldırılmadı.
-  Widget _buildHeroLeftColumn(BuildContext context) {
+  Widget _buildHeroLeftColumn(
+    BuildContext context, {
+    required VideoModel? liveVideo,
+    required double carouselHeight,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Tasarımdaki büyük "Canlı Yayın" banner'ı — SADECE gerçekten
         // canlı yayında olan bir video varken render edilir; canlı yayın
         // yoksa boş/yalan bir banner gösterilmez.
-        Obx(() {
-          final liveVideo = controller.videos
-              .firstWhereOrNull((v) => v.isLiveBroadcast);
-          if (liveVideo == null) return const SizedBox.shrink();
-          return Padding(
+        if (liveVideo != null)
+          Padding(
             padding: const EdgeInsets.only(bottom: 24),
-            child: HomeHeroLiveBannerWidget(video: liveVideo, height: 400),
-          );
-        }),
-        _buildCarouselSlider(context),
+            child: HomeHeroLiveBannerWidget(
+              video: liveVideo,
+              height: _liveBannerHeight,
+            ),
+          ),
+        _buildCarouselSlider(context, carouselHeight: carouselHeight),
       ],
     );
   }
@@ -167,13 +212,14 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   // CAROUSEL SLIDER (öne çıkan videolar) — kodda mevcut, aynen korundu
   // ═══════════════════════════════════════════════════════════
 
-  Widget _buildCarouselSlider(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
-
+  Widget _buildCarouselSlider(
+    BuildContext context, {
+    required double carouselHeight,
+  }) {
     return Obx(() {
       // Yüklenirken shimmer göster
       if (controller.isLoading.value) {
-        return _buildCarouselShimmer(context, isTablet: isTablet);
+        return _buildCarouselShimmer(context, height: carouselHeight);
       }
 
       // Hata varsa carousel'i tamamen gizle (ana içerik alanı zaten
@@ -187,79 +233,66 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
       if (featured.isEmpty) return const SizedBox.shrink();
 
-      // itemWidth, LayoutBuilder ile gerçek genişlikten hesaplanır; kart
-      // içeriği (16:9 thumbnail + metin bloğu) hesaplanan yüksekliğin
-      // tamamını kullanır.
-      const double fraction = .5;
       final scheme = Theme.of(context).colorScheme;
 
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final double itemWidth = constraints.maxWidth * fraction;
-          final double thumbHeight = itemWidth * 9 / 16;
-          final double textBlockHeight = _cardTextBlockHeight(isTablet);
-          final double carouselHeight = thumbHeight + textBlockHeight;
+      return Column(
+        children: [
+          CarouselSlider(
+            items: featured.map((video) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: _buildLargeVideoCard(
+                  context,
+                  scheme,
+                  video: video,
+                  badgeText: '',
+                  badgeIcon: Icons.bolt_rounded,
+                  isTablet: true,
+                ),
+              );
+            }).toList(),
+            options: CarouselOptions(
+              height: carouselHeight,
+              viewportFraction: _carouselFraction,
+              enableInfiniteScroll: featured.length > 1,
+              enlargeCenterPage: false,
+              autoPlay: false,
+              autoPlayInterval: const Duration(seconds: 5),
+              autoPlayAnimationDuration: const Duration(milliseconds: 450),
+              onPageChanged: (index, reason) {
+                if (!mounted) return;
+                setState(() {
+                  _currentCarouselIndex = index;
+                });
+              },
+            ),
+          ),
 
-          return Column(
-            children: [
-              CarouselSlider(
-                items: featured.map((video) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: _buildLargeVideoCard(
-                      context,
-                      scheme,
-                      video: video,
-                      badgeText: '',
-                      badgeIcon: Icons.bolt_rounded,
-                      isTablet: true,
+          // ── Nokta göstergeleri ────────────────────────────────────────
+          if (featured.length > 1)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(featured.length, (i) {
+                final active =
+                    i ==
+                    _currentCarouselIndex.clamp(0, featured.length - 1);
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: active ? 18 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? AppTheme.primaryColor
+                        : AppTheme.textSec(context).withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(
+                      AppTheme.radiusFull,
                     ),
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  height: carouselHeight,
-                  viewportFraction: fraction,
-                  enableInfiniteScroll: featured.length > 1,
-                  enlargeCenterPage: false,
-                  autoPlay: false,
-                  autoPlayInterval: const Duration(seconds: 5),
-                  autoPlayAnimationDuration: const Duration(milliseconds: 450),
-                  onPageChanged: (index, reason) {
-                    if (!mounted) return;
-                    setState(() {
-                      _currentCarouselIndex = index;
-                    });
-                  },
-                ),
-              ),
-
-              // ── Nokta göstergeleri ────────────────────────────────────────
-              if (featured.length > 1)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(featured.length, (i) {
-                    final active =
-                        i ==
-                        _currentCarouselIndex.clamp(0, featured.length - 1);
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: active ? 18 : 6,
-                      height: 6,
-                      margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: active
-                            ? AppTheme.primaryColor
-                            : AppTheme.textSec(context).withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusFull,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-            ],
-          );
-        },
+                  ),
+                );
+              }),
+            ),
+        ],
       );
     });
   }
@@ -418,14 +451,14 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   }
 
   // Carousel yüklenirken gösterilen shimmer bloğu.
-  Widget _buildCarouselShimmer(BuildContext context, {required bool isTablet}) {
+  Widget _buildCarouselShimmer(BuildContext context, {required double height}) {
     return Shimmer.fromColors(
       baseColor: AppTheme.surface(context),
       highlightColor: AppTheme.card(context),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: Container(
-          height: isTablet ? 280 : 240,
+          height: height,
           decoration: BoxDecoration(
             color: AppTheme.surface(context),
             borderRadius: BorderRadius.circular(20),
