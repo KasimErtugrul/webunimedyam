@@ -20,11 +20,6 @@ abstract class RegisterSizes {
   double get topBarVPadding;    // py-space-md (16)
   double get backButtonSize;    // w-10 h-10 (40)
   double get backButtonIconSize;// text-body-lg (16)
-  double get livePillGap;       // gap-space-xs (4)
-  double get livePillHPadding;  // px-space-sm (8)
-  double get livePillVPadding;  // py-1 (4)
-  double get livePillDotSize;   // w-2 (8)
-  double get livePillFontSize;  // label-sm (10)
 
   // ── Başlık bölümü ─────────────────────────────────────────
   double get headerTopGap;      // mt-space-sm (8)
@@ -35,16 +30,6 @@ abstract class RegisterSizes {
   double get titleFontSize;     // headline-xl-mobile (26)
   double get descFontSize;      // body-md (14)
   double get descLineHeight;    // leading-relaxed (1.625)
-
-  // ── Kampüs önizleme kartı ─────────────────────────────────
-  double get previewRadius;     // rounded-xl (12)
-  double get previewPadding;    // p-space-md (16)
-  double get previewGap;        // gap-space-md (16)
-  double get previewImageSize;  // w-14 h-14 (56)
-  double get previewImageRadius;// rounded-lg (8)
-  double get previewTitleFontSize; // label-md (12)
-  double get previewVerifiedIconSize; // label-sm (10)
-  double get previewSubFontSize;   // body-sm (12)
 
   // ── Form ──────────────────────────────────────────────────
   double get formGap;           // gap-space-md (16)
@@ -155,11 +140,6 @@ class RegisterPhoneSizes extends RegisterSizes {
   @override double get topBarVPadding => 16;
   @override double get backButtonSize => 40;
   @override double get backButtonIconSize => 16;
-  @override double get livePillGap => 4;
-  @override double get livePillHPadding => 8;
-  @override double get livePillVPadding => 4;
-  @override double get livePillDotSize => 8;
-  @override double get livePillFontSize => 10;
 
   @override double get headerTopGap => 8;
   @override double get headerBottomGap => 24;
@@ -169,15 +149,6 @@ class RegisterPhoneSizes extends RegisterSizes {
   @override double get titleFontSize => 26;
   @override double get descFontSize => 14;
   @override double get descLineHeight => 1.625;
-
-  @override double get previewRadius => 12;
-  @override double get previewPadding => 16;
-  @override double get previewGap => 16;
-  @override double get previewImageSize => 56;
-  @override double get previewImageRadius => 8;
-  @override double get previewTitleFontSize => 12;
-  @override double get previewVerifiedIconSize => 10;
-  @override double get previewSubFontSize => 12;
 
   @override double get formGap => 16;
   @override double get fieldGroupGap => 4;
@@ -280,11 +251,6 @@ class RegisterTabletSizes extends RegisterSizes {
   @override double get topBarVPadding => 20;
   @override double get backButtonSize => 48;
   @override double get backButtonIconSize => 20;
-  @override double get livePillGap => 6;
-  @override double get livePillHPadding => 12;
-  @override double get livePillVPadding => 6;
-  @override double get livePillDotSize => 10;
-  @override double get livePillFontSize => 12;
 
   @override double get headerTopGap => 10;
   @override double get headerBottomGap => 30;
@@ -294,15 +260,6 @@ class RegisterTabletSizes extends RegisterSizes {
   @override double get titleFontSize => 32;
   @override double get descFontSize => 16;
   @override double get descLineHeight => 1.6;
-
-  @override double get previewRadius => 16;
-  @override double get previewPadding => 20;
-  @override double get previewGap => 20;
-  @override double get previewImageSize => 68;
-  @override double get previewImageRadius => 10;
-  @override double get previewTitleFontSize => 14;
-  @override double get previewVerifiedIconSize => 12;
-  @override double get previewSubFontSize => 13;
 
   @override double get formGap => 20;
   @override double get fieldGroupGap => 6;

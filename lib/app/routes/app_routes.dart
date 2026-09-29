@@ -22,6 +22,13 @@ abstract class AppRoutes {
   /// Argüman: {'email': String}
   static const otpVerification = '/otp-verification';
 
+  /// Kullanım koşulları metin ekranı. "Okudum, Anladım" denirse
+  /// bool true sonucuyla geri döner (kayıt ekranı onayı otomatikler).
+  static const terms = '/terms';
+
+  /// Gizlilik politikası metin ekranı. Aynı geri dönüş davranışı.
+  static const privacy = '/privacy';
+
   /// Şifremi unuttum — email girişi.
   static const forgotPassword = '/forgot-password';
 

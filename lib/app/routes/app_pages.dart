@@ -19,6 +19,7 @@ import '../../presentation/screens/signup_preferences/signup_preferences_screen.
 import '../../presentation/screens/auth/forgot_password_screen/forgot_password_screen.dart';
 import '../../presentation/screens/auth/reset_password_screen/reset_password_screen.dart';
 import '../../presentation/screens/auth/change_password_screen/change_password_screen.dart';
+import '../../presentation/screens/auth/terms_screen/terms_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/stats/stats_screen.dart';
 import '../../presentation/screens/video_section_detail/video_section_detail_screen.dart';
@@ -103,6 +104,14 @@ abstract class AppPages {
       name: AppRoutes.otpVerification,
       page: () => const OtpVerificationScreen(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.terms,
+      page: () => const TermsScreen(type: TermsScreenType.terms),
+    ),
+    GetPage(
+      name: AppRoutes.privacy,
+      page: () => const TermsScreen(type: TermsScreenType.privacy),
     ),
     GetPage(
       name: AppRoutes.signupPreferences,

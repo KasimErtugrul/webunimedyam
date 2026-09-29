@@ -9,14 +9,12 @@ import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
 import '../../../controllers/auth/login_controller.dart';
 import 'login_layout_spec.dart';
-import 'widgets/login_brand_header.dart';
 import 'widgets/login_email_field.dart';
 import 'widgets/login_error_banner.dart';
 import 'widgets/login_footer_links.dart';
 import 'widgets/login_google_button.dart';
 import 'widgets/login_greeting.dart';
 import 'widgets/login_guest_button.dart';
-import 'widgets/login_live_teaser.dart';
 import 'widgets/login_or_divider.dart';
 import 'widgets/login_password_field.dart';
 import 'widgets/login_submit_button.dart';
@@ -67,30 +65,17 @@ class LoginScreen extends GetView<LoginController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Brand Logo Header
-                        LoginBrandHeader(sizes: sizes)
-                            .animate()
-                            .fadeIn(duration: 350.ms)
-                            .slideY(
-                              begin: -0.08,
-                              end: 0,
-                              duration: 450.ms,
-                              curve: Curves.easeOutCubic,
-                            ),
-
-                        SizedBox(height: sizes.brandBottomGap),
-
                         // Greeting & Description
                         LoginGreeting(
                           sizes: sizes,
-                        ).animate().fadeIn(delay: 120.ms, duration: 400.ms),
+                        ).animate().fadeIn(duration: 400.ms),
 
                         SizedBox(height: sizes.greetingBottomGap),
 
                         // Login Form Card
                         _LoginFormCard(sizes: sizes)
                             .animate()
-                            .fadeIn(delay: 220.ms, duration: 400.ms)
+                            .fadeIn(delay: 100.ms, duration: 400.ms)
                             .slideY(
                               begin: 0.06,
                               end: 0,
@@ -103,14 +88,7 @@ class LoginScreen extends GetView<LoginController> {
                         // Register Footer Redirect
                         LoginFooterLinks(
                           sizes: sizes,
-                        ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
-
-                        SizedBox(height: sizes.teaserTopGap),
-
-                        // Campus Live Stream Preview Accent Teaser
-                        LoginLiveTeaser(
-                          sizes: sizes,
-                        ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+                        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
                       ],
                     ),
                   ),

@@ -60,7 +60,7 @@ class RegisterHeader extends StatelessWidget {
 
           // Açıklama — body-md, leading-relaxed
           Text(
-            'Tüm üniversite arşivlerine, radyo yayınlarına ve öğrenci topluluklarına tek hesaptan eriş.',
+            '219 üniversitenin YouTube kanallarındaki videoları, canlı yayınları ve Shorts\'ları tek hesapla takip etmeye başla.',
             style: TextStyle(
               color: scheme.onSurfaceVariant,
               fontSize: s.descFontSize,

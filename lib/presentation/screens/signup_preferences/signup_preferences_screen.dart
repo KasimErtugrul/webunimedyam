@@ -12,13 +12,15 @@ import 'widgets/notifications_step.dart';
 import 'widgets/signup_header.dart';
 import 'widgets/signup_progress_tracker.dart';
 import 'widgets/theme_step.dart';
-import 'widgets/university_step.dart';
 import 'widgets/visibility_step.dart';
 
 // ═══════════════════════════════════════════════════════════
-// ANA WIDGET (TEK DALLANMA NOKTASI) — 5 adımlı akış:
+// ANA WIDGET (TEK DALLANMA NOKTASI) — 4 adımlı akış:
 // 1 Tema · 2 Otomatik Oynatma · 3 Bildirimler · 4 Görünürlük
-// 5 Üniversite Seçimi (tasarım ekranı)
+//
+// NOT: Eski 5. adım (Üniversite Seçimi) kaldırıldı — aynı seçim
+// İlgi Alanı Seçimi ekranında zaten yapılıyor (duplicate'ti).
+// Son adımın butonu controller.finish() ile doğrudan o ekranı açar.
 // ═══════════════════════════════════════════════════════════
 
 class SignupPreferencesScreen extends StatefulWidget {
@@ -44,12 +46,12 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
   int _currentPage = 0;
   late final SignupPreferencesController controller;
 
-  static const int _pageCount = 5;
+  static const int _pageCount = 4;
 
   // Tasarım metinleri — adım bazlı
   static const List<_StepMeta> _meta = [
     (
-      leftLabel: 'ADIM 1 / 5',
+      leftLabel: 'ADIM 1 / 4',
       rightLabel: 'Kişiselleştirme',
       showPulse: false,
       buttonLabel: 'Devam Et',
@@ -58,7 +60,7 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
           'Seçtiğin tema canlı yayın sohbeti ve kampüs akışında anında uygulanır.',
     ),
     (
-      leftLabel: 'ADIM 2 / 5',
+      leftLabel: 'ADIM 2 / 4',
       rightLabel: 'Kişiselleştirme',
       showPulse: false,
       buttonLabel: 'Devam Et',
@@ -66,7 +68,7 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
       caption: 'Tercihi dilediğin zaman ayarlardan değiştirebilirsin.',
     ),
     (
-      leftLabel: 'ADIM 3 / 5',
+      leftLabel: 'ADIM 3 / 4',
       rightLabel: 'Kişiselleştirme',
       showPulse: false,
       buttonLabel: 'Devam Et',
@@ -74,21 +76,12 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
       caption: 'Bildirim tercihini profil ayarlarından güncelleyebilirsin.',
     ),
     (
-      leftLabel: 'ADIM 4 / 5',
-      rightLabel: 'Kişiselleştirme',
-      showPulse: false,
-      buttonLabel: 'Devam Et',
-      buttonIcon: Icons.arrow_forward_rounded,
-      caption: 'Görünürlüğünü profil ayarlarından her zaman değiştirebilirsin.',
-    ),
-    (
       leftLabel: 'Son Adım',
-      rightLabel: 'ADIM 5 / 5',
+      rightLabel: 'ADIM 4 / 4',
       showPulse: true,
       buttonLabel: 'Bitir ve Keşfetmeye Başla',
       buttonIcon: Icons.rocket_launch_rounded,
-      caption:
-          'Üniversite tercihini profil ayarlarından her zaman değiştirebilirsin.',
+      caption: 'Görünürlüğünü profil ayarlarından her zaman değiştirebilirsin.',
     ),
   ];
 
@@ -183,12 +176,11 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
                     controller: controller,
                     onSelected: _next,
                   ),
-                  UniversityStep(sizes: sizes, controller: controller),
                 ],
               ),
             ),
 
-            // ── Footer: adım 1-4 düz, adım 5 dock stilinde ──────────
+            // ── Footer: adım 1-3 düz, son adım dock stilinde ─────────
             _StepFooter(
               sizes: sizes,
               meta: meta,
@@ -203,8 +195,8 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
 }
 
 // ═══════════════════════════════════════════════════════════
-// FOOTER — Tasarım 1 (Tema): buton + caption / Tasarım 2
-// (Üniversite): floating dock (blur yüzey + gölge yukarı)
+// FOOTER — Tasarim 1 (adım 1-3): buton + caption / Son adım:
+// floating dock (blur yüzey + gölge yukarı)
 // ═══════════════════════════════════════════════════════════
 
 class _StepFooter extends StatelessWidget {
@@ -281,7 +273,7 @@ class _StepFooter extends StatelessWidget {
     );
 
     if (!isLast) {
-      // Adım 1-4 — içerik sonundaki "Devam Et" + caption
+      // Adım 1-3 — içerik sonundaki "Devam Et" + caption
       return Padding(
         padding: EdgeInsets.fromLTRB(
           s.footerHPadding,
@@ -320,7 +312,7 @@ class _StepFooter extends StatelessWidget {
       );
     }
 
-    // Adım 5 — floating sticky action dock
+    // Son adım — floating sticky action dock
     return Container(
       decoration: BoxDecoration(
         color: scheme.surface.withValues(alpha: 0.92),

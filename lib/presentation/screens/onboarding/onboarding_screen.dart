@@ -99,8 +99,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _openAuth() async {
     await controller.completeSilently();
-    // Not: Kayıt ekranı ayrı bir rotaysa AppRoutes.register kullanın;
-    // mevcut yapıda giriş/kayıt aynı rotadan açılıyor.
     Get.toNamed(AppRoutes.login);
   }
 
@@ -164,7 +162,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               pageCount: _steps.length,
               onNext: _nextPage,
               onDotTap: _goToPage,
-              onRegister: _openAuth,
               onLogin: _openAuth,
               onGuest: _continueAsGuest,
             ),
@@ -270,7 +267,7 @@ class _Header extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════
-// FOOTER — Adım 1-4: dots + "İleri" / Adım 5: Kayıt Ol + Giriş Yap
+// FOOTER — Adım 1-4: dots + "İleri" / Adım 5: Giriş Yap + Misafir Olarak Gir
 // ═══════════════════════════════════════════════════════════
 
 class _Footer extends StatelessWidget {
@@ -280,7 +277,6 @@ class _Footer extends StatelessWidget {
     required this.pageCount,
     required this.onNext,
     required this.onDotTap,
-    required this.onRegister,
     required this.onLogin,
     required this.onGuest,
   });
@@ -290,7 +286,6 @@ class _Footer extends StatelessWidget {
   final int pageCount;
   final VoidCallback onNext;
   final ValueChanged<int> onDotTap;
-  final VoidCallback onRegister;
   final VoidCallback onLogin;
   final VoidCallback onGuest;
 
@@ -364,7 +359,7 @@ class _Footer extends StatelessWidget {
     );
   }
 
-  // Adım 5 — Kayıt Ol (primary) + Giriş Yap (surface) + misafir
+  // Adım 5 — Giriş Yap (primary) + Misafir Olarak Gir (surface)
   Widget _buildActionStack(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Column(
@@ -375,7 +370,7 @@ class _Footer extends StatelessWidget {
           child: SizedBox(
             height: sizes.buttonHeight,
             child: ElevatedButton(
-              onPressed: onRegister,
+              onPressed: onLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: scheme.primary,
                 foregroundColor: scheme.onPrimary,
@@ -386,7 +381,7 @@ class _Footer extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Kayıt Ol',
+                'Giriş Yap',
                 style: TextStyle(
                   fontSize: sizes.buttonFontSize,
                   fontWeight: FontWeight.w700,
@@ -401,7 +396,7 @@ class _Footer extends StatelessWidget {
           child: SizedBox(
             height: sizes.buttonHeight,
             child: ElevatedButton(
-              onPressed: onLogin,
+              onPressed: onGuest,
               style: ElevatedButton.styleFrom(
                 backgroundColor: scheme.surfaceContainer,
                 foregroundColor: scheme.onSurface,
@@ -412,25 +407,12 @@ class _Footer extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Giriş Yap',
+                'Misafir Olarak Gir',
                 style: TextStyle(
                   fontSize: sizes.buttonFontSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-          ),
-        ),
-        // Tasarımda yer almıyor; orijinal akıştaki misafir girişi korundu.
-        // İstenmezse bu TextButton kaldırılabilir.
-        TextButton(
-          onPressed: onGuest,
-          style: TextButton.styleFrom(foregroundColor: scheme.onSurfaceVariant),
-          child: Text(
-            'Misafir Olarak Devam Et',
-            style: TextStyle(
-              fontSize: sizes.skipFontSize,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),

@@ -41,7 +41,7 @@ class RegisterFooterStrip extends StatelessWidget {
             size: s.stripIconSize,
             color: scheme.secondary,
           ),
-          SizedBox(width: s.livePillGap),
+          SizedBox(width: s.fieldGroupGap),
           Expanded(
             child: Text(
               'ÜNİ RADYO • 24/7 KESİNTİSİZ YAYIN',

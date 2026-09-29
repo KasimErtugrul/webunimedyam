@@ -1,6 +1,7 @@
 // lib/presentation/screens/auth/widgets/register_text_field.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../register_layout_spec.dart';
 
@@ -22,9 +23,11 @@ class RegisterTextField extends StatefulWidget {
     this.hint,
     this.obscure = false,
     this.suffix,
+    this.formFieldKey,
     this.keyboardType,
     this.textInputAction,
     this.autofillHints,
+    this.inputFormatters,
     this.enableSuggestions = true,
     this.autocorrect = true,
     this.validator,
@@ -43,9 +46,14 @@ class RegisterTextField extends StatefulWidget {
   final String? hint;
   final bool obscure;
   final Widget? suffix;
+
+  /// Dışarıdan FormFieldState'e erişmek isteyenler için (ör. şifre
+  /// tekrarı alanını canlı yeniden doğrulamak).
+  final GlobalKey<FormFieldState<String>>? formFieldKey;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final List<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
   final bool enableSuggestions;
   final bool autocorrect;
   final String? Function(String?)? validator;
@@ -111,12 +119,14 @@ class _RegisterTextFieldState extends State<RegisterTextField> {
         SizedBox(height: s.fieldGroupGap),
 
         TextFormField(
+          key: widget.formFieldKey,
           controller: widget.controller,
           focusNode: _effectiveFocus,
           obscureText: widget.obscure,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           autofillHints: widget.autofillHints,
+          inputFormatters: widget.inputFormatters,
           enableSuggestions: widget.enableSuggestions,
           autocorrect: widget.autocorrect,
           validator: widget.validator,

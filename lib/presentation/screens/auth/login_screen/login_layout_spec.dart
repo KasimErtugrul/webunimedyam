@@ -23,17 +23,6 @@ abstract class LoginSizes {
   double get glowSecondaryTop;
   double get glowSecondaryRight;
 
-  // ── Marka başlığı ─────────────────────────────────────────
-  double get brandBottomGap;    // mb-space-lg (24)
-  double get logoPad;           // p-space-xs (4)
-  double get logoRadius;        // rounded-xl (12)
-  double get logoHeight;        // h-10 (40)
-  double get badgeGap;          // gap-1.5 (6)
-  double get badgeHPadding;     // px-space-sm (8)
-  double get badgeVPadding;     // py-0.5 (2)
-  double get badgeDotSize;      // w-1.5 (6)
-  double get badgeFontSize;     // label-sm (10)
-
   // ── Karşılama ─────────────────────────────────────────────
   double get greetingBottomGap; // mb-space-xl (32)
   double get titleFontSize;     // headline-xl-mobile (26)
@@ -84,21 +73,6 @@ abstract class LoginSizes {
   double get footerLinkFontSize;// label-lg (14)
   double get footerChevronSize; // text-[16px]
 
-  // ── Canlı yayın teaser ────────────────────────────────────
-  double get teaserTopGap;      // mt-space-xl (32)
-  double get teaserPadding;     // p-space-md (16)
-  double get teaserRadius;      // rounded-xl (12)
-  double get teaserGap;         // gap-space-sm (8)
-  double get teaserIconBoxSize; // w-10 (40)
-  double get teaserIconBoxRadius; // rounded-lg (8)
-  double get teaserIconSize;    // text-[22px]
-  double get teaserPingSize;    // w-2 (8)
-  double get teaserPingOffset;  // top-1 right-1 (4)
-  double get teaserLabelFontSize; // label-sm (10)
-  double get teaserTitleFontSize; // label-md (12)
-  double get teaserBadgeDotSize;  // w-1.5 (6)
-  double get teaserBadgeFontSize; // label-sm (10)
-
   // ── Hata bandı ────────────────────────────────────────────
   double get errorFontSize;
   double get errorPadding;
@@ -127,16 +101,6 @@ class LoginPhoneSizes extends LoginSizes {
   @override double get glowSecondarySize => 192;
   @override double get glowSecondaryTop => 192;
   @override double get glowSecondaryRight => -48;
-
-  @override double get brandBottomGap => 24;
-  @override double get logoPad => 4;
-  @override double get logoRadius => 12;
-  @override double get logoHeight => 40;
-  @override double get badgeGap => 6;
-  @override double get badgeHPadding => 8;
-  @override double get badgeVPadding => 2;
-  @override double get badgeDotSize => 6;
-  @override double get badgeFontSize => 10;
 
   @override double get greetingBottomGap => 32;
   @override double get titleFontSize => 26;
@@ -181,20 +145,6 @@ class LoginPhoneSizes extends LoginSizes {
   @override double get footerLinkFontSize => 14;
   @override double get footerChevronSize => 16;
 
-  @override double get teaserTopGap => 32;
-  @override double get teaserPadding => 16;
-  @override double get teaserRadius => 12;
-  @override double get teaserGap => 8;
-  @override double get teaserIconBoxSize => 40;
-  @override double get teaserIconBoxRadius => 8;
-  @override double get teaserIconSize => 22;
-  @override double get teaserPingSize => 8;
-  @override double get teaserPingOffset => 4;
-  @override double get teaserLabelFontSize => 10;
-  @override double get teaserTitleFontSize => 12;
-  @override double get teaserBadgeDotSize => 6;
-  @override double get teaserBadgeFontSize => 10;
-
   @override double get errorFontSize => 13;
   @override double get errorPadding => 12;
   @override double get errorRadius => 10;
@@ -221,16 +171,6 @@ class LoginTabletSizes extends LoginSizes {
   @override double get glowSecondarySize => 240;
   @override double get glowSecondaryTop => 220;
   @override double get glowSecondaryRight => -56;
-
-  @override double get brandBottomGap => 28;
-  @override double get logoPad => 6;
-  @override double get logoRadius => 14;
-  @override double get logoHeight => 48;
-  @override double get badgeGap => 8;
-  @override double get badgeHPadding => 12;
-  @override double get badgeVPadding => 4;
-  @override double get badgeDotSize => 8;
-  @override double get badgeFontSize => 12;
 
   @override double get greetingBottomGap => 40;
   @override double get titleFontSize => 32;
@@ -274,20 +214,6 @@ class LoginTabletSizes extends LoginSizes {
   @override double get footerFontSize => 15;
   @override double get footerLinkFontSize => 15;
   @override double get footerChevronSize => 18;
-
-  @override double get teaserTopGap => 40;
-  @override double get teaserPadding => 20;
-  @override double get teaserRadius => 14;
-  @override double get teaserGap => 12;
-  @override double get teaserIconBoxSize => 48;
-  @override double get teaserIconBoxRadius => 10;
-  @override double get teaserIconSize => 26;
-  @override double get teaserPingSize => 10;
-  @override double get teaserPingOffset => 5;
-  @override double get teaserLabelFontSize => 12;
-  @override double get teaserTitleFontSize => 13;
-  @override double get teaserBadgeDotSize => 8;
-  @override double get teaserBadgeFontSize => 12;
 
   @override double get errorFontSize => 14;
   @override double get errorPadding => 16;

@@ -1,13 +1,17 @@
 // lib/presentation/screens/auth/widgets/register_username_field.dart
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
 
 import '../register_layout_spec.dart';
 import 'register_text_field.dart';
 
+/// Kullanıcı adı için izlenen format: küçük İngilizce harf, rakam ve
+/// alt çizgi; boşluk yasak. Girdi otomatik küçük harfe çevrilir.
+RegExp _usernamePattern = RegExp(r'^[a-z0-9_]+$');
+
 /// Kullanıcı Adı alanı — etiketin sağında "✓ Uygun" rozeti,
-/// girdi ≥ 3 karakter olduğunda opacity 0→1 (JS davranışının aynısı).
+/// girdi geçerli formata uyduğunda opacity 0→1.
 class RegisterUsernameField extends StatelessWidget {
   const RegisterUsernameField({
     super.key,
@@ -38,12 +42,23 @@ class RegisterUsernameField extends StatelessWidget {
       hint: 'kullanici_adi',
       textInputAction: TextInputAction.next,
       autofillHints: const [AutofillHints.username],
+      inputFormatters: [
+        // Büyük harf girişini engellemek yerine sessizce küçük harfe çevir.
+        TextInputFormatter.withFunction(
+          (oldValue, newValue) =>
+              newValue.copyWith(text: newValue.text.toLowerCase()),
+        ),
+        FilteringTextInputFormatter.allow(RegExp(r'[a-z0-9_]')),
+      ],
       validator: validator,
       onSubmitted: onSubmitted,
       labelHint: ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
         builder: (context, value, _) {
-          final isValid = value.text.trim().length >= 3;
+          final text = value.text.trim();
+          final isValid = text.length >= 3 &&
+              text.length <= 20 &&
+              _usernamePattern.hasMatch(text);
           return AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: isValid ? 1 : 0,
@@ -55,7 +70,7 @@ class RegisterUsernameField extends StatelessWidget {
                   size: s.labelHintFontSize + 2,
                   color: scheme.primary,
                 ),
-                SizedBox(width: s.livePillGap / 2),
+                SizedBox(width: s.fieldGroupGap / 2),
                 Text(
                   'Uygun',
                   style: TextStyle(

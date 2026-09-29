@@ -32,7 +32,7 @@ class LoginGreeting extends StatelessWidget {
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: s.subtitleMaxWidth),
           child: Text(
-            'Kampüs yayınlarını, dersleri ve topluluk videolarını keşfetmeye devam et.',
+            '219 üniversitenin YouTube kanallarındaki videolar, canlı yayınlar ve Shorts\'lar seni bekliyor.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppTheme.textSec(context),

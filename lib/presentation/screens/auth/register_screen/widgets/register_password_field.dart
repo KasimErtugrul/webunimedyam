@@ -20,6 +20,7 @@ class RegisterPasswordField extends StatelessWidget {
     required this.obscure,
     required this.onToggleObscure,
     this.validator,
+    this.textInputAction = TextInputAction.done,
     this.onSubmitted,
   });
 
@@ -29,6 +30,7 @@ class RegisterPasswordField extends StatelessWidget {
   final bool obscure;
   final VoidCallback onToggleObscure;
   final String? Function(String?)? validator;
+  final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
 
   @override
@@ -48,7 +50,11 @@ class RegisterPasswordField extends StatelessWidget {
           icon: Icons.lock_outline_rounded,
           hint: '••••••••',
           obscure: obscure,
-          textInputAction: TextInputAction.done,
+          // Klavye otomatik düzeltmesi şifreye görünmez boşluk/harf
+          // eklemesin (özellikle göz ikonuyla açık metne geçilince).
+          enableSuggestions: false,
+          autocorrect: false,
+          textInputAction: textInputAction,
           autofillHints: const [AutofillHints.newPassword],
           validator: validator,
           onSubmitted: onSubmitted,

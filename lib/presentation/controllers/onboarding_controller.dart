@@ -10,8 +10,8 @@ class OnboardingController extends GetxController {
   OnboardingController({required this.authRepository});
 
   /// Onboarding'i tamamlanmış olarak işaretler ama Home'a yönlendirmez.
-  /// "Giriş Yap / Kayıt Ol" seçildiğinde kullanılır: bir sonraki adımda
-  /// ekran kendi Login/Register'a yönlendirmesini yapar.
+  /// "Giriş Yap" seçildiğinde kullanılır: bir sonraki adımda ekran
+  /// kendi Login ekranına yönlendirmesini yapar.
   Future<void> completeSilently() async {
     try {
       await authRepository.completeOnboarding();
