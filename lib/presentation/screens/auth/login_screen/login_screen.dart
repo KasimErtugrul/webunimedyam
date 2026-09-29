@@ -13,6 +13,7 @@ import 'widgets/login_email_field.dart';
 import 'widgets/login_error_banner.dart';
 import 'widgets/login_footer_links.dart';
 import 'widgets/login_google_button.dart';
+import 'widgets/login_terms_notice.dart';
 import 'widgets/login_greeting.dart';
 import 'widgets/login_guest_button.dart';
 import 'widgets/login_or_divider.dart';
@@ -309,6 +310,8 @@ class _LoginFormCardState extends State<_LoginFormCard> {
 
             // ── Google Sign-In ─────────────────────────
             LoginGoogleButton(sizes: s),
+            const SizedBox(height: 8),
+            const LoginTermsNotice(),
 
             SizedBox(height: s.cardGap),
 

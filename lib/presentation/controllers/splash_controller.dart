@@ -25,6 +25,15 @@ class SplashController extends GetxController {
         return;
       }
 
+      // Kayıt akışını (tercihler + üniversite seçimi) yarım bırakmış bir
+      // kullanıcı uygulamayı yeniden açtıysa kaldığı yerden devam ettir.
+      // Misafirde (oturum yok) isSignupCompleted() true döner.
+      if (authRepository.isLoggedIn &&
+          !await authRepository.isSignupCompleted()) {
+        Get.offAllNamed(AppRoutes.signupPreferences);
+        return;
+      }
+
       // Auth olsun ya da olmasın direkt home'a git.
       // Favori / yorum gibi işlemlerde zaten auth istenir.
       Get.offAllNamed(AppRoutes.home);

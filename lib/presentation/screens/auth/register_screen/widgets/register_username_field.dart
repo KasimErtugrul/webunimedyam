@@ -1,5 +1,6 @@
 // lib/presentation/screens/auth/widgets/register_username_field.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,8 +11,12 @@ import 'register_text_field.dart';
 /// alt çizgi; boşluk yasak. Girdi otomatik küçük harfe çevrilir.
 RegExp _usernamePattern = RegExp(r'^[a-z0-9_]+$');
 
-/// Kullanıcı Adı alanı — etiketin sağında "✓ Uygun" rozeti,
-/// girdi geçerli formata uyduğunda opacity 0→1.
+/// Sunucudaki (is_username_available) müsaitlik sorgusunun durumu.
+enum UsernameAvailability { unknown, checking, available, taken }
+
+/// Kullanıcı Adı alanı — etiketin sağında durum rozeti:
+/// "Kontrol ediliyor…" → "✓ Uygun" ya da "✗ Alınmış".
+/// Format geçersizken rozet görünmez.
 class RegisterUsernameField extends StatelessWidget {
   const RegisterUsernameField({
     super.key,
@@ -20,8 +25,10 @@ class RegisterUsernameField extends StatelessWidget {
     required this.sizes,
     this.validator,
     this.onSubmitted,
+    this.availability,
   });
 
+  final ValueListenable<UsernameAvailability>? availability;
   final TextEditingController controller;
   final FocusNode focusNode;
   final RegisterSizes sizes;
@@ -59,29 +66,51 @@ class RegisterUsernameField extends StatelessWidget {
           final isValid = text.length >= 3 &&
               text.length <= 20 &&
               _usernamePattern.hasMatch(text);
-          return AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: isValid ? 1 : 0,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  size: s.labelHintFontSize + 2,
-                  color: scheme.primary,
+          return ValueListenableBuilder<UsernameAvailability>(
+            valueListenable: availability ??
+                ValueNotifier<UsernameAvailability>(
+                  UsernameAvailability.available,
                 ),
-                SizedBox(width: s.fieldGroupGap / 2),
-                Text(
-                  'Uygun',
-                  style: TextStyle(
-                    color: scheme.primary,
-                    fontSize: s.labelHintFontSize,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.04 * s.labelHintFontSize,
-                  ),
+            builder: (context, status, _) {
+              final IconData icon;
+              final String label;
+              final Color color;
+              switch (status) {
+                case UsernameAvailability.taken:
+                  icon = Icons.cancel_rounded;
+                  label = 'Alınmış';
+                  color = scheme.error;
+                case UsernameAvailability.available:
+                  icon = Icons.check_circle_rounded;
+                  label = 'Uygun';
+                  color = scheme.primary;
+                case UsernameAvailability.unknown:
+                case UsernameAvailability.checking:
+                  icon = Icons.hourglass_top_rounded;
+                  label = 'Kontrol ediliyor';
+                  color = scheme.onSurfaceVariant;
+              }
+              return AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: isValid ? 1 : 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: s.labelHintFontSize + 2, color: color),
+                    SizedBox(width: s.fieldGroupGap / 2),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: s.labelHintFontSize,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.04 * s.labelHintFontSize,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),

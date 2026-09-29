@@ -57,6 +57,18 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
   @override
   HomeTabSizes get sizes => _sizes;
 
+  @override
+  void initState() {
+    super.initState();
+    // Carousel, Keşfet'in discovery verisinden besleniyor; o veri aksi
+    // hâlde Keşfet sekmesi ilk açıldığında yüklendiği için uygulama
+    // Ana Sayfa'da açılınca carousel boş kalıyordu. ensureLoaded bir kez
+    // çalışır; Keşfet'e sonraki girişte tekrar fetch etmez.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.discovery.ensureLoaded();
+    });
+  }
+
   // Hero ile bölümlerin ortak yatay boşluğu (tasarımdaki sayfa padding'i).
   double get _pagePad => sizes.titleSpacingLarge;
 
@@ -143,8 +155,11 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                 .firstWhereOrNull((v) => v.isLiveBroadcast);
             // Yükleme bitmiş ama öne çıkan video da yoksa ve canlı yayın da
             // yoksa hero'yu tamamen gizle (boş bir blok oluşturmasın).
+            // Discovery bölümleri hâlâ yükleniyorsa hero yerinde dursun;
+            // veri gelince carousel shimmer'dan sorunsuz geçsin.
             final featuredEmpty = controller.videosMostWatched.isEmpty &&
-                !controller.isLoading.value;
+                !controller.isLoading.value &&
+                !controller.isVideoSectionsLoading.value;
             if (liveVideo == null && featuredEmpty) {
               return const SizedBox.shrink();
             }
@@ -217,8 +232,11 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
     required double carouselHeight,
   }) {
     return Obx(() {
-      // Yüklenirken shimmer göster
-      if (controller.isLoading.value) {
+      // Yüklenirken shimmer göster — feed ya da carousel'in beslendiği
+      // discovery bölümleri (videosMostWatched) henüz gelmediyse.
+      final sectionsPending = controller.videosMostWatched.isEmpty &&
+          controller.isVideoSectionsLoading.value;
+      if (controller.isLoading.value || sectionsPending) {
         return _buildCarouselShimmer(context, height: carouselHeight);
       }
 

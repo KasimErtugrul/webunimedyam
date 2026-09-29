@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/auth_exceptions.dart';
 import '../../../core/errors/username_taken_exception.dart';
 import '../../models/comment_model.dart';
 import '../../models/profile_model.dart';
@@ -33,23 +34,12 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Kayıt olurken hata oluştu: $e\n$stackTrace');
-      // NOT: signUp() sırasında profiles.username UNIQUE ihlali,
-      // auth.users satırını oluşturan handle_new_user TRIGGER'ı içinde
-      // oluşur. Bu durumda Supabase Auth (GoTrue) hatayı doğrudan bir
-      // Postgrest '23505' kodu olarak değil, genellikle içinde
-      // "duplicate key" / "unique" geçen bir AuthException mesajı olarak
-      // sarar. Bu tespit best-effort'tur — canlıda gerçek bir çakışma
-      // denemesiyle DOĞRULANMALI, çünkü GoTrue'nun sardığı mesaj formatı
-      // Supabase sürümüne göre değişebilir.
-      final msg = e.toString().toLowerCase();
-      if (msg.contains('duplicate') ||
-          msg.contains('unique') ||
-          msg.contains('profiles_username_key')) {
-        throw const UsernameTakenException(
-          'Bu kullanıcı adı zaten alınmış. Lütfen başka bir tane deneyin.',
-        );
-      }
-      throw Exception('Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.');
+      // NOT: Kullanıcı adı çakışması trigger içinde patladığında GoTrue bunu
+      // "Database error saving new user" (500) olarak döndürür; içinde
+      // 'duplicate' geçmez. Bu yüzden burada metin tahmini YAPMIYORUZ —
+      // sebebi AuthRepository.signUp, hatadan sonra isUsernameAvailable()
+      // ile tekrar sorgulayarak kesin olarak belirler.
+      throw _mapAuthError(e, fallback: 'Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.');
     }
   }
 
@@ -65,7 +55,7 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Email OTP doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw Exception('Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     }
   }
 
@@ -74,7 +64,7 @@ class SupabaseDataSource {
       await _client.auth.resend(type: OtpType.signup, email: email);
     } catch (e, stackTrace) {
       log('OTP tekrar gönderilirken hata oluştu: $e\n$stackTrace');
-      throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.');
     }
   }
 
@@ -83,7 +73,83 @@ class SupabaseDataSource {
       await _client.auth.signInWithPassword(email: email, password: password);
     } catch (e, stackTrace) {
       log('Giriş yapılırken hata oluştu: $e\n$stackTrace');
-      throw Exception('Giriş işlemi başarısız oldu. Lütfen tekrar deneyin.');
+      // email_not_confirmed / invalid_credentials / rate limit / ağ hatası
+      // ayrı ayrı tiplere çevrilir; genel mesaja gömülmez.
+      throw _mapAuthError(e, fallback: 'Giriş işlemi başarısız oldu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  /// GoTrue / ağ hatalarını kullanıcıya doğru şeyi söyleyebileceğimiz
+  /// tiplere çevirir.
+  Exception _mapAuthError(Object e, {required String fallback}) {
+    if (e is AuthApiException) {
+      switch (e.code) {
+        case 'email_not_confirmed':
+          return const EmailNotConfirmedException();
+        case 'invalid_credentials':
+          return const InvalidCredentialsException();
+        case 'over_request_rate_limit':
+        case 'over_email_send_rate_limit':
+        case 'over_sms_send_rate_limit':
+          return const AuthRateLimitException();
+        case 'otp_expired':
+          return const AuthFailure('Kodun süresi dolmuş. Yeni kod isteyin.');
+        case 'weak_password':
+          return const AuthFailure(
+            'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre seçin.',
+          );
+      }
+      if (e.statusCode == '429') return const AuthRateLimitException();
+    }
+    if (e is AuthRetryableFetchException) return const AuthNetworkException();
+    if (e is AuthException && e.statusCode == '429') {
+      return const AuthRateLimitException();
+    }
+    final s = e.toString().toLowerCase();
+    if (s.contains('socketexception') ||
+        s.contains('failed host lookup') ||
+        s.contains('clientexception') ||
+        s.contains('timeout')) {
+      return const AuthNetworkException();
+    }
+    return Exception(fallback);
+  }
+
+  // ─── Kayıt yardımcıları (RPC) ────────────────────────────────────────────
+  /// Kullanıcı adı müsait mi? Giriş yapmadan da çağrılabilir (anon).
+  /// [email] verilirse: aynı e-postayla başlanıp doğrulanmamış bir kayıt
+  /// kendi kullanıcı adını tutuyorsa "müsait" sayılır (kayda geri dönüş).
+  Future<bool> isUsernameAvailable(String username, {String? email}) async {
+    final res = await _client.rpc('is_username_available', params: {
+      'p_username': username,
+      'p_email': email,
+    });
+    return res == true;
+  }
+
+  /// Kullanıcı sözleşmesi onayını (zaman + sürüm) sunucuya yazar.
+  Future<void> acceptTerms(String version) async {
+    await _client.rpc('accept_terms', params: {'p_version': version});
+  }
+
+  /// Kayıt akışının (tercihler + üniversite seçimi) bittiğini işaretler.
+  Future<void> completeSignup() async {
+    await _client.rpc('complete_signup');
+  }
+
+  /// Kayıt akışı bitmiş mi? Kayıt yoksa/okunamazsa true döner (kullanıcıyı
+  /// yanlışlıkla akışa geri sokmamak için).
+  Future<bool> isSignupCompleted(String userId) async {
+    try {
+      final data = await _client
+          .from('profiles')
+          .select('signup_completed')
+          .eq('id', userId)
+          .maybeSingle();
+      return data?['signup_completed'] ?? true;
+    } catch (e, stackTrace) {
+      log('signup_completed okunamadı: $e\n$stackTrace');
+      return true;
     }
   }
 
@@ -194,19 +260,19 @@ class SupabaseDataSource {
     } on AuthApiException catch (e, stackTrace) {
       log('Şifre güncellenirken hata oluştu: $e\n$stackTrace');
       if (e.code == 'same_password') {
-        throw Exception(
+        throw const PasswordRejectedException(
           'Yeni şifreniz mevcut şifrenizle aynı olamaz. Lütfen farklı bir şifre girin.',
         );
       }
       if (e.code == 'weak_password') {
-        throw Exception(
+        throw const PasswordRejectedException(
           'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre seçin.',
         );
       }
-      throw Exception('Şifre güncellenemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.');
     } catch (e, stackTrace) {
       log('Şifre güncellenirken hata oluştu: $e\n$stackTrace');
-      throw Exception('Şifre güncellenemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.');
     }
   }
 
@@ -215,7 +281,7 @@ class SupabaseDataSource {
       await _client.auth.resetPasswordForEmail(email);
     } catch (e, stackTrace) {
       log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e\n$stackTrace');
-      throw Exception('Kod gönderilemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.');
     }
   }
 
@@ -231,7 +297,7 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Şifre sıfırlama kodu doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw Exception('Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
+      throw _mapAuthError(e, fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
     }
   }
 

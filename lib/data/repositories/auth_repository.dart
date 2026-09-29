@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:get/get.dart';
 import '../../services/analytics_service.dart';
+import '../../core/errors/auth_exceptions.dart';
 import '../../core/errors/username_taken_exception.dart';
 import '../../core/utils/username_generator.dart';
 import '../datasources/remote/supabase_datasource.dart';
@@ -12,6 +13,10 @@ import '../models/profile_model.dart';
 import '../models/user_settings_model.dart';
 import '../../services/notification_service.dart';
 import 'university_favorites_repository.dart';
+
+/// Yürürlükteki Kullanım Koşulları sürümü. Metin değiştiğinde artırılır;
+/// `profiles.terms_version` ile karşılaştırılarak yeniden onay istenebilir.
+const String kTermsVersion = '2026-09';
 
 class AuthRepository {
   final SupabaseDataSource _supabase;
@@ -78,14 +83,77 @@ class AuthRepository {
         username: username,
       );
 
+      // E-postası zaten DOĞRULANMIŞ bir hesaba ait kayıt denemesinde
+      // Supabase hata vermez; boş `identities` ile sahte bir başarı döner ve
+      // hiçbir e-posta gitmez. Bunu yakalamazsak kullanıcı gelmeyecek bir
+      // kodu bekler.
+      if (response.user?.identities?.isEmpty ?? false) {
+        throw const AuthFailure(
+          'Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı ya da '
+          '"Şifremi unuttum" seçeneğini deneyin.',
+        );
+      }
+
       final needsVerification = response.session == null;
       if (!needsVerification) {
         await _onAuthSuccess();
       }
       return needsVerification;
+    } on AuthRateLimitException {
+      rethrow;
+    } on AuthNetworkException {
+      rethrow;
+    } on AuthFailure {
+      rethrow;
     } catch (e, stacktrace) {
       log('Kayıt olurken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      // GoTrue çakışmayı "Database error saving new user" olarak sakladığı
+      // için sebebi tahmin etmek yerine sorgulayıp KESİN öğreniyoruz.
+      try {
+        final available =
+            await _supabase.isUsernameAvailable(username, email: email);
+        if (!available) throw const UsernameTakenException();
+      } on UsernameTakenException {
+        rethrow;
+      } catch (_) {
+        // Sorgu da başarısız (ağ vb.) — orijinal hatayla devam.
+      }
       rethrow;
+    }
+  }
+
+  /// Kayıt formunda (giriş yapmadan) kullanıcı adı müsaitliği.
+  /// Ağ hatasında `true` döner: engelleyici değil, sunucu zaten son sözü söyler.
+  Future<bool> isUsernameAvailable(String username, {String? email}) async {
+    try {
+      return await _supabase.isUsernameAvailable(username, email: email);
+    } catch (e, st) {
+      log('Kullanıcı adı sorgusu başarısız: $e', error: e, stackTrace: st);
+      return true;
+    }
+  }
+
+  /// Sözleşme onayını sunucuya yazar. Başarısız olsa akışı bozmaz.
+  Future<void> recordTermsAcceptance() async {
+    try {
+      await _supabase.acceptTerms(kTermsVersion);
+    } catch (e, st) {
+      log('Sözleşme onayı kaydedilemedi: $e', error: e, stackTrace: st);
+    }
+  }
+
+  /// Kayıt akışı (tercihler + üniversite seçimi) tamamlandı mı?
+  Future<bool> isSignupCompleted() async {
+    final id = currentUserId;
+    if (id == null) return true;
+    return _supabase.isSignupCompleted(id);
+  }
+
+  Future<void> completeSignup() async {
+    try {
+      await _supabase.completeSignup();
+    } catch (e, st) {
+      log('signup_completed işaretlenemedi: $e', error: e, stackTrace: st);
     }
   }
 
@@ -104,6 +172,9 @@ class AuthRepository {
       // karşılaşacak; izin isteme kararı orada, kullanıcının seçimine göre
       // veriliyor (bkz. SignupPreferencesController.chooseNotifications).
       await _onAuthSuccess(requestNotificationPermission: false);
+      // Sözleşme, kayıt formunda tikle onaylandı; hesap doğrulandığı an
+      // (oturum kuruldu) zaman + sürüm olarak sunucuya kaydedilir.
+      await recordTermsAcceptance();
       await AnalyticsService.instance.logSignUp(method: 'email');
     } catch (e, stacktrace) {
       log(
@@ -157,9 +228,10 @@ class AuthRepository {
 
   Future<void> signIn({required String email, required String password}) async {
     try {
+      // Bildirim token'ı ve login analytics'i çağıran tarafta
+      // (SessionService.onLogin + LoginController) yapılıyor; burada da
+      // yapmak her girişte izin dialogu + event'i İKİ kez tetikliyordu.
       await _supabase.signIn(email: email, password: password);
-      await NotificationService.instance.onUserLogin();
-      await AnalyticsService.instance.logLogin(method: 'email');
     } catch (e, stacktrace) {
       log('Giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -178,14 +250,11 @@ class AuthRepository {
   Future<bool> signInWithGoogle() async {
     try {
       final isNewUser = await _supabase.signInWithGoogle();
+      // Bildirim izni burada İSTENMİYOR: LoginController → SessionService
+      // .onLogin(requestNotificationPermission: !isNewUser) karar verir.
+      // Yeni kullanıcıda izin SignupPreferencesScreen'de sorulur.
       if (isNewUser) {
-        // Yeni kullanıcı SignupPreferencesScreen'e yönlendirilecek ve
-        // bildirim izni orada, kullanıcının seçimine göre istenecek —
-        // burada erkenden istenirse OS izni bir kez cevaplanmış olur ve
-        // o ekrandaki "Aç" butonu artık dialog açtıramaz.
-        await NotificationService.instance.retryTokenSyncIfNeeded();
-      } else {
-        await NotificationService.instance.onUserLogin();
+        await recordTermsAcceptance();
       }
       AnalyticsService.instance.logEvent(
         isNewUser ? 'sign_up' : 'login',
@@ -295,18 +364,39 @@ class AuthRepository {
   /// Kodu doğrular (geçici recovery session kurar) ve ardından yeni
   /// şifreyi ayarlar. Tek adımda birleştirilmiş, çünkü recovery session'ın
   /// tek başına bir anlamı yok — hemen yeni şifre belirlenmeli.
+  /// 1. adım: kodu doğrular (geçici recovery session kurar).
+  Future<void> verifyPasswordResetCode({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      await _supabase.verifyPasswordResetOtp(email: email, token: otp);
+    } catch (e, stacktrace) {
+      log('Şifre sıfırlama kodu doğrulanamadı: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  /// 2. adım: recovery session açıkken yeni şifreyi ayarlar.
+  /// Kod 1. adımda tüketildiği için bu adım başarısız olursa (zayıf/aynı
+  /// şifre) kullanıcı SADECE yeni şifreyi düzeltip bunu tekrar çağırır.
+  Future<void> setNewPasswordAfterReset({required String newPassword}) async {
+    try {
+      await _supabase.updatePassword(newPassword: newPassword);
+    } catch (e, stacktrace) {
+      log('Yeni şifre ayarlanamadı: $e', error: e, stackTrace: stacktrace);
+      rethrow;
+    }
+  }
+
+  /// Geriye dönük uyumluluk: iki adımı tek çağrıda yapar.
   Future<void> confirmPasswordReset({
     required String email,
     required String otp,
     required String newPassword,
   }) async {
-    try {
-      await _supabase.verifyPasswordResetOtp(email: email, token: otp);
-      await _supabase.updatePassword(newPassword: newPassword);
-    } catch (e, stacktrace) {
-      log('Şifre sıfırlanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
-      rethrow;
-    }
+    await verifyPasswordResetCode(email: email, otp: otp);
+    await setNewPasswordAfterReset(newPassword: newPassword);
   }
 
   /// Şifre sıfırlama kodunu tekrar gönderir.

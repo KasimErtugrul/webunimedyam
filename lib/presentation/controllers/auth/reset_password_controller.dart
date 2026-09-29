@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
+import '../../../core/errors/auth_exceptions.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/analytics_service.dart';
 import '../utils/resend_cooldown.dart';
@@ -17,11 +18,22 @@ class ResetPasswordController extends GetxController {
   final errorMessage = ''.obs;
   final cooldown = ResendCooldown();
 
+  // Kod doğrulandı (recovery session açık) ama yeni şifre henüz
+  // ayarlanamadı. true iken tekrar denemede KOD YENİDEN DOĞRULANMAZ —
+  // Supabase kodu tek kullanımlık; tekrar doğrulamak "kod hatalı" sanılırdı.
+  bool _codeVerified = false;
+  bool _completed = false;
+
   /// Eski API uyumu.
   RxInt get resetResendCooldown => cooldown.seconds;
 
   @override
   void onClose() {
+    // Kod doğrulanıp şifre belirlenmeden ekran terk edilirse geçici
+    // recovery oturumu açık kalmasın.
+    if (_codeVerified && !_completed) {
+      _repo.signOut().catchError((_) {});
+    }
     cooldown.dispose();
     super.onClose();
   }
@@ -36,19 +48,33 @@ class ResetPasswordController extends GetxController {
     errorMessage.value = '';
 
     try {
-      await _repo.confirmPasswordReset(
-        email: email,
-        otp: otp,
-        newPassword: newPassword,
-      );
+      if (!_codeVerified) {
+        await _repo.verifyPasswordResetCode(email: email, otp: otp);
+        _codeVerified = true;
+      }
+      await _repo.setNewPasswordAfterReset(newPassword: newPassword);
+      _completed = true;
       AnalyticsService.instance.logEvent('password_reset_completed');
 
       await _repo.signOut();
       Get.offAllNamed(AppRoutes.login);
+    } on PasswordRejectedException catch (e) {
+      // Kod doğru; sadece yeni şifre reddedildi. Kullanıcı şifreyi düzeltip
+      // tekrar bassın, kod tekrar sorulmayacak.
+      errorMessage.value = e.message;
+      AnalyticsService.instance.logEvent(
+        'password_reset_failed',
+        parameters: {'reason': 'password_rejected'},
+      );
+    } on AuthRateLimitException catch (e) {
+      errorMessage.value = e.toString();
+    } on AuthNetworkException catch (e) {
+      errorMessage.value = e.toString();
     } catch (e, st) {
       log('confirmPasswordReset failed: $e', error: e, stackTrace: st);
-      errorMessage.value =
-          'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+      errorMessage.value = _codeVerified
+          ? 'Şifre güncellenemedi. Lütfen tekrar deneyin.'
+          : 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
       AnalyticsService.instance.logEvent('password_reset_failed');
     } finally {
       isVerifyingReset.value = false;
@@ -62,6 +88,7 @@ class ResetPasswordController extends GetxController {
 
     try {
       await _repo.resendPasswordResetOtp(email: email);
+      _codeVerified = false; // yeni kod gönderildi; bir sonraki denemede yeniden doğrula
       cooldown.start();
     } catch (e, st) {
       log('resendPasswordResetOtp failed: $e', error: e, stackTrace: st);

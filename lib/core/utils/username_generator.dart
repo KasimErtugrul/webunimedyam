@@ -43,9 +43,9 @@ class UsernameGenerator {
 
     if (slug.isEmpty) slug = 'kullanici';
 
-    // profiles.username sütununda sabit bir uzunluk sınırı yok, ama
-    // makul bir üst sınır tutuyoruz (6 haneli sayı + biraz pay için).
-    const maxBaseLength = 20;
+    // Sunucuda profiles_username_format (3-20 karakter) kuralı var:
+    // 6 haneli sayı eklenince toplam 20'yi aşmasın diye taban en fazla 14.
+    const maxBaseLength = 14;
     if (slug.length > maxBaseLength) {
       slug = slug.substring(0, maxBaseLength);
     }

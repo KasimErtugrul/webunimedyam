@@ -6,15 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
+import '../../../core/errors/auth_exceptions.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/analytics_service.dart';
 import '../../../services/session_service.dart';
 import '../utils/resend_cooldown.dart';
 
 class OtpVerificationController extends GetxController {
-  /// Tasarımdaki 6 haneli kod ve 02:45 (165 sn) geçerlilik sayacı.
+  /// 6 haneli kod ve 10:00 (600 sn) geçerlilik sayacı.
   static const int codeLength = 6;
-  static const int codeExpirySeconds = 165;
+  static const int codeExpirySeconds = 600; // Supabase OTP expiry ile aynı olmalı
 
   OtpVerificationController({
     required AuthRepository authRepository,
@@ -148,12 +149,19 @@ class OtpVerificationController extends GetxController {
 
     try {
       await _repo.verifyEmailOtp(email: email, token: otp);
-      await _session.onLogin();
+      // İzin dialogu burada AÇILMAZ; tercih ekranında kullanıcının
+      // seçimine göre istenir.
+      await _session.onLogin(requestNotificationPermission: false);
       Get.offAllNamed(AppRoutes.signupPreferences);
+    } on AuthRateLimitException catch (e) {
+      errorMessage.value = e.toString();
+    } on AuthNetworkException catch (e) {
+      errorMessage.value = e.toString();
     } catch (e, st) {
       log('verifyOtp failed: $e', error: e, stackTrace: st);
       errorMessage.value =
           'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
+      clearCode(); // yanlış kodu temizle, kullanıcı baştan girsin
       AnalyticsService.instance.logEvent('otp_verification_failed');
     } finally {
       isVerifyingOtp.value = false;
@@ -169,6 +177,8 @@ class OtpVerificationController extends GetxController {
       await _repo.resendVerificationOtp(email: email);
       cooldown.start();
       startCodeExpiry(); // yeni kodun geçerlilik süresi yeniden başlar
+    } on AuthRateLimitException catch (e) {
+      errorMessage.value = e.toString();
     } catch (e, st) {
       log('resendOtp failed: $e', error: e, stackTrace: st);
       errorMessage.value = 'Kod gönderilemedi. Lütfen tekrar deneyin.';

@@ -1,5 +1,7 @@
 // lib/presentation/screens/auth/register_screen/register_screen.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -94,6 +96,12 @@ class _RegisterFormState extends State<_RegisterForm> {
   // için kullanılıyor.
   final _confirmFieldKey = GlobalKey<FormFieldState<String>>();
 
+  // Kullanıcı adı canlı müsaitlik kontrolü (debounce'lu).
+  final _usernameAvailability =
+      ValueNotifier<UsernameAvailability>(UsernameAvailability.unknown);
+  Timer? _usernameDebounce;
+  String? _takenUsername;
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _termsAccepted = false;
@@ -120,6 +128,38 @@ class _RegisterFormState extends State<_RegisterForm> {
     // tazelenir; kullanıcı düzeltir düzeltmez hata kaybolur.
     _passwordController.addListener(_revalidateConfirm);
     _confirmPasswordController.addListener(_revalidateConfirm);
+    _usernameController.addListener(_onUsernameChanged);
+  }
+
+  void _onUsernameChanged() {
+    _usernameDebounce?.cancel();
+    final v = _usernameController.text.trim();
+    if (_validateUsername(v) != null) {
+      _takenUsername = null;
+      _usernameAvailability.value = UsernameAvailability.unknown;
+      return;
+    }
+    _usernameAvailability.value = UsernameAvailability.checking;
+    _usernameDebounce = Timer(
+      const Duration(milliseconds: 500),
+      () => _checkUsername(v),
+    );
+  }
+
+  /// Sunucuya sorar. Aynı e-postayla başlanıp doğrulanmamış bir kayıt kendi
+  /// kullanıcı adını tutuyorsa "müsait" döner (e-posta geçerliyse gönderilir).
+  Future<bool> _checkUsername(String v) async {
+    final email = _emailController.text.trim();
+    final available = await _auth.isUsernameAvailable(
+      v,
+      email: _emailRegExp.hasMatch(email) ? email : null,
+    );
+    if (!mounted || _usernameController.text.trim() != v) return available;
+    _takenUsername = available ? null : v;
+    _usernameAvailability.value = available
+        ? UsernameAvailability.available
+        : UsernameAvailability.taken;
+    return available;
   }
 
   void _revalidateConfirm() {
@@ -131,6 +171,9 @@ class _RegisterFormState extends State<_RegisterForm> {
   void dispose() {
     _passwordController.removeListener(_revalidateConfirm);
     _confirmPasswordController.removeListener(_revalidateConfirm);
+    _usernameController.removeListener(_onUsernameChanged);
+    _usernameDebounce?.cancel();
+    _usernameAvailability.dispose();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -150,6 +193,9 @@ class _RegisterFormState extends State<_RegisterForm> {
     if (v.length > 20) return 'Kullanıcı adı en fazla 20 karakter olmalı';
     if (!_usernameRegExp.hasMatch(v)) {
       return 'Yalnızca küçük İngilizce harf, rakam ve alt çizgi; boşluk kullanılmaz';
+    }
+    if (_takenUsername == v) {
+      return 'Bu kullanıcı adı zaten alınmış. Başka bir tane deneyin.';
     }
     return null;
   }
@@ -188,6 +234,15 @@ class _RegisterFormState extends State<_RegisterForm> {
     }
     if (!formValid || !_termsAccepted) return;
     FocusScope.of(context).unfocus();
+
+    // Son söz sunucuda: yarışta (form doldurulurken başkası aldıysa) kayıt
+    // isteği atmadan, sebebi net olarak alanın altında göster.
+    final nameOk = await _checkUsername(_usernameController.text.trim());
+    if (!nameOk) {
+      _formKey.currentState?.validate();
+      return;
+    }
+
     await _auth.signUp(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
@@ -248,6 +303,7 @@ class _RegisterFormState extends State<_RegisterForm> {
             focusNode: _usernameFocus,
             sizes: s,
             validator: _validateUsername,
+            availability: _usernameAvailability,
             onSubmitted: (_) => _emailFocus.requestFocus(),
           ),
           SizedBox(height: s.formGap),

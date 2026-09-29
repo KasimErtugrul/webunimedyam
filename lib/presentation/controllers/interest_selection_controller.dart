@@ -128,6 +128,7 @@ class InterestSelectionController extends GetxController {
       }
 
       await local.setInterestSelectionShown();
+      await authRepository.completeSignup();
       Get.offAllNamed(AppRoutes.home);
     } catch (e, stacktrace) {
       log(
@@ -138,6 +139,7 @@ class InterestSelectionController extends GetxController {
       // Kayıt sırasında hata olsa bile kullanıcıyı akışta bekletmiyoruz;
       // favoriler HomeController üzerinden istediği zaman tekrar eklenebilir.
       await local.setInterestSelectionShown();
+      await authRepository.completeSignup();
       Get.offAllNamed(AppRoutes.home);
     } finally {
       isSaving.value = false;
@@ -148,6 +150,7 @@ class InterestSelectionController extends GetxController {
   Future<void> skip() async {
     AnalyticsService.instance.logEvent('interest_selection_skipped');
     await local.setInterestSelectionShown();
+    await authRepository.completeSignup();
     Get.offAllNamed(AppRoutes.home);
   }
 }
