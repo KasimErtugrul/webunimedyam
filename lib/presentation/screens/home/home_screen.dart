@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../core/utils/external_navigation.dart';
 import '../../controllers/home/home_controller.dart';
 import '../search/search_screen.dart';
 import 'tabs/discovery_tab/discover_tab_widget.dart';
@@ -41,6 +42,18 @@ class PhoneHomeLayout extends StatefulWidget {
 
 class _PhoneHomeLayoutState extends State<PhoneHomeLayout> {
   final Set<int> _builtIndices = {0};
+
+  @override
+  void initState() {
+    super.initState();
+    HomeScreenPresence.attach();
+  }
+
+  @override
+  void dispose() {
+    HomeScreenPresence.detach();
+    super.dispose();
+  }
 
   List<Widget> _buildTabs() {
     return [

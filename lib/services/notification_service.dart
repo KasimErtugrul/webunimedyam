@@ -8,10 +8,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../app/bindings/home_binding.dart';
-import '../app/routes/app_routes.dart';
+import '../core/utils/external_navigation.dart';
 import '../data/datasources/remote/supabase_datasource.dart';
-import '../presentation/screens/home/home_screen.dart';
 
 class NotificationService {
   NotificationService._();
@@ -310,33 +308,12 @@ class NotificationService {
       final video = await ds.getVideoById(videoId);
       if (video == null) return;
       
-      // BUG FIX: Önceden burada Get.offAllNamed(AppRoutes.home) çağrılıp
-      // ardından 300ms'lik yapay bir gecikme bekleniyordu — bu süre
-      // boyunca ana sayfa gerçekten ekranda görünüyordu, kullanıcı
-      // bildirime bastığında "önce ana sayfa, sonra player" açılıyormuş
-      // gibi algılıyordu. Artık ana sayfaya geçiş ANİMASYONSUZ yapılıyor
-      // (görünmeden, ama yine de geri tuşu için yığının altına
-      // yerleşiyor) ve hemen ardından player normal animasyonla açılıyor.
-      //
-      // BUG FIX 2 (kök neden): `Navigator.pushAndRemoveUntil` (Get.offAll'ın
-      // altında kullandığı mekanizma) döndürdüğü Future, rota PUSH
-      // edildiğinde DEĞİL, o rota daha sonra POP edildiğinde tamamlanır.
-      // Home ekranı hiçbir zaman pop edilmediği için, bu Future'ı `await`
-      // etmek akışı burada SONSUZA KADAR bekletiyordu — Get.toNamed()
-      // satırına asla ulaşılamıyordu (deep_link_service.dart'ta tespit
-      // edilen sorunun birebir aynısı). Çözüm: awaitlemeyip bir sonraki
-      // frame'i beklemek.
-      Get.offAll(
-        () => const HomeScreen(),
-        binding: HomeBinding(),
-        routeName: AppRoutes.home,
-        transition: Transition.noTransition,
-        duration: Duration.zero,
+      // Ana Sayfa zaten açıksa yeniden kurulmaz (bkz. external_navigation.dart:
+      // Get.offAll(HomeScreen) ana sayfadaki controller'ları bozuyordu).
+      await ExternalNavigation.openPlayer(
+        videoId: video.videoId,
+        arguments: video,
       );
-
-      await WidgetsBinding.instance.endOfFrame;
-
-      Get.toNamed(AppRoutes.player, arguments: video, parameters: {'videoId': video.videoId});
     } catch (e, stacktrace) {
       log('Bildirimden oynatıcıya yönlendirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
     }

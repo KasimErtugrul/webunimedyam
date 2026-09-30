@@ -21,10 +21,8 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '../app/bindings/home_binding.dart';
-import '../app/routes/app_routes.dart';
 import '../core/constants/app_links.dart';
-import '../presentation/screens/home/home_screen.dart';
+import '../core/utils/external_navigation.dart';
 
 class DeepLinkService {
   DeepLinkService._();
@@ -115,40 +113,8 @@ class DeepLinkService {
     return null;
   }
 
-  Future<void> _navigateToPlayer(String videoId, {int attempt = 0}) async {
-    // GetMaterialApp'in navigator'ı henüz hazır değilse (uygulama daha
-    // yeni açılıyorsa) birkaç kez kısa aralıklarla tekrar dener.
-    if (Get.key.currentState == null) {
-      if (attempt >= 20) return; // ~4 saniye sonra vazgeç
-      await Future.delayed(const Duration(milliseconds: 200));
-      return _navigateToPlayer(videoId, attempt: attempt + 1);
-    }
-
-    // BUG FIX (kök neden): `Navigator.pushAndRemoveUntil` (Get.offAll'ın
-    // altında kullandığı mekanizma) döndürdüğü Future, rota PUSH
-    // edildiğinde DEĞİL, o rota daha sonra POP edildiğinde tamamlanır.
-    // Home ekranı hiçbir zaman pop edilmediği için (kullanıcı geri
-    // tuşuna basana kadar), bu Future'ı `await` etmek akışı burada
-    // sonsuza kadar bekletiyor ve Get.toNamed() satırına asla
-    // ulaşılamıyordu — "linke tıklanınca hep ana sayfada kalma"
-    // şikayetinin birebir sebebi buydu.
-    //
-    // Çözüm: Future'ı awaitlemiyoruz (fire-and-forget). Home ekranının
-    // gerçekten bir frame render olmasını (widget ağacına yerleşmesini)
-    // bekleyip hemen ardından player'a geçiyoruz. `transition:
-    // Transition.noTransition, duration: Duration.zero` sayesinde Home
-    // ekranı görsel olarak hiç "flash" etmiyor; kullanıcı uygulamayı
-    // doğrudan player ekranında açılmış gibi görüyor.
-    Get.offAll(
-      () => const HomeScreen(),
-      binding: HomeBinding(),
-      routeName: AppRoutes.home,
-      transition: Transition.noTransition,
-      duration: Duration.zero,
-    );
-
-    await WidgetsBinding.instance.endOfFrame;
-
-    Get.toNamed(AppRoutes.player, parameters: {'videoId': videoId});
+  Future<void> _navigateToPlayer(String videoId) async {
+    // Ana Sayfa zaten açıksa yeniden kurulmaz (bkz. external_navigation.dart).
+    await ExternalNavigation.openPlayer(videoId: videoId);
   }
 }
