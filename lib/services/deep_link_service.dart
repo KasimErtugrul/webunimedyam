@@ -18,8 +18,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:app_links/app_links.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
+
 
 import '../core/constants/app_links.dart';
 import '../core/utils/external_navigation.dart';
