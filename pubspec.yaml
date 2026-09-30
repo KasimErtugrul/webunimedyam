@@ -9,30 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
 
   # State Management
-  get: 4.7.3
+  get: ^4.7.3
 
   # Supabase
   supabase_flutter: ^2.15.0
 
-  # YouTube Player
-  #youtube_player_flutter: 9.1.3
-
-  
-
   # HTTP
-  http: 1.6.0
+  http: ^1.6.0
 
   # UI
-  cached_network_image: 3.4.1
+  cached_network_image: ^3.4.1
   shimmer: ^3.0.0
-  flutter_svg: 2.3.0
+  flutter_svg: ^2.3.0
   share_plus: ^13.1.0
   youtube_player_iframe: ^6.0.0
   timeago: ^3.7.1
-  # flutter_screenutil: ^5.9.3
   youtube_player_flutter: ^10.0.1
   animate_number: ^2.0.1
   url_launcher: ^6.3.2
@@ -51,7 +45,7 @@ dependencies:
   hive_ce: ^2.19.3
   hive_ce_flutter: ^2.3.4
   image_picker: ^1.2.3
-  google_fonts: ^8.1.0
+  google_fonts: ^8.2.1
   connectivity_plus: ^7.2.0
   carousel_slider_plus: ^7.1.2
   google_sign_in: ^7.2.0
@@ -76,6 +70,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  # - assets/images/
-  # - assets/icons/
-   - assets/logo/
+    - assets/logo/
