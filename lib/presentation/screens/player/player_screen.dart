@@ -57,11 +57,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
     });
     _snackbarWorker = ever(_controller.snackbarMessage, (msg) {
       if (msg != null) {
+        // Renk verilmez → temadaki snackBarTheme (açık/koyu duyarlı) geçerli.
         Get.snackbar(
           'Bilgi',
           msg,
-          backgroundColor: const Color(0xFF1E1E2E),
-          colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
         );
@@ -518,7 +517,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ];
   }
 
-  List<Widget> _buildSuggestedItems(BuildContext context, PlayerLayoutSpec spec) {
+  List<Widget> _buildSuggestedItems(
+    BuildContext context,
+    PlayerLayoutSpec spec,
+  ) {
     return [
       SizedBox(height: spec.suggestedSpacing),
       Divider(color: AppTheme.surface(context), height: 1, thickness: 1),
@@ -536,35 +538,42 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final mq = MediaQuery.of(context);
     return Padding(
       padding: EdgeInsets.only(top: mq.padding.top),
-      child: LayoutBuilder(
-        builder: (context, c) {
-          final commentsW = Responsive.clampedFraction(
-            c.maxWidth,
-            fraction: 0.34,
-            min: 300,
-            max: 400,
-          );
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _buildTabletLeft(context, spec, mq.size.height),
-              ),
-              SizedBox(
-                width: commentsW,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    12,
-                    spec.contentPaddingRight - 8,
-                    12 + mq.padding.bottom,
+      child: Center(
+        child: ConstrainedBox(
+          // WEB: çok geniş monitörlerde içerik kenarlara yayılmasın —
+          // klasik web sitesi gibi ortalanmış maksimum genişlik.
+          constraints: const BoxConstraints(maxWidth: 1440),
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final commentsW = Responsive.clampedFraction(
+                c.maxWidth,
+                fraction: 0.34,
+                min: 300,
+                max: 400,
+              );
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildTabletLeft(context, spec, mq.size.height),
                   ),
-                  child: const SuggestedVideosSectionWidget(vertical: true),
-                ),
-              ),
-            ],
-          );
-        },
+                  SizedBox(
+                    width: commentsW,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        0,
+                        12,
+                        spec.contentPaddingRight - 8,
+                        12 + mq.padding.bottom,
+                      ),
+                      child: const SuggestedVideosSectionWidget(vertical: true),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -638,37 +647,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     Get.dialog(
       AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(spec.dialogBorderRadius),
         ),
-        title: const Text(
-          'Giriş Gerekiyor',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Giriş Gerekiyor'),
         content: const Text(
           'Bu özelliği kullanmak için giriş yapmanız gerekiyor.',
-          style: TextStyle(color: Color(0xFF9E9EB8)),
         ),
         actions: [
-          TextButton(
-            onPressed: Get.back,
-            child: const Text(
-              'Vazgeç',
-              style: TextStyle(color: Color(0xFF9E9EB8)),
-            ),
-          ),
+          TextButton(onPressed: Get.back, child: const Text('Vazgeç')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(spec.dialogButtonRadius),
-              ),
-            ),
             onPressed: () {
               Get.back();
-              Get.toNamed('/login');
+              Get.toNamed(AppRoutes.login);
             },
             child: const Text('Giriş Yap'),
           ),

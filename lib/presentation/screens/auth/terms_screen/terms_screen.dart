@@ -160,11 +160,14 @@ class TermsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    final isWeb = Responsive.isWeb(context);
     final isTablet = Responsive.isTablet(context);
-    final double hPad = isTablet ? 32 : 20;
-    final double titleFontSize = isTablet ? 26 : 22;
-    final double sectionTitleFontSize = isTablet ? 16 : 14.5;
-    final double bodyFontSize = isTablet ? 15 : 13.5;
+    final double hPad = isWeb ? 48 : (isTablet ? 32 : 20);
+    final double contentMaxWidth = isWeb ? 640.0 : 520.0;
+    final double titleFontSize = isWeb ? 28 : (isTablet ? 26 : 22);
+    final double sectionTitleFontSize = isWeb ? 17 : (isTablet ? 16 : 14.5);
+    final double bodyFontSize = isWeb ? 15.5 : (isTablet ? 15 : 13.5);
     final sections = _isTerms ? _termsSections : _privacySections;
 
     return Scaffold(
@@ -216,7 +219,7 @@ class TermsScreen extends StatelessWidget {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 24),
@@ -260,7 +263,7 @@ class TermsScreen extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 16),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
                   child: Row(
                     children: [
                       // İptal — onaysız geri döner, tik atanmaz.

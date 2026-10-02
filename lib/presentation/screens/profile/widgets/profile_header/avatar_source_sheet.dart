@@ -47,6 +47,28 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        sheetRadius: 28,
+        handleW: 48,
+        handleH: 5,
+        handleSpacing: 14,
+        titleFontSize: 21,
+        titleSpacing: 22,
+        optionRadius: 16,
+        optionPaddingH: 16,
+        optionPaddingV: 15,
+        optionIconBox: 48,
+        optionIconBoxRadius: 14,
+        optionIconSize: 24,
+        optionTitleFontSize: 16.5,
+        optionSubtitleFontSize: 13.5,
+        optionSpacing: 10,
+        bottomPadding: 28,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
@@ -223,8 +245,9 @@ class _SourceOption extends StatelessWidget {
                   height: w(spec.optionIconBox),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.14),
-                    borderRadius:
-                        BorderRadius.circular(w(spec.optionIconBoxRadius)),
+                    borderRadius: BorderRadius.circular(
+                      w(spec.optionIconBoxRadius),
+                    ),
                   ),
                   child: Icon(icon, color: color, size: spec.optionIconSize),
                 ),

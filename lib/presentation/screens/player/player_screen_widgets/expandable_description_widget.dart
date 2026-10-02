@@ -1,10 +1,14 @@
 // lib/presentation/screens/player/player_screen_widgets/expandable_description_widget.dart
+// lib/../player_screen_widgets/expandable_description_widget.dart
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
+import '../../../../core/widgets/hover_tap.dart';
 
 // Video açıklamasında geçen http(s):// veya www. ile başlayan URL'leri
 // yakalamak için kullanılan regex. Satır sonu boşluk/yeni satır karakterine
@@ -35,6 +39,17 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        fontSize: 16,
+        lineHeight: 1.6,
+        buttonSpacing: 6,
+        buttonFontSize: 14,
+        buttonIconSize: 20,
+        buttonIconSpacing: 4,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         fontSize: 16,
@@ -177,24 +192,37 @@ class _ExpandableDescriptionWidgetState
 
         final isOverflowing = textPainter.didExceedMaxLines;
 
-        return GestureDetector(
+        return TapCursor(
           onTap: isOverflowing
               ? () => setState(() => _expanded = !_expanded)
               : null,
+          cursor: SystemMouseCursors.click,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // WEB: açıklama metni fare ile seçilebilir olsun (normal web
+              // sitesi davranışı). Mobilde davranış değişmez.
               AnimatedSize(
                 duration: _kAnimDuration,
                 curve: Curves.easeInOut,
                 alignment: Alignment.topCenter,
-                child: Text.rich(
-                  TextSpan(style: textStyle, children: spans),
-                  maxLines: _expanded ? null : 3,
-                  overflow: _expanded
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis,
-                ),
+                child: kIsWeb
+                    ? SelectionArea(
+                        child: Text.rich(
+                          TextSpan(style: textStyle, children: spans),
+                          maxLines: _expanded ? null : 3,
+                          overflow: _expanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                        ),
+                      )
+                    : Text.rich(
+                        TextSpan(style: textStyle, children: spans),
+                        maxLines: _expanded ? null : 3,
+                        overflow: _expanded
+                            ? TextOverflow.visible
+                            : TextOverflow.ellipsis,
+                      ),
               ),
               if (isOverflowing) ...[
                 SizedBox(height: s.buttonSpacing),
@@ -228,4 +256,4 @@ class _ExpandableDescriptionWidgetState
       },
     );
   }
-} 
+}

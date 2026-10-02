@@ -21,8 +21,10 @@ class UniversityStatsSectionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final UniversityStatsSectionDetailSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final UniversityStatsSectionDetailSizes sizes = Responsive.isWeb(context)
+        ? const UniversityStatsSectionDetailWebSizes()
+        : Responsive.isTablet(context)
         ? const UniversityStatsSectionDetailTabletSizes()
         : const UniversityStatsSectionDetailPhoneSizes();
 

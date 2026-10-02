@@ -61,6 +61,36 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        // Tasarım ("Discover — Tablet"): yatay şeritte ~4 kart görünür;
+        // sol üstte istatistik rozeti için pay bırakıldı.
+        cardWidth: 280,
+        cardHeight: 252,
+        cardRadius: 16,
+        gradientHeight: 48,
+        durationBottom: 8,
+        durationRight: 8,
+        durationPaddingH: 7,
+        durationPaddingV: 3,
+        durationRadius: 6,
+        durationFontSize: 10.5,
+        contentPaddingH: 10,
+        contentPaddingV: 8,
+        titleFontSize: 13.5,
+        titleLineHeight: 1.3,
+        channelFontSize: 11,
+        statSpacing: 4,
+        statPaddingH: 7,
+        statPaddingV: 3,
+        statRadius: 7,
+        statIconSize: 11,
+        statFontSize: 10.5,
+        placeholderIconSize: 36,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
@@ -199,8 +229,9 @@ class VideoHorizontalCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.75),
-                            borderRadius:
-                                BorderRadius.circular(spec.statRadius),
+                            borderRadius: BorderRadius.circular(
+                              spec.statRadius,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -234,8 +265,9 @@ class VideoHorizontalCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.75),
-                            borderRadius:
-                                BorderRadius.circular(spec.durationRadius),
+                            borderRadius: BorderRadius.circular(
+                              spec.durationRadius,
+                            ),
                           ),
                           child: Text(
                             formatIsoDuration(video.duration),
@@ -291,10 +323,8 @@ class VideoHorizontalCard extends StatelessWidget {
                           vertical: spec.statPaddingV,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              AppTheme.primaryColor.withValues(alpha: 0.15),
-                          borderRadius:
-                              BorderRadius.circular(spec.statRadius),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(spec.statRadius),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

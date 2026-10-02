@@ -113,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
-  audio_visualizer:
-    dependency: "direct main"
-    description:
-      name: audio_visualizer
-      sha256: eeb894a68290388530f3f5ef6ff0de7428327a8a71b80ddaa14650164501e214
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -481,22 +473,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.12.0"
-  firebase_crashlytics:
-    dependency: "direct main"
-    description:
-      name: firebase_crashlytics
-      sha256: f37fe0df162f08bd549114b784037c73a093c64d22625632f97dbbddf18669b9
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.4.0"
-  firebase_crashlytics_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_crashlytics_platform_interface
-      sha256: "8270dcdb1800db3e5f888ce30a2d5e8f92c379c461f022297c83b2c794aa1792"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.9.0"
   firebase_messaging:
     dependency: "direct main"
     description:
@@ -1232,14 +1208,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.0"
-  radio_player:
-    dependency: "direct main"
-    description:
-      name: radio_player
-      sha256: eac4e40cddbcdcb44370564148ac33c2341fec2766743d131de6bf7e806f19b7
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.1"
   readmore:
     dependency: "direct main"
     description:
@@ -1750,7 +1718,7 @@ packages:
     source: hosted
     version: "4.14.1"
   webview_flutter_android:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: webview_flutter_android
       sha256: "4de8b3d1ff4ebe1bdb42e68a5e4f809194a3cb0117a8f495f590004f00da3964"
@@ -1829,14 +1797,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  youtube_player_flutter:
-    dependency: "direct main"
-    description:
-      name: youtube_player_flutter
-      sha256: "471cde5422cbe476aa375fa38e4a9c19365e13298d02d25b76f5857a8885415c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.0.1"
   youtube_player_iframe:
     dependency: "direct main"
     description:

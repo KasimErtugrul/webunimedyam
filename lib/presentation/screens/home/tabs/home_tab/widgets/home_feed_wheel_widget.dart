@@ -132,7 +132,8 @@ class _HomeFeedWheelWidgetState extends State<HomeFeedWheelWidget> {
     final active = videos[idx];
     final activeUni = _uniFor(active);
 
-    return Responsive.isTablet(context)
+    // WEB: tablet tekerleği (masaüstü merkezli düzen bunu bekler).
+    return Responsive.isWeb(context) || Responsive.isTablet(context)
         ? _buildTablet(context, active, activeUni, idx, videos)
         : _buildPhone(context, active, activeUni, idx, videos);
   }

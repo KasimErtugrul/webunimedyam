@@ -29,7 +29,6 @@ import 'package:get/get.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../data/models/user_settings_model.dart';
-import '../../services/analytics_service.dart';
 import '../../services/notification_service.dart';
 import 'settings_controller.dart';
 
@@ -95,11 +94,6 @@ class SignupPreferencesController extends GetxController {
       isRequestingNotificationPermission.value = true;
       final granted = await NotificationService.instance.onUserLogin();
 
-      AnalyticsService.instance.logEvent(
-        'signup_preferences_notifications',
-        parameters: {'granted': granted ? 1 : 0},
-      );
-
       if (!granted) {
         selectedNotifications.value = false;
         return false;
@@ -138,12 +132,10 @@ class SignupPreferencesController extends GetxController {
   /// ekranına devam eder (üniversiteler orada seçilir, o ekran Home'a
   /// yönlendirir).
   void finish() {
-    AnalyticsService.instance.logEvent('signup_preferences_complete');
     Get.offAllNamed(AppRoutes.interestSelection);
   }
 
   void skip() {
-    AnalyticsService.instance.logEvent('signup_preferences_skipped');
     Get.offAllNamed(AppRoutes.interestSelection);
   }
 }

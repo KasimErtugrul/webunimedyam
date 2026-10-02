@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/models/video_viewer_model.dart';
 import '../../data/repositories/engagement_repository.dart';
-import '../../services/analytics_service.dart';
 
 class VideoViewersController extends GetxController {
   final EngagementRepository engagementRepository;
@@ -34,10 +33,7 @@ class VideoViewersController extends GetxController {
     super.onInit();
     // Bu ekranın (izleyici listesi) hiç kullanılıp kullanılmadığını ölçmek
     // için — niş bir özellik, açılma sıklığı ürün kararı için değerli.
-    AnalyticsService.instance.logEvent('video_viewers_view', parameters: {
-      'video_id': videoId,
-      'total_view_count': totalViewCount,
-    });
+
     loadViewers();
   }
 

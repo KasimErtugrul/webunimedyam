@@ -1,6 +1,7 @@
 // lib/presentation/screens/settings/widgets/settings_theme_selector.dart
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/hover_tap.dart';
 import '../settings_layout_spec.dart';
 
 /// "Tema Seçimi" 3'lü segment kontrolü (Koyu / Açık / Sistem).
@@ -47,7 +48,7 @@ class SettingsThemeSelector extends StatelessWidget {
   ) {
     final selected = current == value;
     return Expanded(
-      child: GestureDetector(
+      child: TapCursor(
         onTap: () => onChanged(value),
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
@@ -134,7 +135,7 @@ class SettingsFeedModeToggle extends StatelessWidget {
     IconData icon,
   ) {
     final selected = current == value;
-    return GestureDetector(
+    return TapCursor(
       onTap: () => onChanged(value),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(

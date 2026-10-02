@@ -12,8 +12,11 @@ class VideoSectionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // KURAL 5 — TEK DALLANMA NOKTASI
-    // Phone/tablet ayrımı SADECE burada yapılır; widget kodu artık tek.
-    final VideoSectionDetailSizes sizes = Responsive.isTablet(context)
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon; widget
+    // kodu tek, yalnızca ölçü seti değişir.
+    final VideoSectionDetailSizes sizes = Responsive.isWeb(context)
+        ? const VideoSectionDetailWebSizes()
+        : Responsive.isTablet(context)
         ? const VideoSectionDetailTabletSizes()
         : const VideoSectionDetailPhoneSizes();
 

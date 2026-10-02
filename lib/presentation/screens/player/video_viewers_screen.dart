@@ -53,7 +53,7 @@ class _TabletSizes {
   // AppBar
   static const double appBarTitleSize = 20;
   static const double appBarSubtitleSize = 14;
- // static const double appBarSubtitleWeight = 400;
+  // static const double appBarSubtitleWeight = 400;
 
   // List tile
   static const double tileContentPaddingHorizontal = 24;
@@ -61,7 +61,7 @@ class _TabletSizes {
   static const double tileAvatarRadius = 28;
   static const double tileAvatarIconSize = 24;
   static const double tileTitleFontSize = 16;
- // static const double tileTitleWeight = 500;
+  // static const double tileTitleWeight = 500;
   static const double tileSubtitleFontSize = 14;
   static const double tileTrailingFontSize = 13;
 
@@ -133,6 +133,8 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    if (Responsive.isWeb(context)) return _buildWeb(context);
     return Responsive.isTablet(context)
         ? _buildTablet(context)
         : _buildPhone(context);
@@ -188,7 +190,9 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
 
         return ListView.builder(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(vertical: _PhoneSizes.listVerticalPadding),
+          padding: const EdgeInsets.symmetric(
+            vertical: _PhoneSizes.listVerticalPadding,
+          ),
           itemCount:
               _ctrl.viewers.length +
               (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
@@ -201,7 +205,9 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
             }
 
             if (_ctrl.isLoadingMore.value &&
-                index == _ctrl.viewers.length + (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
+                index ==
+                    _ctrl.viewers.length +
+                        (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
               return const Padding(
                 padding: EdgeInsets.all(_PhoneSizes.loadingPadding),
                 child: Center(
@@ -268,35 +274,135 @@ class _VideoViewersScreenState extends State<VideoViewersScreen> {
           return _EmptyStateTablet();
         }
 
-        return ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(vertical: _TabletSizes.listVerticalPadding),
-          itemCount:
-              _ctrl.viewers.length +
-              (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
-              (_ctrl.isLoadingMore.value ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == _ctrl.viewers.length &&
-                _ctrl.hiddenCount.value > 0 &&
-                !_ctrl.isLoadingMore.value) {
-              return _HiddenViewersRowTablet(count: _ctrl.hiddenCount.value);
-            }
+        // WEB: liste çok geniş ekranlarda kenarlara yayılmasın.
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(
+                vertical: _TabletSizes.listVerticalPadding,
+              ),
+              itemCount:
+                  _ctrl.viewers.length +
+                  (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
+                  (_ctrl.isLoadingMore.value ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _ctrl.viewers.length &&
+                    _ctrl.hiddenCount.value > 0 &&
+                    !_ctrl.isLoadingMore.value) {
+                  return _HiddenViewersRowTablet(
+                    count: _ctrl.hiddenCount.value,
+                  );
+                }
 
-            if (_ctrl.isLoadingMore.value &&
-                index == _ctrl.viewers.length + (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
-              return const Padding(
-                padding: EdgeInsets.all(_TabletSizes.loadingPadding),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: _TabletSizes.loadingStrokeWidth,
+                if (_ctrl.isLoadingMore.value &&
+                    index ==
+                        _ctrl.viewers.length +
+                            (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
+                  return const Padding(
+                    padding: EdgeInsets.all(_TabletSizes.loadingPadding),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: _TabletSizes.loadingStrokeWidth,
+                      ),
+                    ),
+                  );
+                }
+
+                final viewer = _ctrl.viewers[index];
+                return _ViewerTileTablet(viewer: viewer);
+              },
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildWeb(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.bg(context),
+      appBar: AppBar(
+        backgroundColor: AppTheme.bg(context),
+        elevation: 0,
+        title: Obx(
+          () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'İzleyenler',
+                style: TextStyle(
+                  color: AppTheme.textPri(context),
+                  fontSize: _WebSizes.appBarTitleSize,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (!_ctrl.isLoading.value)
+                Text(
+                  '${_ctrl.totalViewCount} görüntülenme',
+                  style: TextStyle(
+                    color: AppTheme.textSec(context),
+                    fontSize: _WebSizes.appBarSubtitleSize,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-              );
-            }
+            ],
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppTheme.textPri(context)),
+          onPressed: Get.back,
+        ),
+      ),
+      body: Obx(() {
+        if (_ctrl.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            final viewer = _ctrl.viewers[index];
-            return _ViewerTileTablet(viewer: viewer);
-          },
+        if (_ctrl.viewers.isEmpty && _ctrl.hiddenCount.value == 0) {
+          return _EmptyStateWeb();
+        }
+
+        // WEB: liste çok geniş ekranlarda kenarlara yayılmasın.
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(
+                vertical: _WebSizes.listVerticalPadding,
+              ),
+              itemCount:
+                  _ctrl.viewers.length +
+                  (_ctrl.hiddenCount.value > 0 ? 1 : 0) +
+                  (_ctrl.isLoadingMore.value ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _ctrl.viewers.length &&
+                    _ctrl.hiddenCount.value > 0 &&
+                    !_ctrl.isLoadingMore.value) {
+                  return _HiddenViewersRowWeb(count: _ctrl.hiddenCount.value);
+                }
+
+                if (_ctrl.isLoadingMore.value &&
+                    index ==
+                        _ctrl.viewers.length +
+                            (_ctrl.hiddenCount.value > 0 ? 1 : 0)) {
+                  return const Padding(
+                    padding: EdgeInsets.all(_WebSizes.loadingPadding),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: _WebSizes.loadingStrokeWidth,
+                      ),
+                    ),
+                  );
+                }
+
+                final viewer = _ctrl.viewers[index];
+                return _ViewerTileWeb(viewer: viewer);
+              },
+            ),
+          ),
         );
       }),
     );
@@ -314,10 +420,8 @@ class _ViewerTilePhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => Get.toNamed(
-        AppRoutes.profile,
-        arguments: {'userId': viewer.userId},
-      ),
+      onTap: () =>
+          Get.toNamed(AppRoutes.profile, arguments: {'userId': viewer.userId}),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: _PhoneSizes.tileContentPaddingHorizontal,
         vertical: _PhoneSizes.tileContentPaddingVertical,
@@ -435,10 +539,8 @@ class _ViewerTileTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => Get.toNamed(
-        AppRoutes.profile,
-        arguments: {'userId': viewer.userId},
-      ),
+      onTap: () =>
+          Get.toNamed(AppRoutes.profile, arguments: {'userId': viewer.userId}),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: _TabletSizes.tileContentPaddingHorizontal,
         vertical: _TabletSizes.tileContentPaddingVertical,
@@ -558,3 +660,162 @@ String _timeAgo(DateTime dt) {
   if (diff.inDays < 365) return '${(diff.inDays / 30).floor()}ay önce';
   return '${(diff.inDays / 365).floor()}y önce';
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// KURAL 6 — ALT WIDGET (WEB) + WEB SABİTLERİ
+// ═══════════════════════════════════════════════════════════════════════
+
+class _ViewerTileWeb extends StatelessWidget {
+  final VideoViewerModel viewer;
+  const _ViewerTileWeb({required this.viewer});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () =>
+          Get.toNamed(AppRoutes.profile, arguments: {'userId': viewer.userId}),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: _WebSizes.tileContentPaddingHorizontal,
+        vertical: _WebSizes.tileContentPaddingVertical,
+      ),
+      leading: CircleAvatar(
+        radius: _WebSizes.tileAvatarRadius,
+        backgroundColor: AppTheme.surface(context),
+        backgroundImage: viewer.avatarUrl != null
+            ? NetworkImage(viewer.avatarUrl!)
+            : null,
+        child: viewer.avatarUrl == null
+            ? Icon(
+                Icons.person,
+                color: AppTheme.textSec(context),
+                size: _WebSizes.tileAvatarIconSize,
+              )
+            : null,
+      ),
+      title: Text(
+        viewer.displayName,
+        style: TextStyle(
+          color: AppTheme.textPri(context),
+          fontSize: _WebSizes.tileTitleFontSize,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      subtitle: viewer.username != null
+          ? Text(
+              '@${viewer.username}',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: _WebSizes.tileSubtitleFontSize,
+              ),
+            )
+          : null,
+      trailing: Text(
+        _timeAgo(viewer.viewedAt),
+        style: TextStyle(
+          color: AppTheme.textSec(context),
+          fontSize: _WebSizes.tileTrailingFontSize,
+        ),
+      ),
+    );
+  }
+}
+
+class _HiddenViewersRowWeb extends StatelessWidget {
+  final int count;
+  const _HiddenViewersRowWeb({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: _WebSizes.hiddenRowPaddingHorizontal,
+        vertical: _WebSizes.hiddenRowPaddingVertical,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.visibility_off_outlined,
+            color: AppTheme.textSec(context),
+            size: _WebSizes.hiddenRowIconSize,
+          ),
+          const SizedBox(width: _WebSizes.hiddenRowSpacing),
+          Expanded(
+            child: Text(
+              '$count kişi profilini gizli tuttuğu için gösterilmiyor.',
+              style: TextStyle(
+                color: AppTheme.textSec(context),
+                fontSize: _WebSizes.hiddenRowFontSize,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyStateWeb extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.visibility_outlined,
+            size: _WebSizes.emptyIconSize,
+            color: AppTheme.textSec(context),
+          ),
+          const SizedBox(height: _WebSizes.emptySpacing),
+          Text(
+            'Henüz kimse izlemedi',
+            style: TextStyle(
+              color: AppTheme.textSec(context),
+              fontSize: _WebSizes.emptyFontSize,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WebSizes {
+  // AppBar
+  static const double appBarTitleSize = 21;
+  static const double appBarSubtitleSize = 14;
+  // static const double appBarSubtitleWeight = 400;
+
+  // List tile
+  static const double tileContentPaddingHorizontal = 24;
+  static const double tileContentPaddingVertical = 6;
+  static const double tileAvatarRadius = 28;
+  static const double tileAvatarIconSize = 24;
+  static const double tileTitleFontSize = 16;
+  // static const double tileTitleWeight = 500;
+  static const double tileSubtitleFontSize = 14;
+  static const double tileTrailingFontSize = 13;
+
+  // Hidden row
+  static const double hiddenRowPaddingHorizontal = 24;
+  static const double hiddenRowPaddingVertical = 16;
+  static const double hiddenRowIconSize = 20;
+  static const double hiddenRowSpacing = 10;
+  static const double hiddenRowFontSize = 14;
+
+  // Empty state
+  static const double emptyIconSize = 56;
+  static const double emptySpacing = 16;
+  static const double emptyFontSize = 16;
+
+  // Loading
+  static const double loadingPadding = 20;
+  static const double loadingStrokeWidth = 3.5;
+
+  // List padding
+  static const double listVerticalPadding = 12;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANA WIDGET (Stateful)
+// ═══════════════════════════════════════════════════════════

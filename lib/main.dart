@@ -5,24 +5,26 @@ import 'dart:developer';
 import 'dart:io' as io;
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'services/connectivity_service.dart';
 
-import 'app/routes/app_routes.dart';
 import 'app/routes/app_pages.dart';
+import 'app/routes/app_routes.dart';
 import 'app/themes/app_theme.dart';
+import 'core/app_scroll_behavior.dart';
+import 'core/constants/firebase_web_options.dart';
 import 'data/datasources/local/app_cache_box.dart';
 import 'data/datasources/local/local_datasource.dart';
 import 'data/datasources/remote/supabase_datasource.dart';
 import 'data/repositories/auth_repository.dart';
+import 'presentation/controllers/home/home_controller.dart';
 import 'presentation/controllers/settings_controller.dart';
-import 'services/analytics_service.dart';
+import 'services/connectivity_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/notification_service.dart';
 
@@ -39,45 +41,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 // ─── main ──────────────────────────────────────────────────────────────────
 void main() async {
-  if (kDebugMode) {
+  // dart:io API'leri tarayıcıda çalışmaz (runtime'da UnsupportedError fırlatır);
+  // web'de timeline logging hiç gerekmediği için sadece mobil platformlarda açılır.
+  if (kDebugMode && !kIsWeb) {
     io.HttpClient.enableTimelineLogging = true;
   }
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Firebase ──────────────────────────────────────────────────────────────
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // ── Crashlytics ───────────────────────────────────────────────────────────
-  // Flutter framework hatalarını (build/layout vb.) otomatik Crashlytics'e
-  // yönlendir. Debug modda Crashlytics raporlamayı kapatıyoruz ki geliştirme
-  // sırasındaki hatalar prod istatistiklerini kirletmesin.
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-    !kDebugMode,
+  // Mobil platformlarda options verilmez (Android: google-services.json,
+  // iOS: GoogleService-Info.plist üzerinden SDK kendi çözümler). Web'de
+  // ise options ZORUNLUDUR — firebase_web_options.dart'tan alınır.
+  await Firebase.initializeApp(
+    options: kIsWeb ? FirebaseWebOptions.current : null,
   );
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    // BUG FIX: youtube_player_iframe paketi, WebView içindeki YouTube iframe'i
-    // JS köprüsü 30 saniye içinde "hazır" sinyali vermezse (kötü/kopuk internet,
-    // WebView'in embed'i geç açması vb.) kendi içinde bir TimeoutException
-    // fırlatıyor. Bu Future bizim kodumuzun dışında olduğundan try-catch ile
-    // yakalanamıyor ve buraya "fatal" olarak düşüyor; oysa bu uygulamayı
-    // gerçekten çökertmiyor, sadece video oynatıcı açılamıyor. Bu durumu
-    // ayırt edip fatal olmayan bir hata olarak kaydediyoruz ki Crashlytics'teki
-    // "fatal crash" oranımız bu paket kaynaklı, aslında kurtarılabilir
-    // durumlarla şişmesin.
-    final isYoutubePlayerInitTimeout =
-        error is TimeoutException &&
-        stack.toString().contains('js_bridge.dart');
-
-    FirebaseCrashlytics.instance.recordError(
-      error,
-      stack,
-      fatal: !isYoutubePlayerInitTimeout,
-      reason: isYoutubePlayerInitTimeout ? 'youtube_player_init_timeout' : null,
-    );
-    return true;
-  };
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await ConnectivityService.init();
 
@@ -87,11 +65,6 @@ void main() async {
     publishableKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cWpwZnF6anV0aG9pZmt5cWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTM1ODAsImV4cCI6MjA5NDE4OTU4MH0.gkI3QgT7JhPA-IzVQm0805kmpJMhCwhLpcJBYtv6K40',
   );
-
-  // ── Analytics ──────────────────────────────────────────────────────────────
-  // Supabase init'ten SONRA çağrılmalı: auth durumunu okuyup auth_status
-  // user property'sini set ediyor, sonra her login/logout'ta otomatik günceller.
-  await AnalyticsService.instance.initialize();
 
   // ── Hive (local cache) ────────────────────────────────────────────────────
   // NOT: SharedPreferences'tan geçiş — tüm local cache tek bir Hive box'ında
@@ -153,8 +126,10 @@ void main() async {
   // sonra ayrı bir splash geçişi yok.
   String initialRoute;
   try {
-    final onboardingCompleted = await Get.find<AuthRepository>()
-        .isOnboardingCompleted();
+    // WEB: tanıtım (onboarding) akışı web sitesinde gösterilmez — ziyaretçi
+    // doğrudan ana sayfada karşılanır. Mobil akış aynen korunur.
+    final onboardingCompleted =
+        kIsWeb || await Get.find<AuthRepository>().isOnboardingCompleted();
     initialRoute = onboardingCompleted ? AppRoutes.home : AppRoutes.onboarding;
   } catch (e, stacktrace) {
     // Fail-safe: bir şey ters giderse kullanıcıyı boş ekranda bırakma, Home'a gönder.
@@ -211,10 +186,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Uni TV',
+      title: 'ÇOMÜ TV',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -223,10 +198,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           : ThemeMode.dark,
       initialRoute: widget.initialRoute,
       getPages: AppPages.pages,
-      navigatorObservers: [AnalyticsService.instance.observer],
+      // WEB: mouse (ve trackpad) ile tutup sürükleyerek kaydırmayı aktif
+      // eder; Material ayrıca masaüstünde otomatik scrollbar ekler.
+      scrollBehavior: const AppScrollBehavior(),
       builder: (context, child) {
-       
-
         return Column(
           children: [
             Obx(
@@ -251,10 +226,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       ),
                     ),
             ),
-            Expanded(child: child ?? const SizedBox.shrink()),
+            Expanded(
+              // WEB: Ctrl+K (macOS'ta ⌘K) arama sekmesini açar — web bar'daki
+              // "⌘K" rozetinin gerçek karşılığı. Fokus nerede olursa olsun
+              // çalışır (kısayol, navigator'ın üstünde yakalanır).
+              child: CallbackShortcuts(
+                bindings: const <SingleActivator, VoidCallback>{
+                  SingleActivator(LogicalKeyboardKey.keyK, control: true):
+                      _openSearchViaShortcut,
+                  SingleActivator(LogicalKeyboardKey.keyK, meta: true):
+                      _openSearchViaShortcut,
+                },
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
           ],
         );
       },
     );
+  }
+
+  static void _openSearchViaShortcut() {
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().changeTab(3);
+    } else {
+      Get.toNamed('/search');
+    }
   }
 }

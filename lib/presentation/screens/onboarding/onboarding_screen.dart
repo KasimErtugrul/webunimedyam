@@ -7,6 +7,7 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
 import '../../controllers/onboarding_controller.dart';
+import '../../../core/widgets/hover_tap.dart';
 import 'utils/sizes.dart';
 import 'widgets/onboarding_page.dart';
 import 'widgets/onboarding_visuals.dart';
@@ -125,7 +126,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     // KURAL 5 — TEK DALLANMA NOKTASI
-    final OnboardingSizes sizes = Responsive.isTablet(context)
+    final OnboardingSizes sizes = Responsive.isWeb(context)
+        ? const OnboardingWebSizes()
+        : Responsive.isTablet(context)
         ? const OnboardingTabletSizes()
         : const OnboardingPhoneSizes();
 
@@ -444,7 +447,7 @@ class _Dots extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(pageCount, (index) {
         final active = index == currentPage;
-        return GestureDetector(
+        return TapCursor(
           onTap: () => onDotTap(index),
           behavior: HitTestBehavior.opaque,
           child: Semantics(

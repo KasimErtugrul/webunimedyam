@@ -8,6 +8,9 @@ abstract class InterestSelectionSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca InterestSelectionWebSizes true döner.
+  bool get isWeb => false;
+
   // Header
   double get headerPaddingLeft;
   double get headerPaddingTop;
@@ -177,4 +180,20 @@ class InterestSelectionTabletSizes extends InterestSelectionSizes {
   @override double get errorSpacing => 16;
 
   @override double get emptyFontSize => 16;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; ızgara zaten max-w-[1100px] ile
+/// ortalandığı için yalnızca sayfa kenar boşlukları masaüstüne göre
+/// büyütülür.
+class InterestSelectionWebSizes extends InterestSelectionTabletSizes {
+  const InterestSelectionWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get gridPaddingLeft => 28;
+  @override
+  double get gridPaddingRight => 28;
 }

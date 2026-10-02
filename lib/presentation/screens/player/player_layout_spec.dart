@@ -103,7 +103,17 @@ class PlayerLayoutSpec {
     required this.dialogButtonRadius,
   });
 
+  /// WEB ölçeği bayrağı — yalnızca PlayerWebLayoutSpec true döner.
+  /// (Masaüstü tarayıcıda isTablet de true kalır: web, tablet yerleşimini
+  /// temel alır, yalnızca ölçüler farklıdır.)
+  bool get isWeb => false;
+
   factory PlayerLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı — tablet yerleşimini
+    // alır; sayfa kenarları ve tipografi web'e göre nefes alır.
+    if (Responsive.isWeb(context)) {
+      return const PlayerWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const PlayerLayoutSpec._(
         isTablet: true,
@@ -195,4 +205,69 @@ class PlayerLayoutSpec {
       dialogButtonRadius: 8,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+///
+/// Tablet değerlerini super'e aktarır; yalnızca web'de farklılaşan
+/// ölçüleri ezer: iki kolonlu düzen (video + önerilenler rayı) korunur
+/// ama sayfa kenar boşlukları ve başlık/etkileşim tipografisi masaüstü
+/// okuma mesafesine göre büyütülür. Mini player ölçüleri aynıdır —
+/// sürüklenebilir pencere boyutu zaten cihazdan bağımsızdır.
+class PlayerWebLayoutSpec extends PlayerLayoutSpec {
+  const PlayerWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        miniW: 320,
+        miniH: 180,
+        miniPad: 20,
+        miniBorderRadius: 12,
+        miniShadowBlur: 24,
+        animDur: const Duration(milliseconds: 300),
+        animCurve: Curves.easeInOutCubic,
+        dragTapThreshold: 8,
+        miniBottomOffset: 56,
+        backButtonLeft: 8,
+        backButtonTop: 12,
+        backButtonPadding: 10,
+        backButtonRadius: 24,
+        backButtonSize: 22,
+        backButtonAlpha: 0.55,
+        contentPaddingLeft: 32,
+        contentPaddingTop: 20,
+        contentPaddingRight: 32,
+        contentPaddingBottom: 32,
+        dateFontSize: 14,
+        dateDurationDotSpacing: 8,
+        titleFontSize: 24,
+        titleLineHeight: 1.45,
+        titleSpacing: 10,
+        universitySpacing: 8,
+        engagementSpacing: 20,
+        engagementBottomSpacing: 28,
+        descriptionSpacing: 18,
+        tagsSpacing: 20,
+        tagsBottomSpacing: 28,
+        suggestedSpacing: 28,
+        dividerSpacing: 24,
+        commentsHeaderSpacing: 18,
+        commentsInputSpacing: 22,
+        commentsLoadingSpacing: 32,
+        commentsEmptySpacing: 28,
+        commentsEmptyFontSize: 15,
+        bottomSpacing: 48,
+        loadingStrokeWidth: 3.5,
+        dialogBorderRadius: 20,
+        dialogButtonRadius: 10,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get contentPaddingLeft => 32;
+  @override
+  double get contentPaddingRight => 32;
+  @override
+  double get titleFontSize => 24;
 }

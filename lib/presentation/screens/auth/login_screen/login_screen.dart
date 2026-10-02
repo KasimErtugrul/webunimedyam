@@ -35,8 +35,10 @@ class LoginScreen extends GetView<LoginController> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final LoginSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final LoginSizes sizes = Responsive.isWeb(context)
+        ? const LoginWebSizes()
+        : Responsive.isTablet(context)
         ? const LoginTabletSizes()
         : const LoginPhoneSizes();
 

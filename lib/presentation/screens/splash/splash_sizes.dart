@@ -10,6 +10,9 @@ abstract class SplashSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca SplashWebSizes true döner.
+  bool get isWeb => false;
+
   // ── Sayfa ─────────────────────────────────────────────────
   double get pageHPadding; // px-space-lg (24)
   double get pageVPadding; // py-space-xl (32)
@@ -342,5 +345,36 @@ class SplashTabletSizes extends SplashSizes {
   double get credentialsTopGap => 6;
   @override
   double get versionFontSize => 12;
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEB SIZES — masaüstü tarayıcı (≥1024px). Tablet ölçülerini
+// temel alır; marka hero'su ve sayfa nefesi masaüstüne büyür.
+// ═══════════════════════════════════════════════════════════
+class SplashWebSizes extends SplashTabletSizes {
+  const SplashWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get pageHPadding => 48;
+  @override
+  double get pageVPadding => 56;
+
+  @override
+  double get glowPrimarySize => 440;
+  @override
+  double get glowSecondarySize => 300;
+
+  @override
+  double get heroMaxWidth => 440;
+  @override
+  double get logoImageWidth => 240;
+
+  @override
+  double get titleFontSize => 36;
+  @override
+  double get sloganFontSize => 15;
 }
  */

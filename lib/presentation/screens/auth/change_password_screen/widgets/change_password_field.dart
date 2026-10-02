@@ -52,11 +52,8 @@ class ChangePasswordField extends StatelessWidget {
       field = _buildField(context, isObscured: false, showEye: false);
     } else {
       field = Obx(
-        () => _buildField(
-          context,
-          isObscured: obscure!.value,
-          showEye: showEye,
-        ),
+        () =>
+            _buildField(context, isObscured: obscure!.value, showEye: showEye),
       );
     }
     return Column(
@@ -74,7 +71,7 @@ class ChangePasswordField extends StatelessWidget {
                 ),
               ),
             ),
-            if (labelTrailing != null) labelTrailing!,
+            ?labelTrailing,
           ],
         ),
         const SizedBox(height: 8),

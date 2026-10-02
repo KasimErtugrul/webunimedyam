@@ -6,6 +6,9 @@ import 'widgets/otp_code_input.dart';
 @immutable
 class ResetPasswordLayoutSpec {
   final bool isTablet;
+
+  /// WEB ölçeği bayrağı — yalnızca ResetPasswordWebLayoutSpec true döner.
+  bool get isWeb => false;
   final double maxContentWidth;
   final double horizontalPadding;
   final double verticalPadding;
@@ -80,6 +83,10 @@ class ResetPasswordLayoutSpec {
   });
 
   factory ResetPasswordLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const ResetPasswordWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const ResetPasswordLayoutSpec._(
         isTablet: true,
@@ -157,4 +164,54 @@ class ResetPasswordLayoutSpec {
       buttonTopSpacing: 8,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer.
+class ResetPasswordWebLayoutSpec extends ResetPasswordLayoutSpec {
+  const ResetPasswordWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        maxContentWidth: 520,
+        horizontalPadding: 32,
+        verticalPadding: 24,
+        bottomPadding: 28,
+        subtitleFontSize: 16,
+        subtitleTopSpacing: 8,
+        otpSpec: const OtpCodeInputSpec(
+          otpBoxWidth: 56,
+          otpBoxHeight: 68,
+          otpBoxRadius: 14,
+          otpFontSize: 26,
+        ),
+        otpTopSpacing: 24,
+        resendTopSpacing: 12,
+        resendFontSize: 15,
+        fieldFontSize: 17,
+        fieldIconSize: 26,
+        fieldRadius: 14,
+        fieldPaddingH: 20,
+        fieldPaddingV: 20,
+        fieldSpacing: 20,
+        passwordsTopSpacing: 24,
+        errorFontSize: 14,
+        errorPadding: 16,
+        errorRadius: 12,
+        errorIconSize: 22,
+        errorMarginBottom: 18,
+        errorTopSpacing: 20,
+        buttonHeight: 58,
+        buttonRadius: 14,
+        buttonFontSize: 17,
+        loaderSize: 26,
+        loaderStroke: 2.5,
+        buttonTopSpacing: 8,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get maxContentWidth => 540;
 }

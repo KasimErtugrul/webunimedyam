@@ -6,20 +6,17 @@ import 'package:get/get.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../controllers/university_detail_controller.dart';
-import '../../../../controllers/university_radio_controller.dart';
 import '../../university_detail_layout_spec.dart';
 import 'about_widgets.dart';
 
 class UniversityDetailAboutTab extends StatelessWidget {
   final UniversityDetailLayoutSpec spec;
   final UniversityDetailController controller;
-  final UniversityRadioController radioController;
 
   const UniversityDetailAboutTab({
     super.key,
     required this.spec,
     required this.controller,
-    required this.radioController,
   });
 
   @override
@@ -92,14 +89,6 @@ class UniversityDetailAboutTab extends StatelessWidget {
                   label: 'YouTube Kanalı',
                   url: 'https://www.youtube.com/${uni.customUrl}',
                   color: const Color(0xFFFF0000),
-                ),
-              ],
-              if (uni.radioLink?.isNotEmpty ?? false) ...[
-                const SizedBox(height: 8),
-                UniversityAboutRadioCard(
-                  spec: spec,
-                  university: uni,
-                  radioController: radioController,
                 ),
               ],
             ],

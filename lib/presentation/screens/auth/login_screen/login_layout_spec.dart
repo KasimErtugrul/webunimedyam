@@ -11,6 +11,11 @@ abstract class LoginSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca LoginWebSizes true döner.
+  /// (Masaüstünde isTablet da true kalır: web, tablet ölçeklerini
+  /// temel alır, yalnızca farklılaşanları ezer.)
+  bool get isWeb => false;
+
   // ── Sayfa düzeni ──────────────────────────────────────────
   double get maxContentWidth;   // max-w-md (448)
   double get pageHPadding;      // px-margin (16)
@@ -221,4 +226,23 @@ class LoginTabletSizes extends LoginSizes {
 
   @override double get loaderSize => 24;
   @override double get loaderStroke => 2.5;
+}
+// ═══════════════════════════════════════════════════════════
+// WEB SIZES (masaüstü tarayıcı, ≥1024px)
+// Tablet ölçülerini temel alır; web'de farklılaşanları ezer:
+// form kartı 520px'te kalır (web formları için ideal ölçü) ama
+// sayfa dikey nefesi ve karşılama tipografisi bir tık büyür.
+// ═══════════════════════════════════════════════════════════
+
+class LoginWebSizes extends LoginTabletSizes {
+  const LoginWebSizes();
+
+  @override bool get isWeb => true;
+
+  @override double get pageVPadding => 48;
+  @override double get greetingBottomGap => 44;
+  @override double get titleFontSize => 34;
+  @override double get subtitleFontSize => 16.5;
+  @override double get subtitleMaxWidth => 420;
+  @override double get footerTopGap => 44;
 }

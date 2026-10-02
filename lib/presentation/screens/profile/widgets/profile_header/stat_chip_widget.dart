@@ -22,7 +22,8 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
-    if (Responsive.isTablet(context)) {
+    // WEB: tablet ölçüleri — dokunma/tıklama hedefi konforlu kalır.
+    if (Responsive.isWeb(context) || Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
         iconSize: 18,

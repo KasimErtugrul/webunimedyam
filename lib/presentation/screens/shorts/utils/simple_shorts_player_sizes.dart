@@ -7,6 +7,9 @@ abstract class SimpleShortsPlayerSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca SimpleShortsPlayerWebSizes true döner.
+  bool get isWeb => false;
+
   // Top bar
   double get topBarPaddingHorizontal;
   double get topBarPaddingVertical;
@@ -276,4 +279,14 @@ class SimpleShortsPlayerTabletSizes extends SimpleShortsPlayerSizes {
 
   @override
   double get playIconSize => 76;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; yalnızca sayfa kenar boşlukları
+/// masaüstüne göre büyütülür.
+class SimpleShortsPlayerWebSizes extends SimpleShortsPlayerTabletSizes {
+  const SimpleShortsPlayerWebSizes();
+
+  @override
+  bool get isWeb => true;
 }

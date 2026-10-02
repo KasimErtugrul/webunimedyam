@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../../../app/themes/app_theme.dart';
 import '../../controllers/university_detail_controller.dart';
-import '../../controllers/university_radio_controller.dart';
 import 'tabs/about_tab/about_tab.dart';
 import 'tabs/live_tab/live_tab.dart';
 import 'tabs/shorts_tab/shorts_tab.dart';
@@ -13,7 +12,6 @@ import 'tabs/videos_tab/videos_tab.dart';
 import 'university_detail_layout_spec.dart';
 import 'widgets/university_detail_header_widget.dart';
 import 'widgets/university_detail_tab_bar.dart';
-import 'widgets/university_radio_mini_player.dart';
 
 class UniversityDetailScreen extends StatefulWidget {
   const UniversityDetailScreen({super.key});
@@ -24,8 +22,6 @@ class UniversityDetailScreen extends StatefulWidget {
 
 class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   late final UniversityDetailController controller;
-  late final UniversityRadioController radioController;
-  late final String _radioTag;
   final ScrollController _scrollController = ScrollController();
 
   /// Scroll tick'inde setState yerine ValueNotifier → sadece title rebuild.
@@ -43,12 +39,6 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
 
     // Stable tag: aynı üniversiteyi tekrar açınca aynı controller yaşamaya
     // devam eder, çift instance oluşmaz.
-    final uniId = controller.university.value?.id ?? 0;
-    _radioTag = 'uni_radio_$uniId';
-    if (!Get.isRegistered<UniversityRadioController>(tag: _radioTag)) {
-      Get.put(UniversityRadioController(), tag: _radioTag);
-    }
-    radioController = Get.find<UniversityRadioController>(tag: _radioTag);
 
     _scrollController.addListener(_onScroll);
   }
@@ -101,171 +91,186 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
       length: 4,
       child: Scaffold(
         backgroundColor: AppTheme.bg(context),
-        body: Column(
-          children: [
-            Expanded(
-              child: NestedScrollView(
-                controller: _scrollController,
-                headerSliverBuilder: (context, _) => [
-                  SliverAppBar(
-                    expandedHeight: spec.appBarExpandedHeight,
-                    pinned: true,
-                    floating: false,
-                    backgroundColor: AppTheme.bg(context),
-                    scrolledUnderElevation: 0,
-                    leading: IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: AppTheme.textPri(context),
-                        size: spec.appBarLeadingIconSize,
-                      ),
-                      onPressed: Get.back,
-                    ),
-                    title: ValueListenableBuilder<double>(
-                      valueListenable: _titleOpacity,
-                      builder: (context, opacity, _) {
-                        if (opacity == 0) return const SizedBox.shrink();
-                        return Opacity(
-                          opacity: opacity,
-                          child: Obx(() {
-                            final uni = controller.university.value;
-                            if (uni == null) return const SizedBox.shrink();
-                            final hasLogo = uni.logoUrl?.isNotEmpty == true;
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (hasLogo)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: ClipOval(
-                                      child: Container(
-                                        width: spec.appBarLogoSize,
-                                        height: spec.appBarLogoSize,
-                                        color: Colors.white,
-                                        child: CachedNetworkImage(
-                                          imageUrl: uni.logoUrl!,
-                                          fit: BoxFit.contain,
-                                          errorWidget: (_, _, _) => Icon(
-                                            Icons.school_rounded,
-                                            size: spec.appBarLogoIconSize,
-                                            color: AppTheme.primaryColor,
+        body: Center(
+          // WEB: içerik çok geniş ekranlarda kenarlara yayılmasın; klasik
+          // web sitesi gibi ortalanmış maksimum genişlikte kalsın.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1400),
+            child: Column(
+              children: [
+                Expanded(
+                  child: NestedScrollView(
+                    controller: _scrollController,
+                    headerSliverBuilder: (context, _) => [
+                      SliverAppBar(
+                        expandedHeight: spec.appBarExpandedHeight,
+                        pinned: true,
+                        floating: false,
+                        backgroundColor: AppTheme.bg(context),
+                        scrolledUnderElevation: 0,
+                        leading: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: AppTheme.textPri(context),
+                            size: spec.appBarLeadingIconSize,
+                          ),
+                          onPressed: Get.back,
+                        ),
+                        title: ValueListenableBuilder<double>(
+                          valueListenable: _titleOpacity,
+                          builder: (context, opacity, _) {
+                            if (opacity == 0) return const SizedBox.shrink();
+                            return Opacity(
+                              opacity: opacity,
+                              child: Obx(() {
+                                final uni = controller.university.value;
+                                if (uni == null) return const SizedBox.shrink();
+                                final hasLogo = uni.logoUrl?.isNotEmpty == true;
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (hasLogo)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 10,
+                                        ),
+                                        child: ClipOval(
+                                          child: Container(
+                                            width: spec.appBarLogoSize,
+                                            height: spec.appBarLogoSize,
+                                            color: Colors.white,
+                                            child: CachedNetworkImage(
+                                              imageUrl: uni.logoUrl!,
+                                              fit: BoxFit.contain,
+                                              errorWidget: (_, _, _) => Icon(
+                                                Icons.school_rounded,
+                                                size: spec.appBarLogoIconSize,
+                                                color: AppTheme.primaryColor,
+                                              ),
+                                            ),
                                           ),
                                         ),
+                                      )
+                                    else
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
+                                        child: Icon(
+                                          Icons.school_rounded,
+                                          size: spec.appBarLogoIconSize,
+                                          color: AppTheme.primaryColor,
+                                        ),
+                                      ),
+                                    Flexible(
+                                      child: Text(
+                                        uni.name ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontSize: spec.appBarTitleFontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textPri(context),
+                                        ),
                                       ),
                                     ),
-                                  )
-                                else
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: Icon(
-                                      Icons.school_rounded,
-                                      size: spec.appBarLogoIconSize,
-                                      color: AppTheme.primaryColor,
+                                  ],
+                                );
+                              }),
+                            );
+                          },
+                        ),
+                        actions: [
+                          Obx(() {
+                            final isFav = controller.isFavorite.value;
+                            final isLoading =
+                                controller.isFavoriteLoading.value;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: spec.appBarActionIconSize * 1.6,
+                                      height: spec.appBarActionIconSize * 1.6,
+                                      child: Center(
+                                        child: SizedBox(
+                                          width:
+                                              spec.appBarActionIconSize * 0.7,
+                                          height:
+                                              spec.appBarActionIconSize * 0.7,
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppTheme.primaryColor,
+                                              ),
+                                        ),
+                                      ),
+                                    )
+                                  : IconButton(
+                                      tooltip: isFav
+                                          ? 'Favorilerden çıkar'
+                                          : 'Favorilere ekle',
+                                      icon: AnimatedSwitcher(
+                                        duration: const Duration(
+                                          milliseconds: 250,
+                                        ),
+                                        transitionBuilder: (child, anim) =>
+                                            ScaleTransition(
+                                              scale: anim,
+                                              child: child,
+                                            ),
+                                        child: Icon(
+                                          isFav
+                                              ? Icons.bookmark_rounded
+                                              : Icons.bookmark_border_rounded,
+                                          key: ValueKey(isFav),
+                                          color: isFav
+                                              ? AppTheme.primaryColor
+                                              : AppTheme.textPri(context),
+                                          size: spec.appBarActionIconSize,
+                                        ),
+                                      ),
+                                      onPressed: controller.toggleFavorite,
                                     ),
-                                  ),
-                                Flexible(
-                                  child: Text(
-                                    uni.name ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      fontSize: spec.appBarTitleFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.textPri(context),
-                                    ),
-                                  ),
-                                ),
-                              ],
                             );
                           }),
-                        );
-                      },
-                    ),
-                    actions: [
-                      Obx(() {
-                        final isFav = controller.isFavorite.value;
-                        final isLoading = controller.isFavoriteLoading.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: isLoading
-                              ? SizedBox(
-                                  width: spec.appBarActionIconSize * 1.6,
-                                  height: spec.appBarActionIconSize * 1.6,
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: spec.appBarActionIconSize * 0.7,
-                                      height: spec.appBarActionIconSize * 0.7,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppTheme.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : IconButton(
-                                  tooltip: isFav
-                                      ? 'Favorilerden çıkar'
-                                      : 'Favorilere ekle',
-                                  icon: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 250),
-                                    transitionBuilder: (child, anim) =>
-                                        ScaleTransition(
-                                          scale: anim,
-                                          child: child,
-                                        ),
-                                    child: Icon(
-                                      isFav
-                                          ? Icons.bookmark_rounded
-                                          : Icons.bookmark_border_rounded,
-                                      key: ValueKey(isFav),
-                                      color: isFav
-                                          ? AppTheme.primaryColor
-                                          : AppTheme.textPri(context),
-                                      size: spec.appBarActionIconSize,
-                                    ),
-                                  ),
-                                  onPressed: controller.toggleFavorite,
-                                ),
-                        );
-                      }),
-                    ],
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: UniversityDetailHeader(
-                        spec: spec,
-                        controller: controller,
+                        ],
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: UniversityDetailHeader(
+                            spec: spec,
+                            controller: controller,
+                          ),
+                        ),
                       ),
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _TabBarDelegate(spec: spec),
+                      ),
+                    ],
+                    body: TabBarView(
+                      children: [
+                        UniversityDetailAboutTab(
+                          spec: spec,
+                          controller: controller,
+                        ),
+                        UniversityDetailVideosTab(
+                          spec: spec,
+                          controller: controller,
+                        ),
+                        UniversityDetailShortsTab(
+                          spec: spec,
+                          controller: controller,
+                        ),
+                        UniversityDetailLiveTab(
+                          spec: spec,
+                          controller: controller,
+                        ),
+                      ],
                     ),
                   ),
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _TabBarDelegate(spec: spec),
-                  ),
-                ],
-                body: TabBarView(
-                  children: [
-                    UniversityDetailAboutTab(
-                      spec: spec,
-                      controller: controller,
-                      radioController: radioController,
-                    ),
-                    UniversityDetailVideosTab(
-                      spec: spec,
-                      controller: controller,
-                    ),
-                    UniversityDetailShortsTab(
-                      spec: spec,
-                      controller: controller,
-                    ),
-                    UniversityDetailLiveTab(spec: spec, controller: controller),
-                  ],
                 ),
-              ),
+              ],
             ),
-            UniversityRadioMiniPlayer(
-              spec: spec,
-              radioController: radioController,
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -8,6 +8,9 @@
 abstract class VideoSectionDetailSizes {
   const VideoSectionDetailSizes();
 
+  /// WEB ölçeği bayrağı — yalnızca VideoSectionDetailWebSizes true döner.
+  bool get isWeb => false;
+
   // AppBar
   double get appBarIconSize;
   double get appBarTitleSize;
@@ -228,4 +231,22 @@ class VideoSectionDetailTabletSizes extends VideoSectionDetailSizes {
 
   @override
   double get scrollLoadThreshold => 300;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; kart genişliği ızgara zaten
+/// max-w-[1140px] ile sınırlandığı için yalnızca kart tipografisi ve
+/// thumbnail'i masaüstü yoğunluğuna göre büyütür.
+class VideoSectionDetailWebSizes extends VideoSectionDetailTabletSizes {
+  const VideoSectionDetailWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get appBarTitleSize => 21;
+  @override
+  double get thumbnailWidth => 200;
+  @override
+  double get thumbnailHeight => 112;
 }

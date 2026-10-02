@@ -8,12 +8,14 @@ import 'package:get/get.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../data/models/university_stats_model.dart';
 import '../../home/tabs/home_tab/universities/university_sections_config.dart';
 import '../utils/university_stats_section_detail_sizes.dart';
 
 class UniversityStatsSectionDetailCard extends StatelessWidget {
-  const UniversityStatsSectionDetailCard({super.key, 
+  const UniversityStatsSectionDetailCard({
+    super.key,
     required this.item,
     required this.sectionType,
     required this.sizes,
@@ -28,7 +30,7 @@ class UniversityStatsSectionDetailCard extends StatelessWidget {
     final cfg = uniSectionConfigs.firstWhere((c) => c.type == sectionType);
     final hasLogo = item.logoUrl != null && item.logoUrl!.isNotEmpty;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () =>
           Get.toNamed(AppRoutes.universityDetail, arguments: item.universityId),
       child: Container(
@@ -125,10 +127,7 @@ class UniversityStatsSectionDetailCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: AppTheme.textSec(context),
-            ),
+            Icon(Icons.chevron_right_rounded, color: AppTheme.textSec(context)),
           ],
         ),
       ),
@@ -136,13 +135,13 @@ class UniversityStatsSectionDetailCard extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context) => Container(
-        width: sizes.logoSize,
-        height: sizes.logoSize,
-        color: AppTheme.surface(context),
-        child: Icon(
-          Icons.account_balance_rounded,
-          color: AppTheme.textSec(context),
-          size: sizes.placeholderIconSize,
-        ),
-      );
+    width: sizes.logoSize,
+    height: sizes.logoSize,
+    color: AppTheme.surface(context),
+    child: Icon(
+      Icons.account_balance_rounded,
+      color: AppTheme.textSec(context),
+      size: sizes.placeholderIconSize,
+    ),
+  );
 }

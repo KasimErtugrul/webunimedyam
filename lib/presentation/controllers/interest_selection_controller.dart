@@ -26,7 +26,6 @@ import '../../data/models/university_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/university_favorites_repository.dart';
 import '../../data/repositories/video_repository.dart';
-import '../../services/analytics_service.dart';
 
 class InterestSelectionController extends GetxController {
   final VideoRepository videoRepository;
@@ -73,8 +72,8 @@ class InterestSelectionController extends GetxController {
       final list = await videoRepository.getUniversities();
       list.sort(
         (a, b) => (a.name ?? '').toLowerCase().compareTo(
-              (b.name ?? '').toLowerCase(),
-            ),
+          (b.name ?? '').toLowerCase(),
+        ),
       );
       universities.value = list;
     } catch (e, stacktrace) {
@@ -83,8 +82,7 @@ class InterestSelectionController extends GetxController {
         error: e,
         stackTrace: stacktrace,
       );
-      errorMessage.value =
-          'Üniversiteler yüklenemedi. Lütfen tekrar deneyin.';
+      errorMessage.value = 'Üniversiteler yüklenemedi. Lütfen tekrar deneyin.';
     } finally {
       isLoading.value = false;
     }
@@ -120,11 +118,6 @@ class InterestSelectionController extends GetxController {
             university: uni,
           );
         }
-
-        AnalyticsService.instance.logEvent(
-          'interest_universities_selected',
-          parameters: {'count': selectedIds.length},
-        );
       }
 
       await local.setInterestSelectionShown();
@@ -148,7 +141,6 @@ class InterestSelectionController extends GetxController {
 
   /// Kullanıcı hiç seçim yapmadan geçmek isterse.
   Future<void> skip() async {
-    AnalyticsService.instance.logEvent('interest_selection_skipped');
     await local.setInterestSelectionShown();
     await authRepository.completeSignup();
     Get.offAllNamed(AppRoutes.home);

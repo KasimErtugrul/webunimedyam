@@ -36,8 +36,10 @@ class RegisterScreen extends GetView<RegisterController> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final RegisterSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final RegisterSizes sizes = Responsive.isWeb(context)
+        ? const RegisterWebSizes()
+        : Responsive.isTablet(context)
         ? const RegisterTabletSizes()
         : const RegisterPhoneSizes();
 
@@ -78,8 +80,9 @@ class _RegisterFormState extends State<_RegisterForm> {
   static final RegExp _usernameRegExp = RegExp(r'^[a-z0-9_]+$');
 
   // E-posta: genel kabul görmüş "bir şey@bir şey.uzunluk" formatı.
-  static final RegExp _emailRegExp =
-      RegExp(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+  static final RegExp _emailRegExp = RegExp(
+    r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+  );
 
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
@@ -97,8 +100,9 @@ class _RegisterFormState extends State<_RegisterForm> {
   final _confirmFieldKey = GlobalKey<FormFieldState<String>>();
 
   // Kullanıcı adı canlı müsaitlik kontrolü (debounce'lu).
-  final _usernameAvailability =
-      ValueNotifier<UsernameAvailability>(UsernameAvailability.unknown);
+  final _usernameAvailability = ValueNotifier<UsernameAvailability>(
+    UsernameAvailability.unknown,
+  );
   Timer? _usernameDebounce;
   String? _takenUsername;
 
@@ -351,10 +355,12 @@ class _RegisterFormState extends State<_RegisterForm> {
             suffix: Padding(
               padding: EdgeInsets.only(right: s.toggleRight),
               child: IconButton(
-                tooltip:
-                    _obscureConfirmPassword ? 'Şifreyi göster' : 'Şifreyi gizle',
+                tooltip: _obscureConfirmPassword
+                    ? 'Şifreyi göster'
+                    : 'Şifreyi gizle',
                 onPressed: () => setState(
-                    () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                  () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                ),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(
@@ -428,7 +434,7 @@ class _RegisterFormState extends State<_RegisterForm> {
           RegisterFooterStrip(sizes: s),
 
           // Alt güvenlik boşluğu (klavye açıkken son şerit görünür kalsın)
-          SizedBox(height: scheme.outlineVariant.alpha * 0), // no-op
+          const SizedBox(height: 0),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../controllers/auth/forgot_password_controller.dart';
 import 'forgot_password_layout_spec.dart';
 import 'widgets/auth_error_banner.dart';
@@ -204,83 +205,83 @@ class _HeroSection extends StatelessWidget {
         children: [
           // ── Rozet: primary/10 blur glow + dış/iç daire + nişan ──
           Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // bg-primary/10 blur-xl
-              Container(
-                width: spec.heroGlowSize,
-                height: spec.heroGlowSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.primary.withValues(alpha: 0.10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: scheme.primary.withValues(alpha: 0.28),
-                      blurRadius: 48,
-                      spreadRadius: 10,
-                    ),
-                  ],
-                ),
-              ),
-              // w-20 h-20 bg-surface-container shadow-lg
-              Container(
-                width: spec.heroOuterSize,
-                height: spec.heroOuterSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.surfaceContainer,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
+                clipBehavior: Clip.none,
                 alignment: Alignment.center,
-                // w-14 h-14 bg-surface-container-high + lock_reset (FILL 1)
-                child: Container(
-                  width: spec.heroInnerSize,
-                  height: spec.heroInnerSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: scheme.surfaceContainerHigh,
+                children: [
+                  // bg-primary/10 blur-xl
+                  Container(
+                    width: spec.heroGlowSize,
+                    height: spec.heroGlowSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.primary.withValues(alpha: 0.10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: scheme.primary.withValues(alpha: 0.28),
+                          blurRadius: 48,
+                          spreadRadius: 10,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Icon(
-                    Icons.lock_reset_rounded,
-                    size: spec.heroLockIconSize,
-                    color: scheme.primary,
-                  ),
-                ),
-              ),
-              // -bottom-1 -right-1 → bg-primary, verified_user 14px
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  width: spec.heroBadgeSize,
-                  height: spec.heroBadgeSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: scheme.primary,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.20),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
+                  // w-20 h-20 bg-surface-container shadow-lg
+                  Container(
+                    width: spec.heroOuterSize,
+                    height: spec.heroOuterSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.surfaceContainer,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    // w-14 h-14 bg-surface-container-high + lock_reset (FILL 1)
+                    child: Container(
+                      width: spec.heroInnerSize,
+                      height: spec.heroInnerSize,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: scheme.surfaceContainerHigh,
                       ),
-                    ],
+                      child: Icon(
+                        Icons.lock_reset_rounded,
+                        size: spec.heroLockIconSize,
+                        color: scheme.primary,
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    Icons.verified_user_rounded,
-                    size: spec.heroBadgeIconSize,
-                    color: scheme.onPrimary,
+                  // -bottom-1 -right-1 → bg-primary, verified_user 14px
+                  Positioned(
+                    right: -2,
+                    bottom: -2,
+                    child: Container(
+                      width: spec.heroBadgeSize,
+                      height: spec.heroBadgeSize,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: scheme.primary,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.20),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.verified_user_rounded,
+                        size: spec.heroBadgeIconSize,
+                        color: scheme.onPrimary,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          )
+                ],
+              )
               .animate()
               .fadeIn(duration: 400.ms)
               .scaleXY(
@@ -294,10 +295,10 @@ class _HeroSection extends StatelessWidget {
 
           // ── "Hesabını Kurtar" (headline-lg) ──
           Text(
-            'Hesabını Kurtar',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineLarge,
-          )
+                'Hesabını Kurtar',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineLarge,
+              )
               .animate()
               .fadeIn(delay: 180.ms, duration: 400.ms)
               .slideY(
@@ -311,16 +312,15 @@ class _HeroSection extends StatelessWidget {
 
           // ── Açıklama (body-md, on-surface-variant, max-w-xs) ──
           ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: spec.heroSubtitleMaxWidth),
+            constraints: BoxConstraints(maxWidth: spec.heroSubtitleMaxWidth),
             child: Text(
               'Kayıtlı e-posta adresinizi girin. Size şifrenizi yenilemeniz '
               'için 6 haneli bir doğrulama kodu göndereceğiz.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    height: 1.5,
-                  ),
+                color: scheme.onSurfaceVariant,
+                height: 1.5,
+              ),
             ),
           ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
         ],
@@ -340,62 +340,63 @@ class _FormSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Get.find<ForgotPasswordController>();
     return Form(
-      key: form.formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── E-posta alanı (etiket dışarıda + temizle butonu) ──
-          _EmailField(form: form, spec: spec)
-              .animate()
-              .fadeIn(delay: 550.ms, duration: 350.ms),
+          key: form.formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── E-posta alanı (etiket dışarıda + temizle butonu) ──
+              _EmailField(
+                form: form,
+                spec: spec,
+              ).animate().fadeIn(delay: 550.ms, duration: 350.ms),
 
-          // ── Server hatası (koddaki öğe; tasarımda yok → alanın altına) ──
-          Obx(() {
-            final msg = auth.errorMessage.value;
-            if (msg.isEmpty) return const SizedBox.shrink();
-            return AuthErrorBanner(
-              message: msg,
-              fontSize: spec.errorFontSize,
-              padding: spec.errorPadding,
-              radius: spec.errorRadius,
-              iconSize: spec.errorIconSize,
-              marginBottom: spec.errorMarginBottom,
-            );
-          }),
+              // ── Server hatası (koddaki öğe; tasarımda yok → alanın altına) ──
+              Obx(() {
+                final msg = auth.errorMessage.value;
+                if (msg.isEmpty) return const SizedBox.shrink();
+                return AuthErrorBanner(
+                  message: msg,
+                  fontSize: spec.errorFontSize,
+                  padding: spec.errorPadding,
+                  radius: spec.errorRadius,
+                  iconSize: spec.errorIconSize,
+                  marginBottom: spec.errorMarginBottom,
+                );
+              }),
 
-          SizedBox(height: spec.formGap),
+              SizedBox(height: spec.formGap),
 
-          // ── GÜVENLİK NOTU kutusu ──
-          _SecurityNote(spec: spec),
+              // ── GÜVENLİK NOTU kutusu ──
+              _SecurityNote(spec: spec),
 
-          SizedBox(height: spec.formGap),
+              SizedBox(height: spec.formGap),
 
-          // ── "Kod Gönder ⚡" ──
-          _SubmitButton(form: form, spec: spec),
+              // ── "Kod Gönder ⚡" ──
+              _SubmitButton(form: form, spec: spec),
 
-          // ── Koddaki bilgi notu (tasarımda yok → butonun altında korundu) ──
-          const SizedBox(height: 12),
-          Center(
-            child: Text(
-              'Kod, kayıtlı email adresinize gönderilir.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.textSec(context).withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
-            ),
-          ).animate().fadeIn(delay: 700.ms, duration: 350.ms),
+              // ── Koddaki bilgi notu (tasarımda yok → butonun altında korundu) ──
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  'Kod, kayıtlı email adresinize gönderilir.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.7),
+                    fontSize: 12,
+                  ),
+                ),
+              ).animate().fadeIn(delay: 700.ms, duration: 350.ms),
 
-          // ── Başarı bildirimi (gönderim sonrası) ──
-          _SuccessAlert(form: form, spec: spec),
+              // ── Başarı bildirimi (gönderim sonrası) ──
+              _SuccessAlert(form: form, spec: spec),
 
-          SizedBox(height: spec.bottomLinkSpacing),
+              SizedBox(height: spec.bottomLinkSpacing),
 
-          // ── "Giriş ekranına geri dön" ──
-          Center(child: _BackToLoginLink(spec: spec)),
-        ],
-      ),
-    )
+              // ── "Giriş ekranına geri dön" ──
+              Center(child: _BackToLoginLink(spec: spec)),
+            ],
+          ),
+        )
         .animate()
         .fadeIn(delay: 250.ms, duration: 400.ms)
         .slideY(
@@ -425,9 +426,9 @@ class _EmailField extends StatelessWidget {
           padding: EdgeInsets.only(left: 4, bottom: spec.fieldLabelGap),
           child: Text(
             'Üniversite E-postası',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ),
         // Tasarım: rounded-xl, bg-surface-container,
@@ -483,7 +484,7 @@ class _EmailField extends StatelessWidget {
                     if (!form.showClear.value) return const SizedBox.shrink();
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: GestureDetector(
+                      child: TapCursor(
                         onTap: form.clearEmail,
                         child: Container(
                           width: spec.clearButtonSize,
@@ -519,17 +520,11 @@ class _EmailField extends StatelessWidget {
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(spec.fieldRadius),
-                    borderSide: BorderSide(
-                      color: scheme.error,
-                      width: 1.2,
-                    ),
+                    borderSide: BorderSide(color: scheme.error, width: 1.2),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(spec.fieldRadius),
-                    borderSide: BorderSide(
-                      color: scheme.error,
-                      width: 1.5,
-                    ),
+                    borderSide: BorderSide(color: scheme.error, width: 1.5),
                   ),
                   errorStyle: TextStyle(
                     color: scheme.error,
@@ -634,8 +629,7 @@ class _SubmitButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: scheme.primary, // bg-primary
             foregroundColor: scheme.onPrimary, // text-on-primary
-            disabledBackgroundColor:
-                scheme.primary.withValues(alpha: 0.60),
+            disabledBackgroundColor: scheme.primary.withValues(alpha: 0.60),
             disabledForegroundColor: scheme.onPrimary,
             elevation: 0,
             shadowColor: Colors.transparent,
@@ -657,10 +651,7 @@ class _SubmitButton extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Text(
-                      'Gönderiliyor...',
-                      style: _labelStyle(scheme),
-                    ),
+                    Text('Gönderiliyor...', style: _labelStyle(scheme)),
                   ],
                 )
               : Row(
@@ -673,9 +664,7 @@ class _SubmitButton extends StatelessWidget {
                     SizedBox(width: spec.buttonGap),
                     Icon(
                       // Tasarım: ilk gönderim bolt, sonrasında refresh
-                      sent
-                          ? Icons.refresh_rounded
-                          : Icons.bolt_rounded,
+                      sent ? Icons.refresh_rounded : Icons.bolt_rounded,
                       size: spec.buttonIconSize,
                       color: scheme.onPrimary,
                     ),
@@ -687,11 +676,11 @@ class _SubmitButton extends StatelessWidget {
   }
 
   TextStyle _labelStyle(ColorScheme scheme) => TextStyle(
-        color: scheme.onPrimary,
-        fontSize: spec.buttonFontSize,
-        fontWeight: FontWeight.w600, // label-lg
-        letterSpacing: 0.2,
-      );
+    color: scheme.onPrimary,
+    fontSize: spec.buttonFontSize,
+    fontWeight: FontWeight.w600, // label-lg
+    letterSpacing: 0.2,
+  );
 }
 
 // ═══════════════════════════ Başarı bildirimi ═══════════════════════════
@@ -707,33 +696,33 @@ class _SuccessAlert extends StatelessWidget {
     return Obx(() {
       if (!form.otpSent.value) return const SizedBox.shrink();
       return Container(
-        margin: const EdgeInsets.only(top: 16), // mt-space-md
-        padding: EdgeInsets.all(spec.alertPadding),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHigh, // bg-surface-container-high
-          borderRadius: BorderRadius.circular(spec.alertRadius),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.mark_email_read_outlined,
-              color: scheme.primary,
-              size: spec.alertIconSize,
+            margin: const EdgeInsets.only(top: 16), // mt-space-md
+            padding: EdgeInsets.all(spec.alertPadding),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHigh, // bg-surface-container-high
+              borderRadius: BorderRadius.circular(spec.alertRadius),
             ),
-            SizedBox(width: spec.alertGap),
-            Expanded(
-              child: Text(
-                'Doğrulama kodu başarıyla e-postanıza iletildi.',
-                style: TextStyle(
-                  color: scheme.onSurface,
-                  fontSize: spec.alertTextFontSize,
-                  height: 1.45,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.mark_email_read_outlined,
+                  color: scheme.primary,
+                  size: spec.alertIconSize,
                 ),
-              ),
+                SizedBox(width: spec.alertGap),
+                Expanded(
+                  child: Text(
+                    'Doğrulama kodu başarıyla e-postanıza iletildi.',
+                    style: TextStyle(
+                      color: scheme.onSurface,
+                      fontSize: spec.alertTextFontSize,
+                      height: 1.45,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      )
+          )
           .animate()
           .fadeIn(duration: 300.ms)
           .slideY(begin: -0.1, end: 0, curve: Curves.easeOut);

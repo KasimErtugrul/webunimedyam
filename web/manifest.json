@@ -1,12 +1,12 @@
 {
-    "name": "comutv",
-    "short_name": "comutv",
+    "name": "ÇOMÜ TV",
+    "short_name": "ÇOMÜ TV",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#0f0f0f",
+    "theme_color": "#0f0f0f",
+    "description": "Üniversite video platformu — kulüplerin ve birimlerin videoları, canlı yayınları ve röportajları tek yerde.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

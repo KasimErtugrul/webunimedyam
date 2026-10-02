@@ -8,6 +8,11 @@
 // Not: shortestSide kullanıyoruz, width değil. Böylece bir telefon yatay
 // çevrildiğinde (genişliği 700-900'e çıkabilir) yanlışlıkla "tablet"
 // sanılmaz — çünkü telefonun kısa kenarı yön değiştirmekle değişmez.
+//
+// WEB: Tarayıcı (masaüstü) ölçüsü için width tabanlı üçüncü bir eşik
+// vardır (isWeb). shortestSide yerine width kullanılır, çünkü bir
+// masaüstü tarayıcı penceresi (ör. 1280x720) shortestSide'a göre
+// "tablet" olurdu — web düzeni için YATAY alan belirleyicidir.
 
 import 'package:flutter/material.dart';
 
@@ -18,11 +23,23 @@ class Responsive {
   /// bu değerin üstünde kalacak şekilde seçildi.
   static const double tabletBreakpoint = 600;
 
+  /// Web (masaüstü tarayıcı) eşiği. Pencere genişliği bu değerin
+  /// üstündeyse web düzeni uygulanır: üst navigasyon barı, içeriğin
+  /// maksimum genişlikle ortalanması vb.
+  static const double webBreakpoint = 1024;
+
   static bool isTablet(BuildContext context) {
     return MediaQuery.sizeOf(context).shortestSide >= tabletBreakpoint;
   }
 
   static bool isPhone(BuildContext context) => !isTablet(context);
+
+  /// Masaüstü tarayıcı ölçüsü: pencere genişliği [webBreakpoint] ve üstü.
+  /// Dikey alandan bağımsızdır; dar bir tarayıcı penceresi (ör. 800px)
+  /// tablet düzenine düşer.
+  static bool isWeb(BuildContext context) {
+    return MediaQuery.sizeOf(context).width >= webBreakpoint;
+  }
 
   /// Cihaz sınıfına göre iki farklı değerden birini döndürür.
   /// Sadece basit sabit/renk/boşluk gibi tekil değerler için kullanılır.
@@ -33,6 +50,24 @@ class Responsive {
     required T mobile,
     required T tablet,
   }) {
+    return isTablet(context) ? tablet : mobile;
+  }
+
+  /// ÜÇLÜ ölçek seçimi: web (masaüstü tarayıcı) → tablet → telefon.
+  ///
+  /// Ölçü katmanları artık üçlüdür: her ekranın Phone/Tablet/Web ölçü
+  /// setleri vardır (ör. PhoneHomeTabSizes / TabletHomeTabSizes /
+  /// WebHomeTabSizes). Dal sırası ÖNEMLİDİR: isWeb önce kontrol edilir,
+  /// çünkü masaüstü tarayıcı penceresi shortestSide'a göre genellikle
+  /// "tablet" de olur — web kontrolü tabletin önünde olmazsa hiç
+  /// yakalanamaz.
+  static T value3<T>(
+    BuildContext context, {
+    required T web,
+    required T tablet,
+    required T mobile,
+  }) {
+    if (isWeb(context)) return web;
     return isTablet(context) ? tablet : mobile;
   }
 

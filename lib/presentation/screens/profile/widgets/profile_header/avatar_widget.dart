@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../core/responsive.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 
 class _Sizes {
   final bool isTablet;
@@ -32,7 +33,8 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
-    if (Responsive.isTablet(context)) {
+    // WEB: tablet ölçüleri — avatar kutusu dış düzen tarafından ölçeklenir.
+    if (Responsive.isWeb(context) || Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
         outerBorderWidth: 2.5,
@@ -88,7 +90,7 @@ class ProfileAvatarWidget extends StatelessWidget {
     double w(double v) => spec.isTablet ? v : v;
     double h(double v) => spec.isTablet ? v : v;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: isOwnProfile ? onTap : null,
       child: Stack(
         clipBehavior: Clip.none,
@@ -162,39 +164,40 @@ class ProfileAvatarWidget extends StatelessWidget {
             Positioned(
               right: -2,
               bottom: -2,
-              child: Container(
-                width: badgeSize,
-                height: badgeSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.primaryColor,
-                  border: Border.all(
-                    color: AppTheme.bg(context),
-                    width: w(spec.badgeBorderWidth),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.photo_camera_rounded,
-                  color: Colors.white,
-                  size: badgeSize * spec.badgeIconRatio,
-                ),
-              )
-                  .animate(
-                    onPlay: (c) => c.repeat(reverse: true),
-                  )
-                  .scaleXY(
-                    begin: 1,
-                    end: 1.08,
-                    duration: 1400.ms,
-                    curve: Curves.easeInOut,
-                  ),
+              child:
+                  Container(
+                        width: badgeSize,
+                        height: badgeSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.primaryColor,
+                          border: Border.all(
+                            color: AppTheme.bg(context),
+                            width: w(spec.badgeBorderWidth),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.4,
+                              ),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.photo_camera_rounded,
+                          color: Colors.white,
+                          size: badgeSize * spec.badgeIconRatio,
+                        ),
+                      )
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scaleXY(
+                        begin: 1,
+                        end: 1.08,
+                        duration: 1400.ms,
+                        curve: Curves.easeInOut,
+                      ),
             ),
         ],
       ),

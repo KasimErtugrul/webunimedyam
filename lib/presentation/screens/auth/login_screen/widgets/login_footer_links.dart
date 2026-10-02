@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
 import '../../../../../app/routes/app_routes.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../login_layout_spec.dart';
 
 /// "Henüz hesabın yok mu? Kayıt Ol >" — mt-space-xl, ortalanmış
@@ -30,7 +30,7 @@ class LoginFooterLinks extends StatelessWidget {
             height: 20 / 14,
           ),
         ),
-        GestureDetector(
+        TapCursor(
           onTap: () => Get.toNamed(AppRoutes.register),
           behavior: HitTestBehavior.opaque,
           child: Padding(

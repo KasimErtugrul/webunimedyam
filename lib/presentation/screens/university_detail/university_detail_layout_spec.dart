@@ -7,6 +7,9 @@ import '../../../core/responsive.dart';
 class UniversityDetailLayoutSpec {
   final bool isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca UniversityDetailWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   // AppBar
   final double appBarExpandedHeight;
   final double appBarTitleFontSize;
@@ -196,6 +199,10 @@ class UniversityDetailLayoutSpec {
   });
 
   factory UniversityDetailLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const UniversityDetailWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const UniversityDetailLayoutSpec._(
         isTablet: true,
@@ -361,4 +368,104 @@ class UniversityDetailLayoutSpec {
       gridAspectRatio: 0.72,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer.
+class UniversityDetailWebLayoutSpec extends UniversityDetailLayoutSpec {
+  const UniversityDetailWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        appBarExpandedHeight: 350,
+        appBarTitleFontSize: 20,
+        appBarLogoSize: 36,
+        appBarLogoIconSize: 22,
+        appBarActionIconSize: 30,
+        appBarLeadingIconSize: 26,
+        tabBarHeight: 60,
+        tabBarFontSize: 15,
+        tabBarIndicatorWeight: 3,
+        tabBarHPadding: 12,
+        tabBarRadius: 16,
+        headerTopPadding: 70,
+        headerLogoOuter: 140,
+        headerLogoInner: 104,
+        headerLogoPadding: 8,
+        headerNameFontSize: 24,
+        headerNameLineHeight: 1.35,
+        headerCityFontSize: 15,
+        headerBadgeFontSize: 12,
+        headerBadgePaddingH: 14,
+        headerBadgePaddingV: 6,
+        contentPaddingH: 24,
+        contentPaddingTop: 24,
+        contentPaddingBottom: 40,
+        sectionSpacing: 24,
+        sectionTitleFontSize: 17,
+        cardRadius: 16,
+        cardPadding: 18,
+        rowIconBoxSize: 42,
+        rowIconBoxRadius: 11,
+        rowIconSize: 21,
+        rowIconSpacing: 16,
+        rowPaddingH: 18,
+        rowPaddingV: 16,
+        rowLabelFontSize: 13,
+        rowValueFontSize: 16,
+        rowValueSpacing: 3,
+        descFontSize: 15,
+        descLineHeight: 1.7,
+        favButtonHeight: 54,
+        favButtonRadius: 14,
+        favButtonFontSize: 16,
+        favButtonIconSize: 22,
+        radioCardRadius: 16,
+        radioIconBox: 56,
+        radioIconBoxRadius: 14,
+        radioIconSize: 28,
+        radioTitleFontSize: 16,
+        radioSubtitleFontSize: 13,
+        radioPlayBtnSize: 54,
+        radioPlayIconSize: 26,
+        miniPaddingH: 20,
+        miniPaddingV: 12,
+        miniLogoSize: 50,
+        miniLogoRadius: 12,
+        miniTitleFontSize: 15,
+        miniSubtitleFontSize: 13,
+        miniPlayIconSize: 40,
+        miniStopIconSize: 30,
+        shortsGridExtent: 180,
+        shortsCardRadius: 16,
+        shortsTitleFontSize: 15,
+        shortsDescFontSize: 13,
+        shortsMetaFontSize: 12,
+        shortsThumbW: 96,
+        shortsThumbH: 140,
+        shortsPlayOverlay: 40,
+        shortsPlayIcon: 24,
+        shimmerListHeight: 120,
+        shimmerRadius: 18,
+        stateIconBox: 96,
+        stateIconSize: 44,
+        stateTitleFontSize: 20,
+        stateSubtitleFontSize: 15,
+        gridPaddingH: 16,
+        gridPaddingV: 14,
+        gridSpacing: 12,
+        gridAspectRatio: 0.72,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get contentPaddingH => 32;
+  @override
+  double get appBarExpandedHeight => 380;
+  @override
+  double get headerNameFontSize => 26;
+  @override
+  double get sectionTitleFontSize => 18;
 }

@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../data/models/video_model.dart';
 import '../search_layout_spec.dart';
 import 'highlight_text_widget.dart';
@@ -23,7 +24,7 @@ class VideoResultCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapCursor(
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(bottom: spec.cardBottomMargin),

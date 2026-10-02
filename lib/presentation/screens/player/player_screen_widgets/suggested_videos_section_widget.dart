@@ -41,6 +41,25 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        titleIconSize: 20,
+        titleIconSpacing: 8,
+        titleFontSize: 16,
+        titleBottomPadding: 12,
+        shimmerTitleWidth: 180,
+        shimmerTitleHeight: 16,
+        shimmerTitleRadius: 8,
+        shimmerTitleSpacing: 12,
+        shimmerListHeight: 220,
+        shimmerCardWidth: 180,
+        shimmerCardMarginRight: 14,
+        shimmerCardRadius: 16,
+        shimmerItemCount: 4,
+        listHeight: 230,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         titleIconSize: 20,

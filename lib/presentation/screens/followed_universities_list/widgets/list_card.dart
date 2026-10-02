@@ -1,4 +1,3 @@
-
 // ─── University Card ────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -7,20 +6,22 @@ import 'package:get/get.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/university_model.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../utils/followed_universities_list_sizes.dart';
 
 class FollowedUniversitiesListCard extends StatelessWidget {
   final FollowedUniversitiesListSizes sizes;
   final UniversityModel university;
 
-  const FollowedUniversitiesListCard({super.key, 
+  const FollowedUniversitiesListCard({
+    super.key,
     required this.sizes,
     required this.university,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapCursor(
       onTap: () =>
           Get.toNamed(AppRoutes.universityDetail, arguments: university),
       child: Container(

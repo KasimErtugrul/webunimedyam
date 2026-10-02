@@ -22,9 +22,11 @@ class ViewCountMetaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    final isWeb = Responsive.isWeb(context);
     final tablet = Responsive.isTablet(context);
-    final iconSize = tablet ? 17.0 : 15.0;
-    final fontSize = tablet ? 14.0 : 12.0;
+    final iconSize = isWeb ? 18.0 : (tablet ? 17.0 : 15.0);
+    final fontSize = isWeb ? 14.5 : (tablet ? 14.0 : 12.0);
     final primary = Theme.of(context).colorScheme.primary;
     final radius = BorderRadius.circular(10);
 

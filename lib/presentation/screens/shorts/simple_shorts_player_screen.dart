@@ -24,6 +24,7 @@ import 'shorts_player_screen_widgets/shorts_fullscreen.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../core/widgets/hover_tap.dart';
 import '../../../core/utils/share_helper.dart';
 import '../../../data/models/video_model.dart';
 import 'shorts_player_screen_widgets/action_bar.dart';
@@ -65,7 +66,10 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>;
     _shorts = List<VideoModel>.from(args['shorts'] as List);
-    _currentIndex = ((args['initialIndex'] as int?) ?? 0).clamp(0, _shorts.length - 1);
+    _currentIndex = ((args['initialIndex'] as int?) ?? 0).clamp(
+      0,
+      _shorts.length - 1,
+    );
     // University detay ekranından geçilirse logo burada iletilebilir
     // (bkz. UniversityDetailShortsTab._openShorts). Yoksa info kartı
     // otomatik olarak ikon fallback'ine düşer.
@@ -110,7 +114,9 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       ),
     );
 
-    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (_) async {
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (
+      _,
+    ) async {
       if (!mounted || _ytController == null) return;
       try {
         final dur = await _ytController!.duration;
@@ -186,7 +192,10 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       );
     }
 
-    final ShortsPlayerSizes sizes = Responsive.isTablet(context)
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    final ShortsPlayerSizes sizes = Responsive.isWeb(context)
+        ? const ShortsPlayerWebSizes()
+        : Responsive.isTablet(context)
         ? const ShortsPlayerTabletSizes()
         : const ShortsPlayerPhoneSizes();
 
@@ -302,7 +311,9 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
             ),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(sizes.shortsBadgeBorderRadius),
+              borderRadius: BorderRadius.circular(
+                sizes.shortsBadgeBorderRadius,
+              ),
             ),
             child: Text(
               'SHORTS',
@@ -317,15 +328,21 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
           const Spacer(),
           Text(
             '${_currentIndex + 1} / ${_shorts.length}',
-            style: TextStyle(color: Colors.white60, fontSize: sizes.counterFontSize),
+            style: TextStyle(
+              color: Colors.white60,
+              fontSize: sizes.counterFontSize,
+            ),
           ),
           SizedBox(width: sizes.counterSpacing),
-          GestureDetector(
+          TapCursor(
             onTap: _toggleMute,
             child: Container(
               width: sizes.muteButtonSize,
               height: sizes.muteButtonSize,
-              decoration: const BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                color: Colors.white12,
+                shape: BoxShape.circle,
+              ),
               child: Icon(
                 _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
                 color: Colors.white,
@@ -362,18 +379,25 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
+                  CachedNetworkImage(
+                    imageUrl: short.bestThumbnail,
+                    fit: BoxFit.cover,
+                  ),
                   if (_ytController != null)
                     IgnorePointer(
                       child: YoutubePlayer(
                         key: ValueKey(_playerKey),
                         controller: _ytController!,
-                        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                        gestureRecognizers:
+                            const <Factory<OneSequenceGestureRecognizer>>{},
                         // Shorts dikey: tam ekranda da 9:16 oranıyla ekranı kaplar.
                         aspectRatio: 9 / 16,
                         autoFullScreen: false,
                         controlsBuilder: (context, isFullscreen) =>
-                            ShortsFullscreen.controls(_ytController!, isFullscreen),
+                            ShortsFullscreen.controls(
+                              _ytController!,
+                              isFullscreen,
+                            ),
                       ),
                     ),
                   Positioned.fill(
@@ -410,7 +434,9 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
         child: LinearProgressIndicator(
           value: progress,
           backgroundColor: Colors.white12,
-          valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          valueColor: const AlwaysStoppedAnimation<Color>(
+            AppTheme.primaryColor,
+          ),
           minHeight: sizes.progressBarHeight,
         ),
       ),
@@ -443,10 +469,8 @@ class _SimpleShortsPlayerScreenState extends State<SimpleShortsPlayerScreen> {
       description: short.description,
       isFollowing: _isFollowing,
       onToggleFollow: _toggleFollow,
-      onWatchFull: () => Get.toNamed(
-        AppRoutes.player,
-        parameters: {'videoId': short.videoId},
-      ),
+      onWatchFull: () =>
+          Get.toNamed(AppRoutes.player, parameters: {'videoId': short.videoId}),
     );
   }
 

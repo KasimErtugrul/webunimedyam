@@ -7,6 +7,9 @@ import '../../../../../../core/responsive.dart';
 class UniversitiesTabLayoutSpec {
   final bool isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca UniversitiesTabWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   // ── Hero ──
   final double heroHeight;
   final double heroHPadding;
@@ -17,7 +20,6 @@ class UniversitiesTabLayoutSpec {
   final double heroTitleFontSize;
   final double heroSubtitleFontSize;
   final double heroBottomPadding;
-
 
   // ── Search ──
   final double searchHeight;
@@ -169,6 +171,10 @@ class UniversitiesTabLayoutSpec {
   });
 
   factory UniversitiesTabLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const UniversitiesTabWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const UniversitiesTabLayoutSpec._(
         isTablet: true,
@@ -315,4 +321,94 @@ class UniversitiesTabLayoutSpec {
       shimmerCardHeight: 108,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan sayfa-seviyesi ölçüleri ezer: A-Z listesi ve arama
+/// çubuğu masaüstünde daha geniş pad'lerle nefes alır.
+class UniversitiesTabWebLayoutSpec extends UniversitiesTabLayoutSpec {
+  const UniversitiesTabWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        heroHeight: 200,
+        heroHPadding: 24,
+        heroTopPadding: 28,
+        heroIconSize: 52,
+        heroBottomPadding: 18,
+
+        heroIconInner: 28,
+        heroIconRadius: 16,
+        heroTitleFontSize: 30,
+        heroSubtitleFontSize: 14,
+        searchHeight: 56,
+        searchRadius: 16,
+        searchFontSize: 16,
+        searchIconSize: 22,
+        searchHPadding: 20,
+        searchOverlap: 28,
+        chipSpacing: 10,
+        chipRunSpacing: 8,
+        chipFontSize: 14,
+        chipIconSize: 16,
+        chipRadius: 20,
+        statsFontSize: 15,
+        statsIconSize: 20,
+        statsVPadding: 14,
+        contentHPadding: 16,
+        listBottomPadding: 40,
+        emptyIconSize: 104,
+        emptyIconInner: 48,
+        emptyTitleFontSize: 22,
+        emptySubtitleFontSize: 16,
+        emptySpacingL: 24,
+        emptySpacingM: 10,
+        emptyButtonHeight: 52,
+        emptyButtonFontSize: 16,
+        emptyButtonRadius: 14,
+        sheetRadius: 28,
+        sheetHandleW: 48,
+        sheetHandleH: 5,
+        sheetTitleFontSize: 22,
+        sheetSubtitleFontSize: 14,
+        sheetOptionFontSize: 16,
+        sheetOptionSubFontSize: 13,
+        sheetOptionIconBox: 48,
+        sheetOptionIconBoxRadius: 14,
+        sheetOptionIconSize: 24,
+        sheetOptionSpacing: 8,
+        sheetHPadding: 20,
+        sidebarWidth: 28,
+        sidebarActiveFontSize: 15,
+        sidebarInactiveFontSize: 12,
+        sidebarPillWidth: 26,
+        cardPadding: 16,
+        cardRadius: 18,
+        cardLogoSize: 48,
+        cardLogoPadding: 8,
+        cardTitleFontSize: 17,
+        cardTitleLineHeight: 1.3,
+        cardMetaFontSize: 13,
+        cardMetaIconSize: 14,
+        cardStatFontSize: 12,
+        cardStatPaddingH: 8,
+        cardStatPaddingV: 4,
+        cardStatRadius: 7,
+        cardStatIconSize: 13,
+        cardFollowHeight: 38,
+        cardFollowFontSize: 13,
+        cardFollowRadius: 19,
+        cardBottomMargin: 12,
+        shimmerCardHeight: 130,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get heroHPadding => 32;
+  @override
+  double get contentHPadding => 32;
+  @override
+  double get searchHeight => 48;
 }

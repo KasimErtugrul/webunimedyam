@@ -18,7 +18,8 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
-    if (Responsive.isTablet(context)) {
+    // WEB: tablet ölçüleri — ayraç yüksekliği tablet değeriyle aynıdır.
+    if (Responsive.isWeb(context) || Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
         width: 1,

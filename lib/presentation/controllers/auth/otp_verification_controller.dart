@@ -8,20 +8,20 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/errors/auth_exceptions.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../services/analytics_service.dart';
 import '../../../services/session_service.dart';
 import '../utils/resend_cooldown.dart';
 
 class OtpVerificationController extends GetxController {
   /// 6 haneli kod ve 10:00 (600 sn) geçerlilik sayacı.
   static const int codeLength = 6;
-  static const int codeExpirySeconds = 600; // Supabase OTP expiry ile aynı olmalı
+  static const int codeExpirySeconds =
+      600; // Supabase OTP expiry ile aynı olmalı
 
   OtpVerificationController({
     required AuthRepository authRepository,
     required SessionService sessionService,
-  })  : _repo = authRepository,
-        _session = sessionService;
+  }) : _repo = authRepository,
+       _session = sessionService;
 
   final AuthRepository _repo;
   final SessionService _session;
@@ -162,7 +162,6 @@ class OtpVerificationController extends GetxController {
       errorMessage.value =
           'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
       clearCode(); // yanlış kodu temizle, kullanıcı baştan girsin
-      AnalyticsService.instance.logEvent('otp_verification_failed');
     } finally {
       isVerifyingOtp.value = false;
     }

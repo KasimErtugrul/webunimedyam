@@ -49,8 +49,10 @@ class _ProfileActivityListScreenState extends State<ProfileActivityListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final ProfileActivityListSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final ProfileActivityListSizes sizes = Responsive.isWeb(context)
+        ? const ProfileActivityListWebSizes()
+        : Responsive.isTablet(context)
         ? const ProfileActivityListTabletSizes()
         : const ProfileActivityListPhoneSizes();
 

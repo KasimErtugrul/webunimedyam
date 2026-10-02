@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../register_layout_spec.dart';
-
-
 
 /// "Zaten hesabın var mı? Giriş Yap →" — mt-space-xl py-space-sm.
 class RegisterFooterLinks extends StatelessWidget {
@@ -33,7 +32,7 @@ class RegisterFooterLinks extends StatelessWidget {
             ),
           ),
           SizedBox(width: s.footerGap),
-          GestureDetector(
+          TapCursor(
             onTap: () => Get.offNamed(AppRoutes.login),
             behavior: HitTestBehavior.opaque,
             child: Row(

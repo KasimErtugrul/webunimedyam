@@ -11,6 +11,9 @@ abstract class SignupPreferencesSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca SignupPreferencesWebSizes true döner.
+  bool get isWeb => false;
+
   // ── Header (h-16 px-margin, blur bar) ─────────────────────
   double get headerHeight; // h-16 (64)
   double get headerHPadding; // px-margin (16)
@@ -664,4 +667,17 @@ class SignupPreferencesTabletSizes extends SignupPreferencesSizes {
   double get chipSpacing => 6;
   @override
   double get chipIconSize => 14;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; adım gövdesi zaten max-w-[680px] ile
+/// ortalandığı için yalnızca kart aralıkları masaüstüne göre nefes alır.
+class SignupPreferencesWebSizes extends SignupPreferencesTabletSizes {
+  const SignupPreferencesWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get cardGap => 20;
 }

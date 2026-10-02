@@ -4,14 +4,35 @@ import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../app/utils/university_sort_util.dart';
+import '../../../../../../core/responsive.dart';
 import '../../../../../controllers/university_sort_controller.dart';
 import '../universities_tab_layout_spec.dart';
 
+/// Sıralama/filtre seçimi: dar ekranda (telefon/tablet) alttan kayan sheet,
+/// web'de (masaüstü tarayıcı) ekranın ortasında açılan diyalog — klasik web
+/// sitesi davranışı.
 Future<void> showUniversitiesSortSheet(
   BuildContext context,
   UniversitiesTabLayoutSpec spec,
 ) {
   final sortController = Get.find<UniversitySortController>();
+  if (Responsive.isWeb(context)) {
+    return showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: _SortSheet(
+            spec: spec,
+            sortController: sortController,
+            asDialog: true,
+          ),
+        ),
+      ),
+    );
+  }
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -28,7 +49,14 @@ class _SortSheet extends StatefulWidget {
   final UniversitiesTabLayoutSpec spec;
   final UniversitySortController sortController;
 
-  const _SortSheet({required this.spec, required this.sortController});
+  /// true: web diyalog modu — dört köşe yuvarlak, dış dikey boşluk.
+  final bool asDialog;
+
+  const _SortSheet({
+    required this.spec,
+    required this.sortController,
+    this.asDialog = false,
+  });
 
   @override
   State<_SortSheet> createState() => _SortSheetState();
@@ -44,28 +72,31 @@ class _SortSheetState extends State<_SortSheet> {
 
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
+        maxHeight:
+            MediaQuery.of(context).size.height *
+            (widget.asDialog ? 0.80 : 0.85),
       ),
       decoration: BoxDecoration(
         color: AppTheme.card(context),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(spec.sheetRadius),
+        borderRadius: BorderRadius.circular(
+          widget.asDialog ? 20 : spec.sheetRadius,
         ),
       ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 12),
-            // Handle
-            Container(
-              width: spec.sheetHandleW,
-              height: spec.sheetHandleH,
-              decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(spec.sheetHandleH),
+            SizedBox(height: widget.asDialog ? 20 : 12),
+            // Handle — yalnızca alttan kayan sheet modunda anlamlıdır.
+            if (!widget.asDialog)
+              Container(
+                width: spec.sheetHandleW,
+                height: spec.sheetHandleH,
+                decoration: BoxDecoration(
+                  color: AppTheme.textSec(context).withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(spec.sheetHandleH),
+                ),
               ),
-            ),
             const SizedBox(height: 14),
 
             // Başlık + Sıfırla
@@ -321,13 +352,15 @@ class _TypeFilterTile extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8),
                     child: Column(
                       children: UniversityTypeFilter.values
-                          .map((f) => _TypeRadioRow(
-                                spec: spec,
-                                filter: f,
-                                selected: sortController.typeFilter.value == f,
-                                color: _typeColor,
-                                onTap: () => sortController.setTypeFilter(f),
-                              ))
+                          .map(
+                            (f) => _TypeRadioRow(
+                              spec: spec,
+                              filter: f,
+                              selected: sortController.typeFilter.value == f,
+                              color: _typeColor,
+                              onTap: () => sortController.setTypeFilter(f),
+                            ),
+                          )
                           .toList(),
                     ),
                   )
@@ -359,18 +392,13 @@ class _TypeRadioRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        color: selected
-            ? color.withValues(alpha: 0.10)
-            : Colors.transparent,
+        color: selected ? color.withValues(alpha: 0.10) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               children: [
                 // Radio circle
@@ -383,8 +411,7 @@ class _TypeRadioRow extends StatelessWidget {
                     border: Border.all(
                       color: selected
                           ? color
-                          : AppTheme.textSec(context)
-                              .withValues(alpha: 0.4),
+                          : AppTheme.textSec(context).withValues(alpha: 0.4),
                       width: 1.8,
                     ),
                   ),
@@ -400,9 +427,7 @@ class _TypeRadioRow extends StatelessWidget {
                 Icon(
                   filter.icon,
                   size: 16,
-                  color: selected
-                      ? color
-                      : AppTheme.textSec(context),
+                  color: selected ? color : AppTheme.textSec(context),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -410,11 +435,8 @@ class _TypeRadioRow extends StatelessWidget {
                     filter.label,
                     style: TextStyle(
                       fontSize: spec.sheetOptionFontSize,
-                      color: selected
-                          ? color
-                          : AppTheme.textPri(context),
-                      fontWeight:
-                          selected ? FontWeight.w700 : FontWeight.w500,
+                      color: selected ? color : AppTheme.textPri(context),
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -435,10 +457,7 @@ class _RadioFilterTile extends StatelessWidget {
   final UniversitiesTabLayoutSpec spec;
   final UniversitySortController sortController;
 
-  const _RadioFilterTile({
-    required this.spec,
-    required this.sortController,
-  });
+  const _RadioFilterTile({required this.spec, required this.sortController});
 
   static const _radioColor = Color(0xFFEF4444);
 
@@ -456,10 +475,7 @@ class _RadioFilterTile extends StatelessWidget {
           onTap: () => sortController.setOnlyWithRadio(!value),
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
                 Container(
@@ -493,16 +509,13 @@ class _RadioFilterTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        value
-                            ? 'Sadece radyosu olanlar'
-                            : 'Tüm üniversiteler',
+                        value ? 'Sadece radyosu olanlar' : 'Tüm üniversiteler',
                         style: TextStyle(
                           fontSize: spec.sheetOptionFontSize - 2,
                           color: value
                               ? _radioColor
                               : AppTheme.textSec(context),
-                          fontWeight:
-                              value ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: value ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                     ],
@@ -516,8 +529,9 @@ class _RadioFilterTile extends StatelessWidget {
                     activeThumbColor: Colors.white,
                     activeTrackColor: _radioColor,
                     inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: AppTheme.textSec(context)
-                        .withValues(alpha: 0.25),
+                    inactiveTrackColor: AppTheme.textSec(
+                      context,
+                    ).withValues(alpha: 0.25),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
@@ -546,31 +560,31 @@ class _SortOptionTile extends StatelessWidget {
   });
 
   String get _title => switch (criteria) {
-        SortCriteria.name => 'İsim',
-        SortCriteria.city => 'Şehir',
-        SortCriteria.foundedYear => 'Kuruluş Yılı',
-        SortCriteria.subscriberCount => 'Takipçi Sayısı',
-        SortCriteria.viewCount => 'Görüntülenme Sayısı',
-        SortCriteria.videoCount => 'İçerik Sayısı',
-      };
+    SortCriteria.name => 'İsim',
+    SortCriteria.city => 'Şehir',
+    SortCriteria.foundedYear => 'Kuruluş Yılı',
+    SortCriteria.subscriberCount => 'Takipçi Sayısı',
+    SortCriteria.viewCount => 'Görüntülenme Sayısı',
+    SortCriteria.videoCount => 'İçerik Sayısı',
+  };
 
   IconData get _icon => switch (criteria) {
-        SortCriteria.name => Icons.text_fields_rounded,
-        SortCriteria.city => Icons.location_on_rounded,
-        SortCriteria.foundedYear => Icons.calendar_today_rounded,
-        SortCriteria.subscriberCount => Icons.people_rounded,
-        SortCriteria.viewCount => Icons.visibility_rounded,
-        SortCriteria.videoCount => Icons.play_circle_fill_rounded,
-      };
+    SortCriteria.name => Icons.text_fields_rounded,
+    SortCriteria.city => Icons.location_on_rounded,
+    SortCriteria.foundedYear => Icons.calendar_today_rounded,
+    SortCriteria.subscriberCount => Icons.people_rounded,
+    SortCriteria.viewCount => Icons.visibility_rounded,
+    SortCriteria.videoCount => Icons.play_circle_fill_rounded,
+  };
 
   Color get _color => switch (criteria) {
-        SortCriteria.name => const Color(0xFF8B5CF6),
-        SortCriteria.city => const Color(0xFF3B82F6),
-        SortCriteria.foundedYear => const Color(0xFFF59E0B),
-        SortCriteria.subscriberCount => const Color(0xFFEC4899),
-        SortCriteria.viewCount => const Color(0xFF06B6D4),
-        SortCriteria.videoCount => const Color(0xFF10B981),
-      };
+    SortCriteria.name => const Color(0xFF8B5CF6),
+    SortCriteria.city => const Color(0xFF3B82F6),
+    SortCriteria.foundedYear => const Color(0xFFF59E0B),
+    SortCriteria.subscriberCount => const Color(0xFFEC4899),
+    SortCriteria.viewCount => const Color(0xFF06B6D4),
+    SortCriteria.videoCount => const Color(0xFF10B981),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -581,8 +595,7 @@ class _SortOptionTile extends StatelessWidget {
       final sortOption = sortController.activeSorts.firstWhereOrNull(
         (s) => s.criteria == criteria,
       );
-      final isAscending =
-          sortOption?.direction == SortDirection.ascending;
+      final isAscending = sortOption?.direction == SortDirection.ascending;
 
       return Material(
         color: isActive
@@ -593,10 +606,7 @@ class _SortOptionTile extends StatelessWidget {
           onTap: () => sortController.addOrRemoveSort(criteria),
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
                 Container(
@@ -620,11 +630,8 @@ class _SortOptionTile extends StatelessWidget {
                     _title,
                     style: TextStyle(
                       fontSize: spec.sheetOptionFontSize,
-                      fontWeight:
-                          isActive ? FontWeight.w700 : FontWeight.w600,
-                      color: isActive
-                          ? _color
-                          : AppTheme.textPri(context),
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                      color: isActive ? _color : AppTheme.textPri(context),
                     ),
                   ),
                 ),
@@ -637,11 +644,8 @@ class _SortOptionTile extends StatelessWidget {
                       color: _color,
                       size: 20,
                     ),
-                    tooltip: isAscending
-                        ? 'Artan → Azalan'
-                        : 'Azalan → Artan',
-                    onPressed: () =>
-                        sortController.toggleDirection(criteria),
+                    tooltip: isAscending ? 'Artan → Azalan' : 'Azalan → Artan',
+                    onPressed: () => sortController.toggleDirection(criteria),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
                       minWidth: 32,
@@ -657,8 +661,7 @@ class _SortOptionTile extends StatelessWidget {
                     border: Border.all(
                       color: isActive
                           ? _color
-                          : AppTheme.textSec(context)
-                              .withValues(alpha: 0.35),
+                          : AppTheme.textSec(context).withValues(alpha: 0.35),
                       width: 1.8,
                     ),
                   ),

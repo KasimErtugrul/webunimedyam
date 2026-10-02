@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -39,7 +40,10 @@ class SupabaseDataSource {
       // 'duplicate' geçmez. Bu yüzden burada metin tahmini YAPMIYORUZ —
       // sebebi AuthRepository.signUp, hatadan sonra isUsernameAvailable()
       // ile tekrar sorgulayarak kesin olarak belirler.
-      throw _mapAuthError(e, fallback: 'Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -55,7 +59,10 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Email OTP doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw _mapAuthError(e, fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -64,7 +71,10 @@ class SupabaseDataSource {
       await _client.auth.resend(type: OtpType.signup, email: email);
     } catch (e, stackTrace) {
       log('OTP tekrar gönderilirken hata oluştu: $e\n$stackTrace');
-      throw _mapAuthError(e, fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -75,7 +85,10 @@ class SupabaseDataSource {
       log('Giriş yapılırken hata oluştu: $e\n$stackTrace');
       // email_not_confirmed / invalid_credentials / rate limit / ağ hatası
       // ayrı ayrı tiplere çevrilir; genel mesaja gömülmez.
-      throw _mapAuthError(e, fallback: 'Giriş işlemi başarısız oldu. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Giriş işlemi başarısız oldu. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -120,10 +133,10 @@ class SupabaseDataSource {
   /// [email] verilirse: aynı e-postayla başlanıp doğrulanmamış bir kayıt
   /// kendi kullanıcı adını tutuyorsa "müsait" sayılır (kayda geri dönüş).
   Future<bool> isUsernameAvailable(String username, {String? email}) async {
-    final res = await _client.rpc('is_username_available', params: {
-      'p_username': username,
-      'p_email': email,
-    });
+    final res = await _client.rpc(
+      'is_username_available',
+      params: {'p_username': username, 'p_email': email},
+    );
     return res == true;
   }
 
@@ -162,6 +175,10 @@ class SupabaseDataSource {
 
   Future<void> _ensureGoogleSignInInitialized() {
     return _googleSignInInitFuture ??= _googleSignIn.initialize(
+      // Web'de google_sign_in, tarayıcının OAuth akışı için clientId'yi
+      // zorunlu tutar; mobilde serverClientId yeterlidir. İki platformda
+      // aynı Web OAuth client'ı (client_type: 3) kullanılır.
+      clientId: kIsWeb ? _googleWebClientId : null,
       serverClientId: _googleWebClientId,
     );
   }
@@ -269,10 +286,16 @@ class SupabaseDataSource {
           'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre seçin.',
         );
       }
-      throw _mapAuthError(e, fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.',
+      );
     } catch (e, stackTrace) {
       log('Şifre güncellenirken hata oluştu: $e\n$stackTrace');
-      throw _mapAuthError(e, fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Şifre güncellenemedi. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -281,7 +304,10 @@ class SupabaseDataSource {
       await _client.auth.resetPasswordForEmail(email);
     } catch (e, stackTrace) {
       log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e\n$stackTrace');
-      throw _mapAuthError(e, fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Kod gönderilemedi. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -297,7 +323,10 @@ class SupabaseDataSource {
       );
     } catch (e, stackTrace) {
       log('Şifre sıfırlama kodu doğrulanırken hata oluştu: $e\n$stackTrace');
-      throw _mapAuthError(e, fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.');
+      throw _mapAuthError(
+        e,
+        fallback: 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.',
+      );
     }
   }
 
@@ -653,7 +682,7 @@ class SupabaseDataSource {
         map.remove('universities');
         videos.add(VideoModel.fromSupabase(map));
       }
-      return _attachEngagement(videos);
+      return await _attachEngagement(videos);
     } catch (e, stackTrace) {
       log('Favori videolar getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception('Favori videolar yüklenemedi. Lütfen tekrar deneyin.');
@@ -1145,7 +1174,7 @@ class SupabaseDataSource {
         map.remove('universities');
         videos.add(VideoModel.fromSupabase(map));
       }
-      return _attachEngagement(videos);
+      return await _attachEngagement(videos);
     } catch (e, stackTrace) {
       log('İzlenen videolar getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception('İzlenen videolar yüklenemedi. Lütfen tekrar deneyin.');
@@ -1189,7 +1218,7 @@ class SupabaseDataSource {
         map.remove('universities');
         videos.add(VideoModel.fromSupabase(map));
       }
-      return _attachEngagement(videos);
+      return await _attachEngagement(videos);
     } catch (e, stackTrace) {
       log('Paylaşılan videolar getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception(
@@ -1222,7 +1251,7 @@ class SupabaseDataSource {
         map.remove('universities');
         videos.add(VideoModel.fromSupabase(map));
       }
-      return _attachEngagement(videos);
+      return await _attachEngagement(videos);
     } catch (e, stackTrace) {
       log('Beğenilen videolar getirilirken hata oluştu: $e\n$stackTrace');
       throw Exception('Beğenilen videolar yüklenemedi. Lütfen tekrar deneyin.');

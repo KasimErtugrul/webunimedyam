@@ -16,6 +16,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/utils/formatters.dart';
+import '../../../../../../core/widgets/hover_tap.dart';
 import '../../../../../../data/models/university_stats_model.dart';
 
 import '../../../../../../data/models/video_engagement_model.dart';
@@ -76,7 +77,7 @@ class DiscoverHubCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(spec.hubPad),
-            child: GestureDetector(
+            child: TapCursor(
               onTap: onSearchTap,
               child: Container(
                 height: spec.searchHeight,
@@ -113,7 +114,9 @@ class DiscoverHubCard extends StatelessWidget {
                       height: spec.searchTuneBoxSize,
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(spec.searchTuneRadius),
+                        borderRadius: BorderRadius.circular(
+                          spec.searchTuneRadius,
+                        ),
                       ),
                       child: Icon(
                         Icons.tune_rounded,
@@ -158,7 +161,7 @@ class DiscoverSegmentSwitcher extends StatelessWidget {
     final selected = selectedIndex == index;
 
     return Expanded(
-      child: GestureDetector(
+      child: TapCursor(
         onTap: () {
           if (selectedIndex != index) onChanged(index);
         },
@@ -319,7 +322,7 @@ class DiscoverSectionHeader extends StatelessWidget {
         if (onSeeAll != null) ...[
           if (trailingBadge != null || trailingText != null)
             SizedBox(width: spec.secHeaderGap),
-          GestureDetector(
+          TapCursor(
             behavior: HitTestBehavior.opaque,
             onTap: onSeeAll,
             child: Row(
@@ -371,14 +374,14 @@ class DiscoverLargeVideoCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = video.channelTitle.isNotEmpty
         ? video.channelTitle
-            .substring(
-              0,
-              video.channelTitle.length > 3 ? 3 : video.channelTitle.length,
-            )
-            .toUpperCase()
+              .substring(
+                0,
+                video.channelTitle.length > 3 ? 3 : video.channelTitle.length,
+              )
+              .toUpperCase()
         : 'ÜNİ';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video.toVideoModel(),
@@ -444,10 +447,12 @@ class DiscoverLargeVideoCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: isFeatured
                                 ? scheme.primary
-                                : scheme.surfaceContainerLowest
-                                    .withValues(alpha: 0.85),
-                            borderRadius:
-                                BorderRadius.circular(spec.largeCardBadgeRadius),
+                                : scheme.surfaceContainerLowest.withValues(
+                                    alpha: 0.85,
+                                  ),
+                            borderRadius: BorderRadius.circular(
+                              spec.largeCardBadgeRadius,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -487,7 +492,11 @@ class DiscoverLargeVideoCard extends StatelessWidget {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.circle, color: Colors.white, size: 6),
+                                Icon(
+                                  Icons.circle,
+                                  color: Colors.white,
+                                  size: 6,
+                                ),
                                 SizedBox(width: 4),
                                 Text(
                                   'CANLI',
@@ -517,8 +526,9 @@ class DiscoverLargeVideoCard extends StatelessWidget {
                           vertical: spec.largeCardDurationPadV,
                         ),
                         decoration: BoxDecoration(
-                          color: scheme.surfaceContainerLowest
-                              .withValues(alpha: 0.85),
+                          color: scheme.surfaceContainerLowest.withValues(
+                            alpha: 0.85,
+                          ),
                           borderRadius: BorderRadius.circular(
                             spec.largeCardDurationRadius,
                           ),
@@ -685,27 +695,27 @@ class DiscoverTopChannelRow extends StatelessWidget {
 
   // Tasarım renkleri: amber-500/slate-400/amber-700 dolgular (yumuşak).
   static Color _rankBg(int r) => switch (r) {
-        1 => const Color(0x33F59E0B),
-        2 => const Color(0x3394A3B8),
-        _ => const Color(0x33B45309),
-      };
+    1 => const Color(0x33F59E0B),
+    2 => const Color(0x3394A3B8),
+    _ => const Color(0x33B45309),
+  };
 
   static Color _rankFg(int r) => switch (r) {
-        1 => const Color(0xFFFBBF24),
-        2 => const Color(0xFFCBD5E1),
-        _ => const Color(0xFFD97706),
-      };
+    1 => const Color(0xFFFBBF24),
+    2 => const Color(0xFFCBD5E1),
+    _ => const Color(0xFFD97706),
+  };
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final initials = stats.name.isNotEmpty
         ? stats.name
-            .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
-            .toUpperCase()
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.universityDetail,
         arguments: stats.universityId,
@@ -752,8 +762,9 @@ class DiscoverTopChannelRow extends StatelessWidget {
                   alignment: Alignment.center,
                   child: stats.logoUrl != null && stats.logoUrl!.isNotEmpty
                       ? ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(spec.channelLogoRadius),
+                          borderRadius: BorderRadius.circular(
+                            spec.channelLogoRadius,
+                          ),
                           child: CachedNetworkImage(
                             imageUrl: stats.logoUrl!,
                             fit: BoxFit.cover,
@@ -945,14 +956,14 @@ class DiscoverShowcaseCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = video.channelTitle.isNotEmpty
         ? video.channelTitle
-            .substring(
-              0,
-              video.channelTitle.length > 2 ? 2 : video.channelTitle.length,
-            )
-            .toUpperCase()
+              .substring(
+                0,
+                video.channelTitle.length > 2 ? 2 : video.channelTitle.length,
+              )
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video.toVideoModel(),
@@ -1079,8 +1090,9 @@ class DiscoverShowcaseCard extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: scheme.surfaceContainerLowest
-                              .withValues(alpha: 0.9),
+                          color: scheme.surfaceContainerLowest.withValues(
+                            alpha: 0.9,
+                          ),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -1283,11 +1295,11 @@ class DiscoverChannelStatCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = stats.name.isNotEmpty
         ? stats.name
-            .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
-            .toUpperCase()
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.universityDetail,
         arguments: stats.universityId,
@@ -1506,11 +1518,11 @@ class DiscoverBentoDuo extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = stats.name.isNotEmpty
         ? stats.name
-            .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
-            .toUpperCase()
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.universityDetail,
         arguments: stats.universityId,
@@ -1616,11 +1628,11 @@ class DiscoverChannelListRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = stats.name.isNotEmpty
         ? stats.name
-            .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
-            .toUpperCase()
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.universityDetail,
         arguments: stats.universityId,
@@ -1688,10 +1700,7 @@ class DiscoverChannelListRow extends StatelessWidget {
             const SizedBox(width: 8),
             // "Takip Et" (dekoratif; yukarıdaki kartlarla aynı durum).
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 7,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
@@ -1737,11 +1746,11 @@ class DiscoverLeaderboardCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final initials = stats.name.isNotEmpty
         ? stats.name
-            .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
-            .toUpperCase()
+              .substring(0, stats.name.length > 2 ? 2 : stats.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.universityDetail,
         arguments: stats.universityId,
@@ -1862,7 +1871,11 @@ class DiscoverVideoCardShimmer extends StatelessWidget {
                         children: [
                           Container(height: 12, color: Colors.white),
                           const SizedBox(height: 6),
-                          Container(height: 10, width: 140, color: Colors.white),
+                          Container(
+                            height: 10,
+                            width: 140,
+                            color: Colors.white,
+                          ),
                         ],
                       ),
                     ),

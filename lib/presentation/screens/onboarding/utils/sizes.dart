@@ -10,6 +10,9 @@ abstract class OnboardingSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca OnboardingWebSizes true döner.
+  bool get isWeb => false;
+
   // ─── Header (Top App Bar) ─────────────────────────────────
   double get headerHPadding;        // px-6
   double get headerVPadding;        // py-4
@@ -264,4 +267,14 @@ class OnboardingTabletSizes extends OnboardingSizes {
   @override double get navRowHeight => 64;
   @override double get footerTopPadding => 10;
   @override double get footerBottomPadding => 24;
+}
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; onboarding web'de zaten atlanır
+/// (main.dart kIsWeb guard'ı) ama dar pencere <1024'e düşünce tablet
+/// düzeni görünür — web katmanı yine de tam olsun diye eklenmiştir.
+class OnboardingWebSizes extends OnboardingTabletSizes {
+  const OnboardingWebSizes();
+
+  @override
+  bool get isWeb => true;
 }

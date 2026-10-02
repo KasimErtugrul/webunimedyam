@@ -12,7 +12,6 @@ import 'widgets/error_state.dart';
 import 'widgets/header.dart';
 import 'widgets/university_chip.dart';
 
-
 // ═══════════════════════════════════════════════════════════
 // ANA WIDGET (TEK DALLANMA NOKTASI)
 // ═══════════════════════════════════════════════════════════
@@ -22,7 +21,9 @@ class InterestSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final InterestSelectionSizes sizes = Responsive.isTablet(context)
+    final InterestSelectionSizes sizes = Responsive.isWeb(context)
+        ? const InterestSelectionWebSizes()
+        : Responsive.isTablet(context)
         ? const InterestSelectionTabletSizes()
         : const InterestSelectionPhoneSizes();
 
@@ -57,43 +58,46 @@ class InterestSelectionScreen extends StatelessWidget {
                     ),
                   );
                 }
-                return GridView.builder(
-                  padding: EdgeInsets.fromLTRB(
-                    sizes.gridPaddingLeft,
-                    sizes.gridPaddingTop,
-                    sizes.gridPaddingRight,
-                    sizes.gridPaddingBottom,
+                // WEB: ızgara çok geniş ekranlarda kenarlara yayılmasın.
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1100),
+                    child: GridView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                        sizes.gridPaddingLeft,
+                        sizes.gridPaddingTop,
+                        sizes.gridPaddingRight,
+                        sizes.gridPaddingBottom,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: sizes.isTablet ? 3 : 2,
+                        mainAxisSpacing: sizes.gridMainAxisSpacing,
+                        crossAxisSpacing: sizes.gridCrossAxisSpacing,
+                        childAspectRatio: sizes.gridChildAspectRatio,
+                      ),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final uni = list[index];
+                        return Obx(() {
+                          final selected =
+                              uni.id != null && controller.isSelected(uni.id!);
+                          return InterestSelectionUniversityChip(
+                            sizes: sizes,
+                            name: uni.name ?? '',
+                            logoUrl: uni.logoUrl,
+                            selected: selected,
+                            onTap: uni.id == null
+                                ? null
+                                : () => controller.toggleUniversity(uni.id!),
+                          );
+                        });
+                      },
+                    ),
                   ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: sizes.isTablet ? 3 : 2,
-                    mainAxisSpacing: sizes.gridMainAxisSpacing,
-                    crossAxisSpacing: sizes.gridCrossAxisSpacing,
-                    childAspectRatio: sizes.gridChildAspectRatio,
-                  ),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final uni = list[index];
-                    return Obx(() {
-                      final selected = uni.id != null &&
-                          controller.isSelected(uni.id!);
-                      return InterestSelectionUniversityChip(
-                        sizes: sizes,
-                        name: uni.name ?? '',
-                        logoUrl: uni.logoUrl,
-                        selected: selected,
-                        onTap: uni.id == null
-                            ? null
-                            : () => controller.toggleUniversity(uni.id!),
-                      );
-                    });
-                  },
                 );
               }),
             ),
-            InterestSelectionBottomBar(
-              sizes: sizes,
-              controller: controller,
-            ),
+            InterestSelectionBottomBar(sizes: sizes, controller: controller),
           ],
         ),
       ),

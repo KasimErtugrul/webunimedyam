@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../controllers/video_search_controller.dart';
 import '../search_layout_spec.dart';
 
@@ -67,11 +68,11 @@ class SearchHistoryView extends StatelessWidget {
             children: [
               for (int i = 0; i < history.length; i++)
                 _HistoryChip(
-                  text: history[i],
-                  spec: spec,
-                  onTap: () => onTap(history[i]),
-                  onRemove: () => controller.removeHistory(history[i]),
-                )
+                      text: history[i],
+                      spec: spec,
+                      onTap: () => onTap(history[i]),
+                      onRemove: () => controller.removeHistory(history[i]),
+                    )
                     .animate(delay: (i * 40).ms)
                     .fadeIn(duration: 250.ms)
                     .slideY(begin: 0.15, end: 0, curve: Curves.easeOut),
@@ -131,7 +132,7 @@ class _HistoryChip extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              GestureDetector(
+              TapCursor(
                 onTap: onRemove,
                 behavior: HitTestBehavior.opaque,
                 child: Icon(
@@ -162,13 +163,12 @@ class _EmptyHistory extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.travel_explore_rounded,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.4),
-                size: spec.emptyIconSize,
-              )
+                    Icons.travel_explore_rounded,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.4),
+                    size: spec.emptyIconSize,
+                  )
                   .animate()
                   .fadeIn(duration: 400.ms)
                   .scaleXY(begin: 0.7, end: 1, curve: Curves.easeOutBack),

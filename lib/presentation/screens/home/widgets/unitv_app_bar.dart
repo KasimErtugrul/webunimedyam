@@ -17,12 +17,12 @@
 // TABLET EKLERİ ("Desktop & Tablet homepage" tasarımından):
 //   - Logo yanında geniş ARAMA ÇUBUĞU (tıklayınca Ara sekmesine geçer;
 //     gerçek yazma alanı o sekmedeki arama ekranıdır)
-//   - "Radyo Yayını" pill butonu (Radyo sayfasına gider)
 //   - Tema (koyu/açık) geçiş düğmesi
-// Telefon düzeni birebir korundu — bu üç parça yalnızca tablette görünür.
-// Tasarımdaki "Kampüs Yayın > Canlı Yayınlar" breadcrumb'ı, logonun altında
-// zaten duran "KAMPÜS YAYINI" etiketiyle aynı işi gördüğü için ayrıca
-// eklenmedi (kodda olan öğe kaldırılmadı, breadcrumb onunla örtüştü).
+// Telefon düzeni birebir korundu — bu iki parça yalnızca tablette görünür.
+// (Eski "Radyo Yayını" pill'i, Canlı Yayınlar ve Bildirimler düğmeleri
+// kaldırıldı: radyo sayfası projeden çıkarıldı, '/radio' ve
+// '/notifications' rotaları kayıtlı değil — ölü rotaya gidiyorlardı.)
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -56,13 +56,6 @@ class _TabletSizes {
   static const double searchHintToShortcutGap = 8;
   static const double shortcutBadgePadH = 6;
   static const double shortcutBadgePadV = 2;
-
-  // "Radyo Yayını" butonu (tasarım: px-3 py-1.5, rounded-lg)
-  static const double radioPadH = 12;
-  static const double radioPadV = 7;
-  static const double radioIconSize = 18;
-  static const double radioFontSize = 12;
-  static const double radioGap = 6;
 }
 
 /// Tüm bottom navigation sekmelerinde sabit kalan üst bar.
@@ -87,27 +80,13 @@ class UniTvAppBar extends StatelessWidget implements PreferredSizeWidget {
           : _PhoneSizes.titleSpacingLarge,
       toolbarHeight: kToolbarHeight,
       actions: [
-        // Tasarımdaki "Radyo Yayını" pill butonu — yalnızca tablet.
-        if (isTablet) const _RadioLiveButton(sizes: _TabletSizes.radioFontSize),
-        IconButton(
-          tooltip: 'Canlı Yayınlar',
-          icon: const Icon(Icons.sensors_rounded),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.radio),
-        ),
-        IconButton(
-          tooltip: 'Bildirimler',
-          icon: const Icon(Icons.notifications_outlined),
-          color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.notifications), //ProfileScreen
-        ),
         // Tasarımdaki koyu/açık tema düğmesi — yalnızca tablet.
         if (isTablet) const _ThemeToggleButton(),
         IconButton(
-          tooltip: 'Bildirimler',
+          tooltip: 'Profil',
           icon: const Icon(Icons.person_rounded),
           color: scheme.onSurfaceVariant,
-          onPressed: () => Get.toNamed(AppRoutes.profile), //ProfileScreen
+          onPressed: () => Get.toNamed(AppRoutes.profile),
         ),
       ],
       title: Row(
@@ -235,7 +214,7 @@ class _TabletSearchField extends StatelessWidget {
               ),
             ),
             const SizedBox(width: _TabletSizes.searchHintToShortcutGap),
-            // Tasarımdaki ⌘K kısayol rozeti.
+            // Kısayol rozeti (Ctrl+K / ⌘K — main.dart'ta global bağlı).
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: _TabletSizes.shortcutBadgePadH,
@@ -249,7 +228,7 @@ class _TabletSearchField extends StatelessWidget {
                 ),
               ),
               child: Text(
-                '⌘K',
+                defaultTargetPlatform == TargetPlatform.macOS ? '⌘K' : 'Ctrl K',
                 style: TextStyle(
                   color: scheme.outline,
                   fontSize: 10,
@@ -258,58 +237,6 @@ class _TabletSearchField extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// TABLET: "Radyo Yayını" pill butonu (Radyo sayfasına gider)
-// ═══════════════════════════════════════════════════════════
-
-class _RadioLiveButton extends StatelessWidget {
-  const _RadioLiveButton({required this.sizes});
-
-  final double sizes;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        onTap: () => Get.toNamed(AppRoutes.radio),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: _TabletSizes.radioPadH,
-            vertical: _TabletSizes.radioPadV,
-          ),
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.podcasts_rounded,
-                size: _TabletSizes.radioIconSize,
-                color: scheme.primary,
-              ),
-              const SizedBox(width: _TabletSizes.radioGap),
-              Text(
-                'Radyo Yayını',
-                style: TextStyle(
-                  color: scheme.primary,
-                  fontSize: _TabletSizes.radioFontSize,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -338,9 +265,7 @@ class _ThemeToggleButton extends StatelessWidget {
         if (Get.isRegistered<SettingsController>()) {
           Get.find<SettingsController>().changeTheme(next);
         } else {
-          Get.changeThemeMode(
-            isDark ? ThemeMode.light : ThemeMode.dark,
-          );
+          Get.changeThemeMode(isDark ? ThemeMode.light : ThemeMode.dark);
         }
       },
     );

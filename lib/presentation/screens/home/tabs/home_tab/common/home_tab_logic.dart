@@ -130,18 +130,17 @@ mixin HomeTabLogic<T extends StatefulWidget> on State<T> {
       ),
       const SliverToBoxAdapter(child: ShortsRowWidget()),
       SliverToBoxAdapter(
-        child: HomeContinueWatchingSection(controller: controller, sizes: sizes),
+        child: HomeContinueWatchingSection(
+          controller: controller,
+          sizes: sizes,
+        ),
       ),
     ];
   }
 
-  // İçerik sliver'ının ALTINDAKİ ortak sliver'lar.
-  // (Yaklaşan Canlı Yayın → alt boşluk)
+  // İçerik sliver'ının ALTINDAKİ ortak sliver'lar (alt boşluk).
   List<Widget> commonSliversAfterContent() {
-    return [
-      SliverToBoxAdapter(child: HomeUpcomingLiveBanner(sizes: sizes)),
-      SliverToBoxAdapter(child: SizedBox(height: sizes.bottomSpacing)),
-    ];
+    return [SliverToBoxAdapter(child: SizedBox(height: sizes.bottomSpacing))];
   }
 }
 
@@ -157,9 +156,7 @@ void showHomeAuthDialog(HomeTabSizes sizes) {
         borderRadius: BorderRadius.circular(sizes.dialogBorderRadius),
       ),
       title: const Text('Giriş Gerekli'),
-      content: const Text(
-        'Bu özelliği kullanmak için giriş yapman gerekiyor.',
-      ),
+      content: const Text('Bu özelliği kullanmak için giriş yapman gerekiyor.'),
       actions: [
         TextButton(onPressed: Get.back, child: const Text('Vazgeç')),
         ElevatedButton(

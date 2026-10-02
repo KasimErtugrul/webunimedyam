@@ -11,6 +11,9 @@ abstract class RegisterSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca RegisterWebSizes true döner.
+  bool get isWeb => false;
+
   // ── Sayfa ─────────────────────────────────────────────────
   double get maxContentWidth;
   double get pageHPadding;      // px-margin (16)
@@ -344,4 +347,22 @@ class RegisterTabletSizes extends RegisterSizes {
   @override double get errorMarginBottom => 16;
   @override double get loaderSize => 24;
   @override double get loaderStroke => 2.5;
+}
+// ═══════════════════════════════════════════════════════════
+// WEB SIZES (masaüstü tarayıcı, ≥1024px)
+// Tablet ölçülerini temel alır; web'de farklılaşanları ezer:
+// form kartı 520px genişlikte kalır, sayfa dikey nefesi ve
+// karşılama tipografisi masaüstü ölçeğine büyür.
+// ═══════════════════════════════════════════════════════════
+
+class RegisterWebSizes extends RegisterTabletSizes {
+  const RegisterWebSizes();
+
+  @override bool get isWeb => true;
+
+  @override double get pageBottomPadding => 48;
+  @override double get headerTopGap => 12;
+  @override double get headerBottomGap => 30;
+  @override double get titleFontSize => 30;
+  @override double get descFontSize => 15;
 }

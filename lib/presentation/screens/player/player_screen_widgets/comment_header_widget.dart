@@ -36,6 +36,24 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        titleFontSize: 21,
+        badgePaddingH: 10,
+        badgePaddingV: 4,
+        badgeRadius: 14,
+        badgeFontSize: 14,
+        badgeSpacing: 10,
+        badgeOpacity: 0.15,
+        emptyTopPadding: 6,
+        emptyFontSize: 15,
+        dividerHeight: 1,
+        dividerThickness: 1,
+        dividerOpacity: 0.08,
+        dividerTopSpacing: 16,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         titleFontSize: 20,
@@ -139,4 +157,4 @@ class CommentsHeaderWidget extends StatelessWidget {
       ],
     );
   }
-} 
+}

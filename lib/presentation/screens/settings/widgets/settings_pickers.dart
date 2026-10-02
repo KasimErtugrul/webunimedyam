@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/responsive.dart';
 import '../../../../data/models/user_settings_model.dart';
 import '../settings_layout_spec.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ORTAK SHEET İSKELETİ
+// Dar ekranda alttan kayan sheet; web'de (masaüstü tarayıcı) ekranın
+// ortasında açılan diyalog.
 // ═══════════════════════════════════════════════════════════════════════════
 
 void _showSheet({
@@ -17,6 +20,57 @@ void _showSheet({
   String? subtitle,
   required Widget child,
 }) {
+  final Widget sheetBody = SafeArea(
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: spec.sheetHandleSpacing),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: spec.sheetTitleFontSize,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPri(context),
+            ),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: spec.sheetSubtitleFontSize,
+                  color: AppTheme.textSec(context),
+                ),
+              ),
+            ),
+          ],
+          SizedBox(height: spec.sheetOptionSpacing),
+          child,
+          SizedBox(height: spec.sheetPaddingBottom),
+        ],
+      ),
+    ),
+  );
+
+  if (Responsive.isWeb(context)) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: AppTheme.card(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: sheetBody,
+        ),
+      ),
+    );
+    return;
+  }
+
   showModalBottomSheet(
     context: context,
     backgroundColor: AppTheme.card(context),
@@ -25,50 +79,7 @@ void _showSheet({
         top: Radius.circular(spec.sheetRadius),
       ),
     ),
-    builder: (_) => SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: spec.sheetHandleSpacing),
-            Container(
-              width: spec.sheetHandleWidth,
-              height: spec.sheetHandleHeight,
-              decoration: BoxDecoration(
-                color: AppTheme.textSec(context).withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(spec.sheetHandleHeight),
-              ),
-            ),
-            SizedBox(height: spec.sheetHandleSpacing),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: spec.sheetTitleFontSize,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPri(context),
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: spec.sheetSubtitleFontSize,
-                    color: AppTheme.textSec(context),
-                  ),
-                ),
-              ),
-            ],
-            SizedBox(height: spec.sheetOptionSpacing),
-            child,
-            SizedBox(height: spec.sheetPaddingBottom),
-          ],
-        ),
-      ),
-    ),
+    builder: (_) => sheetBody,
   );
 }
 

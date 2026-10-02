@@ -7,6 +7,7 @@ import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
 import '../../../../../app/utils/turkish_alphabet_sort_util.dart';
 import '../../../../../core/responsive.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../../../../../core/utils/formatters.dart';
 import '../../../../../data/models/university_model.dart';
 import '../../../../controllers/home/home_controller.dart';
@@ -71,7 +72,9 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
+    // WEB: tablet düzeni (başlık/arama, filtre pilleri ve sıralama satırı
+    // tablet ölçüleriyle render edilir; liste web spec'ini kullanır).
+    final isTablet = Responsive.isWeb(context) || Responsive.isTablet(context);
     final scheme = Theme.of(context).colorScheme;
 
     // NOT: Bu tab, HomeScreen'in kendi Scaffold'u içinde IndexedStack ile
@@ -291,7 +294,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                   ),
                 ),
                 if (_searchController.text.isNotEmpty)
-                  GestureDetector(
+                  TapCursor(
                     onTap: () {
                       _searchController.clear();
                       setState(() {});
@@ -359,7 +362,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
             final isSelected = _selectedTypeFilter == p['key'];
             final count = p['count'] as int;
 
-            return GestureDetector(
+            return TapCursor(
               onTap: () =>
                   setState(() => _selectedTypeFilter = p['key'] as String),
               child: AnimatedContainer(
@@ -593,7 +596,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
     final hasLogo = uni.logoUrl != null && uni.logoUrl!.isNotEmpty;
     final isPopuler = (uni.subscriberCount ?? 0) > 50000;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(AppRoutes.universityDetail, arguments: uni),
       child: Container(
         decoration: BoxDecoration(
@@ -607,7 +610,10 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                 top: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.15),
                     borderRadius: const BorderRadius.only(
@@ -730,7 +736,7 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
                           uni.id,
                         );
 
-                        return GestureDetector(
+                        return TapCursor(
                           onTap: () => controller.toggleUniversityFavorite(uni),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -956,13 +962,16 @@ class _UniversitiesTabWidgetState extends State<UniversitiesTabWidget> {
               ),
             ),
             const SizedBox(height: 16),
-            GestureDetector(
+            TapCursor(
               onTap: () {
                 _searchController.clear();
                 setState(() => _selectedTypeFilter = 'all');
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),

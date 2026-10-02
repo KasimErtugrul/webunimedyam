@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 
 import '../../data/models/university_stats_model.dart';
 import '../../data/repositories/university_stats_repository.dart';
-import '../../services/analytics_service.dart';
 
 export '../../data/repositories/university_stats_repository.dart'
     show UniversityStatsSectionType;
@@ -45,11 +44,6 @@ class UniversityStatsSectionDetailController extends GetxController {
       }
       sectionType = args['type'] as UniversityStatsSectionType;
       sectionTitle = args['title'] as String;
-
-      AnalyticsService.instance.logEvent('university_stats_section_view', parameters: {
-        'section_type': sectionType.name,
-        'section_title': sectionTitle,
-      });
 
       // BUG FIX / İYİLEŞTİRME: Ana sayfa zaten bu bölümün ilk 10 öğesini
       // (get_home_university_stats RPC'sinden) çekip bir Rx değişkende
@@ -91,7 +85,11 @@ class UniversityStatsSectionDetailController extends GetxController {
       _pageCache.clear();
       await _fetchPage();
     } catch (e, stacktrace) {
-      log('İlk sayfa yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'İlk sayfa yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Sayfa yüklenirken hata oluştu.';
     }
   }
@@ -131,7 +129,11 @@ class UniversityStatsSectionDetailController extends GetxController {
       items.addAll(result);
       _currentOffset += result.length;
     } catch (e, stacktrace) {
-      log('Sayfa verisi getirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Sayfa verisi getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Daha fazla kanal yüklenirken hata oluştu.';
     } finally {
       isLoading.value = false;
@@ -141,12 +143,17 @@ class UniversityStatsSectionDetailController extends GetxController {
 
   Future<void> retry() async {
     try {
-      if (_currentOffset > 0 && _pageCache.containsKey(_currentOffset - _pageSize)) {
+      if (_currentOffset > 0 &&
+          _pageCache.containsKey(_currentOffset - _pageSize)) {
         _pageCache.remove(_currentOffset - _pageSize);
       }
       await _fetchPage();
     } catch (e, stacktrace) {
-      log('Yeniden deneme sırasında hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Yeniden deneme sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Yeniden yüklenirken hata oluştu.';
     }
   }

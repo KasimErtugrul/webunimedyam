@@ -97,7 +97,16 @@ class SearchLayoutSpec {
     required this.cardTrailingSpacing,
   });
 
+  /// WEB ölçeği bayrağı — yalnızca SearchWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   factory SearchLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır;
+    // sonuç kartları ve sayfa kenarları masaüstü okuma mesafesine göre
+    // büyütülür (klasik arama sonuç sayfası ölçeği).
+    if (Responsive.isWeb(context)) {
+      return const SearchWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const SearchLayoutSpec._(
         isTablet: true,
@@ -181,4 +190,71 @@ class SearchLayoutSpec {
       cardTrailingSpacing: 8,
     );
   }
+}
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+///
+/// Tablet değerlerini temel alır; arama sonuç sayfasının masaüstü
+/// davranışına uyan farklarla ezer: sonuç kartında daha geniş küçük resim
+/// (16:9'a daha yakın), sayfa kenarlarında ekstra nefes, bir tık büyük
+/// başlık tipografisi.
+class SearchWebLayoutSpec extends SearchLayoutSpec {
+  const SearchWebLayoutSpec._()
+      : super._(
+          isTablet: true,
+          fieldFontSize: 17,
+          fieldPaddingH: 20,
+          fieldPaddingV: 14,
+          fieldRadius: 16,
+          fieldIconSize: 22,
+          chipFontSize: 14,
+          chipPaddingH: 16,
+          chipPaddingV: 9,
+          chipRadius: 22,
+          chipSpacing: 10,
+          chipRunSpacing: 10,
+          sectionTitleFontSize: 16,
+          sectionTitleSpacing: 14,
+          sectionTopPadding: 24,
+          sectionH: 28,
+          emptyIconSize: 104,
+          emptyTitleFontSize: 21,
+          emptySubtitleFontSize: 15,
+          emptySpacing: 16,
+          loadingStrokeWidth: 3.5,
+          resultsPaddingH: 32,
+          resultsPaddingV: 12,
+          resultsCountFontSize: 14,
+          resultsCountSpacing: 12,
+          cardBottomMargin: 16,
+          cardRadius: 14,
+          cardThumbW: 220,
+          cardThumbH: 124,
+          cardThumbSpacing: 18,
+          cardPaddingV: 16,
+          cardTitleFontSize: 17,
+          cardUniFontSize: 13,
+          cardViewFontSize: 13,
+          cardSpacingSm: 6,
+          cardSpacingMd: 3,
+          cardPlaceholderIconSize: 44,
+          cardTrailingSpacing: 12,
+        );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get fieldPaddingH => 20;
+  @override
+  double get resultsPaddingH => 32;
+  @override
+  double get cardThumbW => 220;
+  @override
+  double get cardThumbH => 124;
+  @override
+  double get cardTitleFontSize => 17;
+  @override
+  double get sectionTitleFontSize => 16;
+  @override
+  double get sectionTopPadding => 24;
 }

@@ -5,6 +5,9 @@ import '../../../../core/responsive.dart';
 @immutable
 class OtpVerificationLayoutSpec {
   final bool isTablet;
+
+  /// WEB ölçeği bayrağı — yalnızca OtpVerificationWebLayoutSpec true döner.
+  bool get isWeb => false;
   final double maxContentWidth;
   final double horizontalPadding;
   final double verticalPadding;
@@ -207,6 +210,10 @@ class OtpVerificationLayoutSpec {
   });
 
   factory OtpVerificationLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const OtpVerificationWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const OtpVerificationLayoutSpec._(
         isTablet: true,
@@ -412,4 +419,118 @@ class OtpVerificationLayoutSpec {
       supportGap: 6, // gap-1.5
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer.
+class OtpVerificationWebLayoutSpec extends OtpVerificationLayoutSpec {
+  const OtpVerificationWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        maxContentWidth: 520,
+        horizontalPadding: 24,
+        verticalPadding: 24,
+        bottomPadding: 28,
+        // ── Eski alanlar ──
+        heroSize: 88,
+        heroIconSize: 44,
+        heroRadius: 24,
+        titleFontSize: 30,
+        subtitleFontSize: 16,
+        titleTopSpacing: 10,
+        subtitleTopSpacing: 10,
+        formTopSpacing: 28,
+        otpBoxWidth: 56,
+        otpBoxHeight: 64,
+        otpBoxRadius: 14,
+        otpFontSize: 24,
+        otpSpacing: 10,
+        buttonHeight: 56,
+        buttonRadius: 10,
+        buttonFontSize: 15,
+        loaderSize: 22,
+        loaderStroke: 2.5,
+        buttonTopSpacing: 0,
+        errorFontSize: 14,
+        errorPadding: 16,
+        errorRadius: 12,
+        errorIconSize: 22,
+        errorMarginBottom: 18,
+        resendFontSize: 13,
+        resendTopSpacing: 0,
+        // ── Header ──
+        headerHeight: 72,
+        headerBackSize: 48,
+        headerBackIconSize: 24,
+        headerTitleFontSize: 20,
+        headerAvatarSize: 36,
+        headerAvatarIconSize: 20,
+        // ── Hero ──
+        heroTopSpacing: 12,
+        heroGlowSize: 96,
+        heroRingSize: 110,
+        heroCircleSize: 76,
+        heroGlyphSize: 38,
+        heroBadgeSize: 28,
+        heroBadgeIconSize: 16,
+        heroToPillSpacing: 24,
+        // ── Pill ──
+        pillPaddingH: 14,
+        pillPaddingV: 5,
+        pillFontSize: 11,
+        pillDotSize: 7,
+        pillGap: 7,
+        // ── Metinler ──
+        subtitleMaxWidth: 340,
+        changeEmailTopSpacing: 10,
+        changeEmailFontSize: 13,
+        changeEmailIconSize: 18,
+        // ── OTP kartı ──
+        cardPadding: 20,
+        cardRowGap: 18,
+        gridGap: 10,
+        gridBottomSpacing: 14,
+        boxCursorWidth: 2.5,
+        boxCursorHeight: 28,
+        boxDotSize: 9,
+        securityTopSpacing: 10,
+        securityFontSize: 11,
+        securityIconSize: 18,
+        // ── Çipler ──
+        chipPaddingH: 12,
+        chipPaddingV: 5,
+        chipGap: 7,
+        timerIconSize: 15,
+        timerLabelFontSize: 11,
+        timerValueFontSize: 15,
+        // ── Resend kartı ──
+        resendCardPadding: 16,
+        resendIconBoxSize: 36,
+        resendIconBoxRadius: 9,
+        resendIconBoxIconSize: 20,
+        resendTitleFontSize: 13,
+        resendSubtitleFontSize: 13,
+        resendActionIconSize: 17,
+        resendCardBottomSpacing: 24,
+        // ── Buton / keypad / footer ──
+        buttonIconSize: 22,
+        buttonBottomSpacing: 18,
+        keypadPadding: 14,
+        keypadRadius: 13,
+        keypadGap: 10,
+        keyHeight: 52,
+        keyRadius: 9,
+        keyFontSize: 20,
+        keypadBottomSpacing: 18,
+        supportFontSize: 13,
+        supportLinkFontSize: 13,
+        supportGap: 7,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get maxContentWidth => 540;
 }

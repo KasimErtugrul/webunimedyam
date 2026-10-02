@@ -47,6 +47,29 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        cardRadius: 14,
+        cardPaddingH: 16,
+        cardPaddingV: 14,
+        avatarRadius: 22,
+        avatarLetterFontSize: 16,
+        avatarSpacing: 14,
+        usernameTimeSpacing: 10,
+        dotSpacing: 10,
+        contentSpacing: 6,
+        deleteButtonPadding: 6,
+        usernameFontSize: 15,
+        timeFontSize: 13,
+        commentFontSize: 15,
+        commentLineHeight: 1.5,
+        deleteIconSize: 22,
+        deleteSplashRadius: 20,
+        deleteMinWidth: 34,
+        deleteMinHeight: 34,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         cardRadius: 14,
@@ -149,10 +172,7 @@ class CommentTileWidget extends StatelessWidget {
               gradient: isMasked
                   ? null
                   : LinearGradient(
-                      colors: [
-                        primary.withValues(alpha: 0.6),
-                        primary,
-                      ],
+                      colors: [primary.withValues(alpha: 0.6), primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

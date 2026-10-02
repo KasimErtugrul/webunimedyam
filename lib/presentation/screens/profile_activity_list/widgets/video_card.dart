@@ -7,20 +7,22 @@ import 'package:get/get.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/video_model.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../utils/sizes.dart';
 import 'stat_row_compact.dart';
 
 class ProfileActivityListVideoCard extends StatelessWidget {
   final ProfileActivityListSizes sizes;
   final VideoModel video;
-  const ProfileActivityListVideoCard({super.key, 
+  const ProfileActivityListVideoCard({
+    super.key,
     required this.sizes,
     required this.video,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video,

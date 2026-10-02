@@ -8,6 +8,9 @@ abstract class ProfileActivityListSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca ProfileActivityListWebSizes true döner.
+  bool get isWeb => false;
+
   // AppBar
   double get appBarTitleSize;
   double get appBarIconSize;
@@ -296,4 +299,20 @@ class ProfileActivityListTabletSizes extends ProfileActivityListSizes {
 
   @override double get loadMorePaddingVertical => 24;
   @override double get loadMoreStrokeWidth => 3;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; liste/ızgara gövdesi zaten
+/// max-w-[1200px] ile ortalandığı için yalnızca sayfa kenar boşlukları
+/// masaüstüne göre büyütülür.
+class ProfileActivityListWebSizes extends ProfileActivityListTabletSizes {
+  const ProfileActivityListWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get gridPaddingHorizontal => 24;
+  @override
+  double get listPaddingHorizontal => 24;
 }

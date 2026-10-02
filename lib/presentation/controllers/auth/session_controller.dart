@@ -3,15 +3,14 @@ import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../services/analytics_service.dart';
 import '../../../services/session_service.dart';
 
 class SessionController extends GetxController {
   SessionController({
     required AuthRepository authRepository,
     required SessionService sessionService,
-  })  : _repo = authRepository,
-        _session = sessionService;
+  }) : _repo = authRepository,
+       _session = sessionService;
 
   final AuthRepository _repo;
   final SessionService _session;
@@ -25,7 +24,7 @@ class SessionController extends GetxController {
     try {
       await _session.onLogout();
       await _repo.signOut();
-      AnalyticsService.instance.logLogout();
+
       Get.offAllNamed(AppRoutes.home);
     } catch (e, st) {
       log('signOut failed: $e', error: e, stackTrace: st);

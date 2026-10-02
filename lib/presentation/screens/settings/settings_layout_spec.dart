@@ -272,7 +272,16 @@ class SettingsLayoutSpec {
     required this.dialogButtonFontSize,
   });
 
+  /// WEB ölçeği bayrağı — yalnızca SettingsWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   factory SettingsLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır;
+    // ayar sayfası içerik sütunu masaüstünde biraz daha geniş ve
+    // sayfa kenarlarında daha nefesli olur.
+    if (Responsive.isWeb(context)) {
+      return const SettingsWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const SettingsLayoutSpec._(
         isTablet: true,
@@ -542,4 +551,162 @@ class SettingsLayoutSpec {
       dialogButtonFontSize: 15,
     );
   }
+}
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+///
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer: içerik sütunu 620 → 680, sayfa kenarı
+/// 24 → 32 ve bölüm başlığı tipografisinde küçük bir artış. Kart/satır
+/// iç ölçüleri (dokunma hedefleri) tablet değerde kalır.
+class SettingsWebLayoutSpec extends SettingsLayoutSpec {
+  const SettingsWebLayoutSpec._()
+      : super._(
+          isTablet: true,
+          // Eski hero
+          heroHeight: 220,
+          heroIconBoxSize: 72,
+          heroIconSize: 36,
+          heroIconRadius: 20,
+          heroTitleFontSize: 32,
+          heroSubtitleFontSize: 15,
+          heroTitleSpacing: 16,
+          backButtonSize: 24,
+          backButtonPadding: 12,
+          // Header
+          headerHeight: 72,
+          headerIconSize: 26,
+          headerTouchSize: 48,
+          headerTitleFontSize: 20,
+          headerShareIconSize: 24,
+          headerAvatarSize: 36,
+          headerAvatarIconSize: 20,
+          headerGap: 6,
+          // İçerik
+          maxContentWidth: 680,
+          contentPaddingH: 32,
+          contentPaddingBottom: 48,
+          subtitleTopPadding: 6,
+          subtitleBottomPadding: 18,
+          subtitleFontSize: 15,
+          sectionGap: 32,
+          sectionIconSize: 22,
+          sectionIconGap: 10,
+          sectionTitleFontSize: 21,
+          sectionHeaderGap: 10,
+          // Kart & satır
+          cardRadius: 14,
+          cardPadding: 20,
+          cardInnerGap: 20,
+          rowPaddingH: 18,
+          rowPaddingV: 18,
+          rowTitleFontSize: 15,
+          rowSubtitleFontSize: 13,
+          rowIconSize: 22,
+          rowGap: 3,
+          dividerInset: 18,
+          labelFontSize: 13,
+          labelGap: 5,
+          switchScale: 0.95,
+          // Segment
+          segmentContainerRadius: 10,
+          segmentContainerPadding: 5,
+          segmentTabRadius: 10,
+          segmentTabPaddingH: 10,
+          segmentTabPaddingV: 7,
+          segmentTabIconSize: 18,
+          segmentTabFontSize: 13,
+          // Feed pill
+          feedPillPadding: 5,
+          feedItemPaddingH: 10,
+          feedItemPaddingV: 5,
+          feedItemFontSize: 11,
+          feedItemIconSize: 15,
+          feedGap: 5,
+          // Kalite
+          qualityPaddingH: 10,
+          qualityPaddingV: 7,
+          qualityRadius: 10,
+          qualityFontSize: 13,
+          qualityIconSize: 20,
+          // Gizlilik
+          noticePadding: 20,
+          noticeRadius: 14,
+          noticeIconSize: 24,
+          noticeTitleFontSize: 13,
+          noticeBodyFontSize: 13,
+          noticeGap: 14,
+          stripPaddingH: 18,
+          stripPaddingV: 5,
+          stripFontSize: 11,
+          stateButtonPaddingH: 14,
+          stateButtonPaddingV: 7,
+          stateButtonRadius: 10,
+          stateButtonIconSize: 16,
+          stateButtonFontSize: 11,
+          badgePaddingH: 10,
+          badgePaddingV: 3,
+          badgeFontSize: 11,
+          badgeDotSize: 7,
+          badgeGap: 5,
+          // Hesap
+          logoutAreaPadding: 20,
+          logoutButtonPaddingV: 12,
+          logoutButtonRadius: 10,
+          logoutIconSize: 22,
+          logoutFontSize: 15,
+          logoutGap: 7,
+          cacheBadgePaddingH: 10,
+          cacheBadgePaddingV: 5,
+          cacheBadgeRadius: 5,
+          cacheBadgeFontSize: 11,
+          // Footer
+          footerIconSize: 18,
+          footerTitleFontSize: 11,
+          footerVersionFontSize: 13,
+          footerGap: 7,
+          footerBottomSpacing: 40,
+          // Eski sheet
+          sheetRadius: 28,
+          sheetHandleWidth: 48,
+          sheetHandleHeight: 5,
+          sheetHandleSpacing: 12,
+          sheetTitleFontSize: 22,
+          sheetSubtitleFontSize: 15,
+          sheetOptionSpacing: 14,
+          sheetPaddingBottom: 24,
+          sheetOptionIconBoxSize: 48,
+          sheetOptionIconBoxRadius: 14,
+          sheetOptionIconSize: 24,
+          sheetOptionTitleFontSize: 17,
+          sheetOptionSubtitleFontSize: 14,
+          // Eski note
+          noteMarginV: 4,
+          notePaddingH: 16,
+          notePaddingV: 12,
+          noteRadius: 14,
+          noteIconSize: 18,
+          noteFontSize: 14,
+          noteLineHeight: 1.5,
+          // Dialog
+          dialogTitleFontSize: 20,
+          dialogRadius: 24,
+          dialogButtonHeight: 52,
+          dialogButtonFontSize: 16,
+        );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get maxContentWidth => 680;
+  @override
+  double get contentPaddingH => 32;
+  @override
+  double get contentPaddingBottom => 48;
+  @override
+  double get sectionGap => 32;
+  @override
+  double get sectionTitleFontSize => 21;
+  @override
+  double get footerBottomSpacing => 40;
 }

@@ -7,6 +7,9 @@ abstract class StatsSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca StatsWebSizes true döner.
+  bool get isWeb => false;
+
   // AppBar
   double get appBarTitleSize;
   double get backIconSize;
@@ -471,4 +474,24 @@ class StatsTabletSizes extends StatsSizes {
 
   @override
   double get logoFallbackSize => 28;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; gövde zaten max-w-[1100px] ile
+/// ortalandığı için yalnızca sayfa kenar boşlukları ve bölüm
+/// nefesi masaüstüne göre büyütülür.
+class StatsWebSizes extends StatsTabletSizes {
+  const StatsWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get bodyPaddingLeft => 32;
+  @override
+  double get bodyPaddingRight => 32;
+  @override
+  double get bodyPaddingBottom => 48;
+  @override
+  double get bodySectionSpacing => 28;
 }

@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../utils/shorts_player_sizes.dart';
 
 class ShortsPlayerRelatedShelf<T> extends StatelessWidget {
@@ -40,7 +41,11 @@ class ShortsPlayerRelatedShelf<T> extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(Icons.bolt_rounded, color: AppTheme.primaryColor, size: sizes.relatedTitleFontSize),
+            Icon(
+              Icons.bolt_rounded,
+              color: AppTheme.primaryColor,
+              size: sizes.relatedTitleFontSize,
+            ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -62,7 +67,8 @@ class ShortsPlayerRelatedShelf<T> extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
-            separatorBuilder: (_, _) => SizedBox(width: sizes.relatedItemSpacing),
+            separatorBuilder: (_, _) =>
+                SizedBox(width: sizes.relatedItemSpacing),
             itemBuilder: (context, index) {
               final item = items[index];
               return _RelatedCard(
@@ -97,7 +103,7 @@ class _RelatedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapCursor(
       onTap: onTap,
       child: SizedBox(
         width: sizes.relatedItemWidth,
@@ -115,10 +121,14 @@ class _RelatedCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: thumbnailUrl,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => const ColoredBox(color: Color(0xFF18202F)),
+                      placeholder: (_, _) =>
+                          const ColoredBox(color: Color(0xFF18202F)),
                       errorWidget: (_, _, _) => const ColoredBox(
                         color: Color(0xFF18202F),
-                        child: Icon(Icons.play_circle_outline_rounded, color: Colors.white38),
+                        child: Icon(
+                          Icons.play_circle_outline_rounded,
+                          color: Colors.white38,
+                        ),
                       ),
                     ),
                     if (duration.isNotEmpty)
@@ -126,7 +136,10 @@ class _RelatedCard extends StatelessWidget {
                         right: 6,
                         bottom: 6,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.75),
                             borderRadius: BorderRadius.circular(4),
@@ -151,7 +164,10 @@ class _RelatedCard extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.5)],
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.5),
+                            ],
                           ),
                         ),
                       ),

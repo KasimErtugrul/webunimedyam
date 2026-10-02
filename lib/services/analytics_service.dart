@@ -1,4 +1,4 @@
-// lib/services/analytics_service.dart
+/* // lib/services/analytics_service.dart
 
 import 'dart:developer';
 
@@ -152,4 +152,4 @@ class AnalyticsService {
       log('Hata Crashlytics\'e kaydedilirken sorun oluştu: $e', error: e, stackTrace: st);
     }
   }
-}
+} */

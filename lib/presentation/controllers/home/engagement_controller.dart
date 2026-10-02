@@ -10,7 +10,6 @@ import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/comment_repository.dart';
 import '../../../data/repositories/engagement_repository.dart';
 import '../../../data/repositories/favorites_repository.dart';
-import '../../../services/analytics_service.dart';
 import 'feed_controller.dart';
 
 /// Kullanıcının video üzerindeki tüm aksiyonları: beğeni, favori, paylaşım,
@@ -64,8 +63,9 @@ class EngagementController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _favoriteSub =
-        favoritesRepository.onFavoriteChanged.listen(_onFavoriteChanged);
+    _favoriteSub = favoritesRepository.onFavoriteChanged.listen(
+      _onFavoriteChanged,
+    );
   }
 
   @override
@@ -123,8 +123,7 @@ class EngagementController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'favorite', 'source': 'home_feed'});
+
       return;
     }
 
@@ -143,18 +142,14 @@ class EngagementController extends GetxController {
       } else {
         await favoritesRepository.addFavorite(userId, videoId);
         final video = Get.isRegistered<FeedController>()
-            ? Get.find<FeedController>()
-                .videos
-                .firstWhereOrNull((v) => v.videoId == videoId)
+            ? Get.find<FeedController>().videos.firstWhereOrNull(
+                (v) => v.videoId == videoId,
+              )
             : null;
         if (video != null) {
           await favoritesRepository.saveFavoriteVideoLocally(video);
         }
       }
-      AnalyticsService.instance.logEvent(
-        wasFav ? 'remove_from_favorites' : 'add_to_favorites',
-        parameters: {'video_id': videoId, 'source': 'home_feed'},
-      );
     } catch (e, st) {
       if (wasFav) {
         favoriteIds.add(videoId);
@@ -162,8 +157,11 @@ class EngagementController extends GetxController {
         favoriteIds.remove(videoId);
       }
       _updateFeedFavoriteCount(videoId, wasFav ? 1 : -1);
-      log('Favori durumu değiştirilirken hata oluştu: $e',
-          error: e, stackTrace: st);
+      log(
+        'Favori durumu değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -194,8 +192,11 @@ class EngagementController extends GetxController {
         _likeCache[id] = true;
       }
     } catch (e, st) {
-      log('Beğenilen video ID\'leri yüklenirken hata oluştu: $e',
-          error: e, stackTrace: st);
+      log(
+        'Beğenilen video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -203,8 +204,7 @@ class EngagementController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'like', 'source': 'home_feed'});
+
       return;
     }
     if (_likeProcessing.contains(videoId)) return;
@@ -217,8 +217,10 @@ class EngagementController extends GetxController {
       if (!_likeCache.containsKey(videoId)) {
         _likeCacheLoading.add(videoId);
         try {
-          _likeCache[videoId] =
-              await engagementRepository.isLiked(userId, videoId);
+          _likeCache[videoId] = await engagementRepository.isLiked(
+            userId,
+            videoId,
+          );
         } finally {
           _likeCacheLoading.remove(videoId);
         }
@@ -240,10 +242,6 @@ class EngagementController extends GetxController {
         } else {
           await engagementRepository.addLike(userId, videoId);
         }
-        AnalyticsService.instance.logEvent(
-          wasLiked ? 'video_unlike' : 'video_like',
-          parameters: {'video_id': videoId, 'source': 'home_feed'},
-        );
       } catch (e, st) {
         _likeCache[videoId] = wasLiked;
         if (wasLiked) {
@@ -282,8 +280,11 @@ class EngagementController extends GetxController {
       final ids = await engagementRepository.getSharedVideoIds(userId);
       _sharedIds.assignAll(ids);
     } catch (e, st) {
-      log('Paylaşılan video ID\'leri yüklenirken hata oluştu: $e',
-          error: e, stackTrace: st);
+      log(
+        'Paylaşılan video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -309,24 +310,18 @@ class EngagementController extends GetxController {
           _updateFeedShareCount(video.videoId, 1);
         }
       }
-      AnalyticsService.instance.logEvent('share', parameters: {
-        'content_type': 'video',
-        'item_id': video.videoId,
-        'method': 'share_sheet',
-        'source': 'home_feed',
-      });
     } catch (e, st) {
-      log('Paylaşım başarısız, panoya kopyalanıyor: $e', error: e, stackTrace: st);
+      log(
+        'Paylaşım başarısız, panoya kopyalanıyor: $e',
+        error: e,
+        stackTrace: st,
+      );
       await Clipboard.setData(ClipboardData(text: videoUrl));
-      Get.snackbar('Bağlantı Kopyalandı',
-          'Video bağlantısı panoya kopyalandı.',
-          snackPosition: SnackPosition.BOTTOM);
-      AnalyticsService.instance.logEvent('share', parameters: {
-        'content_type': 'video',
-        'item_id': video.videoId,
-        'method': 'clipboard_fallback',
-        'source': 'home_feed',
-      });
+      Get.snackbar(
+        'Bağlantı Kopyalandı',
+        'Video bağlantısı panoya kopyalandı.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       _shareLoadingIds.remove(video.videoId);
       _shareProcessing.remove(video.videoId);
@@ -347,8 +342,11 @@ class EngagementController extends GetxController {
       final ids = await engagementRepository.getCommentedVideoIds(userId);
       _commentedIds.assignAll(ids);
     } catch (e, st) {
-      log('Yorum yapılan video ID\'leri yüklenirken hata oluştu: $e',
-          error: e, stackTrace: st);
+      log(
+        'Yorum yapılan video ID\'leri yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -359,8 +357,7 @@ class EngagementController extends GetxController {
     final userId = _currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent('auth_wall_hit',
-          parameters: {'action': 'comment', 'source': 'home_feed'});
+
       return false;
     }
 
@@ -377,14 +374,19 @@ class EngagementController extends GetxController {
       if (!_commentedIds.contains(video.videoId)) {
         _commentedIds.add(video.videoId);
       }
-      AnalyticsService.instance.logEvent('comment_add',
-          parameters: {'video_id': video.videoId, 'source': 'home_feed'});
+
       return true;
     } catch (e, st) {
-      log('Hızlı yorum gönderilirken hata oluştu: $e', error: e, stackTrace: st);
-      Get.snackbar('Gönderilemedi',
-          'Yorumun gönderilemedi, lütfen tekrar dene.',
-          snackPosition: SnackPosition.BOTTOM);
+      log(
+        'Hızlı yorum gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: st,
+      );
+      Get.snackbar(
+        'Gönderilemedi',
+        'Yorumun gönderilemedi, lütfen tekrar dene.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return false;
     } finally {
       _quickCommentSendingIds.remove(video.videoId);

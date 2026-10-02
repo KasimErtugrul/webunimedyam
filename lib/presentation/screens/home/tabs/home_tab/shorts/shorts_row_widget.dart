@@ -18,6 +18,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
+import '../../../../../../core/widgets/hover_tap.dart';
 import '../../../../../../data/models/shorts_model.dart';
 import '../../../../../controllers/shorts_controller.dart';
 
@@ -149,6 +150,8 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ShortsController>();
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    final isWeb = Responsive.isWeb(context);
     final isTablet = Responsive.isTablet(context);
 
     return Obx(() {
@@ -157,10 +160,14 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            isTablet
+            isWeb
+                ? _buildSectionTitleWeb(context)
+                : isTablet
                 ? _buildSectionTitleTablet(context)
                 : _buildSectionTitlePhone(context),
-            isTablet
+            isWeb
+                ? _buildWebShimmer(context)
+                : isTablet
                 ? _buildTabletShimmer(context)
                 : _buildPhoneShimmer(context),
           ],
@@ -174,10 +181,16 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          isTablet
+          isWeb
+              ? _buildSectionTitleWeb(context)
+              : isTablet
               ? _buildSectionTitleTablet(context)
               : _buildSectionTitlePhone(context),
-          isTablet ? _tablet(context, controller) : _phone(context, controller),
+          isWeb
+              ? _web(context, controller)
+              : isTablet
+              ? _tablet(context, controller)
+              : _phone(context, controller),
         ],
       );
     });
@@ -335,8 +348,10 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
     if (!_scrollController.hasClients) return;
     final double page = _scrollController.position.viewportDimension * 0.8;
     _scrollController.animateTo(
-      (_scrollController.offset + direction * page)
-          .clamp(0.0, _scrollController.position.maxScrollExtent),
+      (_scrollController.offset + direction * page).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      ),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
@@ -391,9 +406,7 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
             margin: const EdgeInsets.only(right: _PhoneSizes.cardMarginRight),
             decoration: BoxDecoration(
               color: AppTheme.surface(context),
-              borderRadius: BorderRadius.circular(
-                _PhoneSizes.cardBorderRadius,
-              ),
+              borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
             ),
           ),
         ),
@@ -453,6 +466,128 @@ class _ShortsRowWidgetState extends State<ShortsRowWidget> {
               borderRadius: BorderRadius.circular(
                 _TabletSizes.cardBorderRadius,
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── "Kampüs Shorts & Reels" Bölüm Başlığı — Web ───────────────────────
+  Widget _buildSectionTitleWeb(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        _WebSizes.sectionPadLeft,
+        _WebSizes.sectionPadTop,
+        _WebSizes.sectionPadRight,
+        _WebSizes.sectionPadBottom,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.bolt_rounded,
+                  size: _WebSizes.sectionIconSize,
+                  color: AppTheme.primaryColor,
+                ),
+                const SizedBox(width: _WebSizes.sectionIconSpacing),
+                Flexible(
+                  child: Text(
+                    'Kampüs Shorts & Reels',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppTheme.textPri(context),
+                      fontSize: _WebSizes.sectionTitleFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          // TODO(kasım): "Tümünü Gör" — tablet dakiyle aynı, henüz bağlanmadı.
+          InkWell(
+            borderRadius: BorderRadius.circular(6),
+            onTap: () {},
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tümünü Gör',
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: AppTheme.primaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Web gövde — tablet sırasının web ölçeği ────────────────────────────
+  Widget _web(BuildContext context, ShortsController controller) {
+    return SizedBox(
+      height: _WebSizes.rowHeight,
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: _WebSizes.listPaddingHorizontal,
+        ),
+        itemCount:
+            controller.shorts.length + (controller.hasMore.value ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= controller.shorts.length) {
+            return _TabletLoadMoreIndicator(
+              isLoading: controller.isLoadingMore.value,
+            );
+          }
+          return _ShortsThumbItemWeb(
+            shorts: controller.shorts[index],
+            initialIndex: index,
+            allShorts: controller.shorts,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWebShimmer(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppTheme.surface(context),
+      highlightColor: AppTheme.card(context),
+      child: SizedBox(
+        height: _WebSizes.rowHeight,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(
+            horizontal: _WebSizes.listPaddingHorizontal,
+          ),
+          itemCount: 8,
+          itemBuilder: (_, _) => Container(
+            width: _WebSizes.cardWidth,
+            height: _WebSizes.cardHeight,
+            margin: const EdgeInsets.only(right: _WebSizes.cardMarginRight),
+            decoration: BoxDecoration(
+              color: AppTheme.surface(context),
+              borderRadius: BorderRadius.circular(_WebSizes.cardBorderRadius),
             ),
           ),
         ),
@@ -564,7 +699,7 @@ class _ShortsThumbItemPhone extends StatelessWidget {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
     final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.shortsPlayer,
         arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
@@ -749,7 +884,7 @@ class _ShortsThumbItemTablet extends StatelessWidget {
     timeago.setLocaleMessages('tr', timeago.TrMessages());
     final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.shortsPlayer,
         arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
@@ -923,4 +1058,227 @@ String _formatDuration(String iso) {
     return '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
   return '$m:${s.toString().padLeft(2, '0')}';
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEB SABİTLERİ — masaüstü tarayıcı (≥1024px). Tablet ölçülerini
+// temel alır; kart 150×266'ya büyütülür, sayfa kenarları 32'ye çıkar.
+// ═══════════════════════════════════════════════════════════
+class _WebSizes {
+  static const double rowHeight = 266;
+  static const double cardWidth = 150;
+  static const double cardHeight = 266;
+  static const double cardMarginRight = 14;
+  static const double cardBorderRadius = 14;
+  static const double listPaddingHorizontal = 32;
+
+  static const double gradientHeight = 104;
+  static const double durationTop = 10;
+  static const double durationRight = 10;
+  static const double durationPaddingHorizontal = 7;
+  static const double durationPaddingVertical = 4;
+  static const double durationBorderRadius = 6;
+  static const double durationFontSize = 10;
+
+  static const double contentPaddingHorizontal = 11;
+  static const double contentPaddingBottom = 11;
+  static const double logoSize = 26;
+  static const double logoBorder = 1.6;
+  static const double logoTitleSpacing = 7;
+  static const double uniNameFontSize = 11;
+  static const double rowToTitleSpacing = 6;
+  static const double titleFontSize = 13.5;
+  static const double titleLineHeight = 1.25;
+  static const double titleToTimeSpacing = 5;
+  static const double timeAgoFontSize = 10.5;
+
+  static const double placeholderIconSize = 34;
+
+  // Bölüm başlığı ("Kampüs Shorts & Reels")
+  static const double sectionPadLeft = 32;
+  static const double sectionPadTop = 16;
+  static const double sectionPadRight = 32;
+  static const double sectionPadBottom = 12;
+  static const double sectionIconSize = 22;
+  static const double sectionIconSpacing = 8;
+  static const double sectionTitleFontSize = 20;
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEB KARTI — tablet kartın dikey tasarımının web ölçeği.
+// Tablet sınıfıyla birebir; yalnızca _WebSizes sabitlerini kullanır.
+// ═══════════════════════════════════════════════════════════
+class _ShortsThumbItemWeb extends StatelessWidget {
+  final ShortsModel shorts;
+  final int initialIndex;
+  final List<ShortsModel> allShorts;
+
+  const _ShortsThumbItemWeb({
+    required this.shorts,
+    required this.initialIndex,
+    required this.allShorts,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    timeago.setLocaleMessages('tr', timeago.TrMessages());
+    final timeAgo = timeago.format(shorts.publishedAt, locale: 'tr');
+
+    return TapCursor(
+      onTap: () => Get.toNamed(
+        AppRoutes.shortsPlayer,
+        arguments: {'shorts': allShorts, 'initialIndex': initialIndex},
+      ),
+      child: Container(
+        width: _WebSizes.cardWidth,
+        height: _WebSizes.cardHeight,
+        margin: const EdgeInsets.only(right: _WebSizes.cardMarginRight),
+        decoration: BoxDecoration(
+          color: AppTheme.card(context),
+          borderRadius: BorderRadius.circular(_WebSizes.cardBorderRadius),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: shorts.bestThumbnail,
+              fit: BoxFit.cover,
+              errorWidget: (_, _, _) => _placeholder(context),
+              placeholder: (_, _) => _shimmerBox(context),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: _WebSizes.gradientHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (shorts.duration.isNotEmpty)
+              Positioned(
+                top: _WebSizes.durationTop,
+                right: _WebSizes.durationRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: _WebSizes.durationPaddingHorizontal,
+                    vertical: _WebSizes.durationPaddingVertical,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(
+                      _WebSizes.durationBorderRadius,
+                    ),
+                  ),
+                  child: Text(
+                    _formatDuration(shorts.duration),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: _WebSizes.durationFontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              left: _WebSizes.contentPaddingHorizontal,
+              right: _WebSizes.contentPaddingHorizontal,
+              bottom: _WebSizes.contentPaddingBottom,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: _WebSizes.logoSize,
+                        height: _WebSizes.logoSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: _WebSizes.logoBorder,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child:
+                              (shorts.logoUrl != null &&
+                                  shorts.logoUrl!.isNotEmpty)
+                              ? CachedNetworkImage(
+                                  imageUrl: shorts.logoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, _, _) =>
+                                      const Icon(Icons.school, size: 12),
+                                )
+                              : const Icon(Icons.school, size: 12),
+                        ),
+                      ),
+                      const SizedBox(width: _WebSizes.logoTitleSpacing),
+                      Expanded(
+                        child: Text(
+                          shorts.universityName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: _WebSizes.uniNameFontSize,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: _WebSizes.rowToTitleSpacing),
+                  Text(
+                    shorts.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: _WebSizes.titleFontSize,
+                      fontWeight: FontWeight.w700,
+                      height: _WebSizes.titleLineHeight,
+                    ),
+                  ),
+                  const SizedBox(height: _WebSizes.titleToTimeSpacing),
+                  Text(
+                    timeAgo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.65),
+                      fontSize: _WebSizes.timeAgoFontSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeholder(BuildContext context) => Container(
+    color: AppTheme.surface(context),
+    child: Icon(
+      Icons.play_circle_outline_rounded,
+      color: AppTheme.textSec(context),
+      size: _WebSizes.placeholderIconSize,
+    ),
+  );
+
+  Widget _shimmerBox(BuildContext context) =>
+      Container(color: AppTheme.surface(context));
 }

@@ -18,6 +18,7 @@ import 'package:get/get.dart';
 
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../core/responsive.dart';
+import '../../../../../../core/widgets/hover_tap.dart';
 import '../../../../../../data/models/watch_progress_model.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -30,7 +31,7 @@ class _PhoneSizes {
   static const double sectionPadTop = 4;
   static const double sectionPadRight = 16;
   static const double sectionPadBottom = 10;
-/*   static const double sectionIconSize = 18;
+  /*   static const double sectionIconSize = 18;
   static const double sectionIconSpacing = 6; */
   static const double sectionTitleFontSize = 20;
   static const double sectionCountFontSize = 12;
@@ -136,6 +137,8 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    if (Responsive.isWeb(context)) return _buildWeb(context);
     return Responsive.isTablet(context)
         ? _buildTablet(context)
         : _buildPhone(context);
@@ -178,9 +181,6 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
                   ), */
                   Container(
                     padding: const EdgeInsets.only(right: 10, left: 5),
-                    color: Colors.yellow.withValues(
-                      alpha: 0.7,
-                    ), // Expanded child için boş Container
                     child: Text(
                       'İzlemeye Devam Et',
                       style: TextStyle(
@@ -262,8 +262,10 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
         final double usableWidth =
             constraints.maxWidth - 2 * _TabletSizes.listPadHorizontal;
         final double cardWidth =
-            ((usableWidth - 3 * _TabletSizes.columnGap) / 4)
-                .clamp(220.0, 320.0);
+            ((usableWidth - 3 * _TabletSizes.columnGap) / 4).clamp(
+              220.0,
+              320.0,
+            );
         final double thumbHeight = cardWidth * 9 / 16;
         // Kart toplam yüksekliği: pad(10) + thumb + boşluk(10) + başlık(19)
         // + boşluk(4) + meta satırı(~16) + pad(10) + güvenlik payı(6).
@@ -332,6 +334,85 @@ class ContinueWatchingSectionWidget extends StatelessWidget {
       },
     );
   }
+
+  // ── Web ────────────────────────────────────────────────
+  // Tablet yerleşiminin aynısı (yatay kaydırılan dikey kartlar); yalnızca
+  // sayfa-seviyesi nefes ve kart genişliği clamp aralığı _WebSizes ile
+  // masaüstüne büyütülür.
+  Widget _buildWeb(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double usableWidth =
+            constraints.maxWidth - 2 * _WebSizes.listPadHorizontal;
+        final double cardWidth = ((usableWidth - 3 * _WebSizes.columnGap) / 4)
+            .clamp(_WebSizes.cardWidthMin, _WebSizes.cardWidthMax);
+        final double thumbHeight = cardWidth * 9 / 16;
+        final double cardHeight = thumbHeight + 75;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                _WebSizes.sectionPadLeft,
+                _WebSizes.sectionPadTop,
+                _WebSizes.sectionPadRight,
+                _WebSizes.sectionPadBottom,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.history_rounded,
+                    size: _TabletSizes.sectionIconSize,
+                    color: scheme.primary,
+                  ),
+                  const SizedBox(width: _TabletSizes.sectionIconSpacing),
+                  Expanded(
+                    child: Text(
+                      'İzlemeye Devam Et',
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: _WebSizes.sectionTitleFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${items.length} video',
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: _WebSizes.sectionCountFontSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: cardHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _WebSizes.listPadHorizontal,
+                ),
+                itemCount: items.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: _WebSizes.columnGap),
+                itemBuilder: (context, index) => _CardTablet(
+                  key: ValueKey(items[index].video.videoId),
+                  item: items[index],
+                  width: cardWidth,
+                  onRemove: () => onRemove(items[index].video.videoId),
+                ),
+              ),
+            ),
+            const SizedBox(height: _TabletSizes.listBottomSpacing),
+          ],
+        );
+      },
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -350,16 +431,27 @@ class _CardPhone extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final video = item.video;
 
-    return GestureDetector(
+    return HoverTap(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video,
         parameters: {'videoId': video.videoId},
       ),
-      child: Container(
+      builder: (context, hovered) => AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        transform: Matrix4.translationValues(0, hovered ? -2 : 0, 0),
         decoration: BoxDecoration(
           color: scheme.surfaceContainer,
           borderRadius: BorderRadius.circular(_PhoneSizes.cardBorderRadius),
+          boxShadow: hovered
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : const [],
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
@@ -487,13 +579,13 @@ class _CardPhone extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                      '${item.formattedPosition} / ${item.formattedDuration}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: scheme.onSurfaceVariant,
-                                        fontSize: _PhoneSizes.metaFontSize,
-                                      ),
+                                        '${item.formattedPosition} / ${item.formattedDuration}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: scheme.onSurfaceVariant,
+                                          fontSize: _PhoneSizes.metaFontSize,
+                                        ),
                                       ),
                                     ),
                                     Text(
@@ -518,7 +610,7 @@ class _CardPhone extends StatelessWidget {
                 Positioned(
                   top: _PhoneSizes.removeTop,
                   right: _PhoneSizes.removeRight,
-                  child: GestureDetector(
+                  child: TapCursor(
                     onTap: onRemove,
                     child: Container(
                       width: _PhoneSizes.removeSize,
@@ -581,18 +673,29 @@ class _CardTablet extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final video = item.video;
 
-    return GestureDetector(
+    return HoverTap(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video,
         parameters: {'videoId': video.videoId},
       ),
-      child: Container(
+      builder: (context, hovered) => AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        transform: Matrix4.translationValues(0, hovered ? -2 : 0, 0),
         width: width,
         padding: const EdgeInsets.all(_TabletSizes.cardInnerPadding),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(_TabletSizes.cardBorderRadius),
+          boxShadow: hovered
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.14),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : const [],
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
@@ -610,9 +713,8 @@ class _CardTablet extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: video.bestThumbnail,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        color: scheme.surfaceContainerHigh,
-                      ),
+                      placeholder: (_, _) =>
+                          Container(color: scheme.surfaceContainerHigh),
                       errorWidget: (_, _, _) => Container(
                         color: scheme.surfaceContainerHigh,
                         child: Icon(
@@ -631,10 +733,10 @@ class _CardTablet extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: item.progressFraction,
                       minHeight: _TabletSizes.progressHeight,
-                      backgroundColor:
-                          scheme.surfaceContainerLowest.withValues(alpha: 0.6),
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(scheme.primary),
+                      backgroundColor: scheme.surfaceContainerLowest.withValues(
+                        alpha: 0.6,
+                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
                     ),
                   ),
                   // "18:40 / 45:00" rozeti (tasarım: sağ alt).
@@ -647,8 +749,9 @@ class _CardTablet extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            scheme.surfaceContainerLowest.withValues(alpha: 0.8),
+                        color: scheme.surfaceContainerLowest.withValues(
+                          alpha: 0.8,
+                        ),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
@@ -666,14 +769,15 @@ class _CardTablet extends StatelessWidget {
                   Positioned(
                     top: _TabletSizes.removeTop,
                     right: _TabletSizes.removeRight,
-                    child: GestureDetector(
+                    child: TapCursor(
                       onTap: onRemove,
                       child: Container(
                         width: _TabletSizes.removeSize,
                         height: _TabletSizes.removeSize,
                         decoration: BoxDecoration(
-                          color:
-                              scheme.surfaceContainerLowest.withValues(alpha: 0.8),
+                          color: scheme.surfaceContainerLowest.withValues(
+                            alpha: 0.8,
+                          ),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -731,4 +835,25 @@ class _CardTablet extends StatelessWidget {
       ),
     );
   }
+}
+
+/// WEB ölçeği (masaüstü tarayıcı, ≥1024px) — yalnızca web'de
+/// farklılaşan sayfa-seviyesi değerler. Kart içi ölçüler tablet
+/// değerinde kalır; kart genişliği clamp aralığı web'de genişler.
+class _WebSizes {
+  // Bölüm başlığı
+  static const double sectionPadLeft = 32;
+  static const double sectionPadTop = 8;
+  static const double sectionPadRight = 32;
+  static const double sectionPadBottom = 14;
+  static const double sectionTitleFontSize = 20;
+  static const double sectionCountFontSize = 14;
+
+  // Yatay kaydırma
+  static const double listPadHorizontal = 32;
+  static const double columnGap = 20;
+
+  // Kart genişliği clamp aralığı
+  static const double cardWidthMin = 260;
+  static const double cardWidthMax = 340;
 }

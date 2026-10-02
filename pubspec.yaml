@@ -27,7 +27,7 @@ dependencies:
   share_plus: ^13.1.0
   youtube_player_iframe: ^6.0.0
   timeago: ^3.7.1
-  youtube_player_flutter: ^10.0.1
+  # youtube_player_flutter: ^10.0.1
   animate_number: ^2.0.1
   url_launcher: ^6.3.2
   firebase_core: ^4.9.0
@@ -35,10 +35,10 @@ dependencies:
   youtube_shorts: ^4.0.2
   readmore: ^3.0.0
   alphabet_scroll_view: ^0.3.2
-  radio_player: ^2.3.1
-  audio_visualizer: ^1.1.0
+  # radio_player: ^2.3.1
+  # audio_visualizer: ^1.1.0
   firebase_analytics: ^12.4.3
-  firebase_crashlytics: ^5.2.4
+  # firebase_crashlytics: ^5.2.4
   wheel_slider: ^1.2.2
 
   # Local Storage
@@ -57,7 +57,7 @@ dependencies:
   cross_file: ^0.3.5+5
   flutter_cache_manager: ^3.4.5
 
-  webview_flutter_android: ^4.14.1
+  # webview_flutter_android: ^4.14.1
   custom_lint: ^0.7.3
 
 dev_dependencies:

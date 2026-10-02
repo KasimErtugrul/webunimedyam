@@ -20,7 +20,10 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final StatsSizes sizes = Responsive.isTablet(context)
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    final StatsSizes sizes = Responsive.isWeb(context)
+        ? const StatsWebSizes()
+        : Responsive.isTablet(context)
         ? const StatsTabletSizes()
         : const StatsPhoneSizes();
 

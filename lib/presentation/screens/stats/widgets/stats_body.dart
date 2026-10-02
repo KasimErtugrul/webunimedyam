@@ -33,55 +33,68 @@ class StatsBody extends StatelessWidget {
           sizes.bodyPaddingRight,
           sizes.bodyPaddingBottom,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HeroCard(sizes: sizes, stats: stats),
-            SizedBox(height: sizes.bodySectionSpacing),
-            if (stats.currentStreakDays > 0 || stats.longestStreakDays > 0) ...[
-              StreakCard(sizes: sizes, stats: stats),
-              SizedBox(height: sizes.bodySectionSpacing),
-            ],
-            StatsSectionTitle(sizes: sizes, title: 'Dönem aktivitesi'),
-            SizedBox(height: sizes.bodySectionTitleSpacing),
-            PeriodGrid(sizes: sizes, stats: stats),
-            SizedBox(height: sizes.bodySectionSpacing),
-            StatsSectionTitle(sizes: sizes, title: 'Genel aktivite'),
-            SizedBox(height: sizes.bodySectionTitleSpacing),
-            ActivityGrid(sizes: sizes, stats: stats),
-            SizedBox(height: sizes.bodySectionSpacing),
-            if (stats.topUniversityName != null) ...[
-              StatsSectionTitle(sizes: sizes, title: 'En çok izlediğin üniversite'),
-              SizedBox(height: sizes.bodySectionTitleSpacing),
-              TopUniversityCard(sizes: sizes, stats: stats),
-              SizedBox(height: sizes.bodySectionSpacing),
-            ],
-            if (stats.lastWatchedTitle != null) ...[
-              StatsSectionTitle(sizes: sizes, title: 'Son izlediğin video'),
-              SizedBox(height: sizes.bodySectionTitleSpacing),
-              StatsVideoCard(
-                sizes: sizes,
-                title: stats.lastWatchedTitle!,
-                thumbnail: stats.lastWatchedThumbnail,
-                date: stats.lastWatchedAt,
-                icon: Icons.play_circle_rounded,
-              ),
-              SizedBox(height: sizes.bodySectionSpacing),
-            ],
-            if (stats.lastLikedTitle != null) ...[
-              StatsSectionTitle(sizes: sizes, title: 'Son beğendiğin video'),
-              SizedBox(height: sizes.bodySectionTitleSpacing),
-              StatsVideoCard(
-                sizes: sizes,
-                title: stats.lastLikedTitle!,
-                thumbnail: stats.lastLikedThumbnail,
-                date: stats.lastLikedAt,
-                icon: Icons.favorite_rounded,
-                iconColor: Colors.redAccent,
-              ),
-              SizedBox(height: sizes.bodyPaddingBottom),
-            ],
-          ],
+        // WEB: içerik çok geniş ekranlarda kenarlara yayılmasın.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeroCard(sizes: sizes, stats: stats),
+                SizedBox(height: sizes.bodySectionSpacing),
+                if (stats.currentStreakDays > 0 ||
+                    stats.longestStreakDays > 0) ...[
+                  StreakCard(sizes: sizes, stats: stats),
+                  SizedBox(height: sizes.bodySectionSpacing),
+                ],
+                StatsSectionTitle(sizes: sizes, title: 'Dönem aktivitesi'),
+                SizedBox(height: sizes.bodySectionTitleSpacing),
+                PeriodGrid(sizes: sizes, stats: stats),
+                SizedBox(height: sizes.bodySectionSpacing),
+                StatsSectionTitle(sizes: sizes, title: 'Genel aktivite'),
+                SizedBox(height: sizes.bodySectionTitleSpacing),
+                ActivityGrid(sizes: sizes, stats: stats),
+                SizedBox(height: sizes.bodySectionSpacing),
+                if (stats.topUniversityName != null) ...[
+                  StatsSectionTitle(
+                    sizes: sizes,
+                    title: 'En çok izlediğin üniversite',
+                  ),
+                  SizedBox(height: sizes.bodySectionTitleSpacing),
+                  TopUniversityCard(sizes: sizes, stats: stats),
+                  SizedBox(height: sizes.bodySectionSpacing),
+                ],
+                if (stats.lastWatchedTitle != null) ...[
+                  StatsSectionTitle(sizes: sizes, title: 'Son izlediğin video'),
+                  SizedBox(height: sizes.bodySectionTitleSpacing),
+                  StatsVideoCard(
+                    sizes: sizes,
+                    title: stats.lastWatchedTitle!,
+                    thumbnail: stats.lastWatchedThumbnail,
+                    date: stats.lastWatchedAt,
+                    icon: Icons.play_circle_rounded,
+                  ),
+                  SizedBox(height: sizes.bodySectionSpacing),
+                ],
+                if (stats.lastLikedTitle != null) ...[
+                  StatsSectionTitle(
+                    sizes: sizes,
+                    title: 'Son beğendiğin video',
+                  ),
+                  SizedBox(height: sizes.bodySectionTitleSpacing),
+                  StatsVideoCard(
+                    sizes: sizes,
+                    title: stats.lastLikedTitle!,
+                    thumbnail: stats.lastLikedThumbnail,
+                    date: stats.lastLikedAt,
+                    icon: Icons.favorite_rounded,
+                    iconColor: Colors.redAccent,
+                  ),
+                  SizedBox(height: sizes.bodyPaddingBottom),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

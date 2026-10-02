@@ -124,7 +124,9 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
   @override
   Widget build(BuildContext context) {
     // KURAL 5 — TEK DALLANMA NOKTASI
-    final SignupPreferencesSizes sizes = Responsive.isTablet(context)
+    final SignupPreferencesSizes sizes = Responsive.isWeb(context)
+        ? const SignupPreferencesWebSizes()
+        : Responsive.isTablet(context)
         ? const SignupPreferencesTabletSizes()
         : const SignupPreferencesPhoneSizes();
 
@@ -151,32 +153,40 @@ class _SignupPreferencesScreenState extends State<SignupPreferencesScreen> {
             ),
 
             // ── Adımlar ─────────────────────────────────────────────
+            // WEB: adım içerikleri çok geniş ekranlarda kenarlara
+            // yayılmasın — sihirbaz gövdesi ortalanmış genişlikte kalsın.
             Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) => setState(() => _currentPage = index),
-                children: [
-                  ThemeStep(
-                    sizes: sizes,
-                    controller: controller,
-                    onSelected: _next, // mevcut davranış korundu
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) =>
+                        setState(() => _currentPage = index),
+                    children: [
+                      ThemeStep(
+                        sizes: sizes,
+                        controller: controller,
+                        onSelected: _next, // mevcut davranış korundu
+                      ),
+                      AutoplayStep(
+                        sizes: sizes,
+                        controller: controller,
+                        onSelected: _next,
+                      ),
+                      NotificationsStep(
+                        sizes: sizes,
+                        controller: controller,
+                        onSelected: _next,
+                      ),
+                      VisibilityStep(
+                        sizes: sizes,
+                        controller: controller,
+                        onSelected: _next,
+                      ),
+                    ],
                   ),
-                  AutoplayStep(
-                    sizes: sizes,
-                    controller: controller,
-                    onSelected: _next,
-                  ),
-                  NotificationsStep(
-                    sizes: sizes,
-                    controller: controller,
-                    onSelected: _next,
-                  ),
-                  VisibilityStep(
-                    sizes: sizes,
-                    controller: controller,
-                    onSelected: _next,
-                  ),
-                ],
+                ),
               ),
             ),
 

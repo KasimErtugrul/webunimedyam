@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../data/models/university_stats_model.dart';
 import '../../../controllers/university_stats_section_detail_controller.dart';
@@ -52,7 +53,10 @@ class UniversityStatsSectionDetailTabletSkeleton extends StatelessWidget {
 }
 
 class UniversityStatsSectionDetailTabletGrid extends StatelessWidget {
-  const UniversityStatsSectionDetailTabletGrid({super.key, required this.sizes});
+  const UniversityStatsSectionDetailTabletGrid({
+    super.key,
+    required this.sizes,
+  });
 
   final UniversityStatsSectionDetailSizes sizes;
 
@@ -95,8 +99,9 @@ class UniversityStatsSectionDetailTabletGrid extends StatelessWidget {
                   final double available = constraints.crossAxisExtent;
                   const double targetItemWidth = 280;
                   const double gap = 16;
-                  final int crossAxisCount =
-                      (available / targetItemWidth).floor().clamp(1, 4);
+                  final int crossAxisCount = (available / targetItemWidth)
+                      .floor()
+                      .clamp(1, 4);
 
                   return SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -108,9 +113,8 @@ class UniversityStatsSectionDetailTabletGrid extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => UniversityStatsSectionDetailGridCard(
                         item: controller.items[index],
-                        statLabel: cfg?.statLabelBuilder(
-                              controller.items[index],
-                            ) ??
+                        statLabel:
+                            cfg?.statLabelBuilder(controller.items[index]) ??
                             '',
                         statIcon: cfg?.statIcon ?? Icons.bar_chart_rounded,
                       ),
@@ -190,11 +194,11 @@ class UniversityStatsSectionDetailGridCard extends StatelessWidget {
     final hasLogo = item.logoUrl != null && item.logoUrl!.isNotEmpty;
     final initials = item.name.isNotEmpty
         ? item.name
-            .substring(0, item.name.length > 2 ? 2 : item.name.length)
-            .toUpperCase()
+              .substring(0, item.name.length > 2 ? 2 : item.name.length)
+              .toUpperCase()
         : 'ÜN';
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () =>
           Get.toNamed(AppRoutes.universityDetail, arguments: item.universityId),
       child: Container(

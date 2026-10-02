@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../data/models/video_model.dart';
 
 class _Sizes {
@@ -104,6 +105,56 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        cardWidth: 200,
+        cardMarginRight: 14,
+        cardRadius: 16,
+        cardShadowBlur: 6,
+        cardShadowOffsetY: 2,
+        gradientHeight: 36,
+        durationBadgeBottom: 6,
+        durationBadgeRight: 6,
+        durationBadgePaddingH: 6,
+        durationBadgePaddingV: 3,
+        durationBadgeRadius: 5,
+        durationBadgeFontSize: 11,
+        hdBadgeTop: 6,
+        hdBadgeRight: 6,
+        hdBadgePaddingH: 5,
+        hdBadgePaddingV: 3,
+        hdBadgeRadius: 5,
+        hdBadgeFontSize: 9,
+        errorIconSize: 40,
+        contentPaddingLeft: 10,
+        contentPaddingTop: 8,
+        contentPaddingRight: 10,
+        contentPaddingBottom: 10,
+        titleFontSize: 13,
+        titleLineHeight: 1.3,
+        titleSpacing: 6,
+        channelFontSize: 11,
+        channelSpacing: 5,
+        statSpacing: 8,
+        statRunSpacing: 5,
+        statPaddingH: 6,
+        statPaddingV: 3,
+        statRadius: 7,
+        statIconSize: 11,
+        statFontSize: 10,
+        statSpacingSmall: 4,
+        statLikeIconSize: 10,
+        statLikeFontSize: 9,
+        statUniversityIconSize: 10,
+        statUniversityFontSize: 9,
+        statUniversitySpacing: 3,
+        timeFontSize: 9,
+        timeSpacing: 5,
+        schoolIconSize: 12,
+        schoolIconSpacing: 5,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         cardWidth: 200,
@@ -217,7 +268,7 @@ class SuggestedVideoCard extends StatelessWidget {
     final s = _Sizes.of(context);
     final primary = Theme.of(context).colorScheme.primary;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.offNamed(
         AppRoutes.player,
         arguments: video,
@@ -317,8 +368,7 @@ class SuggestedVideoCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: primary,
-                          borderRadius:
-                              BorderRadius.circular(s.hdBadgeRadius),
+                          borderRadius: BorderRadius.circular(s.hdBadgeRadius),
                         ),
                         child: Text(
                           'HD',
@@ -372,8 +422,7 @@ class SuggestedVideoCard extends StatelessWidget {
                       ),
                       if (video.universityId != null)
                         Padding(
-                          padding:
-                              EdgeInsets.only(left: s.schoolIconSpacing),
+                          padding: EdgeInsets.only(left: s.schoolIconSpacing),
                           child: Icon(
                             Icons.school_rounded,
                             size: s.schoolIconSize,
@@ -401,8 +450,9 @@ class SuggestedVideoCard extends StatelessWidget {
                       ),
                       if (video.likeCount > 0)
                         _Stat(
-                          bgColor:
-                              AppTheme.textSec(context).withValues(alpha: 0.1),
+                          bgColor: AppTheme.textSec(
+                            context,
+                          ).withValues(alpha: 0.1),
                           fgColor: AppTheme.textSec(context),
                           icon: Icons.thumb_up_alt_outlined,
                           iconSize: s.statLikeIconSize,

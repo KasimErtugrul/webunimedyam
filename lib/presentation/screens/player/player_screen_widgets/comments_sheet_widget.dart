@@ -64,6 +64,32 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        buttonRadius: 14,
+        buttonPaddingV: 14,
+        buttonFontSize: 15,
+        buttonIconSize: 20,
+        buttonTopSpacing: 14,
+        sheetRadius: 28,
+        sheetHeightFactor: 0.8,
+        sheetMaxWidth: 640,
+        handleWidth: 44,
+        handleHeight: 5,
+        headerPaddingH: 24,
+        titleFontSize: 20,
+        badgeFontSize: 14,
+        badgePaddingH: 10,
+        badgePaddingV: 4,
+        badgeRadius: 14,
+        listPaddingH: 20,
+        itemSpacing: 10,
+        inputPaddingH: 20,
+        inputPaddingV: 12,
+        emptyFontSize: 15,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         buttonRadius: 14,
@@ -173,11 +199,26 @@ class CommentsSeeAllButton extends StatelessWidget {
 // Tüm yorumlar alt penceresi
 // ═══════════════════════════════════════════════════════════════════════
 
+/// Tüm yorumlar penceresi: dar ekranda alttan kayan sheet, web'de (masaüstü
+/// tarayıcı) ekranın ortasında açılan diyalog.
 Future<void> showCommentsSheet(
   BuildContext context,
   PlayerController controller,
 ) {
   final s = _Sizes.of(context);
+  if (Responsive.isWeb(context)) {
+    return showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 64, vertical: 48),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: _CommentsSheet(controller: controller, asDialog: true),
+        ),
+      ),
+    );
+  }
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -190,7 +231,11 @@ Future<void> showCommentsSheet(
 
 class _CommentsSheet extends StatelessWidget {
   final PlayerController controller;
-  const _CommentsSheet({required this.controller});
+
+  /// true: web diyalog modu — dört köşe yuvarlak.
+  final bool asDialog;
+
+  const _CommentsSheet({required this.controller, this.asDialog = false});
 
   @override
   Widget build(BuildContext context) {
@@ -209,29 +254,28 @@ class _CommentsSheet extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           color: AppTheme.bg(context),
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(s.sheetRadius),
-          ),
-          border: Border(
-            top: BorderSide(
-              color: AppTheme.textSec(context).withValues(alpha: 0.12),
-            ),
+          borderRadius: asDialog
+              ? BorderRadius.circular(20)
+              : BorderRadius.vertical(top: Radius.circular(s.sheetRadius)),
+          border: Border.all(
+            color: AppTheme.textSec(context).withValues(alpha: 0.12),
           ),
         ),
         child: Column(
           children: [
-            // ── Tutamaç ──
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 6),
-              child: Container(
-                width: s.handleWidth,
-                height: s.handleHeight,
-                decoration: BoxDecoration(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(s.handleHeight),
+            // ── Tutamaç (yalnızca sheet modunda; diyalogda anlamsız) ──
+            if (!asDialog)
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 6),
+                child: Container(
+                  width: s.handleWidth,
+                  height: s.handleHeight,
+                  decoration: BoxDecoration(
+                    color: AppTheme.textSec(context).withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(s.handleHeight),
+                  ),
                 ),
               ),
-            ),
 
             // ── Başlık ──
             Padding(
@@ -342,7 +386,8 @@ class _CommentsSheet extends StatelessWidget {
                 s.inputPaddingH,
                 s.inputPaddingV,
                 s.inputPaddingH,
-                s.inputPaddingV + (mq.viewInsets.bottom > 0 ? 0 : mq.padding.bottom),
+                s.inputPaddingV +
+                    (mq.viewInsets.bottom > 0 ? 0 : mq.padding.bottom),
               ),
               decoration: BoxDecoration(
                 color: AppTheme.bg(context),
@@ -352,9 +397,7 @@ class _CommentsSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              child: CommentInputWidget(
-                onSend: (text) => controller.addComment(text),
-              ),
+              child: CommentInputWidget(onSend: controller.addComment),
             ),
           ],
         ),

@@ -55,8 +55,10 @@ class _HorizontalSectionState<T> extends State<HorizontalSection<T>> {
     final position = _scrollController.position;
     final double step = position.viewportDimension * 0.8;
     _scrollController.animateTo(
-      (_scrollController.offset + direction * step)
-          .clamp(0.0, position.maxScrollExtent),
+      (_scrollController.offset + direction * step).clamp(
+        0.0,
+        position.maxScrollExtent,
+      ),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
@@ -65,8 +67,10 @@ class _HorizontalSectionState<T> extends State<HorizontalSection<T>> {
   @override
   Widget build(BuildContext context) {
     final spec = DiscoverLayoutSpec.of(context);
-    // Ok butonları yalnızca tablette (tasarım öğesi).
-    final bool showArrows = Responsive.isTablet(context);
+    // Ok butonları tablet + web'de (fare ile yatay kaydırma zordur,
+    // masaüstünde de kaydırma okları gerekli bir tasarım öğesidir).
+    final bool showArrows =
+        Responsive.isWeb(context) || Responsive.isTablet(context);
 
     if (!widget.isLoading && widget.items.isEmpty) {
       return const SizedBox.shrink();
@@ -97,11 +101,11 @@ class _HorizontalSectionState<T> extends State<HorizontalSection<T>> {
                     horizontal: spec.sectionListPaddingH,
                   ),
                   itemCount: widget.items.length,
-                  separatorBuilder: (_, _) => SizedBox(
-                    width: spec.sectionCardSpacing,
-                  ),
+                  separatorBuilder: (_, _) =>
+                      SizedBox(width: spec.sectionCardSpacing),
                   itemBuilder: (ctx, i) {
-                    return widget.itemBuilder(ctx, widget.items[i])
+                    return widget
+                        .itemBuilder(ctx, widget.items[i])
                         .animate(delay: (i * 40).ms)
                         .fadeIn(duration: 300.ms)
                         .slideX(
@@ -299,11 +303,7 @@ class _ArrowButton extends StatelessWidget {
           color: color.surfaceContainer,
         ),
         alignment: Alignment.center,
-        child: Icon(
-          icon,
-          size: 17,
-          color: color.onSurfaceVariant,
-        ),
+        child: Icon(icon, size: 17, color: color.onSurfaceVariant),
       ),
     );
   }
@@ -322,9 +322,7 @@ class _SkeletonList extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: spec.sectionListPaddingH),
         itemCount: spec.shimmerItemCount,
-        separatorBuilder: (_, _) => SizedBox(
-          width: spec.sectionCardSpacing,
-        ),
+        separatorBuilder: (_, _) => SizedBox(width: spec.sectionCardSpacing),
         itemBuilder: (_, _) => Container(
           width: spec.shimmerCardWidth,
           decoration: BoxDecoration(

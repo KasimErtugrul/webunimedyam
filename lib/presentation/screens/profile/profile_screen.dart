@@ -12,6 +12,7 @@ import 'widgets/profile_view_widget.dart';
 
 class _Sizes {
   final bool isTablet;
+  final bool isWeb;
   final double loadingStrokeWidth;
   final double maxContentWidth;
   final double mainPadding;
@@ -30,6 +31,7 @@ class _Sizes {
 
   const _Sizes._({
     required this.isTablet,
+    this.isWeb = false,
     required this.loadingStrokeWidth,
     required this.maxContentWidth,
     required this.mainPadding,
@@ -48,6 +50,29 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı): tablet düzenini alır; giriş yapmamış
+    // karşılama kartı web tipografisine göre bir tık daha büyük.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        isWeb: true,
+        loadingStrokeWidth: 3.5,
+        maxContentWidth: 520,
+        mainPadding: 56,
+        avatarSize: 128,
+        avatarBorderWidth: 2.5,
+        avatarIconSize: 60,
+        titleSpacing: 30,
+        subtitleSpacing: 12,
+        buttonSpacing: 44,
+        titleFontSize: 30,
+        subtitleFontSize: 16,
+        subtitleLineHeight: 1.6,
+        buttonHeight: 56,
+        buttonRadius: 16,
+        buttonFontSize: 18,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,

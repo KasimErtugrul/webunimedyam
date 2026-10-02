@@ -5,6 +5,9 @@ import '../../../../core/responsive.dart';
 @immutable
 class ChangePasswordLayoutSpec {
   final bool isTablet;
+
+  /// WEB ölçeği bayrağı — yalnızca ChangePasswordWebLayoutSpec true döner.
+  bool get isWeb => false;
   final double maxContentWidth;
   final double horizontalPadding;
   final double verticalPadding;
@@ -12,9 +15,9 @@ class ChangePasswordLayoutSpec {
   final double bottomSpacing;
   final double fieldSpacing;
   final double sectionSpacing;
-  final double cardPadding;   // form kartının iç boşluğu
-  final double buttonGap;     // Güncelle ↔ Vazgeç arası
-  final double fontSize;      // input & buton metni
+  final double cardPadding; // form kartının iç boşluğu
+  final double buttonGap; // Güncelle ↔ Vazgeç arası
+  final double fontSize; // input & buton metni
   final double labelFontSize; // alan üstü başlıklar
   final double smallFontSize; // güç etiketi + checklist
   final double errorFontSize;
@@ -47,6 +50,10 @@ class ChangePasswordLayoutSpec {
   });
 
   factory ChangePasswordLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const ChangePasswordWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const ChangePasswordLayoutSpec._(
         isTablet: true,
@@ -92,4 +99,38 @@ class ChangePasswordLayoutSpec {
       loaderStroke: 2.5,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer.
+class ChangePasswordWebLayoutSpec extends ChangePasswordLayoutSpec {
+  const ChangePasswordWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        maxContentWidth: 520,
+        horizontalPadding: 32,
+        verticalPadding: 16,
+        topSpacing: 32,
+        bottomSpacing: 32,
+        fieldSpacing: 20,
+        sectionSpacing: 32,
+        cardPadding: 24,
+        buttonGap: 14,
+        fontSize: 16,
+        labelFontSize: 17,
+        smallFontSize: 14,
+        errorFontSize: 14,
+        iconSize: 24,
+        radius: 12,
+        buttonHeight: 58,
+        loaderSize: 26,
+        loaderStroke: 2.5,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get maxContentWidth => 540;
 }

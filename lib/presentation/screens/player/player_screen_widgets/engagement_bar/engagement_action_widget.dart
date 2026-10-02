@@ -26,6 +26,19 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        minHeight: 46,
+        borderRadius: 16,
+        horizontalPadding: 16,
+        iconSize: 22,
+        loadingIndicatorSize: 20,
+        loadingStrokeWidth: 2.5,
+        textFontSize: 14,
+        textSpacing: 8,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         minHeight: 46,
@@ -158,8 +171,9 @@ class EngagementActionWidget extends StatelessWidget {
                           style: TextStyle(
                             color: color,
                             fontSize: s.textFontSize,
-                            fontWeight:
-                                active ? FontWeight.w700 : FontWeight.w600,
+                            fontWeight: active
+                                ? FontWeight.w700
+                                : FontWeight.w600,
                             height: 1.0,
                           ),
                         ),

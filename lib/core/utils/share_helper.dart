@@ -43,6 +43,7 @@
 
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -54,8 +55,7 @@ class ShareHelper {
   /// Uygulama yüklü değilse veya paylaşım sırasında bir hata olursa
   /// (bkz. controller'lardaki clipboard fallback) kullanılacak, her
   /// zaman çalışan YouTube web linki.
-  static const String _youtubeFallbackBase =
-      'https://www.youtube.com/watch?v=';
+  static const String _youtubeFallbackBase = 'https://www.youtube.com/watch?v=';
 
   /// Görsel indirme için üst sınır. Bu süre aşılırsa görsel olmadan,
   /// sadece metinle paylaşıma devam edilir — kullanıcı yavaş bir
@@ -99,6 +99,11 @@ class ShareHelper {
   /// İndirme başarısız olursa veya zaman aşımına uğrarsa `null` döner;
   /// bu durumda paylaşım görsel olmadan, sadece metinle devam eder.
   static Future<XFile?> _resolveThumbnailFile(String? thumbnailUrl) async {
+    // Web: DefaultCacheManager dosya tabanlıdır (dart:io), tarayıcıda
+    // çalışmaz; Web Share API'de de dosya ekleme her tarayıcıda
+    // desteklenmez. Web'de paylaşım her zaman sadece metinle yapılır —
+    // link zaten metnin içinde, hiçbir işlevsellik kaybı yok.
+    if (kIsWeb) return null;
     if (thumbnailUrl == null || thumbnailUrl.isEmpty) return null;
     try {
       final file = await DefaultCacheManager()
@@ -142,5 +147,3 @@ class ShareHelper {
     );
   }
 }
-
-

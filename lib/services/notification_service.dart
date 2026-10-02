@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -16,8 +17,15 @@ class NotificationService {
   static final NotificationService instance = NotificationService._();
 
   final _messaging = FirebaseMessaging.instance;
-  final _supabase  = Supabase.instance.client;
+  final _supabase = Supabase.instance.client;
   final _localNotifications = FlutterLocalNotificationsPlugin();
+
+  // Web push (FCM for Web) için VAPID anahtarı. Firebase Console →
+  // Project settings → Cloud Messaging → "Web Push certificates" bölümünden
+  // üretilir. Boş bırakıldığında web'de push bildirimleri sessizce devre
+  // dışı kalır (uygulama aksi halde sorunsuz çalışır); anahtar girilince
+  // web push otomatik devreye girer.
+  static const String _webVapidKey = '';
 
   // ÖNEMLİ: Bu kanal id'si, `send-university-notification` edge function'ında
   // gönderilen `android.notification.channel_id` ile TAM AYNI olmak zorunda.
@@ -46,6 +54,13 @@ class NotificationService {
   // ve token kaydı, kullanıcı başarıyla giriş yaptığında onUserLogin()
   // içinde yapılır.
   Future<void> initialize() async {
+    // Web'de flutter_local_notifications yok (mobil eklentisi); Platform.isX
+    // gibi dart:io çağrıları tarayıcıda UnsupportedError fırlatır. Bu yüzden
+    // web'de tamamen ayrı, FCM-web'e özel bir kurulum yolu izlenir.
+    if (kIsWeb) {
+      await _initializeWeb();
+      return;
+    }
     try {
       await _initLocalNotifications();
 
@@ -55,9 +70,12 @@ class NotificationService {
       // tarafında OTOMATİK gösterilmez — bu yüzden ses/görsel bildirimi
       // Android'de _handleForegroundMessage içinde flutter_local_notifications
       // ile elle tetikliyoruz (bkz. aşağısı).
-      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: true, badge: true, sound: true,
-      );
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
 
       _messaging.onTokenRefresh.listen((newToken) async {
         await _upsertToken(newToken);
@@ -84,7 +102,56 @@ class NotificationService {
         await _saveTokenIfLoggedIn();
       }
     } catch (e, stacktrace) {
-      log('Bildirim servisi başlatılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Bildirim servisi başlatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
+    }
+  }
+
+  // ─── Web Kurulumu ─────────────────────────────────────────────────────────
+  //
+  // flutter_local_notifications (mobil-only) atlanır; ön plan mesajları
+  // tarayıcıda sadece uygulama içi snackbar ile bildirilir. Token işlemleri
+  // yalnızca _webVapidKey tanımlıysa denenir — VAPID olmadan FCM web'de
+  // getToken() hata fırlatır, uygulamanın geri kalanını etkilememesi için
+  // sessizce atlanır.
+  Future<void> _initializeWeb() async {
+    try {
+      if (_webVapidKey.isEmpty) {
+        log('Web push devre dışı: VAPID anahtarı tanımlı değil.');
+        return;
+      }
+
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+
+      _messaging.onTokenRefresh.listen((newToken) async {
+        await _upsertToken(newToken);
+      });
+
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _handleNotificationTap(initialMessage);
+        });
+      }
+
+      await _saveTokenIfLoggedIn();
+    } catch (e, stacktrace) {
+      log(
+        'Web bildirim servisi başlatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -101,9 +168,37 @@ class NotificationService {
   // (denied) false. Çağıran taraf (örn. SignupPreferencesController) bu
   // sonuca göre UI'da tik gösterip göstermeyeceğine karar verebilir.
   Future<bool> onUserLogin() async {
+    // Web: tarayıcı izin akışı yalnızca VAPID anahtarı tanımlıysa anlamlıdır;
+    // değilse sessizce false döner (mobil akış aynen korunur).
+    if (kIsWeb) {
+      if (_webVapidKey.isEmpty) return false;
+      try {
+        final settings = await _messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: false,
+        );
+        if (settings.authorizationStatus == AuthorizationStatus.denied) {
+          return false;
+        }
+        await _saveTokenIfLoggedIn();
+        return true;
+      } catch (e, stacktrace) {
+        log(
+          'Web FCM token kaydedilirken hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
+        return false;
+      }
+    }
     try {
       final settings = await _messaging.requestPermission(
-        alert: true, badge: true, sound: true, provisional: false,
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
@@ -115,7 +210,11 @@ class NotificationService {
       await _saveTokenIfLoggedIn();
       return true;
     } catch (e, stacktrace) {
-      log('Kullanıcı girişinde FCM token kaydedilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Kullanıcı girişinde FCM token kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       return false;
     }
   }
@@ -132,7 +231,11 @@ class NotificationService {
           .eq('user_id', userId)
           .eq('token', token);
     } catch (e, stacktrace) {
-      log('Kullanıcı çıkışında FCM token silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Kullanıcı çıkışında FCM token silinirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -146,7 +249,11 @@ class NotificationService {
       if (token == null) return;
       await _upsertToken(token);
     } catch (e, stacktrace) {
-      log('FCM token kaydedilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'FCM token kaydedilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -162,13 +269,17 @@ class NotificationService {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
-      final platform = Platform.isIOS ? 'ios' : 'android';
-      await _supabase.rpc('claim_fcm_token', params: {
-        'p_token': token,
-        'p_platform': platform,
-      });
+      final platform = kIsWeb ? 'web' : (Platform.isIOS ? 'ios' : 'android');
+      await _supabase.rpc(
+        'claim_fcm_token',
+        params: {'p_token': token, 'p_platform': platform},
+      );
     } catch (e, stacktrace) {
-      log('FCM token güncellenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'FCM token güncellenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -201,7 +312,10 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(
-      settings: const InitializationSettings(android: androidInit, iOS: iosInit),
+      settings: const InitializationSettings(
+        android: androidInit,
+        iOS: iosInit,
+      ),
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         final payload = response.payload;
         if (payload == null || payload.isEmpty) return;
@@ -209,7 +323,11 @@ class NotificationService {
           final data = jsonDecode(payload) as Map<String, dynamic>;
           _routeByType(data);
         } catch (e, stacktrace) {
-          log('Local bildirim payload çözümlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+          log(
+            'Local bildirim payload çözümlenirken hata oluştu: $e',
+            error: e,
+            stackTrace: stacktrace,
+          );
         }
       },
     );
@@ -226,7 +344,8 @@ class NotificationService {
 
       await _localNotifications
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
     }
   }
@@ -236,11 +355,11 @@ class NotificationService {
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     try {
       final title = message.notification?.title ?? '';
-      final body  = message.notification?.body  ?? '';
+      final body = message.notification?.body ?? '';
       if (title.isEmpty && body.isEmpty) return;
 
       // Sistem bildirimi + özel ses (Android'de ön planda otomatik gelmiyor).
-      if (Platform.isAndroid) {
+      if (!kIsWeb && Platform.isAndroid) {
         await _localNotifications.show(
           id: message.hashCode,
           title: title,
@@ -267,13 +386,17 @@ class NotificationService {
         snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 5),
         margin: const EdgeInsets.all(12),
-        backgroundColor:
-            Get.theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.95),
+        backgroundColor: Get.theme.colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.95),
         colorText: Get.theme.colorScheme.onSurface,
         onTap: (_) => _handleNotificationTap(message),
       );
     } catch (e, stacktrace) {
-      log('Ön plan bildirimi işlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Ön plan bildirimi işlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -293,7 +416,11 @@ class NotificationService {
           break;
       }
     } catch (e, stacktrace) {
-      log('Bildirim tıklanırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Bildirim tıklanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -303,11 +430,11 @@ class NotificationService {
     try {
       final videoId = data['video_id'] as String?;
       if (videoId == null || videoId.isEmpty) return;
-      
+
       final ds = Get.find<SupabaseDataSource>();
       final video = await ds.getVideoById(videoId);
       if (video == null) return;
-      
+
       // Ana Sayfa zaten açıksa yeniden kurulmaz (bkz. external_navigation.dart:
       // Get.offAll(HomeScreen) ana sayfadaki controller'ları bozuyordu).
       await ExternalNavigation.openPlayer(
@@ -315,8 +442,11 @@ class NotificationService {
         arguments: video,
       );
     } catch (e, stacktrace) {
-      log('Bildirimden oynatıcıya yönlendirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Bildirimden oynatıcıya yönlendirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
-
 }

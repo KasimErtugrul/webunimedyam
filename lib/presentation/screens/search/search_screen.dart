@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
+import '../../../core/responsive.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../data/models/video_model.dart';
 import '../../controllers/video_search_controller.dart';
@@ -197,11 +198,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   _onSubmit(_textController.text.trim());
                 }
               },
-              icon: Icon(
-                Icons.search_rounded,
-                color: scheme.outline,
-                size: 22,
-              ),
+              icon: Icon(Icons.search_rounded, color: scheme.outline, size: 22),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
@@ -261,11 +258,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 onPressed: () {
                   _showFilterBottomSheet(context);
                 },
-                icon: Icon(
-                  Icons.tune_rounded,
-                  color: scheme.outline,
-                  size: 18,
-                ),
+                icon: Icon(Icons.tune_rounded, color: scheme.outline, size: 18),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -319,9 +312,7 @@ class _SearchScreenState extends State<SearchScreen> {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: scheme.primary.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: scheme.primary.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -678,11 +669,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.school_rounded,
-                color: scheme.primary,
-                size: 20,
-              ),
+              Icon(Icons.school_rounded, color: scheme.primary, size: 20),
               const SizedBox(width: 6),
               Text(
                 'Popüler Üniversiteler',
@@ -759,9 +746,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   // Eski hardcode koyu yeşilin (#10382B)
                                   // tema uyumlu karşılığı: primary'nin
                                   // yumuşak tonu — iki temada da çalışır.
-                                  color: scheme.primary.withValues(
-                                    alpha: 0.15,
-                                  ),
+                                  color: scheme.primary.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
@@ -835,97 +820,111 @@ class _SearchScreenState extends State<SearchScreen> {
   void _showFilterBottomSheet(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
+    // Web'de (masaüstü tarayıcı) alttan kayan sheet yerine ekranın
+    // ortasında açılan kompakt diyalog — klasik web sitesi davranışı.
+    final Widget content = Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Arama Filtreleri',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: scheme.onSurface,
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.close_rounded, color: scheme.outline),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Sıralama',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: scheme.outline,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(
+            () => Wrap(
+              spacing: 8,
+              children: [
+                FilterChip(
+                  label: const Text('En Yeniler'),
+                  selected: controller.sortMode.value == SearchSortMode.newest,
+                  onSelected: (_) {
+                    controller.setSortMode(SearchSortMode.newest);
+                    Navigator.pop(context);
+                  },
+                  selectedColor: scheme.primary.withValues(alpha: 0.2),
+                  labelStyle: TextStyle(color: scheme.primary),
+                ),
+                FilterChip(
+                  label: const Text('En Çok İzlenenler'),
+                  selected:
+                      controller.sortMode.value == SearchSortMode.mostViewed,
+                  onSelected: (_) {
+                    controller.setSortMode(SearchSortMode.mostViewed);
+                    Navigator.pop(context);
+                  },
+                  selectedColor: scheme.primary.withValues(alpha: 0.2),
+                  labelStyle: TextStyle(color: scheme.primary),
+                ),
+                FilterChip(
+                  label: const Text('Canlı Yayınlar'),
+                  selected:
+                      controller.sortMode.value == SearchSortMode.liveOnly,
+                  onSelected: (_) {
+                    controller.setSortMode(SearchSortMode.liveOnly);
+                    Navigator.pop(context);
+                  },
+                  selectedColor: scheme.primary.withValues(alpha: 0.2),
+                  labelStyle: TextStyle(color: scheme.primary),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+
+    if (Responsive.isWeb(context)) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => Dialog(
+          backgroundColor: AppTheme.card(context),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: content,
+          ),
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Arama Filtreleri',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: scheme.onSurface,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: scheme.outline,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Sıralama',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: scheme.outline,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () => Wrap(
-                  spacing: 8,
-                  children: [
-                    FilterChip(
-                      label: const Text('En Yeniler'),
-                      selected:
-                          controller.sortMode.value == SearchSortMode.newest,
-                      onSelected: (_) {
-                        controller.setSortMode(SearchSortMode.newest);
-                        Navigator.pop(ctx);
-                      },
-                      selectedColor: scheme.primary.withValues(alpha: 0.2),
-                      labelStyle: TextStyle(color: scheme.primary),
-                    ),
-                    FilterChip(
-                      label: const Text('En Çok İzlenenler'),
-                      selected:
-                          controller.sortMode.value ==
-                          SearchSortMode.mostViewed,
-                      onSelected: (_) {
-                        controller.setSortMode(SearchSortMode.mostViewed);
-                        Navigator.pop(ctx);
-                      },
-                      selectedColor: scheme.primary.withValues(alpha: 0.2),
-                      labelStyle: TextStyle(color: scheme.primary),
-                    ),
-                    FilterChip(
-                      label: const Text('Canlı Yayınlar'),
-                      selected:
-                          controller.sortMode.value == SearchSortMode.liveOnly,
-                      onSelected: (_) {
-                        controller.setSortMode(SearchSortMode.liveOnly);
-                        Navigator.pop(ctx);
-                      },
-                      selectedColor: scheme.primary.withValues(alpha: 0.2),
-                      labelStyle: TextStyle(color: scheme.primary),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        );
-      },
+      builder: (_) => content,
     );
   }
 }

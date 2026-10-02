@@ -7,6 +7,9 @@ import '../../../../core/responsive.dart';
 class ForgotPasswordLayoutSpec {
   final bool isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca ForgotPasswordWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   // ── Eski hero/kart alanları (geriye dönük uyumluluk için korundu) ──
   final double heroHeight;
   final double heroIconBoxSize;
@@ -164,6 +167,10 @@ class ForgotPasswordLayoutSpec {
   });
 
   factory ForgotPasswordLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır.
+    if (Responsive.isWeb(context)) {
+      return const ForgotPasswordWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const ForgotPasswordLayoutSpec._(
         isTablet: true,
@@ -325,4 +332,96 @@ class ForgotPasswordLayoutSpec {
       linkVerticalPadding: 8,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan ölçüleri ezer.
+class ForgotPasswordWebLayoutSpec extends ForgotPasswordLayoutSpec {
+  const ForgotPasswordWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        // ── Eski alanlar ──
+        heroHeight: 360,
+        heroIconBoxSize: 88,
+        heroIconSize: 44,
+        heroIconRadius: 24,
+        heroTitleFontSize: 30,
+        heroSubtitleFontSize: 16,
+        heroTitleSpacing: 22,
+        heroSubtitleSpacing: 8,
+        backButtonSize: 24,
+        backButtonPadding: 12,
+        maxContentWidth: 480,
+        cardRadius: 32,
+        cardPaddingH: 40,
+        cardPaddingV: 36,
+        cardTopSpacing: 24,
+        // ── Nav bar ──
+        navVerticalPadding: 16,
+        navButtonSize: 44,
+        navIconSize: 22,
+        // ── Hero ──
+        heroTopSpacing: 20,
+        heroGlowSize: 128,
+        heroOuterSize: 92,
+        heroInnerSize: 64,
+        heroLockIconSize: 36,
+        heroBadgeSize: 28,
+        heroBadgeIconSize: 15,
+        heroStackToTitleSpacing: 28,
+        heroTitleToSubtitleSpacing: 6,
+        heroBottomSpacing: 28,
+        heroSubtitleMaxWidth: 380,
+        // ── Form ──
+        formGap: 28,
+        fieldLabelFontSize: 13,
+        fieldLabelGap: 5,
+        fieldFontSize: 15,
+        fieldIconSize: 22,
+        fieldRadius: 14,
+        fieldPaddingH: 18,
+        fieldPaddingV: 16,
+        clearButtonSize: 32,
+        clearIconSize: 18,
+        // ── Not ──
+        noteRadius: 14,
+        notePadding: 16,
+        noteGap: 12,
+        noteTitleFontSize: 11,
+        noteTextFontSize: 13,
+        noteIconSize: 22,
+        // ── Buton ──
+        buttonHeight: 52,
+        buttonRadius: 14,
+        buttonFontSize: 15,
+        buttonGap: 10,
+        buttonIconSize: 20,
+        loaderSize: 22,
+        loaderStroke: 2.5,
+        // ── Bildirim ──
+        alertRadius: 14,
+        alertPadding: 16,
+        alertGap: 12,
+        alertIconSize: 22,
+        alertTextFontSize: 13,
+        // ── Hata ──
+        errorFontSize: 14,
+        errorPadding: 14,
+        errorRadius: 14,
+        errorIconSize: 22,
+        errorMarginBottom: 18,
+        // ── Bağlantı ──
+        bottomLinkSpacing: 36,
+        linkFontSize: 13,
+        linkIconSize: 16,
+        linkGap: 8,
+        linkVerticalPadding: 10,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get maxContentWidth => 500;
 }

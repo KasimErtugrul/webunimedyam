@@ -27,6 +27,19 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        borderRadius: 12,
+        verticalPadding: 6,
+        fontSize: 16,
+        lineHeight: 1.35,
+        chevronSize: 22,
+        avatarSize: 44,
+        avatarSpacing: 12,
+        avatarIconSize: 22,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         borderRadius: 12,

@@ -15,7 +15,6 @@ import '../../../data/repositories/engagement_repository.dart';
 import '../../../data/repositories/favorites_repository.dart';
 import '../../../data/repositories/video_repository.dart';
 import '../../../data/repositories/watch_progress_repository.dart';
-import '../../../services/analytics_service.dart';
 import '../home/home_controller.dart';
 import '../player/watch_progress_tracker.dart';
 import '../settings_controller.dart';
@@ -138,11 +137,6 @@ class PlayerController extends GetxController {
       _loadInitialState();
       loadSuggestedVideos();
 
-      AnalyticsService.instance.logVideoPlay(
-        videoId: currentVideo.value!.videoId,
-        title: currentVideo.value!.title,
-      );
-
       await _progress.restore();
       _progress.start();
     });
@@ -154,13 +148,6 @@ class PlayerController extends GetxController {
     _initWatchdog = Timer(_playerInitWatchdogDuration, () {
       if (!isPlayerReady.value) {
         hasPlayerError.value = true;
-        AnalyticsService.instance.recordError(
-          TimeoutException(
-            'YouTube player $_playerInitWatchdogDuration içinde hazır olmadı (watchdog)',
-          ),
-          StackTrace.current,
-          reason: 'youtube_player_init_watchdog',
-        );
       }
     });
   }
@@ -209,11 +196,6 @@ class PlayerController extends GetxController {
       youtubeController!.setFullScreenListener(_onFullScreenChanged);
     } catch (e, st) {
       log('Player başlatılırken hata: $e', error: e, stackTrace: st);
-      AnalyticsService.instance.recordError(
-        e,
-        st,
-        reason: 'player_init_failed',
-      );
     }
   }
 
@@ -354,10 +336,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'like'},
-      );
+
       return;
     }
     if (isLikeLoading.value) return;
@@ -381,10 +360,6 @@ class PlayerController extends GetxController {
           video: currentVideo.value,
         );
       }
-      AnalyticsService.instance.logEvent(
-        wasLiked ? 'video_unlike' : 'video_like',
-        parameters: {'video_id': currentVideo.value!.videoId},
-      );
     } catch (e, st) {
       isLiked.value = wasLiked;
       appLikeCount.value += wasLiked ? 1 : -1;
@@ -401,10 +376,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'favorite'},
-      );
+
       return;
     }
     if (isFavoriteLoading.value) return;
@@ -430,10 +402,6 @@ class PlayerController extends GetxController {
         );
         await favoritesRepository.saveFavoriteVideoLocally(currentVideo.value!);
       }
-      AnalyticsService.instance.logFavorite(
-        videoId: currentVideo.value!.videoId,
-        added: wasAdding,
-      );
     } catch (e, st) {
       isFavorite.value = !wasAdding;
       appFavoriteCount.value += wasAdding ? -1 : 1;
@@ -468,10 +436,6 @@ class PlayerController extends GetxController {
         appShareCount.value += 1;
         _shareCountDeltaThisSession += 1;
       }
-      AnalyticsService.instance.logShare(
-        videoId: currentVideo.value!.videoId,
-        method: 'share_sheet',
-      );
     } catch (e, st) {
       log(
         'Paylaşım başarısız, panoya kopyalanıyor: $e',
@@ -480,10 +444,6 @@ class PlayerController extends GetxController {
       );
       await Clipboard.setData(ClipboardData(text: videoUrl));
       snackbarMessage.value = 'Video bağlantısı panoya kopyalandı.';
-      AnalyticsService.instance.logShare(
-        videoId: currentVideo.value!.videoId,
-        method: 'clipboard_fallback',
-      );
     } finally {
       isShareLoading.value = false;
     }
@@ -510,10 +470,7 @@ class PlayerController extends GetxController {
     final userId = currentUserId;
     if (userId == null) {
       showAuthRequired.value = true;
-      AnalyticsService.instance.logEvent(
-        'auth_wall_hit',
-        parameters: {'action': 'comment'},
-      );
+
       return;
     }
     if (content.trim().isEmpty) return;
@@ -526,10 +483,6 @@ class PlayerController extends GetxController {
       await loadComments();
       appCommentCount.value += 1;
       _commentCountDeltaThisSession += 1;
-      AnalyticsService.instance.logEvent(
-        'comment_add',
-        parameters: {'video_id': currentVideo.value!.videoId},
-      );
     } catch (e, st) {
       log('Yorum eklenirken hata: $e', error: e, stackTrace: st);
     }

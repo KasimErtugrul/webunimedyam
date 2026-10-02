@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import '../../data/repositories/video_repository.dart';
 import '../../data/models/video_engagement_model.dart';
-import '../../services/analytics_service.dart';
 
 export '../../data/repositories/video_repository.dart' show VideoSectionType;
 
@@ -44,10 +43,6 @@ class VideoSectionDetailController extends GetxController {
 
       // Hangi kürasyon bölümünün (trend/en çok izlenen/en çok beğenilen vb.)
       // "tümünü gör" ile en çok tıklandığını ölçmek için.
-      AnalyticsService.instance.logEvent('video_section_view', parameters: {
-        'section_type': sectionType.name,
-        'section_title': sectionTitle,
-      });
 
       // BUG FIX / İYİLEŞTİRME: Ana sayfa bu bölümün ilk 10 videosunu zaten
       // çekip bir Rx değişkende tutuyor. "Tümünü Gör"e basıldığında aynı
@@ -68,7 +63,11 @@ class VideoSectionDetailController extends GetxController {
 
       loadFirstPage();
     } catch (e, stacktrace) {
-      log('VideoSectionDetailController başlatılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'VideoSectionDetailController başlatılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Sayfa yüklenirken hata oluştu.';
     }
   }
@@ -82,7 +81,11 @@ class VideoSectionDetailController extends GetxController {
       _pageCache.clear();
       await _fetchPage();
     } catch (e, stacktrace) {
-      log('İlk sayfa yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'İlk sayfa yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Sayfa yüklenirken hata oluştu.';
     }
   }
@@ -122,7 +125,11 @@ class VideoSectionDetailController extends GetxController {
       items.addAll(result);
       _currentOffset += result.length;
     } catch (e, stacktrace) {
-      log('Sayfa verisi getirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Sayfa verisi getirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       // FIX: Hata olursa UI'a bildir. Kullanıcı "Yeniden Dene" butonu görebilir.
       errorMessage.value = 'Daha fazla video yüklenirken hata oluştu.';
     } finally {
@@ -136,12 +143,17 @@ class VideoSectionDetailController extends GetxController {
   Future<void> retry() async {
     try {
       // Cache'deki son sayfayı temizle ve tekrar dene
-      if (_currentOffset > 0 && _pageCache.containsKey(_currentOffset - _pageSize)) {
+      if (_currentOffset > 0 &&
+          _pageCache.containsKey(_currentOffset - _pageSize)) {
         _pageCache.remove(_currentOffset - _pageSize);
       }
       await _fetchPage();
     } catch (e, stacktrace) {
-      log('Yeniden deneme sırasında hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Yeniden deneme sırasında hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Yeniden yüklenirken hata oluştu.';
     }
   }

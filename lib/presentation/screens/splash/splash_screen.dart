@@ -33,8 +33,10 @@ class SplashScreen extends StatelessWidget {
     // Controller'ı başlat (lazy init tetiklenir; yönlendirme oradan yönetilir)
     Get.find<SplashController>();
 
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final SplashSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final SplashSizes sizes = Responsive.isWeb(context)
+        ? const SplashWebSizes()
+        : Responsive.isTablet(context)
         ? const SplashTabletSizes()
         : const SplashPhoneSizes();
 
@@ -119,7 +121,9 @@ class _AmbientGlowLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final sizes = Responsive.isTablet(context)
+    final sizes = Responsive.isWeb(context)
+        ? const SplashWebSizes()
+        : Responsive.isTablet(context)
         ? const SplashTabletSizes()
         : const SplashPhoneSizes();
 

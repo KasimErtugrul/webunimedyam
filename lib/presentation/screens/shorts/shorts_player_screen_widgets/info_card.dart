@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../utils/shorts_player_sizes.dart';
 
 class ShortsPlayerInfoCard extends StatelessWidget {
@@ -71,7 +72,10 @@ class ShortsPlayerInfoCard extends StatelessWidget {
                               color: Colors.white54,
                             ),
                           )
-                        : const Icon(Icons.school_rounded, color: Colors.white54),
+                        : const Icon(
+                            Icons.school_rounded,
+                            color: Colors.white54,
+                          ),
                   ),
                 ),
               ),
@@ -116,7 +120,7 @@ class ShortsPlayerInfoCard extends StatelessWidget {
                 ),
               ),
               SizedBox(width: sizes.cardPadding * 0.5),
-              GestureDetector(
+              TapCursor(
                 onTap: onToggleFollow,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
@@ -169,7 +173,10 @@ class ShortsPlayerInfoCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(sizes.ctaRadius),
                 ),
               ),
-              icon: Icon(Icons.play_circle_fill_rounded, size: sizes.ctaIconSize),
+              icon: Icon(
+                Icons.play_circle_fill_rounded,
+                size: sizes.ctaIconSize,
+              ),
               label: Text(
                 'Videoyu Tam İzle',
                 style: TextStyle(

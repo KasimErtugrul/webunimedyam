@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../../../../../data/models/video_engagement_model.dart';
 import '../util/video_section_detail_screen_functions.dart';
 import '../util/video_section_detail_screen_sizes.dart';
@@ -25,7 +26,7 @@ class VideoSectionDetailScreenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: item.toVideoModel(),
@@ -144,9 +145,7 @@ class VideoSectionDetailScreenCard extends StatelessWidget {
                   ),
                   SizedBox(height: sizes.titleSpacing),
                   Text(
-                    VideoSectionDetailScreenFunctions.timeAgo(
-                      item.publishedAt,
-                    ),
+                    VideoSectionDetailScreenFunctions.timeAgo(item.publishedAt),
                     style: TextStyle(
                       color: AppTheme.textSec(context),
                       fontSize: sizes.dateFontSize,

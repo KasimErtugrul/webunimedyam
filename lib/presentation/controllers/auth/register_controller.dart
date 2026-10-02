@@ -5,17 +5,14 @@ import '../../../app/routes/app_routes.dart';
 import '../../../core/errors/auth_exceptions.dart';
 import '../../../core/errors/username_taken_exception.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../services/analytics_service.dart';
 import '../../../services/session_service.dart';
-
-const String _kAuthMethod = 'email';
 
 class RegisterController extends GetxController {
   RegisterController({
     required AuthRepository authRepository,
     required SessionService sessionService,
-  })  : _repo = authRepository,
-        _session = sessionService;
+  }) : _repo = authRepository,
+       _session = sessionService;
 
   final AuthRepository _repo;
   final SessionService _session;
@@ -49,22 +46,14 @@ class RegisterController extends GetxController {
       }
 
       await _session.onLogin();
-      AnalyticsService.instance.logSignUp(method: _kAuthMethod);
+
       Get.offAllNamed(AppRoutes.home);
     } on UsernameTakenException {
       errorMessage.value =
           'Bu kullanıcı adı zaten alınmış. Lütfen başka bir tane deneyin.';
-      AnalyticsService.instance.logEvent(
-        'sign_up_failed',
-        parameters: {'method': _kAuthMethod, 'reason': 'username_taken'},
-      );
     } on AuthFailure catch (e) {
       // Ör. "Bu e-posta ile zaten hesap var"
       errorMessage.value = e.message;
-      AnalyticsService.instance.logEvent(
-        'sign_up_failed',
-        parameters: {'method': _kAuthMethod, 'reason': 'email_exists'},
-      );
     } on AuthRateLimitException catch (e) {
       errorMessage.value = e.toString();
     } on AuthNetworkException catch (e) {
@@ -72,10 +61,6 @@ class RegisterController extends GetxController {
     } catch (e, st) {
       log('signUp failed: $e', error: e, stackTrace: st);
       errorMessage.value = 'Kayıt başarısız. Bilgilerinizi kontrol edin.';
-      AnalyticsService.instance.logEvent(
-        'sign_up_failed',
-        parameters: {'method': _kAuthMethod},
-      );
     } finally {
       isLoading.value = false;
     }

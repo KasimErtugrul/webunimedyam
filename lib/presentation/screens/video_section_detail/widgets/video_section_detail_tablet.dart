@@ -13,6 +13,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../data/models/video_engagement_model.dart';
 import '../../../controllers/video_section_detail_controller.dart';
 import '../../home/tabs/home_tab/videos/video_sections_config.dart';
@@ -99,8 +100,9 @@ class VideoSectionDetailTabletGrid extends StatelessWidget {
                   final double available = constraints.crossAxisExtent;
                   const double targetItemWidth = 300;
                   const double gap = 16;
-                  final int crossAxisCount =
-                      (available / targetItemWidth).floor().clamp(1, 4);
+                  final int crossAxisCount = (available / targetItemWidth)
+                      .floor()
+                      .clamp(1, 4);
                   final double itemWidth =
                       (available - (crossAxisCount - 1) * gap) / crossAxisCount;
                   // 16:9 thumbnail + başlık/kanal/chip/tarih bloğu.
@@ -182,7 +184,7 @@ class _VideoSectionDetailTabletCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: item.toVideoModel(),
@@ -311,6 +313,9 @@ class _VideoSectionDetailTabletCard extends StatelessWidget {
 class _TabletChipSizes implements VideoSectionDetailSizes {
   static const _TabletChipSizes instance = _TabletChipSizes();
   const _TabletChipSizes();
+
+  @override
+  bool get isWeb => false;
 
   @override
   double get statIconSize => 13;

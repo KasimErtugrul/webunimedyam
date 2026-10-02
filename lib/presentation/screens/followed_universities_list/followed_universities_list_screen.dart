@@ -8,14 +8,15 @@ import 'utils/followed_universities_list_sizes.dart';
 import 'widgets/list_card.dart';
 import 'widgets/list_empty_view.dart';
 
-
 class FollowedUniversitiesListScreen extends StatelessWidget {
   const FollowedUniversitiesListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // KURAL 5 — TEK DALLANMA NOKTASI
-    final FollowedUniversitiesListSizes sizes = Responsive.isTablet(context)
+    // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+    final FollowedUniversitiesListSizes sizes = Responsive.isWeb(context)
+        ? const FollowedUniversitiesListWebSizes()
+        : Responsive.isTablet(context)
         ? const FollowedUniversitiesListTabletSizes()
         : const FollowedUniversitiesListPhoneSizes();
 
@@ -46,17 +47,22 @@ class FollowedUniversitiesListScreen extends StatelessWidget {
         return RefreshIndicator(
           color: AppTheme.primaryColor,
           onRefresh: controller.load,
-          child: ListView.builder(
-            padding: EdgeInsets.symmetric(
-              horizontal: sizes.listPaddingHorizontal,
-              vertical: sizes.listPaddingVertical,
-            ),
-            itemCount: controller.universities.length,
-            itemBuilder: (context, index) =>
-                FollowedUniversitiesListCard(
+          // WEB: liste çok geniş ekranlarda kenarlara yayılmasın.
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: sizes.listPaddingHorizontal,
+                  vertical: sizes.listPaddingVertical,
+                ),
+                itemCount: controller.universities.length,
+                itemBuilder: (context, index) => FollowedUniversitiesListCard(
                   sizes: sizes,
                   university: controller.universities[index],
                 ),
+              ),
+            ),
           ),
         );
       }),

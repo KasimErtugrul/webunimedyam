@@ -7,6 +7,11 @@ abstract class UniversityStatsSectionDetailSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca UniversityStatsSectionDetailWebSizes
+  /// true döner. (Masaüstünde isTablet da true kalır: web, tablet
+  /// ölçeklerini temel alır, yalnızca farklılaşanları ezer.)
+  bool get isWeb => false;
+
   // AppBar
   double get appBarIconSize;
   double get appBarTitleSize;
@@ -210,4 +215,19 @@ class UniversityStatsSectionDetailTabletSizes
   double get errorTextSpacing => 14;
   @override
   double get errorButtonSpacing => 18;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; ızgara gövdesi zaten max-w-[1140px]
+/// ile ortalandığı için yalnızca kanal kartı tipografisini masaüstü
+/// yoğunluğuna göre büyütür.
+class UniversityStatsSectionDetailWebSizes
+    extends UniversityStatsSectionDetailTabletSizes {
+  const UniversityStatsSectionDetailWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get appBarTitleSize => 21;
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../register_layout_spec.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 
 /// Koşullar checkbox'ı — 20x20 kutu, işaretliyken bg-primary + check,
 /// metinde altı çizili "Kullanım Koşulları" / "Gizlilik Politikası".
@@ -44,7 +45,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Özel checkbox
-              GestureDetector(
+              TapCursor(
                 onTap: () => onChanged(!value),
                 child: Padding(
                   // mt-0.5 → metinle hizalı
@@ -54,8 +55,9 @@ class RegisterTermsCheckbox extends StatelessWidget {
                     width: s.termsBoxSize,
                     height: s.termsBoxSize,
                     decoration: BoxDecoration(
-                      color:
-                          value ? scheme.primary : scheme.surfaceContainerHigh,
+                      color: value
+                          ? scheme.primary
+                          : scheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(s.termsBoxRadius),
                       border: showError
                           ? Border.all(color: scheme.error, width: 1.4)
@@ -138,7 +140,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
 
     return WidgetSpan(
       alignment: PlaceholderAlignment.middle,
-      child: GestureDetector(
+      child: TapCursor(
         onTap: callback ?? fallback, // ✅ VoidCallback ?? VoidCallback → geçerli
         behavior: HitTestBehavior.opaque,
         child: Text(

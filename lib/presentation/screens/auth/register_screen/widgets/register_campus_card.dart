@@ -3,9 +3,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../register_layout_spec.dart';
-
-
 
 /// Akademik Durum — Smart Expandable Card:
 /// başlık satırı (ikon + seçim etiketleri + dönen chevron),
@@ -38,12 +37,18 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
 
   static const List<({String value, String label})> _universities = [
     (value: 'Boğaziçi Üniversitesi', label: 'Boğaziçi Üniversitesi (BÜTV)'),
-    (value: 'İstanbul Teknik Üniversitesi',
-        label: 'İstanbul Teknik Üniversitesi (İTÜ Medya)'),
-    (value: 'Orta Doğu Teknik Üniversitesi',
-        label: 'Orta Doğu Teknik Üniversitesi (ODTÜ)'),
-    (value: 'Yıldız Teknik Üniversitesi',
-        label: 'Yıldız Teknik Üniversitesi (YTÜ)'),
+    (
+      value: 'İstanbul Teknik Üniversitesi',
+      label: 'İstanbul Teknik Üniversitesi (İTÜ Medya)',
+    ),
+    (
+      value: 'Orta Doğu Teknik Üniversitesi',
+      label: 'Orta Doğu Teknik Üniversitesi (ODTÜ)',
+    ),
+    (
+      value: 'Yıldız Teknik Üniversitesi',
+      label: 'Yıldız Teknik Üniversitesi (YTÜ)',
+    ),
     (value: 'Ankara Üniversitesi', label: 'Ankara Üniversitesi (İLEF)'),
     (value: 'Ege Üniversitesi', label: 'Ege Üniversitesi (Ege TV Kampüs)'),
     (value: 'Diğer / Kampüs Dışı', label: 'Diğer Üniversite / Liste Dışı'),
@@ -99,8 +104,9 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
                       height: s.campusIconBoxSize,
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerHigh,
-                        borderRadius:
-                            BorderRadius.circular(s.campusIconBoxRadius),
+                        borderRadius: BorderRadius.circular(
+                          s.campusIconBoxRadius,
+                        ),
                       ),
                       child: Icon(
                         Icons.account_balance_rounded,
@@ -115,8 +121,7 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            widget.selectedUniversity ??
-                                'Üniversiteni Seç',
+                            widget.selectedUniversity ?? 'Üniversiteni Seç',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -199,8 +204,7 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
                                 _ => Icons.person_rounded,
                               },
                               active: widget.selectedStatus == _statuses[i],
-                              onTap: () => widget
-                                  .onStatusChanged(_statuses[i]),
+                              onTap: () => widget.onStatusChanged(_statuses[i]),
                             ),
                           ],
                         ],
@@ -212,8 +216,7 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
                     Container(
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerHigh,
-                        borderRadius:
-                            BorderRadius.circular(s.dropdownRadius),
+                        borderRadius: BorderRadius.circular(s.dropdownRadius),
                       ),
                       padding: EdgeInsets.symmetric(
                         horizontal: s.dropdownHPadding,
@@ -223,8 +226,7 @@ class _RegisterCampusCardState extends State<RegisterCampusCard> {
                           value: widget.selectedUniversity,
                           isExpanded: true,
                           dropdownColor: scheme.surfaceContainerHigh,
-                          borderRadius:
-                              BorderRadius.circular(s.dropdownRadius),
+                          borderRadius: BorderRadius.circular(s.dropdownRadius),
                           icon: Icon(
                             Icons.unfold_more_rounded,
                             size: s.dropdownIconSize,
@@ -288,7 +290,7 @@ class _StatusChip extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final s = sizes;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(

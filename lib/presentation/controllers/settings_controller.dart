@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_settings_model.dart';
-import '../../services/analytics_service.dart';
 import 'auth/session_controller.dart';
 import 'profile_controller.dart';
 
@@ -48,9 +47,7 @@ class SettingsController extends GetxService {
   UserSettingsModel _ensureSettings() {
     final s = settings.value;
     if (s != null) return s;
-    final fresh = UserSettingsModel(
-      userId: authRepository.currentUserId ?? '',
-    );
+    final fresh = UserSettingsModel(userId: authRepository.currentUserId ?? '');
     settings.value = fresh;
     return fresh;
   }
@@ -63,8 +60,7 @@ class SettingsController extends GetxService {
     return true;
   }
 
-
- // ═════ Oynatma/bildirim ek tercihleri — MODEL'e bağlı (kalıcı) ═════
+  // ═════ Oynatma/bildirim ek tercihleri — MODEL'e bağlı (kalıcı) ═════
 
   /// [value] model değeridir: 'auto' | '360p' | '480p' | '720p' | '1080p'
   Future<void> changeVideoQuality(String value) async {
@@ -72,8 +68,11 @@ class SettingsController extends GetxService {
       final c = _ensureSettings();
       await _updateSettings(c.copyWith(videoQuality: value));
     } catch (e, stacktrace) {
-      log('Video kalitesi değiştirilirken hata: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Video kalitesi değiştirilirken hata: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
@@ -81,10 +80,15 @@ class SettingsController extends GetxService {
   Future<void> toggleSubtitles([bool? value]) async {
     try {
       final c = _ensureSettings();
-      await _updateSettings(c.copyWith(showSubtitles: value ?? !c.showSubtitles));
+      await _updateSettings(
+        c.copyWith(showSubtitles: value ?? !c.showSubtitles),
+      );
     } catch (e, stacktrace) {
-      log('Altyazı tercihi değiştirilirken hata: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Altyazı tercihi değiştirilirken hata: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
@@ -92,10 +96,15 @@ class SettingsController extends GetxService {
   Future<void> toggleReduceMotion([bool? value]) async {
     try {
       final c = _ensureSettings();
-      await _updateSettings(c.copyWith(reducedMotion: value ?? !c.reducedMotion));
+      await _updateSettings(
+        c.copyWith(reducedMotion: value ?? !c.reducedMotion),
+      );
     } catch (e, stacktrace) {
-      log('Hareketi azalt değiştirilirken hata: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Hareketi azalt değiştirilirken hata: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
@@ -107,8 +116,11 @@ class SettingsController extends GetxService {
         c.copyWith(notifyCommentReplies: value ?? !c.notifyCommentReplies),
       );
     } catch (e, stacktrace) {
-      log('Etkileşim bildirimi değiştirilirken hata: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Etkileşim bildirimi değiştirilirken hata: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       errorMessage.value = 'Ayar güncellenemedi.';
     }
   }
@@ -142,12 +154,7 @@ class SettingsController extends GetxService {
       }
 
       final loadedTheme = settings.value?.theme;
-      if (loadedTheme != null) {
-        AnalyticsService.instance.setUserProperty(
-          name: 'app_theme',
-          value: loadedTheme,
-        );
-      }
+      if (loadedTheme != null) {}
     } catch (e, stacktrace) {
       log(
         'Ayarlar yüklenirken hata oluştu: $e',
@@ -202,13 +209,15 @@ class SettingsController extends GetxService {
         theme == 'dark'
             ? ThemeMode.dark
             : theme == 'light'
-                ? ThemeMode.light
-                : ThemeMode.system,
+            ? ThemeMode.light
+            : ThemeMode.system,
       );
-      AnalyticsService.instance.setUserProperty(name: 'app_theme', value: theme);
     } catch (e, stacktrace) {
-      log('Hesap teması uygulanırken hata oluştu: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Hesap teması uygulanırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -218,19 +227,11 @@ class SettingsController extends GetxService {
       await _updateSettings(current.copyWith(theme: theme));
       await authRepository.saveThemeLocally(theme);
 
-      AnalyticsService.instance.logEvent('theme_change', parameters: {
-        'theme': theme,
-      });
-      AnalyticsService.instance.setUserProperty(
-        name: 'app_theme',
-        value: theme,
-      );
-
       final mode = theme == 'dark'
           ? ThemeMode.dark
           : theme == 'light'
-              ? ThemeMode.light
-              : ThemeMode.system;
+          ? ThemeMode.light
+          : ThemeMode.system;
       Get.changeThemeMode(mode);
     } catch (e, stacktrace) {
       log(
@@ -255,10 +256,6 @@ class SettingsController extends GetxService {
       if (current != null) {
         await _updateSettings(current.copyWith(homeLayout: layout));
       }
-
-      AnalyticsService.instance.logEvent('home_layout_change', parameters: {
-        'layout': layout,
-      });
     } catch (e, stacktrace) {
       homeLayout.value = old; // Rollback
       log(
@@ -327,7 +324,7 @@ class SettingsController extends GetxService {
   /// FIX: `settings.value == null` guard'ı KALDIRILDI — bu ayar user_settings
   /// ile değil profiles tablosuyla ilgilidir; ayar satırı olmasa bile
   /// çalışabilmeli.
-    Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
+  Future<void> changeProfileVisibility(VisibilityOption newVisibility) async {
     final userId = authRepository.currentUserId;
     if (userId == null) {
       errorMessage.value = 'Bu ayar için giriş yapmalısınız.';
@@ -457,7 +454,7 @@ class SettingsController extends GetxService {
     }
   }
 
-// ═════ Önbellek rozeti (tasarım: "124 MB temizle" → "Temizlendi (0 KB)") ═════
+  // ═════ Önbellek rozeti (tasarım: "124 MB temizle" → "Temizlendi (0 KB)") ═════
 
   /// Rozet flash durumu: temizleme başarılı olduğunda 2 saniye boyunca
   /// "Temizlendi (0 KB)" gösterir, sonra eski haline döner.
@@ -472,7 +469,7 @@ class SettingsController extends GetxService {
     cacheBadgeCleared.value = true;
     Timer(const Duration(seconds: 2), () => cacheBadgeCleared.value = false);
   }
-  
+
   // ─── Cache ────────────────────────────────────────────────────────────────
 
   Future<void> clearCache() async {

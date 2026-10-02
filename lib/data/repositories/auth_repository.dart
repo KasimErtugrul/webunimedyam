@@ -3,7 +3,6 @@
 import 'dart:developer';
 import 'dart:typed_data';
 import 'package:get/get.dart';
-import '../../services/analytics_service.dart';
 import '../../core/errors/auth_exceptions.dart';
 import '../../core/errors/username_taken_exception.dart';
 import '../../core/utils/username_generator.dart';
@@ -110,8 +109,10 @@ class AuthRepository {
       // GoTrue çakışmayı "Database error saving new user" olarak sakladığı
       // için sebebi tahmin etmek yerine sorgulayıp KESİN öğreniyoruz.
       try {
-        final available =
-            await _supabase.isUsernameAvailable(username, email: email);
+        final available = await _supabase.isUsernameAvailable(
+          username,
+          email: email,
+        );
         if (!available) throw const UsernameTakenException();
       } on UsernameTakenException {
         rethrow;
@@ -175,7 +176,6 @@ class AuthRepository {
       // Sözleşme, kayıt formunda tikle onaylandı; hesap doğrulandığı an
       // (oturum kuruldu) zaman + sürüm olarak sunucuya kaydedilir.
       await recordTermsAcceptance();
-      await AnalyticsService.instance.logSignUp(method: 'email');
     } catch (e, stacktrace) {
       log(
         'Email OTP doğrulanırken hata oluştu: $e',
@@ -256,10 +256,6 @@ class AuthRepository {
       if (isNewUser) {
         await recordTermsAcceptance();
       }
-      AnalyticsService.instance.logEvent(
-        isNewUser ? 'sign_up' : 'login',
-        parameters: {'method': 'google'},
-      );
 
       // Google, handle_new_user trigger'ının okuduğu 'username' alanını
       // hiç göndermiyor (sadece 'full_name'/'avatar_url' geliyor). Bu
@@ -284,7 +280,11 @@ class AuthRepository {
 
       return isNewUser;
     } catch (e, stacktrace) {
-      log('Google ile giriş yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Google ile giriş yapılırken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow;
     }
   }
@@ -319,9 +319,7 @@ class AuthRepository {
 
     // maxAttempts denemede de tutturamadıysak sessizce vazgeçiyoruz;
     // kullanıcı 'Anonim' görünmeye devam eder ama uygulama akışı bozulmaz.
-    log(
-      'Otomatik kullanıcı adı $maxAttempts denemede atanamadı (base: $base)',
-    );
+    log('Otomatik kullanıcı adı $maxAttempts denemede atanamadı (base: $base)');
   }
 
   // ─── Şifre Değiştirme (oturum açıkken) ─────────────────────────────────
@@ -344,7 +342,11 @@ class AuthRepository {
       );
       await _supabase.updatePassword(newPassword: newPassword);
     } catch (e, stacktrace) {
-      log('Şifre değiştirilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Şifre değiştirilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow;
     }
   }
@@ -355,8 +357,11 @@ class AuthRepository {
     try {
       await _supabase.sendPasswordResetOtp(email: email);
     } catch (e, stacktrace) {
-      log('Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Şifre sıfırlama kodu gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow;
     }
   }
@@ -372,7 +377,11 @@ class AuthRepository {
     try {
       await _supabase.verifyPasswordResetOtp(email: email, token: otp);
     } catch (e, stacktrace) {
-      log('Şifre sıfırlama kodu doğrulanamadı: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Şifre sıfırlama kodu doğrulanamadı: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow;
     }
   }
@@ -404,8 +413,11 @@ class AuthRepository {
     try {
       await _supabase.resendPasswordResetOtp(email: email);
     } catch (e, stacktrace) {
-      log('Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
-          error: e, stackTrace: stacktrace);
+      log(
+        'Şifre sıfırlama kodu tekrar gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       rethrow;
     }
   }
@@ -451,7 +463,6 @@ class AuthRepository {
       }
 
       await _supabase.signOut();
-      await AnalyticsService.instance.logLogout();
     } catch (e, stacktrace) {
       log('Çıkış yapılırken hata oluştu: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -542,8 +553,6 @@ class AuthRepository {
       rethrow;
     }
   }
-
- 
 
   Future<void> updateUserSettings(UserSettingsModel settings) async {
     try {

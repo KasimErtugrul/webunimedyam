@@ -9,7 +9,6 @@ import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/profile/edit_profile_screen.dart';
 import '../../presentation/screens/profile_activity_list/profile_activity_list_screen.dart';
 import '../../presentation/screens/followed_universities_list/followed_universities_list_screen.dart';
-import '../../presentation/screens/radio/radio_page.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../../presentation/screens/auth/login_screen/login_screen.dart';
 import '../../presentation/screens/auth/register_screen/register_screen.dart';
@@ -61,9 +60,7 @@ abstract class AppPages {
       name: AppRoutes.player,
       page: () => const PlayerScreen(),
       binding: PlayerBinding(),
-      parameters: {
-        'videoId': Get.parameters['videoId'] ?? '',
-      },
+      parameters: {'videoId': Get.parameters['videoId'] ?? ''},
     ),
     GetPage(
       name: AppRoutes.profile,
@@ -71,10 +68,7 @@ abstract class AppPages {
       binding: ProfileBinding(),
       preventDuplicates: false,
     ),
-    GetPage(
-      name: AppRoutes.editProfile,
-      page: () => const EditProfileScreen(),
-    ),
+    GetPage(name: AppRoutes.editProfile, page: () => const EditProfileScreen()),
     GetPage(
       name: AppRoutes.profileActivityList,
       page: () => const ProfileActivityListScreen(),
@@ -178,8 +172,5 @@ abstract class AppPages {
       page: () => const SimpleShortsPlayerScreen(),
       transition: Transition.downToUp,
     ),
-    GetPage(name: AppRoutes.radio, page: () => const RadioPage()),
-   
-   
   ];
 }

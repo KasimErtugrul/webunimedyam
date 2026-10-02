@@ -18,6 +18,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
+import '../../../../../../core/widgets/hover_tap.dart';
 import '../../../../../../data/models/video_model.dart';
 import '../../../../../controllers/home/home_controller.dart';
 
@@ -131,7 +132,7 @@ class VideoGridCardWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // ── Küçük Resim ─────────────────────────────────────
-          GestureDetector(
+          TapCursor(
             onTap: isUpcoming
                 ? () => showDialog(
                     context: context,
@@ -199,19 +200,13 @@ class VideoGridCardWidget extends StatelessWidget {
                     const Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
-                      child: _Badge(
-                        label: 'CANLI',
-                        color: Color(0xFFE53935),
-                      ),
+                      child: _Badge(label: 'CANLI', color: Color(0xFFE53935)),
                     ),
                   if (isUpcoming)
                     const Positioned(
                       top: _Sizes.thumbBadgeTop,
                       left: _Sizes.thumbBadgeLeft,
-                      child: _Badge(
-                        label: 'YAKINDA',
-                        color: Color(0xFF5C6BC0),
-                      ),
+                      child: _Badge(label: 'YAKINDA', color: Color(0xFF5C6BC0)),
                     ),
                   if (!isLive)
                     Positioned(
@@ -268,7 +263,7 @@ class VideoGridCardWidget extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
+                    TapCursor(
                       onTap: () => _navigateToUniversityDetail(controller),
                       child: ClipOval(
                         child: SizedBox(
@@ -280,7 +275,7 @@ class VideoGridCardWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: _Sizes.avatarSpacing),
                     Expanded(
-                      child: GestureDetector(
+                      child: TapCursor(
                         onTap: () => _navigateToUniversityDetail(controller),
                         child: Text(
                           '${video.universityName ?? video.channelTitle} • ${timeago.format(video.publishedAt, locale: 'tr')}',
@@ -295,13 +290,44 @@ class VideoGridCardWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: _Sizes.avatarSpacing / 2),
-                    GestureDetector(
-                      onTap: () => _showVideoOptionsSheet(context, controller),
-                      child: Icon(
+                    // Üç nokta menü — web'de tıklama noktasından açılan
+                    // popup (bottom sheet'in web karşılığı).
+                    PopupMenuButton<String>(
+                      tooltip: 'Seçenekler',
+                      icon: Icon(
                         Icons.more_vert_rounded,
                         color: AppTheme.textSec(context),
                         size: _Sizes.menuIconSize,
                       ),
+                      onSelected: (value) {
+                        if (value == 'university') {
+                          _navigateToUniversityDetail(controller);
+                        } else if (value == 'share') {
+                          controller.shareVideo(video);
+                        }
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(
+                          value: 'university',
+                          child: Row(
+                            children: [
+                              Icon(Icons.school_rounded, size: 20),
+                              SizedBox(width: 10),
+                              Text('Üniversiteye Git'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'share',
+                          child: Row(
+                            children: [
+                              Icon(Icons.share_rounded, size: 20),
+                              SizedBox(width: 10),
+                              Text('Paylaş'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -362,7 +388,7 @@ class VideoGridCardWidget extends StatelessWidget {
                                   );
                               final likeCount =
                                   liveVideo?.appLikeCount ?? video.appLikeCount;
-                              return GestureDetector(
+                              return TapCursor(
                                 onTap: () =>
                                     controller.toggleLike(video.videoId),
                                 child: _MiniStat(
@@ -377,7 +403,7 @@ class VideoGridCardWidget extends StatelessWidget {
                               );
                             }),
                             const SizedBox(width: _Sizes.actionRowSpacing),
-                            GestureDetector(
+                            TapCursor(
                               onTap: _openPlayer,
                               child: Obx(() {
                                 final hasCommented = controller
@@ -407,7 +433,7 @@ class VideoGridCardWidget extends StatelessWidget {
                       final isFav = controller.favoriteIds.contains(
                         video.videoId,
                       );
-                      return GestureDetector(
+                      return TapCursor(
                         onTap: () => controller.toggleFavorite(video.videoId),
                         child: Icon(
                           isFav
@@ -448,70 +474,6 @@ class VideoGridCardWidget extends StatelessWidget {
           : _AvatarFallback(context: context);
     });
   }
-
-  void _showVideoOptionsSheet(BuildContext context, HomeController controller) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppTheme.card(context),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.textSec(context).withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 10),
-              ListTile(
-                leading: Icon(
-                  Icons.school_rounded,
-                  color: AppTheme.textPri(context),
-                ),
-                title: Text(
-                  'Üniversiteye Git',
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  _navigateToUniversityDetail(controller);
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.share_rounded,
-                  color: AppTheme.textPri(context),
-                ),
-                title: Text(
-                  'Paylaş',
-                  style: TextStyle(
-                    color: AppTheme.textPri(context),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  controller.shareVideo(video);
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -538,7 +500,11 @@ class _Badge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.circle, color: Colors.white, size: _Sizes.badgeDotSize),
+          const Icon(
+            Icons.circle,
+            color: Colors.white,
+            size: _Sizes.badgeDotSize,
+          ),
           const SizedBox(width: _Sizes.badgeDotSpacing),
           Text(
             label,

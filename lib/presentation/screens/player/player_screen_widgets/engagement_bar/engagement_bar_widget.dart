@@ -21,6 +21,15 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        containerPaddingH: 12,
+        containerPaddingV: 8,
+        actionSpacing: 12,
+        maxWidth: 560,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         containerPaddingH: 12,

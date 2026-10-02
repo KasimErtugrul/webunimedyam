@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/themes/app_theme.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../utils/singup_preferences_sizes.dart';
 
 /// Ortak "seçilebilir kart" — tasarım diline göre:
@@ -37,7 +38,7 @@ class OptionCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final s = sizes;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
@@ -83,9 +84,7 @@ class OptionCard extends StatelessWidget {
                   child: Icon(
                     icon,
                     size: s.optionIconSize,
-                    color: selected
-                        ? scheme.primary
-                        : scheme.onSurfaceVariant,
+                    color: selected ? scheme.primary : scheme.onSurfaceVariant,
                   ),
                 ),
                 SizedBox(width: s.headerGap),
@@ -118,8 +117,7 @@ class OptionCard extends StatelessWidget {
                                 vertical: s.optionBadgeVPadding,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    scheme.primary.withValues(alpha: 0.15),
+                                color: scheme.primary.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(
                                   AppTheme.radiusFull,
                                 ),
@@ -130,8 +128,7 @@ class OptionCard extends StatelessWidget {
                                   color: scheme.primary,
                                   fontSize: s.optionBadgeFontSize,
                                   fontWeight: FontWeight.w700,
-                                  letterSpacing:
-                                      0.04 * s.optionBadgeFontSize,
+                                  letterSpacing: 0.04 * s.optionBadgeFontSize,
                                 ),
                               ),
                             ),
@@ -189,9 +186,7 @@ class _RadioIndicator extends StatelessWidget {
       width: s.radioSize,
       height: s.radioSize,
       decoration: BoxDecoration(
-        color: selected
-            ? scheme.primary
-            : scheme.surfaceContainerHighest,
+        color: selected ? scheme.primary : scheme.surfaceContainerHighest,
         shape: BoxShape.circle,
         boxShadow: selected
             ? [

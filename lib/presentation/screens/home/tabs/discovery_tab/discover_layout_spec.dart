@@ -15,6 +15,9 @@ import '../../../../../../core/responsive.dart';
 class DiscoverLayoutSpec {
   final bool isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca DiscoverWebLayoutSpec true döner.
+  bool get isWeb => false;
+
   // ── Hero (mevcut) ──
   final double heroHPadding;
   final double heroTopPadding;
@@ -296,6 +299,11 @@ class DiscoverLayoutSpec {
   });
 
   factory DiscoverLayoutSpec.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet yerleşimini temel alır;
+    // masaüstünde bölüm şeritleri ve hub kartı daha nefesli ölçeklenir.
+    if (Responsive.isWeb(context)) {
+      return const DiscoverWebLayoutSpec._();
+    }
     if (Responsive.isTablet(context)) {
       return const DiscoverLayoutSpec._(
         isTablet: true,
@@ -559,4 +567,169 @@ class DiscoverLayoutSpec {
       leaderboardColumnGap: 10,
     );
   }
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+///
+/// Tablet değerlerini super'e aynen aktarır; yalnızca web'de
+/// farklılaşan sayfa-seviyesi ölçüleri ezer: bölüm şeritleri ve hub
+/// kartı masaüstünde daha geniş pad'lerle nefes alır. Kart içi
+/// ölçüler tablet değerde kalır (kart genişliği şerit yüksekliğiyle
+/// sınırlı, büyütmek görsel dengesizlik yaratır).
+class DiscoverWebLayoutSpec extends DiscoverLayoutSpec {
+  const DiscoverWebLayoutSpec._()
+    : super._(
+        isTablet: true,
+        // ── mevcut alanlar (aynen) ──
+        heroHPadding: 24,
+        heroTopPadding: 24,
+        heroIconSize: 52,
+        heroIconInner: 28,
+        heroIconRadius: 16,
+        heroTitleFontSize: 30,
+        heroSubtitleFontSize: 14,
+        heroTitleSpacing: 20,
+        heroSubtitleSpacing: 2,
+        heroBottomPadding: 22,
+        tabBarHeight: 52,
+        tabBarFontSize: 15,
+        tabBarRadius: 16,
+        tabBarHPadding: 12,
+        contentTopPadding: 20,
+        contentBottomPadding: 32,
+        sectionTitleFontSize: 20,
+        sectionTitlePaddingLeft: 20,
+        sectionTitlePaddingBottom: 12,
+        sectionInfoIconSize: 22,
+        sectionInfoIconSplash: 24,
+        sectionViewAllFontSize: 14,
+        sectionListViewHeight: 250,
+        sectionListPaddingH: 20,
+        sectionCardSpacing: 14,
+        sectionSpacing: 28,
+        shimmerItemCount: 4,
+        shimmerCardWidth: 180,
+        shimmerCardRadius: 16,
+        dialogRadius: 20,
+        dialogTitleFontSize: 20,
+        dialogContentFontSize: 16,
+        dialogContentLineHeight: 1.6,
+        // ── yeni alanlar ──
+        listPadH: 16,
+        hubSegmentGap: 14,
+        videosTopGap: 16,
+        bottomGap: 32,
+        sectionGapLarge: 20,
+        sectionGapMedium: 16,
+        largeCardGap: 12,
+        headerContentGap: 10,
+        channelRowVGap: 8,
+        hubCardRadius: 16,
+        hubGlowSize: 120,
+        hubGlowShift: 20,
+        hubPad: 14,
+        searchHeight: 46,
+        searchPadH: 12,
+        searchRadius: 10,
+        searchIconSize: 20,
+        searchIconGap: 8,
+        searchFontSize: 13.5,
+        searchTuneBoxSize: 28,
+        searchTuneRadius: 6,
+        searchTuneIconSize: 16,
+        segmentOuterPad: 4,
+        segmentOuterRadius: 12,
+        segmentButtonVPad: 9,
+        segmentButtonRadius: 9,
+        segmentIconSize: 18,
+        segmentIconGap: 6,
+        segmentFontSize: 14,
+        secHeaderIconSize: 22,
+        secHeaderGap: 6,
+        secHeaderTitleSize: 17,
+        secBadgePadH: 6,
+        secBadgePadV: 2,
+        secBadgeRadius: 4,
+        secBadgeFontSize: 10,
+        secTrailingFontSize: 10.5,
+        secTrailingLetterSpacing: 0.8,
+        secSeeAllFontSize: 13,
+        secSeeAllIconSize: 16,
+        largeCardRadius: 14,
+        largeCardBadgeTop: 10,
+        largeCardBadgeLeft: 10,
+        largeCardBadgePadH: 8,
+        largeCardBadgePadV: 4,
+        largeCardBadgeRadius: 6,
+        largeCardBadgeIconSize: 13,
+        largeCardBadgeFontSize: 10,
+        largeCardDurationBottom: 10,
+        largeCardDurationRight: 10,
+        largeCardDurationPadH: 6,
+        largeCardDurationPadV: 2,
+        largeCardDurationRadius: 4,
+        largeCardDurationFontSize: 10,
+        largeCardPlaySize: 44,
+        largeCardPlayIconSize: 26,
+        largeCardInfoPad: 12,
+        largeCardTitleSize: 15,
+        largeCardTitleGap: 8,
+        largeCardAvatarSize: 24,
+        largeCardAvatarFontSize: 8.5,
+        largeCardAvatarGap: 8,
+        largeCardChannelFontSize: 12,
+        largeCardChannelVerifiedGap: 4,
+        largeCardVerifiedIconSize: 13,
+        largeCardMetaGap: 6,
+        largeCardMetaFontSize: 11,
+        largeCardDotFontSize: 11,
+        channelRowPad: 12,
+        channelRowRadius: 12,
+        channelLogoSize: 48,
+        channelLogoRadius: 12,
+        channelInitialsFontSize: 16,
+        channelCheckBadgeSize: 14,
+        channelCheckIconSize: 9,
+        channelCheckOffset: 2,
+        channelRowGap: 12,
+        channelNameFontSize: 14.5,
+        channelNameDotSize: 5,
+        channelNameDotGap: 5,
+        channelStatsFontSize: 11.5,
+        channelStatsDotFontSize: 11,
+        channelStatsGap: 6,
+        channelButtonGap: 8,
+        channelButtonPadH: 10,
+        channelButtonPadV: 6,
+        channelButtonRadius: 8,
+        channelButtonIconSize: 14,
+        channelButtonFontSize: 11,
+        leaderboardPad: 12,
+        leaderboardRadius: 14,
+        leaderboardColumnGap: 10,
+      );
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get heroHPadding => 32;
+  @override
+  double get heroTopPadding => 28;
+  @override
+  double get contentTopPadding => 24;
+  @override
+  double get sectionTitlePaddingLeft => 32;
+  @override
+  double get sectionListPaddingH => 32;
+  @override
+  double get sectionListViewHeight => 270;
+  @override
+  double get sectionSpacing => 32;
+  @override
+  double get bottomGap => 48;
+  @override
+  double get listPadH => 24;
+  @override
+  double get searchHeight => 48;
 }

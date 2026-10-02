@@ -7,6 +7,9 @@ abstract class ShortsPlayerSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca ShortsPlayerWebSizes true döner.
+  bool get isWeb => false;
+
   // Top bar
   double get topBarPaddingHorizontal;
   double get topBarPaddingVertical;
@@ -363,4 +366,20 @@ class ShortsPlayerTabletSizes extends ShortsPlayerSizes {
 
   @override
   double get playIconSize => 76;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; video kartı zaten maxWidth ile
+/// sınırlandığı için yalnızca sayfa kenar boşlukları masaüstüne göre
+/// büyütülür.
+class ShortsPlayerWebSizes extends ShortsPlayerTabletSizes {
+  const ShortsPlayerWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get pageHorizontalPadding => 40;
+  @override
+  double get sectionSpacing => 24;
 }

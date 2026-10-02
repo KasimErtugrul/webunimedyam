@@ -8,6 +8,9 @@ abstract class FollowedUniversitiesListSizes {
 
   bool get isTablet;
 
+  /// WEB ölçeği bayrağı — yalnızca FollowedUniversitiesListWebSizes true döner.
+  bool get isWeb => false;
+
   // Loading
   double get loadingStrokeWidth;
 
@@ -108,4 +111,19 @@ class FollowedUniversitiesListTabletSizes extends FollowedUniversitiesListSizes 
   @override double get listCityTopSpacing => 5;
   @override double get listChevronSize => 24;
   @override double get listPlaceholderIconSize => 32;
+}
+
+/// WEB (masaüstü tarayıcı, ≥1024px) ölçek katmanı.
+/// Tablet ölçülerini temel alır; liste zaten max-w-[900px] ile
+/// ortalandığı için yalnızca sayfa kenar boşluğu masaüstüne göre
+/// büyütülür.
+class FollowedUniversitiesListWebSizes
+    extends FollowedUniversitiesListTabletSizes {
+  const FollowedUniversitiesListWebSizes();
+
+  @override
+  bool get isWeb => true;
+
+  @override
+  double get listPaddingHorizontal => 24;
 }

@@ -33,18 +33,46 @@ class ProfileActivityListFlatContent extends StatelessWidget {
         ? 1
         : 0;
 
+    // WEB: liste/ızgara çok geniş ekranlarda kenarlara yayılmasın.
+    Widget constrain(Widget child) => Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: child,
+      ),
+    );
+
     if (isGrid) {
-      return GridView.builder(
+      return constrain(
+        GridView.builder(
+          controller: scrollController,
+          padding: EdgeInsets.symmetric(
+            horizontal: sizes.gridPaddingHorizontal,
+            vertical: sizes.gridPaddingVertical,
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: sizes.isTablet ? 3 : 2,
+            mainAxisSpacing: sizes.gridMainSpacing,
+            crossAxisSpacing: sizes.gridCrossSpacing,
+            childAspectRatio: sizes.gridChildAspectRatio,
+          ),
+          itemCount: videos.length + extraCount,
+          itemBuilder: (context, index) {
+            if (index == videos.length) {
+              return ProfileActivityListLoadMore(sizes: sizes);
+            }
+            final video = videos[index];
+            return _buildItem(context, video, isGrid: true);
+          },
+        ),
+      );
+    }
+
+    return constrain(
+      ListView.builder(
         controller: scrollController,
         padding: EdgeInsets.symmetric(
-          horizontal: sizes.gridPaddingHorizontal,
-          vertical: sizes.gridPaddingVertical,
-        ),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: sizes.isTablet ? 3 : 2,
-          mainAxisSpacing: sizes.gridMainSpacing,
-          crossAxisSpacing: sizes.gridCrossSpacing,
-          childAspectRatio: sizes.gridChildAspectRatio,
+          horizontal: sizes.listPaddingHorizontal,
+          vertical: sizes.listPaddingVertical,
         ),
         itemCount: videos.length + extraCount,
         itemBuilder: (context, index) {
@@ -52,25 +80,9 @@ class ProfileActivityListFlatContent extends StatelessWidget {
             return ProfileActivityListLoadMore(sizes: sizes);
           }
           final video = videos[index];
-          return _buildItem(context, video, isGrid: true);
+          return _buildItem(context, video, isGrid: false);
         },
-      );
-    }
-
-    return ListView.builder(
-      controller: scrollController,
-      padding: EdgeInsets.symmetric(
-        horizontal: sizes.listPaddingHorizontal,
-        vertical: sizes.listPaddingVertical,
       ),
-      itemCount: videos.length + extraCount,
-      itemBuilder: (context, index) {
-        if (index == videos.length) {
-          return ProfileActivityListLoadMore(sizes: sizes);
-        }
-        final video = videos[index];
-        return _buildItem(context, video, isGrid: false);
-      },
     );
   }
 

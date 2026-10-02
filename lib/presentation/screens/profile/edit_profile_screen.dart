@@ -12,6 +12,9 @@ import 'widgets/profile_header/avatar_widget.dart';
 
 class _Sizes {
   final bool isTablet;
+
+  /// WEB ölçeği bayrağı — yalnızca _Sizes.of web dalında true döner.
+  final bool isWeb;
   final double maxContentWidth;
   final double appBarTitleSize;
   final double paddingH;
@@ -41,6 +44,7 @@ class _Sizes {
 
   const _Sizes._({
     required this.isTablet,
+    this.isWeb = false,
     required this.maxContentWidth,
     required this.appBarTitleSize,
     required this.paddingH,
@@ -70,6 +74,40 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet form düzenini alır;
+    // içerik sütunu ve sayfa kenarları masaüstüne göre nefes alır.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        isWeb: true,
+        maxContentWidth: 600,
+        appBarTitleSize: 24,
+        paddingH: 40,
+        paddingTop: 36,
+        paddingBottom: 40,
+        avatarSize: 132,
+        avatarSpacing: 16,
+        avatarChangeButtonFontSize: 15,
+        formSpacing: 30,
+        labelSpacing: 10,
+        labelFontSize: 13,
+        labelLetterSpacing: 0.7,
+        fieldFontSize: 17,
+        fieldMaxLength: 30,
+        fieldMaxLengthFull: 60,
+        fieldIconSize: 24,
+        fieldRadius: 14,
+        fieldPaddingH: 18,
+        fieldPaddingV: 18,
+        hintFontSize: 13,
+        hintLineHeight: 1.5,
+        buttonHeight: 58,
+        buttonRadius: 16,
+        buttonFontSize: 18,
+        savingIndicatorSize: 24,
+        savingStrokeWidth: 2.8,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
@@ -233,15 +271,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   // ── Avatar ──
                   Center(
-                    child: ProfileAvatarWidget(
-                      avatarUrl: profile?.avatarUrl,
-                      username: profile?.username ?? 'U',
-                      isOwnProfile: true,
-                      isUploading: isUploading,
-                      size: spec.avatarSize,
-                      onTap: () => showAvatarSourceSheet(context, _controller),
-                    ),
-                  ).animate().fadeIn(duration: 400.ms).scaleXY(
+                        child: ProfileAvatarWidget(
+                          avatarUrl: profile?.avatarUrl,
+                          username: profile?.username ?? 'U',
+                          isOwnProfile: true,
+                          isUploading: isUploading,
+                          size: spec.avatarSize,
+                          onTap: () =>
+                              showAvatarSourceSheet(context, _controller),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .scaleXY(
                         begin: 0.8,
                         end: 1,
                         duration: 500.ms,
@@ -320,8 +362,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: Text(
                           'Boş bırakılırsa profilinde kullanıcı adın öne çıkar.',
                           style: TextStyle(
-                            color: AppTheme.textSec(context)
-                                .withValues(alpha: 0.75),
+                            color: AppTheme.textSec(
+                              context,
+                            ).withValues(alpha: 0.75),
                             fontSize: spec.hintFontSize,
                             height: spec.hintLineHeight,
                           ),

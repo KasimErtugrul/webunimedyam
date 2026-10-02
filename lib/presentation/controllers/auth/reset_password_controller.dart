@@ -4,12 +4,11 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/errors/auth_exceptions.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../services/analytics_service.dart';
 import '../utils/resend_cooldown.dart';
 
 class ResetPasswordController extends GetxController {
   ResetPasswordController({required AuthRepository authRepository})
-      : _repo = authRepository;
+    : _repo = authRepository;
 
   final AuthRepository _repo;
 
@@ -54,7 +53,6 @@ class ResetPasswordController extends GetxController {
       }
       await _repo.setNewPasswordAfterReset(newPassword: newPassword);
       _completed = true;
-      AnalyticsService.instance.logEvent('password_reset_completed');
 
       await _repo.signOut();
       Get.offAllNamed(AppRoutes.login);
@@ -62,10 +60,6 @@ class ResetPasswordController extends GetxController {
       // Kod doğru; sadece yeni şifre reddedildi. Kullanıcı şifreyi düzeltip
       // tekrar bassın, kod tekrar sorulmayacak.
       errorMessage.value = e.message;
-      AnalyticsService.instance.logEvent(
-        'password_reset_failed',
-        parameters: {'reason': 'password_rejected'},
-      );
     } on AuthRateLimitException catch (e) {
       errorMessage.value = e.toString();
     } on AuthNetworkException catch (e) {
@@ -75,7 +69,6 @@ class ResetPasswordController extends GetxController {
       errorMessage.value = _codeVerified
           ? 'Şifre güncellenemedi. Lütfen tekrar deneyin.'
           : 'Kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.';
-      AnalyticsService.instance.logEvent('password_reset_failed');
     } finally {
       isVerifyingReset.value = false;
     }
@@ -88,7 +81,8 @@ class ResetPasswordController extends GetxController {
 
     try {
       await _repo.resendPasswordResetOtp(email: email);
-      _codeVerified = false; // yeni kod gönderildi; bir sonraki denemede yeniden doğrula
+      _codeVerified =
+          false; // yeni kod gönderildi; bir sonraki denemede yeniden doğrula
       cooldown.start();
     } catch (e, st) {
       log('resendPasswordResetOtp failed: $e', error: e, stackTrace: st);

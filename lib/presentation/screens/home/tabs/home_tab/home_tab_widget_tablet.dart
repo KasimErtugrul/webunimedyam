@@ -28,7 +28,9 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/routes/app_routes.dart';
 import '../../../../../app/themes/app_theme.dart';
+import '../../../../../core/responsive.dart';
 import '../../../../../core/utils/formatters.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 import '../../../../../data/models/video_engagement_model.dart';
 import '../../../../../data/models/video_model.dart';
 import '../../../../../data/repositories/video_repository.dart'
@@ -38,7 +40,6 @@ import 'common/home_tab_logic.dart';
 import 'common/home_tab_sizes.dart';
 import 'common/home_tab_widgets.dart';
 import 'shorts/shorts_row_widget.dart';
-import 'widgets/home_campus_radio_panel_widget.dart';
 import 'widgets/home_feed_wheel_widget.dart';
 import 'widgets/home_hero_live_banner_widget.dart';
 import 'widgets/video_grid_card_widget.dart';
@@ -52,10 +53,15 @@ class HomeTabWidgetTablet extends StatefulWidget {
 
 class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
     with HomeTabLogic {
-  static const TabletHomeTabSizes _sizes = TabletHomeTabSizes();
+  // Ölçek üçlüsü: web (masaüstü tarayıcı) kendi ölçü setini kullanır;
+  // gerçek tablet TabletHomeTabSizes'ta kalır. (isWeb kontrolü ÖNCE
+  // yapılır — masaüstünde shortestSide tablet eşiğini de geçer.)
+  static const WebHomeTabSizes _webSizes = WebHomeTabSizes();
+  static const TabletHomeTabSizes _tabletSizes = TabletHomeTabSizes();
 
   @override
-  HomeTabSizes get sizes => _sizes;
+  HomeTabSizes get sizes =>
+      Responsive.isWeb(context) ? _webSizes : _tabletSizes;
 
   @override
   void initState() {
@@ -151,13 +157,15 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
               itemWidth * 9 / 16 + _cardTextBlockHeight(true);
 
           return Obx(() {
-            final liveVideo = controller.videos
-                .firstWhereOrNull((v) => v.isLiveBroadcast);
+            final liveVideo = controller.videos.firstWhereOrNull(
+              (v) => v.isLiveBroadcast,
+            );
             // Yükleme bitmiş ama öne çıkan video da yoksa ve canlı yayın da
             // yoksa hero'yu tamamen gizle (boş bir blok oluşturmasın).
             // Discovery bölümleri hâlâ yükleniyorsa hero yerinde dursun;
             // veri gelince carousel shimmer'dan sorunsuz geçsin.
-            final featuredEmpty = controller.videosMostWatched.isEmpty &&
+            final featuredEmpty =
+                controller.videosMostWatched.isEmpty &&
                 !controller.isLoading.value &&
                 !controller.isVideoSectionsLoading.value;
             if (liveVideo == null && featuredEmpty) {
@@ -166,8 +174,8 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
 
             final double heroHeight =
                 (liveVideo != null ? _liveBannerHeight + 24 : 0) +
-                    carouselHeight +
-                    _dotsBlockHeight;
+                carouselHeight +
+                _dotsBlockHeight;
 
             return SizedBox(
               height: heroHeight,
@@ -183,10 +191,10 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     ),
                   ),
                   SizedBox(width: gap),
-                  const Expanded(
+                  /* const Expanded(
                     flex: 1,
                     child: HomeCampusRadioPanelWidget(),
-                  ),
+                  ), */
                 ],
               ),
             );
@@ -234,7 +242,8 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
     return Obx(() {
       // Yüklenirken shimmer göster — feed ya da carousel'in beslendiği
       // discovery bölümleri (videosMostWatched) henüz gelmediyse.
-      final sectionsPending = controller.videosMostWatched.isEmpty &&
+      final sectionsPending =
+          controller.videosMostWatched.isEmpty &&
           controller.isVideoSectionsLoading.value;
       if (controller.isLoading.value || sectionsPending) {
         return _buildCarouselShimmer(context, height: carouselHeight);
@@ -292,20 +301,20 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(featured.length, (i) {
                 final active =
-                    i ==
-                    _currentCarouselIndex.clamp(0, featured.length - 1);
+                    i == _currentCarouselIndex.clamp(0, featured.length - 1);
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: active ? 18 : 6,
                   height: 6,
-                  margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 3,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: active
                         ? AppTheme.primaryColor
                         : AppTheme.textSec(context).withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(
-                      AppTheme.radiusFull,
-                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                   ),
                 );
               }),
@@ -337,21 +346,24 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
     required IconData badgeIcon,
     required bool isTablet,
   }) {
-    return GestureDetector(
+    return HoverTap(
       onTap: () => Get.toNamed(
         AppRoutes.player,
         arguments: video.toVideoModel(),
         parameters: {'videoId': video.videoId},
       ),
-      child: Container(
+      builder: (context, hovered) => AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, hovered ? -3 : 0, 0),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+              color: Colors.black.withValues(alpha: hovered ? 0.22 : 0.15),
+              blurRadius: hovered ? 12 : 6,
+              offset: Offset(0, hovered ? 5 : 3),
             ),
           ],
         ),
@@ -391,28 +403,32 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                     ),
                   ),
 
-                  // Sağ Alt Süre
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainerLowest.withValues(
-                          alpha: 0.85,
+                  // Sağ Alt Süre (süre bilgisi yoksa rozet gösterilmez)
+                  if (video.duration.isNotEmpty)
+                    Positioned(
+                      bottom: 10,
+                      right: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
                         ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        video.duration.isNotEmpty ? video.duration : '18:42',
-                        style: TextStyle(
-                          color: scheme.onSurface,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerLowest.withValues(
+                            alpha: 0.85,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          video.duration,
+                          style: TextStyle(
+                            color: scheme.onSurface,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -620,8 +636,9 @@ class _HomeTabWidgetTabletState extends State<HomeTabWidgetTablet>
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppTheme.textPri(context),
                                 side: BorderSide(
-                                  color: AppTheme.textSec(context)
-                                      .withValues(alpha: 0.25),
+                                  color: AppTheme.textSec(
+                                    context,
+                                  ).withValues(alpha: 0.25),
                                 ),
                                 minimumSize: const Size(0, 48),
                                 padding: const EdgeInsets.symmetric(
@@ -670,7 +687,12 @@ class _TabletContentHeader extends StatelessWidget {
     final activeFilter = controller.feedFilter.value;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(horizontalPad, topPad, horizontalPad, bottomPad),
+      padding: EdgeInsets.fromLTRB(
+        horizontalPad,
+        topPad,
+        horizontalPad,
+        bottomPad,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -697,10 +719,7 @@ class _TabletContentHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             activeFilter.subtitle,
-            style: TextStyle(
-              color: AppTheme.textSec(context),
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppTheme.textSec(context), fontSize: 13),
           ),
           const SizedBox(height: 14),
           // Tasarımdaki yatay kaydırılabilir filtre pill barı.
@@ -748,7 +767,9 @@ class _TabletContentHeader extends StatelessWidget {
                                 ? scheme.onPrimary
                                 : scheme.onSurfaceVariant,
                             fontSize: 13,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                           ),
                         ),
                       ],

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/themes/app_theme.dart';
 import '../../../../core/responsive.dart';
+import '../../../../core/widgets/hover_tap.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../controllers/profile_activity_list_controller.dart';
 import '../../../controllers/profile_controller.dart';
@@ -26,6 +27,10 @@ class _Sz {
   });
 
   factory _Sz.of(BuildContext context) {
+    // Üçlü ölçek: web (masaüstü tarayıcı) → tablet → telefon.
+    if (Responsive.isWeb(context)) {
+      return const _Sz._(isTablet: true, paddingH: 32, avatarSize: 96);
+    }
     if (Responsive.isTablet(context)) {
       return const _Sz._(isTablet: true, paddingH: 24, avatarSize: 88);
     }
@@ -187,12 +192,7 @@ class _AuraProfileCard extends StatelessWidget {
 
             // ── İçerik ──
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                sz.paddingH,
-                8,
-                sz.paddingH,
-                16,
-              ),
+              padding: EdgeInsets.fromLTRB(sz.paddingH, 8, sz.paddingH, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -503,7 +503,7 @@ class _AvatarBlock extends StatelessWidget {
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
     const badgeOff = 6;
 
-    return GestureDetector(
+    return TapCursor(
       onTap: isOwn ? () => showAvatarSourceSheet(context, controller) : null,
       child: SizedBox(
         // Ek alan: badge taşması için
@@ -601,7 +601,7 @@ class _AvatarBlock extends StatelessWidget {
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: GestureDetector(
+                child: TapCursor(
                   onTap: () => showAvatarSourceSheet(context, controller),
                   child: Container(
                     width: 28,
@@ -919,10 +919,7 @@ class _WeeklyPulse extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     'Bu hafta 6 saat 40 dk kampüs yayını izledin',
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -992,7 +989,7 @@ class _ActivitySection extends StatelessWidget {
                       ),
                     ),
                   ),
-                  GestureDetector(
+                  TapCursor(
                     onTap: () => onNav(ProfileActivityType.favorites),
                     child: Text(
                       'Tümünü Yönet',
@@ -1195,10 +1192,7 @@ class _NavTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 if (trailing != null)
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: trailing!,
-                  ),
+                  Flexible(fit: FlexFit.loose, child: trailing!),
                 const SizedBox(width: 2),
                 Icon(
                   Icons.chevron_right_rounded,

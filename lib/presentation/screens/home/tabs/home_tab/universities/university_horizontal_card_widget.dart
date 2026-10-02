@@ -48,6 +48,28 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        cardWidth: 200,
+        cardHeight: 244,
+        cardRadius: 16,
+        gradientHeight: 48,
+        logoSize: 100,
+        placeholderIconSize: 38,
+        contentPaddingH: 12,
+        contentPaddingV: 10,
+        titleFontSize: 14,
+        titleLineHeight: 1.35,
+        statPaddingH: 8,
+        statPaddingV: 4,
+        statRadius: 7,
+        statIconSize: 13,
+        statFontSize: 11.5,
+        statSpacing: 4,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
@@ -183,9 +205,7 @@ class UniversityHorizontalCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(
-                            spec.statRadius,
-                          ),
+                          borderRadius: BorderRadius.circular(spec.statRadius),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

@@ -91,6 +91,46 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, ≥1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        isTablet: true,
+        bannerRadius: 30,
+        avatarTopSpacing: 18,
+        usernameFontSize: 26,
+        usernameSpacing: 4,
+        atUsernameFontSize: 16,
+        memberSinceFontSize: 13.5,
+        memberSinceSpacing: 6,
+        editButtonSpacing: 18,
+        statsRowSpacing: 20,
+        statsRowBottomSpacing: 16,
+        statsRowRadius: 20,
+        statsRowPaddingV: 16,
+        statsRowMarginH: 32,
+        statsRowHeight: 68,
+        editButtonIconSize: 18,
+        editButtonFontSize: 15,
+        editButtonPaddingH: 20,
+        editButtonPaddingV: 10,
+        editButtonRadius: 24,
+        editButtonBorderWidth: 1.4,
+        statsLoadingSize: 22,
+        statsLoadingStrokeWidth: 2.5,
+        blob1Size: 160,
+        blob1Opacity: 0.16,
+        blob1Right: -32,
+        blob1Top: -38,
+        blob2Size: 116,
+        blob2Opacity: 0.14,
+        blob2Left: -26,
+        blob2Bottom: -42,
+        blob3Size: 56,
+        blob3Opacity: 0.10,
+        blob3Left: 74,
+        blob3Top: -24,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         isTablet: true,
@@ -201,23 +241,24 @@ class ProfileHeaderWidget extends StatelessWidget {
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: ProfileAvatarWidget(
-                        avatarUrl: profile?.avatarUrl,
-                        username: profile?.username ?? 'U',
-                        isOwnProfile: isOwn,
-                        isUploading: controller.isUploadingAvatar.value,
-                        size: w(_kAvatarSize),
-                        onTap: () =>
-                            showAvatarSourceSheet(context, controller),
-                      )
-                          .animate()
-                          .fadeIn(duration: 400.ms)
-                          .scaleXY(
-                            begin: 0.7,
-                            end: 1,
-                            duration: 500.ms,
-                            curve: Curves.easeOutBack,
-                          ),
+                      child:
+                          ProfileAvatarWidget(
+                                avatarUrl: profile?.avatarUrl,
+                                username: profile?.username ?? 'U',
+                                isOwnProfile: isOwn,
+                                isUploading: controller.isUploadingAvatar.value,
+                                size: w(_kAvatarSize),
+                                onTap: () =>
+                                    showAvatarSourceSheet(context, controller),
+                              )
+                              .animate()
+                              .fadeIn(duration: 400.ms)
+                              .scaleXY(
+                                begin: 0.7,
+                                end: 1,
+                                duration: 500.ms,
+                                curve: Curves.easeOutBack,
+                              ),
                     ),
                   ),
                 ],
@@ -226,32 +267,36 @@ class ProfileHeaderWidget extends StatelessWidget {
             SizedBox(height: h(spec.avatarTopSpacing)),
 
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
-              child: Text(
-                (profile?.fullName?.isNotEmpty ?? false)
-                    ? profile!.fullName!
-                    : (profile?.username ?? 'Kullanıcı'),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppTheme.textPri(context),
-                  fontSize: spec.usernameFontSize,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.3,
-                ),
-              )
-                  .animate()
-                  .fadeIn(delay: 200.ms, duration: 350.ms)
-                  .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+              padding: EdgeInsets.symmetric(
+                horizontal: w(spec.statsRowMarginH),
+              ),
+              child:
+                  Text(
+                        (profile?.fullName?.isNotEmpty ?? false)
+                            ? profile!.fullName!
+                            : (profile?.username ?? 'Kullanıcı'),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppTheme.textPri(context),
+                          fontSize: spec.usernameFontSize,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.3,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 350.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
             ),
 
             if ((profile?.fullName?.isNotEmpty ?? false) &&
                 (profile?.username?.isNotEmpty ?? false)) ...[
               SizedBox(height: h(spec.usernameSpacing)),
               Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: w(spec.statsRowMarginH),
+                ),
                 child: Text(
                   '@${profile!.username}',
                   textAlign: TextAlign.center,
@@ -268,8 +313,9 @@ class ProfileHeaderWidget extends StatelessWidget {
             if (profile != null) ...[
               SizedBox(height: h(spec.memberSinceSpacing)),
               Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: w(spec.statsRowMarginH)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: w(spec.statsRowMarginH),
+                ),
                 child: Text(
                   _memberSinceLabel(profile.createdAt),
                   textAlign: TextAlign.center,
@@ -285,9 +331,9 @@ class ProfileHeaderWidget extends StatelessWidget {
 
             if (isOwn) ...[
               SizedBox(height: h(spec.editButtonSpacing)),
-              _EditProfileButton(spec: spec)
-                  .animate()
-                  .fadeIn(delay: 420.ms, duration: 300.ms),
+              _EditProfileButton(
+                spec: spec,
+              ).animate().fadeIn(delay: 420.ms, duration: 300.ms),
             ],
 
             if (isOwn) ...[
@@ -308,8 +354,18 @@ class ProfileHeaderWidget extends StatelessWidget {
 
   String _memberSinceLabel(DateTime date) {
     const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
     ];
     final monthName = months[(date.month - 1).clamp(0, 11)];
     return '$monthName ${date.year}\'den beri üye';
@@ -408,10 +464,7 @@ class _EditProfileButton extends StatelessWidget {
 
     return OutlinedButton.icon(
       onPressed: () => Get.toNamed(AppRoutes.editProfile),
-      icon: Icon(
-        Icons.edit_outlined,
-        size: spec.editButtonIconSize,
-      ),
+      icon: Icon(Icons.edit_outlined, size: spec.editButtonIconSize),
       label: Text(
         'Profili Düzenle',
         style: TextStyle(fontSize: spec.editButtonFontSize),

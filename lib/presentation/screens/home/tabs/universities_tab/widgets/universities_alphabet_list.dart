@@ -110,7 +110,8 @@ class _UniversitiesAlphabetListState extends State<UniversitiesAlphabetList> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
+    // WEB: tablet ölçüleri (list pad + A-Z rayı).
+    final isTablet = Responsive.isWeb(context) || Responsive.isTablet(context);
     final hPad = isTablet
         ? _TabletSizes.listPadHorizontal
         : _PhoneSizes.listPadHorizontal;
@@ -268,7 +269,8 @@ class _AlphabetRailState extends State<_AlphabetRail> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
+    // WEB: tablet ray ölçüleri (A-Z şeridi masaüstünde de tablet genişliğinde).
+    final isTablet = Responsive.isWeb(context) || Responsive.isTablet(context);
     final width = isTablet
         ? _TabletSizes.sidebarWidth
         : _PhoneSizes.sidebarWidth;

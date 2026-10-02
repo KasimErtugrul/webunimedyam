@@ -21,6 +21,7 @@ import 'shorts_player_screen_widgets/shorts_fullscreen.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_theme.dart';
 import '../../../core/responsive.dart';
+import '../../../core/widgets/hover_tap.dart';
 import '../../../core/utils/share_helper.dart';
 import '../../../data/models/shorts_model.dart';
 import '../../controllers/shorts_player_controller.dart';
@@ -75,14 +76,20 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
         );
       }
 
-      // KURAL 5 — TEK DALLANMA NOKTASI
-      final ShortsPlayerSizes sizes = Responsive.isTablet(context)
+      // KURAL 5 — TEK DALLANMA NOKTASI (üçlü ölçek: web → tablet → telefon)
+      final ShortsPlayerSizes sizes = Responsive.isWeb(context)
+          ? const ShortsPlayerWebSizes()
+          : Responsive.isTablet(context)
           ? const ShortsPlayerTabletSizes()
           : const ShortsPlayerPhoneSizes();
 
       final short = controller.current!;
       final related = controller.shorts
-          .where((s) => s.universityId == short.universityId && s.videoId != short.videoId)
+          .where(
+            (s) =>
+                s.universityId == short.universityId &&
+                s.videoId != short.videoId,
+          )
           .toList();
 
       return Scaffold(
@@ -186,7 +193,9 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
                 titleOf: (s) => s.title,
                 durationOf: (s) => s.duration,
                 onSelect: (item) => controller.onWheelChanged(
-                  controller.shorts.indexWhere((s) => s.videoId == item.videoId),
+                  controller.shorts.indexWhere(
+                    (s) => s.videoId == item.videoId,
+                  ),
                 ),
               ),
             ],
@@ -221,7 +230,9 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
             ),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(sizes.shortsBadgeBorderRadius),
+              borderRadius: BorderRadius.circular(
+                sizes.shortsBadgeBorderRadius,
+              ),
             ),
             child: Text(
               'SHORTS',
@@ -237,19 +248,27 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
           Obx(
             () => Text(
               '${controller.currentIndex.value + 1} / ${controller.shorts.length}',
-              style: TextStyle(color: Colors.white60, fontSize: sizes.counterFontSize),
+              style: TextStyle(
+                color: Colors.white60,
+                fontSize: sizes.counterFontSize,
+              ),
             ),
           ),
           SizedBox(width: sizes.counterSpacing),
-          GestureDetector(
+          TapCursor(
             onTap: controller.toggleMute,
             child: Container(
               width: sizes.muteButtonSize,
               height: sizes.muteButtonSize,
-              decoration: const BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                color: Colors.white12,
+                shape: BoxShape.circle,
+              ),
               child: Obx(
                 () => Icon(
-                  controller.isMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                  controller.isMuted.value
+                      ? Icons.volume_off_rounded
+                      : Icons.volume_up_rounded,
                   color: Colors.white,
                   size: sizes.muteIconSize,
                 ),
@@ -285,7 +304,10 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(imageUrl: short.bestThumbnail, fit: BoxFit.cover),
+                  CachedNetworkImage(
+                    imageUrl: short.bestThumbnail,
+                    fit: BoxFit.cover,
+                  ),
                   Obx(() {
                     final yt = controller.ytController;
                     if (yt == null) return const SizedBox.shrink();
@@ -293,7 +315,8 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
                       child: YoutubePlayer(
                         key: ValueKey(controller.playerKey.value),
                         controller: yt,
-                        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                        gestureRecognizers:
+                            const <Factory<OneSequenceGestureRecognizer>>{},
                         // Shorts dikey: tam ekranda da 9:16 oranıyla ekranı kaplar.
                         aspectRatio: 9 / 16,
                         autoFullScreen: false,
@@ -341,7 +364,9 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.white12,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppTheme.primaryColor,
+              ),
               minHeight: sizes.progressBarHeight,
             ),
           ),
@@ -378,10 +403,8 @@ class _ShortsPlayerScreenState extends State<ShortsPlayerScreen> {
       description: short.description,
       isFollowing: _followedUniversityIds.contains(short.universityId),
       onToggleFollow: () => _toggleFollow(short.universityId),
-      onWatchFull: () => Get.toNamed(
-        AppRoutes.player,
-        parameters: {'videoId': short.videoId},
-      ),
+      onWatchFull: () =>
+          Get.toNamed(AppRoutes.player, parameters: {'videoId': short.videoId}),
     );
   }
 }

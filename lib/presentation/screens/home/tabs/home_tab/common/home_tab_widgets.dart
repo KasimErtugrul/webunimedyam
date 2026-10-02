@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../data/repositories/video_repository.dart'
     show HomeFeedFilter;
@@ -24,39 +23,40 @@ import 'home_tab_sizes.dart';
 
 extension HomeFeedFilterX on HomeFeedFilter {
   IconData get icon => switch (this) {
-        HomeFeedFilter.latest => Icons.new_releases_rounded,
-        HomeFeedFilter.followed => Icons.favorite_rounded,
-        HomeFeedFilter.notFollowed => Icons.explore_outlined,
-        HomeFeedFilter.live => Icons.sensors_rounded,
-      };
+    HomeFeedFilter.latest => Icons.new_releases_rounded,
+    HomeFeedFilter.followed => Icons.favorite_rounded,
+    HomeFeedFilter.notFollowed => Icons.explore_outlined,
+    HomeFeedFilter.live => Icons.sensors_rounded,
+  };
 
   String get label => switch (this) {
-        HomeFeedFilter.latest => 'En Yeniler',
-        HomeFeedFilter.followed => 'Takip Ettiklerim',
-        HomeFeedFilter.notFollowed => 'Takip Etmediklerim',
-        HomeFeedFilter.live => 'Canlı Yayın',
-      };
+    HomeFeedFilter.latest => 'En Yeniler',
+    HomeFeedFilter.followed => 'Takip Ettiklerim',
+    HomeFeedFilter.notFollowed => 'Takip Etmediklerim',
+    HomeFeedFilter.live => 'Canlı Yayın',
+  };
 
   String get subtitle => switch (this) {
-        HomeFeedFilter.latest =>
-          'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
-        HomeFeedFilter.followed =>
-          'Sadece takip ettiğin üniversitelerin en yeni videoları.',
-        HomeFeedFilter.notFollowed =>
-          'Henüz takip etmediğin üniversitelerden en yeni paylaşımlar.',
-        HomeFeedFilter.live => 'Şu anda canlı yayında olan üniversiteler.',
-      };
+    HomeFeedFilter.latest =>
+      'Takip ettiğin ve diğer üniversitelerden en yeni paylaşımlar burada.',
+    HomeFeedFilter.followed =>
+      'Sadece takip ettiğin üniversitelerin en yeni videoları.',
+    HomeFeedFilter.notFollowed =>
+      'Henüz takip etmediğin üniversitelerden en yeni paylaşımlar.',
+    HomeFeedFilter.live => 'Şu anda canlı yayında olan üniversiteler.',
+  };
 
   // Filtre sonucu boşsa filtreye özgü mesaj (kullanıcı bunu "hata" olarak
   // değil, bilgi olarak görsün).
   String emptyMessage({required bool isLoggedIn}) => switch (this) {
-        HomeFeedFilter.latest => 'Henüz video yok.',
-        HomeFeedFilter.followed => isLoggedIn
-            ? 'Henüz hiçbir üniversiteyi takip etmiyorsun.\nÜniversiteler sekmesinden takip etmeye başlayabilirsin.'
-            : 'Takip ettiğin üniversitelerin videolarını görmek için giriş yapman gerekiyor.',
-        HomeFeedFilter.notFollowed => 'Takip etmediğin üniversite kalmamış 🎉',
-        HomeFeedFilter.live => 'Şu anda canlı yayında olan üniversite yok.',
-      };
+    HomeFeedFilter.latest => 'Henüz video yok.',
+    HomeFeedFilter.followed =>
+      isLoggedIn
+          ? 'Henüz hiçbir üniversiteyi takip etmiyorsun.\nÜniversiteler sekmesinden takip etmeye başlayabilirsin.'
+          : 'Takip ettiğin üniversitelerin videolarını görmek için giriş yapman gerekiyor.',
+    HomeFeedFilter.notFollowed => 'Takip etmediğin üniversite kalmamış 🎉',
+    HomeFeedFilter.live => 'Şu anda canlı yayında olan üniversite yok.',
+  };
 }
 
 PopupMenuItem<HomeFeedFilter> _feedFilterMenuItem(
@@ -180,7 +180,9 @@ class HomeContentHeader extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════
-// Utility bar: "Kampüs FM Canlı" pili + Liste/Çark görünüm anahtarı
+// Utility bar: Liste/Çark görünüm anahtarı (sağa hizalı)
+// (Eski "Kampüs FM Canlı" pili kaldırıldı — radyo sayfası projeden
+// çıkarıldı, '/radio' rotası kayıtlı değil; ölü rotaya gidiyordu.)
 // ═══════════════════════════════════════════════════════════
 
 class HomeUtilityBar extends StatelessWidget {
@@ -199,83 +201,22 @@ class HomeUtilityBar extends StatelessWidget {
     final hPad = sizes.titleSpacingLarge;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: sizes.utilityBarPadV),
+      padding: EdgeInsets.symmetric(
+        horizontal: hPad,
+        vertical: sizes.utilityBarPadV,
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Canlı Kampüs Radyosu Düğmesi
-          Flexible(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-              onTap: () => Get.toNamed(AppRoutes.radio),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: sizes.radioPadH,
-                  vertical: sizes.radioPadV,
-                ),
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: sizes.radioDotSize,
-                      height: sizes.radioDotSize,
-                      decoration: BoxDecoration(
-                        color: scheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: sizes.radioGapSmall),
-                    Icon(
-                      Icons.radio_rounded,
-                      color: scheme.primary,
-                      size: sizes.radioIconSize,
-                    ),
-                    SizedBox(width: sizes.radioGapSmall),
-                    Flexible(
-                      child: Text(
-                        'Kampüs FM Canlı',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: scheme.onSurface),
-                      ),
-                    ),
-                    SizedBox(width: sizes.radioGapTiny),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: sizes.radioBadgePadH,
-                        vertical: sizes.radioBadgePadV,
-                      ),
-                      decoration: BoxDecoration(
-                        color: scheme.primary.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(sizes.radioBadgeRadius),
-                      ),
-                      child: Text(
-                        'YAYINDA',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
           // Görünüm Modu Seçici (Liste vs Çark)
           Obx(
             () => Container(
               padding: EdgeInsets.all(sizes.viewToggleOuterPad),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(sizes.viewToggleOuterRadius),
+                borderRadius: BorderRadius.circular(
+                  sizes.viewToggleOuterRadius,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -379,8 +320,7 @@ class HomeContinueWatchingSection extends StatelessWidget {
     return Obx(() {
       final items = controller.continueWatching.toList();
       // Çark görünümünde bu bölüm gösterilmez.
-      final showSection =
-          !controller.isWheelView.value && items.isNotEmpty;
+      final showSection = !controller.isWheelView.value && items.isNotEmpty;
       if (!showSection) return const SizedBox.shrink();
       return Padding(
         padding: EdgeInsets.only(top: sizes.continueWatchingTopPad),
@@ -398,111 +338,6 @@ class HomeContinueWatchingSection extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// "Yaklaşan Canlı Yayın" alt şeridi
-// DÜRÜST NOT (orijinalden korunmuştur): Backend'de henüz "yaklaşan canlı
-// yayın" verisi yok — metinler SABİT (placeholder). Gerçek veri gelince
-// bağlanmalı; "Hatırlat" butonunun onTap'i bu yüzden boş.
-// ═══════════════════════════════════════════════════════════
-
-class HomeUpcomingLiveBanner extends StatelessWidget {
-  const HomeUpcomingLiveBanner({super.key, required this.sizes});
-
-  final HomeTabSizes sizes;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final hPad = sizes.titleSpacingLarge;
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        hPad,
-        sizes.bannerVerticalGap,
-        hPad,
-        sizes.bannerBottomGap,
-      ),
-      child: Container(
-        padding: EdgeInsets.all(sizes.bannerPadding),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [scheme.surfaceContainerHigh, scheme.surfaceContainer],
-          ),
-          borderRadius: BorderRadius.circular(sizes.bannerContainerRadius),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: sizes.bannerIconBox,
-              height: sizes.bannerIconBox,
-              decoration: BoxDecoration(
-                color: scheme.primary.withValues(alpha: 0.20),
-                borderRadius: BorderRadius.circular(sizes.bannerIconRadius),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.live_tv_rounded,
-                color: scheme.primary,
-                size: sizes.bannerIconSize,
-              ),
-            ),
-            SizedBox(width: sizes.bannerIconTextGap),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Yaklaşan Canlı Yayın',
-                    style: TextStyle(
-                      color: scheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                      fontSize: sizes.bannerTitleFontSize,
-                    ),
-                  ),
-                  Text(
-                    'Yarın 14:00 • ODTÜ Mezuniyet Töreni',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: sizes.bannerSubtitleFontSize,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: sizes.bannerActionGap),
-            InkWell(
-              borderRadius: BorderRadius.circular(sizes.bannerButtonRadius),
-              onTap: () {},
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: sizes.bannerButtonPadH,
-                  vertical: sizes.bannerButtonPadV,
-                ),
-                decoration: BoxDecoration(
-                  color: scheme.primary,
-                  borderRadius: BorderRadius.circular(sizes.bannerButtonRadius),
-                ),
-                child: Text(
-                  'Hatırlat',
-                  style: TextStyle(
-                    color: scheme.onPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: sizes.bannerButtonFontSize,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -547,7 +382,10 @@ class HomeErrorWidget extends StatelessWidget {
           SizedBox(height: sizes.errorSpacing),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              minimumSize: Size(sizes.errorButtonWidth, sizes.errorButtonHeight),
+              minimumSize: Size(
+                sizes.errorButtonWidth,
+                sizes.errorButtonHeight,
+              ),
             ),
             onPressed: onRetry,
             child: Text(

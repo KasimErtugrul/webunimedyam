@@ -5,7 +5,6 @@ import '../../data/repositories/search_repository.dart';
 import '../../data/datasources/local/search_history_datasource.dart';
 import '../../data/models/video_model.dart';
 import '../../data/models/university_model.dart';
-import '../../services/analytics_service.dart';
 
 /// Arama ekranındaki "Arama Filtreleri" bottom sheet'inde seçilebilen
 /// sıralama/filtre modları.
@@ -80,7 +79,11 @@ class VideoSearchController extends GetxController {
     try {
       trendingSearches.value = await searchRepository.getTrendingSearches();
     } catch (e, stacktrace) {
-      log('Trend aramalar yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Trend aramalar yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       trendingSearches.clear();
     } finally {
       isTrendingLoading.value = false;
@@ -90,10 +93,14 @@ class VideoSearchController extends GetxController {
   Future<void> loadPopularUniversities() async {
     isPopularUniversitiesLoading.value = true;
     try {
-      popularUniversities.value =
-          await searchRepository.getPopularUniversities();
+      popularUniversities.value = await searchRepository
+          .getPopularUniversities();
     } catch (e, stacktrace) {
-      log('Popüler üniversiteler yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Popüler üniversiteler yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       popularUniversities.clear();
     } finally {
       isPopularUniversitiesLoading.value = false;
@@ -110,7 +117,11 @@ class VideoSearchController extends GetxController {
     try {
       history.value = await historyDataSource.getHistory();
     } catch (e, stacktrace) {
-      log('Arama geçmişi yüklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Arama geçmişi yüklenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
       history.clear(); // Hata olursa boş geç, uygulama çökmesin
     }
   }
@@ -130,7 +141,11 @@ class VideoSearchController extends GetxController {
       isLoading.value = true;
       _debounce = Timer(_debounceDuration, () => _doSearch(value.trim()));
     } catch (e, stacktrace) {
-      log('Sorgu değişikliği işlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Sorgu değişikliği işlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -168,7 +183,11 @@ class VideoSearchController extends GetxController {
         await historyDataSource.addQuery(trimmed);
         await _loadHistory();
       } catch (e, stacktrace) {
-        log('Arama geçmişine eklenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+        log(
+          'Arama geçmişine eklenirken hata oluştu: $e',
+          error: e,
+          stackTrace: stacktrace,
+        );
       }
 
       // Debounce'u iptal edip hemen ara
@@ -180,23 +199,24 @@ class VideoSearchController extends GetxController {
       // Not: onQueryChanged() sırasındaki debounce aramaları burada değil,
       // sadece kullanıcının kesin bir arama yaptığı bu noktada loglanıyor,
       // aksi halde her tuş vuruşu ayrı event olurdu.
-      AnalyticsService.instance.logSearch(trimmed);
-      if (results.isEmpty) {
-        AnalyticsService.instance.logEvent(
-          'search_no_results',
-          parameters: {'search_term': trimmed},
-        );
-      }
+
+      if (results.isEmpty) {}
 
       // Trend başlıklar gerçek arama verisinden beslendiği için her
       // aramayı arka planda logluyoruz (hata olursa akışı etkilemez) ve
       // listeyi tazeliyoruz ki kullanıcı kendi aradığı şeyin de trendlere
       // katkı sağladığını zamanla görebilsin.
       unawaited(
-        searchRepository.logSearchQuery(trimmed).then((_) => loadTrendingSearches()),
+        searchRepository
+            .logSearchQuery(trimmed)
+            .then((_) => loadTrendingSearches()),
       );
     } catch (e, stacktrace) {
-      log('Sorgu gönderilirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Sorgu gönderilirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -206,7 +226,11 @@ class VideoSearchController extends GetxController {
       await historyDataSource.removeQuery(q);
       history.remove(q);
     } catch (e, stacktrace) {
-      log('Arama geçmişinden silinirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Arama geçmişinden silinirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 
@@ -215,7 +239,11 @@ class VideoSearchController extends GetxController {
       await historyDataSource.clearAll();
       history.clear();
     } catch (e, stacktrace) {
-      log('Arama geçmişi temizlenirken hata oluştu: $e', error: e, stackTrace: stacktrace);
+      log(
+        'Arama geçmişi temizlenirken hata oluştu: $e',
+        error: e,
+        stackTrace: stacktrace,
+      );
     }
   }
 }

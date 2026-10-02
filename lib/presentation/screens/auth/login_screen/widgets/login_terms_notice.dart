@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../app/routes/app_routes.dart';
+import '../../../../../core/widgets/hover_tap.dart';
 
 /// Google ile giriş/kayıt için sözleşme bildirimi. E-posta kaydındaki tik
 /// kutusunun karşılığı: yeni hesap Google ile açılırsa onay bu cümleyle
@@ -15,7 +16,11 @@ class LoginTermsNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final base = TextStyle(fontSize: 12, height: 1.4, color: scheme.onSurfaceVariant);
+    final base = TextStyle(
+      fontSize: 12,
+      height: 1.4,
+      color: scheme.onSurfaceVariant,
+    );
     final link = base.copyWith(
       color: scheme.primary,
       fontWeight: FontWeight.w600,
@@ -27,12 +32,12 @@ class LoginTermsNotice extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text('Google ile devam ederek ', style: base),
-        GestureDetector(
+        TapCursor(
           onTap: () => Get.toNamed(AppRoutes.terms),
           child: Text('Kullanım Koşulları', style: link),
         ),
         Text(' ve ', style: base),
-        GestureDetector(
+        TapCursor(
           onTap: () => Get.toNamed(AppRoutes.privacy),
           child: Text('Gizlilik Politikası', style: link),
         ),

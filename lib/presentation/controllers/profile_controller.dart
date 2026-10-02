@@ -8,7 +8,6 @@ import '../../core/errors/username_taken_exception.dart';
 import '../../data/repositories/stats_repository.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/models/user_stats_model.dart';
-import '../../services/analytics_service.dart';
 import 'settings_controller.dart';
 
 class ProfileController extends GetxController {
@@ -64,10 +63,6 @@ class ProfileController extends GetxController {
       // Sadece ekrana ilk girişte logla; refreshProfile() (pull-to-refresh)
       // aynı loadProfile()'ı tekrar çağırdığı için burada değil, doğrudan
       // onInit akışında bir kereliğine tetikleniyor.
-      AnalyticsService.instance.logEvent(
-        'profile_view',
-        parameters: {'own_profile': isOwnProfile.toString()},
-      );
     });
 
     // İstatistik şeridi yalnızca kendi profilimizde anlamlı; başkasının
@@ -172,17 +167,7 @@ class ProfileController extends GetxController {
 
       // Gerçek değerleri değil, hangi alanların değiştiğini logluyoruz
       // (kullanıcı adı/avatar gibi kişisel veriyi Analytics'e taşımamak için).
-      AnalyticsService.instance.logEvent(
-        'profile_update',
-        parameters: {
-          'username_changed': (username != null && username != current.username)
-              .toString(),
-          'full_name_changed':
-              (fullName != null && fullName != current.fullName).toString(),
-          'avatar_changed':
-              (avatarUrl != null && avatarUrl != current.avatarUrl).toString(),
-        },
-      );
+
       return true;
     } on UsernameTakenException {
       // Genel "Profil güncellenemedi" mesajından kasıtlı olarak ayrı:
@@ -255,7 +240,6 @@ class ProfileController extends GetxController {
       }
 
       successMessage.value = 'Profil fotoğrafı güncellendi.';
-      AnalyticsService.instance.logEvent('profile_avatar_upload');
     } catch (e, stacktrace) {
       log(
         'Profil fotoğrafı yüklenirken hata oluştu: $e',

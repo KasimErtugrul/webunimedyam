@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../app/themes/app_theme.dart';
@@ -165,4 +165,4 @@ class UniversityDetailAboutTabRadioInlineCard extends StatelessWidget {
       );
     });
   }
-}
+} */

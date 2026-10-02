@@ -8,6 +8,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../../../app/routes/app_routes.dart';
 import '../../../../../../app/themes/app_theme.dart';
 import '../../../../../../core/responsive.dart';
+import '../../../../../../core/widgets/hover_tap.dart';
 import '../../../../../../data/models/video_model.dart';
 import '../../../../../controllers/home/home_controller.dart';
 import '../../../../player/player_screen_widgets/comment_input_widget.dart';
@@ -260,6 +261,13 @@ class VideoCardWidget extends StatefulWidget {
 class _VideoCardWidgetState extends State<VideoCardWidget> {
   VideoModel get video => widget.video;
   bool _isTablet = false;
+  // WEB ölçeği: masaüstü tarayıcıda tablet kart yerleşimi temel alınır,
+  // yalnızca sayfa seviyesi pad'ler/typografi web değerlerine açılır.
+  bool _isWeb = false;
+
+  /// Tablet değeriyle web değeri arasında seçim yapar.
+  double _web(double webValue, double tabletValue) =>
+      _isWeb ? webValue : tabletValue;
 
   void _navigateToUniversityDetail(HomeController controller) {
     final uni = controller.universities.firstWhereOrNull(
@@ -273,6 +281,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
   @override
   Widget build(BuildContext context) {
     _isTablet = Responsive.isTablet(context);
+    _isWeb = Responsive.isWeb(context);
     return _isTablet ? _buildTablet(context) : _buildPhone(context);
   }
 
@@ -416,7 +425,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     ),
             );
           }),
-          GestureDetector(
+          TapCursor(
             onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
               padding: const EdgeInsets.only(left: _PhoneSizes.menuPaddingLeft),
@@ -466,7 +475,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     bool isLive,
     bool isUpcoming,
   ) {
-    return GestureDetector(
+    return TapCursor(
       onTap: isUpcoming
           ? () => showDialog(
               context: context,
@@ -649,7 +658,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     );
                     if (isLoading) {
                       return Padding(
-                        padding: const EdgeInsets.all(_PhoneSizes.actionBtnPadding),
+                        padding: const EdgeInsets.all(
+                          _PhoneSizes.actionBtnPadding,
+                        ),
                         child: SizedBox(
                           width: _PhoneSizes.shareLoadingSize,
                           height: _PhoneSizes.shareLoadingSize,
@@ -667,7 +678,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                         liveVideoShare?.appShareCount ?? video.appShareCount;
                     return _IgActionBtnPhone(
                       themeContext: context,
-                      icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
+                      icon: hasShared
+                          ? Icons.send_rounded
+                          : Icons.send_outlined,
                       color: hasShared
                           ? Theme.of(context).colorScheme.primary
                           : AppTheme.textPri(context),
@@ -678,7 +691,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   }),
                   // ── SOL: Kaydet ──
                   Obx(() {
-                    final isFav = controller.favoriteIds.contains(video.videoId);
+                    final isFav = controller.favoriteIds.contains(
+                      video.videoId,
+                    );
                     final liveVideo = controller.videos.firstWhereOrNull(
                       (v) => v.videoId == video.videoId,
                     );
@@ -835,8 +850,8 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildTabletHeader(BuildContext context, HomeController controller) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: _TabletSizes.headerPadH,
+      padding: EdgeInsets.symmetric(
+        horizontal: _web(20, _TabletSizes.headerPadH),
         vertical: _TabletSizes.headerPadV,
       ),
       child: Row(
@@ -930,10 +945,12 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     ),
             );
           }),
-          GestureDetector(
+          TapCursor(
             onTap: () => _showVideoOptionsSheet(context, controller),
             child: Padding(
-              padding: const EdgeInsets.only(left: _TabletSizes.menuPaddingLeft),
+              padding: const EdgeInsets.only(
+                left: _TabletSizes.menuPaddingLeft,
+              ),
               child: Icon(
                 Icons.more_horiz_rounded,
                 color: AppTheme.textPri(context),
@@ -980,7 +997,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
     bool isLive,
     bool isUpcoming,
   ) {
-    return GestureDetector(
+    return TapCursor(
       onTap: isUpcoming
           ? () => showDialog(
               context: context,
@@ -1003,7 +1020,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
               parameters: {'videoId': video.videoId},
             ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: _TabletSizes.thumbPadH),
+        padding: EdgeInsets.symmetric(horizontal: _web(24, _TabletSizes.thumbPadH)),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(_TabletSizes.thumbBorderRadius),
           child: AspectRatio(
@@ -1165,7 +1182,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                     );
                     if (isLoading) {
                       return Padding(
-                        padding: const EdgeInsets.all(_TabletSizes.actionBtnPadding),
+                        padding: const EdgeInsets.all(
+                          _TabletSizes.actionBtnPadding,
+                        ),
                         child: SizedBox(
                           width: _TabletSizes.shareLoadingSize,
                           height: _TabletSizes.shareLoadingSize,
@@ -1183,7 +1202,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                         liveVideoShare?.appShareCount ?? video.appShareCount;
                     return _IgActionBtnTablet(
                       themeContext: context,
-                      icon: hasShared ? Icons.send_rounded : Icons.send_outlined,
+                      icon: hasShared
+                          ? Icons.send_rounded
+                          : Icons.send_outlined,
                       color: hasShared
                           ? Theme.of(context).colorScheme.primary
                           : AppTheme.textPri(context),
@@ -1194,7 +1215,9 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                   }),
                   // ── SOL: Kaydet ──
                   Obx(() {
-                    final isFav = controller.favoriteIds.contains(video.videoId);
+                    final isFav = controller.favoriteIds.contains(
+                      video.videoId,
+                    );
                     final liveVideo = controller.videos.firstWhereOrNull(
                       (v) => v.videoId == video.videoId,
                     );
@@ -1256,10 +1279,10 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
 
   Widget _buildTabletContent(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        _TabletSizes.contentPadL,
+      padding: EdgeInsets.fromLTRB(
+        _web(20, _TabletSizes.contentPadL),
         _TabletSizes.contentPadT,
-        _TabletSizes.contentPadR,
+        _web(24, _TabletSizes.contentPadR),
         _TabletSizes.contentPadB,
       ),
       child: Column(
@@ -1478,7 +1501,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      TapCursor(
                         onTap: () => Navigator.pop(sheetContext),
                         child: Icon(
                           Icons.close_rounded,
@@ -1674,7 +1697,7 @@ class _VideoCardWidgetState extends State<VideoCardWidget> {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      TapCursor(
                         onTap: () => Navigator.pop(sheetContext),
                         child: Icon(
                           Icons.close_rounded,
@@ -1825,9 +1848,7 @@ class _IgActionBtnPhone extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(
-          _PhoneSizes.actionBtnBorderRadius,
-        ),
+        borderRadius: BorderRadius.circular(_PhoneSizes.actionBtnBorderRadius),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(_PhoneSizes.actionBtnPadding),

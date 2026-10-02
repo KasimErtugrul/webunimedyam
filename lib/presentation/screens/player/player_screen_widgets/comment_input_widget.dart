@@ -40,6 +40,26 @@ class _Sizes {
   });
 
   factory _Sizes.of(BuildContext context) {
+    // WEB (masaüstü tarayıcı, >=1024px): tablet ölçekleri + web ince ayarları.
+    if (Responsive.isWeb(context)) {
+      return const _Sizes._(
+        containerPaddingH: 12,
+        containerPaddingV: 8,
+        containerRadius: 32,
+        containerBorderOpacity: 0.1,
+        containerShadowBlur: 14,
+        containerShadowOpacity: 0.06,
+        textFieldFontSize: 16,
+        textFieldVerticalPadding: 12,
+        textFieldLeftSpacing: 16,
+        sendButtonRadius: 24,
+        sendButtonPadding: 10,
+        sendButtonIconSize: 22,
+        sendButtonDisabledAlpha: 0.2,
+        sendButtonSplashAlpha: 0.2,
+        rightSpacing: 6,
+      );
+    }
     if (Responsive.isTablet(context)) {
       return const _Sizes._(
         containerPaddingH: 12,
@@ -85,11 +105,7 @@ class CommentInputWidget extends StatefulWidget {
   final void Function(String text) onSend;
   final FocusNode? focusNode;
 
-  const CommentInputWidget({
-    super.key,
-    required this.onSend,
-    this.focusNode,
-  });
+  const CommentInputWidget({super.key, required this.onSend, this.focusNode});
 
   @override
   State<CommentInputWidget> createState() => _CommentInputWidgetState();
@@ -181,14 +197,16 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
             child: Material(
               color: _hasText
                   ? primary
-                  : AppTheme.textSec(context)
-                      .withValues(alpha: s.sendButtonDisabledAlpha),
+                  : AppTheme.textSec(
+                      context,
+                    ).withValues(alpha: s.sendButtonDisabledAlpha),
               borderRadius: BorderRadius.circular(s.sendButtonRadius),
               child: InkWell(
                 onTap: _handleSend,
                 borderRadius: BorderRadius.circular(s.sendButtonRadius),
-                splashColor:
-                    Colors.white.withValues(alpha: s.sendButtonSplashAlpha),
+                splashColor: Colors.white.withValues(
+                  alpha: s.sendButtonSplashAlpha,
+                ),
                 child: Padding(
                   padding: EdgeInsets.all(s.sendButtonPadding),
                   child: Icon(
@@ -207,4 +225,4 @@ class _CommentInputWidgetState extends State<CommentInputWidget> {
       ),
     );
   }
-} 
+}
